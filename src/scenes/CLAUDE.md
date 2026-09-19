@@ -2,9 +2,27 @@
 
 Phaser scenes. Registered in order in `src/main.ts`; the first one starts.
 
-- **`BootScene`** — generates placeholder textures, then `start('Game')`.
+- **`BootScene`** — generates placeholder textures, then hands off.
+- **`TitleScene`** — the title screen, and where a finished run ends up.
 - **`GameScene`** — builds the level, owns the player, camera, HUD and the
   update loop.
+
+`BootScene` starts `Title`, **except on a hot reload**, which carries a game in
+progress: dropping the player back on the title screen would throw away the
+place `src/dev/hot.ts` went to such trouble to keep. It tests for the snapshot
+in the registry to tell the two apart.
+
+Losing the last heart sends `GameScene` to `Title`, not back to level 1. Being
+put straight back into the forest gives no moment to notice the run ended.
+
+## The title screen is the game, not a picture of it
+
+`TitleScene` uses the first level's own backdrop and the real cat, crow,
+hedgehog and piranha textures, all of them moving. It costs a handful of tweens
+and says more about what this is than an arrangement of static sprites would.
+
+Nothing in it has a physics body and it has no `update` at all -- everything is
+on a tween -- so it cannot drift out of step with the game it advertises.
 
 ## Update order is deliberate
 

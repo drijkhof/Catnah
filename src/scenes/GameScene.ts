@@ -409,8 +409,10 @@ export class GameScene extends Phaser.Scene {
 
     this.time.delayedCall(650, () => {
       if (this.lives <= 0) {
-        // Out of hearts: back to the very beginning.
-        this.scene.start('Game', { levelIndex: 0, lives: LIVES });
+        // Out of hearts: back to the very beginning, which is the title screen
+        // rather than the first level. Being put straight back into the forest
+        // gives no moment to notice the run ended.
+        this.scene.start('Title');
         return;
       }
 

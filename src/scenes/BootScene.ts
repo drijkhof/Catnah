@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { generatePlaceholderArt } from '../art';
+import { SNAPSHOT_KEY } from '../dev/hot';
 
 /**
  * Bakes the placeholder art, then hands off to the game.
@@ -22,6 +23,12 @@ export class BootScene extends Phaser.Scene {
 
   create(): void {
     generatePlaceholderArt(this);
-    this.scene.start('Game');
+
+    // A hot reload carries a game in progress, and dropping the player back on
+    // the title screen would throw away the place it went to such trouble to
+    // keep. Everything else starts at the title.
+    const resuming = this.registry.has(SNAPSHOT_KEY);
+
+    this.scene.start(resuming ? 'Game' : 'Title');
   }
 }

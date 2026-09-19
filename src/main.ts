@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH, CAT, COLORS } from './config';
 import { BootScene } from './scenes/BootScene';
+import { TitleScene } from './scenes/TitleScene';
 import { GameScene } from './scenes/GameScene';
 import { captureFrom, SNAPSHOT_KEY, type GameSnapshot } from './dev/hot';
 
@@ -44,7 +45,7 @@ function createGame(carried?: GameSnapshot): Phaser.Game {
       },
     },
 
-    scene: [BootScene, GameScene],
+    scene: [BootScene, TitleScene, GameScene],
   });
 }
 

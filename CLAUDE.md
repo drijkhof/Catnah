@@ -156,6 +156,13 @@ Assigning a stub over `scene.controls` (same getters, plain booleans) then lets
 that loop play the game without synthetic keyboard events, which Phaser does not
 reliably pick up anyway.
 
+**Tweens do not advance under manual stepping.** `game.step` drives update,
+physics and render, but the tween manager barely moves: 16 seconds of stepping
+advanced a 7-second tween by 58ms. So anything animated by a tween -- the title
+screen, the water swell, the pulsing exit door -- cannot be measured this way,
+and a frozen one is the harness, not a bug. Bring the tab to the front and look
+at it instead. Physics and input are unaffected, which is what this loop is for.
+
 **Make the stub let go of buttons.** It is tempting to hold `jumpHeld` true and
 just pulse `jumpJustPressed`, but no player can do that -- a second press needs a
 release first, and the release has consequences of its own. A whole class of bug
