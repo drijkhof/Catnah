@@ -42,7 +42,7 @@ const ROWS: string[] = [
   '.'.repeat(8) + '='.repeat(4) + '.'.repeat(48) + '#'.repeat(12) + '.'.repeat(29) + '###',
   '.'.repeat(101) + '###',
   '.'.repeat(101) + '###',
-  '..' + 'P' + '.'.repeat(12) + 'o' + 'h' + '.'.repeat(12) + 'oo' + 'h' + '.'.repeat(13) + 'oo' + 'h' + '.'.repeat(50) + 'E' + '..' + '###',
+  '..' + 'P' + '.'.repeat(13) + 'o' + '.'.repeat(13) + 'oo' + '.'.repeat(14) + 'oo' + '.'.repeat(50) + 'E' + '..' + '###',
   '#'.repeat(6) + 'L'.repeat(8) + '#'.repeat(6) + 'L'.repeat(8) + '#'.repeat(6) + 'L'.repeat(10) + '#'.repeat(6) + 'L'.repeat(7) + '#'.repeat(47),
   '#'.repeat(6) + 'L'.repeat(8) + '#'.repeat(6) + 'L'.repeat(8) + '#'.repeat(6) + 'L'.repeat(10) + '#'.repeat(6) + 'L'.repeat(6) + '#'.repeat(48),
   '#'.repeat(6) + 'L'.repeat(8) + '#'.repeat(6) + 'L'.repeat(8) + '#'.repeat(6) + 'L'.repeat(10) + '#'.repeat(6) + 'L'.repeat(5) + '#'.repeat(49),

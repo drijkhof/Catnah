@@ -396,15 +396,23 @@ The level ends at the **volcano itself**: a cone of rock with a crater notch at
 the top and a mouth at ground level. Walk in through the mouth and you are in an
 enclosed **arena** — walls all round, the cone's slope for a ceiling.
 
-Inside waits the **evil lord beetle**, a ladybird with the sweetness taken out,
-three times the cat in every direction. It sweeps above the floor, slides until
-it is **directly overhead**, then drops straight down. Standing still is fatal;
-reading the line-up and moving is not.
+Nothing walks the lava fields — no hedgehogs down here. The only living thing
+in this level is what waits at the end of it.
 
-It leaves you alone until you are properly inside, and then waits a few seconds
-more before its first attack — long enough to watch one sweep before you are
-asked to read one. It cannot be beaten, only got past, and the way out is at the
-far end of the arena.
+Inside waits the **evil lord beetle**, a ladybird with the sweetness taken out,
+three times the cat in every direction. It **stalks**: it sweeps above the floor
+leaning towards wherever you are, slides until it is **directly overhead** —
+aimed at where you are *going*, not where you stand — and drops straight down.
+
+- Its sweep covers **the whole arena**. There is no corner it cannot reach.
+- It **aims ahead of you**, so running away in a straight line is what gets you
+  hit. You have to turn, stop or break the other way.
+- It **gets angrier**. Every dive shortens the next wait, from 1.5 seconds down
+  to 0.6, so working out the pattern is possible for a while and then stops
+  being possible. Leaving the arena and coming back cools it off.
+
+Measured: standing still in the arena kills you in **2.7 seconds**. It cannot be
+beaten, only got past, and the way out is at the far end of the arena.
 
 ## The creatures
 

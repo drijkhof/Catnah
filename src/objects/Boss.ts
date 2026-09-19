@@ -5,13 +5,16 @@ import { BOSS_SIZE } from '../art';
 /**
  * The evil lord beetle, guarding the end of the volcano.
  *
- * It sweeps back and forth above its lair and drops on the cat at a fixed
- * interval, then climbs back to its line. That is the whole of it: there is no
- * health bar and no way to beat it, because nothing in this game can be beaten.
+ * It **stalks**: it sweeps above its lair, leaning towards wherever the cat is,
+ * lines up over it, and drops. There is no health bar and no way to beat it,
+ * because nothing in this game can be beaten -- it is read, waited out and
+ * slipped past, which is the skill the five levels before it teach.
  *
- * What makes it a boss rather than a bigger crow is that its pattern is slow
- * and legible. The crow chases and is dodged by reacting; this is read, waited
- * out, and slipped past — which is the skill the six levels before it teach.
+ * It is also **on a clock**. Every dive shortens the next rest, down to a
+ * floor, so standing in the arena learning the pattern works for a while and
+ * then stops working. That is what makes it a boss rather than a bigger crow:
+ * not that the pattern is hard to read, but that you do not get to read it
+ * forever.
  */
 export class Boss extends Phaser.Physics.Arcade.Sprite {
   declare body: Phaser.Physics.Arcade.Body;
@@ -33,6 +36,15 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
   /** Whether the cat is close enough to be its business. */
   private engaged = false;
 
+  /** How long it is willing to wait between dives right now, ms. */
+  private restMs: number = BOSS.restMs;
+
+  /** Where the cat was last frame, so the beetle can work out where it is going. */
+  private lastCatX: number | null = null;
+
+  /** The cat's own speed, smoothed, px/sec. What the aim is led by. */
+  private catSpeed = 0;
+
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'boss');
 
@@ -53,6 +65,7 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
 
   step(delta: number, cat: Phaser.Math.Vector2): void {
     this.timer += delta;
+    this.watchTheCat(delta, cat);
 
     switch (this.phase) {
       case 'drop':
@@ -64,7 +77,7 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
         break;
 
       default: {
-        this.sweep(delta);
+        this.sweep(delta, cat);
 
         // It only bothers with a cat it could plausibly reach. One on the far
         // side of the level is not its problem, and going after it dragged the
@@ -74,15 +87,22 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
         if (withinReach !== this.engaged) {
           this.engaged = withinReach;
           // Arriving restarts the count, with a grace period on top, so the
-          // first attack is never already half wound up when you walk in.
+          // first attack is never already half wound up when you walk in. It
+          // also cools off: leaving the arena and coming back gets you a fresh
+          // start rather than a beetle still at full fury.
           this.timer = withinReach ? -BOSS.approachGraceMs : 0;
+          this.restMs = BOSS.restMs;
         }
 
-        if (this.timer >= BOSS.restMs && withinReach) {
+        if (this.timer >= this.restMs && withinReach) {
           this.timer = 0;
+          this.restMs = Math.max(BOSS.minRestMs, this.restMs * BOSS.furyStep);
           this.phase = 'aim';
+          // Aimed where the cat is *going*, not where it is. Running away in
+          // a straight line used to work forever, because the cat is faster
+          // than the sweep.
           this.aimX = Phaser.Math.Clamp(
-            cat.x,
+            cat.x + this.catSpeed * BOSS.leadSeconds,
             this.lair.x - BOSS.sweepRadius,
             this.lair.x + BOSS.sweepRadius,
           );
@@ -95,6 +115,21 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
     // It faces the way it is going, and rears up as it climbs back out.
     this.setFlipX(this.body.velocity.x > 0);
     this.setAngle(Phaser.Math.Clamp(this.body.velocity.y * 0.04, -18, 18));
+  }
+
+  /**
+   * Keeps track of how fast the cat is moving, and which way.
+   *
+   * Smoothed, because a single frame's difference is noise and a beetle that
+   * aimed at noise would be unreadable rather than dangerous.
+   */
+  private watchTheCat(delta: number, cat: Phaser.Math.Vector2): void {
+    if (this.lastCatX !== null && delta > 0) {
+      const measured = ((cat.x - this.lastCatX) * 1000) / delta;
+      this.catSpeed = Phaser.Math.Linear(this.catSpeed, measured, 0.25);
+    }
+
+    this.lastCatX = cat.x;
   }
 
   /**
@@ -119,13 +154,30 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  /** Back and forth above the lair, turning at the ends of its beat. */
-  private sweep(delta: number): void {
+  /**
+   * Back and forth above the lair, leaning towards the cat.
+   *
+   * The lean is the difference between a patrol and a stalk. On a fixed beat
+   * there was a safe end of the arena: stand there and the dive happened
+   * somewhere else. Now it comes to you, and standing still is the one thing
+   * that does not work.
+   */
+  private sweep(delta: number, cat: Phaser.Math.Vector2): void {
     if (Math.abs(this.x - this.lair.x) > BOSS.sweepRadius) {
       this.direction = this.x > this.lair.x ? -1 : 1;
+    } else if (this.engaged) {
+      const towards = Math.sign(cat.x - this.x);
+
+      if (towards !== 0) {
+        this.direction = towards;
+      }
     }
 
-    const turn = Phaser.Math.Clamp((BOSS.turnRate * delta) / 1000, 0, 1);
+    const turn = Phaser.Math.Clamp(
+      ((this.engaged ? BOSS.stalkRate : BOSS.turnRate) * delta) / 1000,
+      0,
+      1,
+    );
 
     this.setVelocityX(
       Phaser.Math.Linear(this.body.velocity.x, this.direction * BOSS.sweepSpeed, turn),

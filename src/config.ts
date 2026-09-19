@@ -347,12 +347,38 @@ export const CROCODILE = {
  * has taught by the time it appears.
  */
 export const BOSS = {
-  /** How far either side of its lair it sweeps, px. */
-  sweepRadius: 150,
+  /**
+   * How far either side of its lair it sweeps, px.
+   *
+   * The whole arena, on purpose. At 150 there were sixty pixels of floor at
+   * each end the beetle could not reach, and simply running laps between them
+   * survived a full minute.
+   */
+  sweepRadius: 210,
   /** Speed of that sweep, px/sec. */
-  sweepSpeed: 70,
-  /** How long it hovers between dives, ms. */
-  restMs: 2400,
+  sweepSpeed: 110,
+
+  /**
+   * How hard the sweep leans towards the cat, per second.
+   *
+   * This is what stops the arena having a safe corner. It used to patrol a
+   * fixed beat, so standing at one end of the lair meant it dived where you
+   * were not. It now drifts over you and you have to keep moving.
+   */
+  stalkRate: 2.2,
+
+  /** How long it hovers between dives, ms, the first time. */
+  restMs: 1500,
+
+  /**
+   * How much shorter each rest gets, and the shortest it will ever be, ms.
+   *
+   * It gets angrier. Standing in the arena working out the pattern is meant to
+   * be viable for a while and then stop being viable, so the fight has a clock
+   * on it without needing a health bar on either side.
+   */
+  furyStep: 0.84,
+  minRestMs: 620,
 
   /**
    * Extra pause before the *first* attack after the cat arrives, ms.
@@ -370,10 +396,10 @@ export const BOSS = {
    * whole of the warning you get: fast enough and the boss is simply on top of
    * you, which is not a pattern, it is a coin toss.
    */
-  aimSpeed: 115,
+  aimSpeed: 245,
 
   /** Speed of the drop itself, px/sec. */
-  diveSpeed: 260,
+  diveSpeed: 430,
   /**
    * How far it drops on a dive, px.
    *
@@ -381,7 +407,17 @@ export const BOSS = {
    * bottomed out 27px above the cat's head, so the boss was menacing and
    * completely harmless to anyone who simply stood still.
    */
-  diveDepth: 150,
+  diveDepth: 175,
+  /**
+   * How far ahead of the cat it aims, in seconds of the cat's own movement.
+   *
+   * Without this, running away from it works forever: the cat is faster than
+   * the sweep, so a straight line always outran the drop. Leading the target
+   * means running in a straight line is the thing that gets you hit, and you
+   * have to turn, stop or jump over it instead.
+   */
+  leadSeconds: 0.5,
+
   /** How quickly it turns towards where it is going, per second. */
   turnRate: 3,
 } as const;
