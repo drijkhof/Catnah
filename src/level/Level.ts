@@ -12,6 +12,7 @@ export const LEVEL_WIDTH_IN_TILES = 80;
  *   `B`  fallen bough, a full-height solid used for low overhangs
  *   `R`  boulder — solid rock, and the surface wall jumps are taken from
  *   `T`  tree trunk — climbable, and deliberately *not* solid
+ *   `w`  water — swimmable, not solid, and not dangerous on its own
  *   `o`  berry
  *   `P`  cat spawn (exactly one)
  *   `.`  empty
@@ -67,9 +68,9 @@ const LEVEL_SOURCE: string[] = [
   '.'.repeat(10) + 'T' + '.'.repeat(5) + 'ooo' + '.'.repeat(11) + 'T' + '.'.repeat(4) + 'ooo' + '.'.repeat(6) + 'T' + '.'.repeat(7) + 'R'.repeat(6) + '..' + 'RR' + '...' + 'RR' + '.'.repeat(6) + 'T',
   '.'.repeat(10) + 'T' + '.'.repeat(4) + 'R'.repeat(6) + '.' + 'B'.repeat(6) + '..' + 'T' + '...' + 'R'.repeat(6) + '.'.repeat(4) + 'T' + '.'.repeat(7) + 'R'.repeat(6) + '.'.repeat(7) + 'RR' + '.'.repeat(6) + 'T',
   '...' + 'P' + '.'.repeat(6) + 'T' + '.'.repeat(4) + 'R'.repeat(6) + '.'.repeat(9) + 'T' + '...' + 'R'.repeat(6) + '.'.repeat(4) + 'T' + '.'.repeat(7) + 'R'.repeat(6) + '.'.repeat(7) + 'RR' + '.'.repeat(6) + 'T',
-  '#'.repeat(46) + '.'.repeat(5) + '#'.repeat(29),
-  '#'.repeat(46) + '.'.repeat(5) + '#'.repeat(29),
-  '#'.repeat(46) + '.'.repeat(5) + '#'.repeat(29),
+  '#'.repeat(5) + 'w'.repeat(5) + '#'.repeat(36) + '.'.repeat(5) + '#'.repeat(17) + 'w'.repeat(5) + '#'.repeat(7),
+  '#'.repeat(5) + 'w'.repeat(5) + '#'.repeat(36) + '.'.repeat(5) + '#'.repeat(17) + 'w'.repeat(5) + '#'.repeat(7),
+  '#'.repeat(5) + 'w'.repeat(5) + '#'.repeat(36) + '.'.repeat(5) + '#'.repeat(17) + 'w'.repeat(5) + '#'.repeat(7),
   '#'.repeat(46) + '.'.repeat(5) + '#'.repeat(29),
 ];
 
@@ -113,6 +114,16 @@ export interface Solid {
   faces: Faces;
 }
 
+/** A tile of water. Not collision -- the cat swims through it. */
+export interface WaterZone {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  /** The topmost tile of a pool, which gets the bright surface line. */
+  isSurface: boolean;
+}
+
 /** A stretch of trunk the cat can climb. Not collision -- purely a zone. */
 export interface ClimbZone {
   x: number;
@@ -127,6 +138,8 @@ export interface ParsedLevel {
   solids: Solid[];
   /** Trunks, which are climbed rather than stood on. */
   climbZones: ClimbZone[];
+  /** Pools, which are swum through. */
+  waterZones: WaterZone[];
   /** Centre of each berry, in world pixels. */
   berries: Point[];
   /**
@@ -154,6 +167,7 @@ export function parseLevel(source: string[] = LEVEL_SOURCE): ParsedLevel {
 
   const solids: Solid[] = [];
   const climbZones: ClimbZone[] = [];
+  const waterZones: WaterZone[] = [];
   const berries: Point[] = [];
   let spawn: Point | null = null;
 
@@ -184,6 +198,16 @@ export function parseLevel(source: string[] = LEVEL_SOURCE): ParsedLevel {
             width: TILE,
             height: TILE,
             isTop: at(column, row - 1) !== 'T',
+          });
+          break;
+
+        case 'w':
+          waterZones.push({
+            x,
+            y,
+            width: TILE,
+            height: TILE,
+            isSurface: at(column, row - 1) !== 'w',
           });
           break;
 
@@ -254,6 +278,7 @@ export function parseLevel(source: string[] = LEVEL_SOURCE): ParsedLevel {
   return {
     solids,
     climbZones,
+    waterZones,
     berries,
     spawn,
     groundLine: GROUND_ROW * TILE,

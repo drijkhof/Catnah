@@ -34,11 +34,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   private isClimbing = false;
 
+  private inWater = false;
+
   /** Time remaining, in ms, during which a trunk cannot be caught again. */
   private climbCooldownTimer = 0;
 
   /** Trunks this cat can climb, in world space. */
   private readonly climbZones: Phaser.Geom.Rectangle[];
+
+  /** Pools the cat can swim in, in world space. */
+  private readonly waterZones: Phaser.Geom.Rectangle[];
 
   /** Top of each trunk, keyed by its column's world x, so a climb can stop. */
   private readonly trunkTops = new Map<number, number>();
@@ -63,10 +68,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     x: number,
     y: number,
     climbZones: Phaser.Geom.Rectangle[] = [],
+    waterZones: Phaser.Geom.Rectangle[] = [],
   ) {
     super(scene, x, y, 'cat');
 
     this.climbZones = climbZones;
+    this.waterZones = waterZones;
 
     for (const zone of climbZones) {
       const known = this.trunkTops.get(zone.x);
@@ -93,6 +100,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     return this.isClimbing;
   }
 
+  /** True while any part of the cat is under water. */
+  get swimming(): boolean {
+    return this.inWater;
+  }
+
   /**
    * Advances the cat by one frame.
    *
@@ -107,6 +119,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const wall = this.findWall(onGround);
 
     this.tickTimers(delta, onGround, wall);
+
+    this.inWater = this.overlapsAny(this.waterZones);
+
+    // Water replaces ordinary movement the way climbing does. A pool has no
+    // walls to kick off and no trunks in it, so nothing below needs to run.
+    if (this.inWater) {
+      this.swim(controls, dt, onGround);
+      return;
+    }
 
     // Climbing replaces ordinary movement outright -- no gravity, no jumping,
     // no wall logic -- so it is resolved first and short-circuits the rest.
@@ -137,6 +158,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   /** Puts the cat back at a given spot, upright and still. */
   respawnAt(x: number, y: number): void {
+    this.inWater = false;
     this.releaseTrunk();
     this.climbCooldownTimer = 0;
     this.resolvePose(false);
@@ -146,6 +168,64 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.lastWallJumpSide = 0;
     this.wallCoyoteTimer = 0;
     this.isJumping = false;
+  }
+
+  /**
+   * Moves the cat through water.
+   *
+   * Water is not a hazard -- some pools have nothing in them at all -- so this
+   * is a change of pace rather than a punishment. The cat sinks gently, moves
+   * at about half speed, and climbs by stroking: each press of jump is one
+   * stroke, with no ground needed and no limit on how many.
+   */
+  private swim(controls: Controls, dt: number, onGround: boolean): void {
+    // A cat cannot swim flattened out.
+    if (this.isSneaking) {
+      this.resolvePose(false);
+    }
+
+    this.releaseTrunk();
+
+    const direction = (controls.right ? 1 : 0) - (controls.left ? 1 : 0);
+    const topSpeed = CAT.speed * CAT.swimSpeedMultiplier;
+
+    if (direction !== 0) {
+      const next = this.body.velocity.x + direction * CAT.accel * dt;
+      this.setVelocityX(
+        direction > 0
+          ? Math.min(next, topSpeed)
+          : Math.max(next, -topSpeed),
+      );
+    } else {
+      // Water drags far harder than ground friction does.
+      this.setVelocityX(this.body.velocity.x * 0.86);
+    }
+
+    if (controls.jumpJustPressed) {
+      this.setVelocityY(CAT.swimStrokeVelocity);
+    } else if (this.body.velocity.y > CAT.swimSinkSpeed) {
+      // Buoyancy only ever slows a sink; it never lifts the cat on its own.
+      this.setVelocityY(CAT.swimSinkSpeed);
+    }
+
+    if (onGround) {
+      this.coyoteTimer = CAT.coyoteTimeMs;
+    }
+
+    this.updateFacing(controls);
+  }
+
+  /** Is any part of the cat inside one of these rectangles? */
+  private overlapsAny(zones: Phaser.Geom.Rectangle[]): boolean {
+    const body = this.body;
+
+    return zones.some(
+      (zone) =>
+        body.right > zone.x &&
+        body.x < zone.right &&
+        body.bottom > zone.y &&
+        body.y < zone.bottom,
+    );
   }
 
   /**

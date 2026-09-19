@@ -13,6 +13,7 @@ Level data and the parser that turns it into world coordinates.
 | `B` | fallen bough, a full-height solid for low overhangs |
 | `R` | boulder — solid rock, and what wall jumps are taken from |
 | `T` | tree trunk — climbable, and deliberately *not* solid |
+| `w` | water — swimmable, not solid, harmless on its own |
 | `o` | berry |
 | `P` | cat spawn (exactly one) |
 | `.` | empty |
@@ -72,6 +73,17 @@ This is what lets a branch grow straight out of the trunk it belongs to. Solid
 branches could not: the cat is 22px wide against a 16px tile, so it overhangs a
 trunk by about 3px each side, and a solid branch merely *next to* a trunk caught
 the cat's shoulder and stopped the climb dead several tiles short.
+
+## Pools
+
+A pool is cut out of the floor and filled with `w`, with a row of floor left in
+beneath it as the bed. Carving the floor away means the backdrop trees would
+otherwise show straight through the half-transparent water, so the scene lays an
+opaque `water-bed` tile behind every water tile.
+
+Keep the surface level with the surrounding ground. The cat swims up to the
+surface and then simply moves sideways onto the bank; a pool whose surface sits
+below the bank needs a jump out, which a swimming stroke may not provide.
 
 ## Designing for climbing and wall jumps
 

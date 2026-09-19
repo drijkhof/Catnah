@@ -74,6 +74,19 @@ jumping, which is what stops a player escaping upward through the log.
 A queued jump beats a held sneak, so a player holding the button is never stuck —
 under a low overhang it is the missing headroom, not the input, that stops them.
 
+## Swimming
+
+Water replaces ordinary movement the way climbing does, and is checked first: a
+pool has no walls to kick off and no trunks in it, so nothing after it needs to
+run.
+
+Buoyancy only ever *slows a sink*; it never lifts the cat by itself. Rising is
+entirely down to strokes, one per press of jump, which is what keeps a pool
+somewhere you have to swim rather than something you bob out of.
+
+Water is harmless by design — the original wish was that not every pool has a
+piranha in it, which only means anything if a pool without one is safe.
+
 ## Climbing trunks
 
 Climbing **replaces** ordinary movement rather than adding to it — no gravity,

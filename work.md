@@ -82,6 +82,17 @@ left or right lets go.
 Each trunk ends two tiles above its highest branch, so letting go at the top
 drops the cat onto it.
 
+### Swimming
+
+Water is **not dangerous**. Some pools have nothing in them at all, so falling
+in is a change of pace rather than a punishment.
+
+In water the cat sinks gently at 70 px/s instead of dropping at 600, moves at
+about half speed, and climbs by **stroking**: every press of jump is one stroke,
+with no ground needed and no limit on how many. Swim up to the surface and out
+over the bank, or sink to the bottom and walk along it. Sneaking is not possible
+while swimming.
+
 ### Wall jumping
 
 A wall jump is **an ordinary jump that you are allowed to take off a wall**. It
@@ -127,6 +138,8 @@ light falling through the trees.
 - **Boulders**, grey stone against all the green. Three broad ones, six tiles
   wide, are platforms in their own right — you land on them and cross them, with
   berries on top.
+- **Two pools** cut into the forest floor, three tiles deep. Neither has
+  anything living in it — that comes later.
 - **A shaft** made of two rock towers facing each other across three tiles. The
   left one overhangs, so you walk in underneath it at ground level; getting back
   out means alternating wall jumps between the two faces, quickly enough that

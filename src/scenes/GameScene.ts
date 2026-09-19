@@ -38,6 +38,7 @@ export class GameScene extends Phaser.Scene {
 
     const { blocks, branches } = this.buildSolids();
     const climbZones = this.buildTrunks();
+    const waterZones = this.buildWater();
     this.berries = this.buildBerries();
 
     this.player = new Player(
@@ -45,6 +46,7 @@ export class GameScene extends Phaser.Scene {
       this.level.spawn.x,
       this.level.spawn.y,
       climbZones,
+      waterZones,
     );
 
     this.physics.add.collider(this.player, blocks);
@@ -233,6 +235,44 @@ export class GameScene extends Phaser.Scene {
         .setOrigin(0, 0)
         // Behind the cat, so a climbing cat is seen against its trunk.
         .setDepth(-3);
+
+      return new Phaser.Geom.Rectangle(zone.x, zone.y, zone.width, zone.height);
+    });
+  }
+
+  /**
+   * Draws the pools and returns the rectangles the cat can swim in.
+   *
+   * Water is drawn *over* the cat and half transparent, so a swimming cat is
+   * seen through the pool rather than hidden behind it. It has no physics body:
+   * a pool is somewhere to be, not something to hit.
+   */
+  private buildWater(): Phaser.Geom.Rectangle[] {
+    return this.level.waterZones.map((zone) => {
+      // Opaque bed first, behind the cat, so the forest does not show through.
+      this.add
+        .image(zone.x, zone.y, 'water-bed')
+        .setOrigin(0, 0)
+        .setDepth(-8);
+
+      const tile = this.add
+        .image(zone.x, zone.y, zone.isSurface ? 'water-surface' : 'water')
+        .setOrigin(0, 0)
+        .setAlpha(0.62)
+        .setDepth(20);
+
+      if (zone.isSurface) {
+        // A slow swell, so the surface is alive rather than a painted line.
+        this.tweens.add({
+          targets: tile,
+          y: zone.y + 1.5,
+          duration: 1400,
+          yoyo: true,
+          repeat: -1,
+          ease: 'Sine.easeInOut',
+          delay: (zone.x / TILE) * 90,
+        });
+      }
 
       return new Phaser.Geom.Rectangle(zone.x, zone.y, zone.width, zone.height);
     });

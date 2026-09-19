@@ -98,6 +98,22 @@ export const CAT = {
    */
   wallCoyoteMs: 130,
 
+  /**
+   * How fast the cat sinks once it is in water, px/sec.
+   *
+   * Water is not dangerous -- some pools simply have nothing in them -- so
+   * falling in is meant to be a change of pace rather than a punishment. A cat
+   * that dropped at the usual 600 would be pinned to the bottom before it could
+   * do anything about it.
+   */
+  swimSinkSpeed: 70,
+
+  /** Horizontal speed in water, as a fraction of `speed`. */
+  swimSpeedMultiplier: 0.55,
+
+  /** Upward velocity of one swimming stroke, px/sec. */
+  swimStrokeVelocity: -280,
+
   /** Speed of climbing a trunk, px/sec. The same going up and coming down. */
   climbSpeed: 95,
 
@@ -174,6 +190,11 @@ export const COLORS = {
   rock: 0x8b9199,
   rockDark: 0x666c74,
   rockLight: 0xacb2ba,
+
+  // Water, drawn over the cat rather than behind it, so it swims *in* the pool.
+  water: 0x3f86b8,
+  waterDeep: 0x2f6a95,
+  waterFoam: 0xbfe3f5,
 
   berry: 0xe0463d,
   berryLight: 0xff8175,

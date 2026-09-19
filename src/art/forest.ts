@@ -28,6 +28,7 @@ export function generateForestTextures(scene: Phaser.Scene): void {
   generateRockTiles(scene);
   generateTrunkTiles(scene);
   generateBranchTiles(scene);
+  generateWaterTiles(scene);
   generateBerry(scene);
 }
 
@@ -317,6 +318,42 @@ function generateBranchTiles(scene: Phaser.Scene): void {
 
     g.fillStyle(COLORS.leafLight, 1);
     g.fillCircle(8, 1, 3);
+  });
+}
+
+function generateWaterTiles(scene: Phaser.Scene): void {
+  // Drawn solid; the sprites are given their transparency in the scene, so the
+  // cat stays visible through the pool it is swimming in.
+  bakeTexture(scene, 'water', TILE, TILE, (g) => {
+    g.fillStyle(COLORS.water, 1);
+    g.fillRect(0, 0, TILE, TILE);
+
+    g.fillStyle(COLORS.waterDeep, 1);
+    g.fillRect(2, 5, 5, 1);
+    g.fillRect(9, 11, 4, 1);
+  });
+
+  // An opaque bed sits behind the pool. Carving a pool takes the ground away,
+  // and without this the backdrop trees show straight through the water.
+  bakeTexture(scene, 'water-bed', TILE, TILE, (g) => {
+    g.fillStyle(COLORS.waterDeep, 1);
+    g.fillRect(0, 0, TILE, TILE);
+
+    g.fillStyle(COLORS.water, 1);
+    g.fillRect(4, 3, 3, 2);
+    g.fillRect(10, 9, 4, 2);
+  });
+
+  bakeTexture(scene, 'water-surface', TILE, TILE, (g) => {
+    g.fillStyle(COLORS.water, 1);
+    g.fillRect(0, 0, TILE, TILE);
+
+    // A bright line along the top, so the surface is obvious at a glance --
+    // it is the line the cat has to get back to.
+    g.fillStyle(COLORS.waterFoam, 1);
+    g.fillRect(0, 0, TILE, 2);
+    g.fillRect(3, 2, 4, 1);
+    g.fillRect(11, 2, 3, 1);
   });
 }
 

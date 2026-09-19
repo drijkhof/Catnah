@@ -12,8 +12,7 @@ wanted. Numbers are not reused, which is why there are gaps.
 | # | Title | Status | Depends on |
 | --- | --- | --- | --- |
 | [1](#1--hazards-and-dying) | Hazards and dying | `todo` | — |
-| [4](#4--water) | Water | `todo` | — |
-| [5](#5--piranhas) | Piranhas | `todo` | 1, 4 |
+| [5](#5--piranhas) | Piranhas | `todo` | 1 |
 | [6](#6--hedgehogs) | Hedgehogs | `todo` | 1 |
 | [8](#8--the-view-follows-the-cat-upward) | The view follows the cat upward | `todo` | — |
 | [9](#9--the-great-tree-its-nest-and-the-crow) | The great tree, its nest and the crow | `todo` | 1, 8 |
@@ -50,28 +49,15 @@ version of this ticket is to reuse exactly that for contact deaths too.
 
 ---
 
-## 4 — Water
-
-`todo`
-
-Water in the forest. Some pools hold a piranha (ticket 5), some are empty —
-**not every pool has one**, so water and piranha are deliberately separate
-tickets.
-
-**Open questions**
-
-- Is water itself dangerous, or only what lives in it?
-- Can the cat swim, wade, or is it purely an obstacle to jump over?
-- Does it animate?
-
----
-
 ## 5 — Piranhas
 
-`todo` · needs [1](#1--hazards-and-dying), [4](#4--water)
+`todo` · needs [1](#1--hazards-and-dying)
 
 Piranhas live in water and **jump up out of it now and then**. Touching one
 kills the cat.
+
+Water itself is built and harmless; level 1 has two pools, neither with anything
+in it. A piranha is what makes one of them dangerous.
 
 **Acceptance**
 
