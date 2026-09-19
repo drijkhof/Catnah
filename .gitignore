@@ -2,3 +2,6 @@ node_modules
 dist
 .DS_Store
 *.local
+
+# WebStorm project settings, which are this machine's, not the game's.
+.idea

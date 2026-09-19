@@ -1,0 +1,58 @@
+# Builds the game and publishes it to GitHub Pages on every push to main.
+#
+# The build output is uploaded straight from the runner rather than committed to
+# a gh-pages branch, so nothing built ever lands in the repository's history.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # Lets the deploy be re-run by hand from the Actions tab without a new commit.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  # Both are required by the deploy-pages action: `pages` to publish, `id-token`
+  # for the OIDC token it exchanges for permission to do so.
+  pages: write
+  id-token: write
+
+# Never let two deploys overwrite each other. In-progress runs are allowed to
+# finish rather than being cancelled, so a half-uploaded artifact is never what
+# goes live.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      # `npm ci` rather than `npm install`: it installs exactly what the
+      # lockfile says, so a deploy can never quietly pick up a new Phaser.
+      - run: npm ci
+
+      # `npm run build` typechecks first, so a type error fails the deploy
+      # instead of shipping.
+      - run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

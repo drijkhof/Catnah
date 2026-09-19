@@ -26,6 +26,12 @@ function stripInternalDocs(): Plugin {
 }
 
 export default defineConfig({
+  // GitHub Pages serves this as a project site at /Catnah/, not at the root of
+  // a domain, so every built asset URL has to be prefixed. It has to be a
+  // literal here rather than derived from the repository name, because that is
+  // only known to the workflow.
+  base: '/Catnah/',
+
   plugins: [stripInternalDocs()],
 
   server: {

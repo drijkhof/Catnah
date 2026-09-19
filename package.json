@@ -1,7 +1,7 @@
 {
-  "name": "hannah1",
+  "name": "catnah",
   "version": "1.0.0",
-  "description": "",
+  "description": "A 2D platformer about a cat, for phone and laptop browsers.",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "vite",
