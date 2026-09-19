@@ -352,34 +352,29 @@ sideways as much as climbed.
 Getting off a liana and across a gap is up plus the direction you want to go.
 ### 5 — Cave
 
-The only level about **going down**. Eight chambers stacked one under the other,
-each crossed to reach the hole in its floor, and the holes alternate ends so the
-route zigzags deeper and deeper instead of dropping straight through. 48 tiles
-wide and 96 deep, which makes it the tallest thing in the game by a long way.
+**Long, and all the way down.** 240 tiles end to end like everywhere else, but
+the way out is forty rows lower than the way in, so the level reads as a descent
+rather than a walk without ever being a shaft. It steps down to the right,
+chamber by chamber — sixteen of them — and every step down is a drop you cannot
+climb back up.
 
-Carved rather than built: the grid starts as one block of rock and the chambers
-are cut out of it, so no passage has a level floor and every one has a roof.
+Carved rather than built: the grid starts as one block of rock and the passages
+are cut out of it, so no floor is level and every passage has a roof.
 Stalactites above, stalagmites below.
 
-Each chamber is one idea:
+Each chamber is one idea, and never the same one twice running — pillars to jump,
+shelves to climb, a **sump** (a pool with rock over the middle of it, so the way
+past is under the water), a **squeeze** one tile high that has to be crawled.
 
-1. The way in — plain, so the first thing you learn is that the floor has a hole.
-2. **A wall with its gap at the ceiling**, and shelves up to it.
-3. **A sump** — a pool sunk into the floor with a lip of rock over the middle, so
-   the only way past is *under* the water.
-4. **Two rock towers with a shaft between them**, six rows tall: a straight jump
-   reaches 90px and falls short by a hand's width, so it has to be wall-jumped.
-5. **The fork.** The hole down is in the middle and in plain sight. The whole
-   right-hand side is a low tunnel that goes nowhere, and at the back of it is a
-   **spare heart** — the longest dead end in the game, with spiders over it the
-   whole way.
-6. **The squeeze** — one tile of headroom, so it has to be crawled.
-7. The deepest gallery: a shelf climb with the roof close over it.
-8. The bottom, and the only door in the game that leads further *down*.
+**It branches, and most branches go nowhere.** They climb *away* from the main
+run, because the main run only goes down: a dead end you have to drop into would
+be a trap, one you climb into is a decision. Three of them are worth berries.
 
-Water down here sits in a hollow with rock under it. The floor between chambers
-is three rows thick on purpose, so a pool can be sunk into it without opening a
-hole into the chamber below.
+The fourth runs back over the top of the level for thirty tiles and ends in a
+chamber with the **spare heart** in it — and hanging over the doorway, a spider
+**ten times the size** of the others, a third of the screen across. It walks the
+ceiling like the rest of them and drops like the rest of them, slowly, and there
+is no getting past it except by timing it.
 
 ### 6 — Volcano
 

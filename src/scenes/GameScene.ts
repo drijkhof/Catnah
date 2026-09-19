@@ -347,7 +347,7 @@ export class GameScene extends Phaser.Scene {
       return new Piranha(this, at.x, at.y, pool, index * 700);
     });
     this.crows = this.level.crows.map((at) => new Crow(this, at.x, at.y));
-    this.spiders = this.level.spiders.map((at) => new Spider(this, at.x, at.y));
+    this.spiders = this.level.spiders.map((at) => new Spider(this, at.x, at.y, at.size));
     this.crocodiles = this.level.crocodiles.map((at) => {
       // Each crocodile gets only the pool it lies in, never all the water --
       // the same fence the piranhas swim behind.

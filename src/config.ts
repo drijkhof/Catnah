@@ -286,6 +286,19 @@ export const SPIDER = {
 
   /** How long after getting home before it will drop again, ms. */
   cooldownMs: 800,
+
+  /**
+   * How much bigger the one guarding the cave's spare heart is.
+   *
+   * Ten times, which at 16x12 makes it 160x120 -- a third of the screen. It is
+   * not a harder spider, it is a *much larger* one: everything about it scales,
+   * so it walks slower relative to its size, reaches further and takes an age
+   * to haul itself back up. There is no beating it, only timing it.
+   */
+  giantScale: 10,
+
+  /** How much of its normal speed a giant one walks and climbs at. */
+  giantSlowness: 0.45,
 } as const;
 
 /**

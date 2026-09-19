@@ -38,19 +38,44 @@ export class Spider extends Phaser.Physics.Arcade.Sprite {
   /** Counts out the hang at the bottom, and then the rest after getting home. */
   private timer = 0;
 
-  constructor(scene: Phaser.Scene, x: number, ceilingY: number) {
-    super(scene, x, ceilingY + SPIDER_SIZE.height / 2, 'spider');
+  /**
+   * 1 for an ordinary spider; `SPIDER.giantScale` for the one in the cave.
+   *
+   * Not called `scale`: a Sprite already has one of those, and shadowing it
+   * breaks every place the game treats a creature as a plain sprite.
+   */
+  private readonly size: number;
+
+  constructor(scene: Phaser.Scene, x: number, ceilingY: number, size = 1) {
+    super(scene, x, ceilingY + (SPIDER_SIZE.height * size) / 2, 'spider');
 
     this.ceilingY = ceilingY;
+    this.size = size;
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
+    this.setScale(size);
     this.body.setAllowGravity(false);
     this.body.setSize(SPIDER_SIZE.width - 6, SPIDER_SIZE.height - 2, true);
-    this.setDepth(4);
+    this.setDepth(size > 1 ? 13 : 4);
 
-    this.thread = scene.add.graphics().setDepth(3);
+    this.thread = scene.add.graphics().setDepth(size > 1 ? 12 : 3);
+  }
+
+  /** How far it lets itself down, in pixels. Everything about it scales. */
+  private get reach(): number {
+    return SPIDER.dropLength * this.size;
+  }
+
+  /** How fast it does anything, as a fraction. A big spider is a slow spider. */
+  private get pace(): number {
+    return this.size > 1 ? SPIDER.giantSlowness : 1;
+  }
+
+  /** Where it rests, hanging under the rock. */
+  private get restY(): number {
+    return this.ceilingY + (SPIDER_SIZE.height * this.size) / 2;
   }
 
   /** Advances it by one frame. `cat` is where the cat is, in world space. */
@@ -98,13 +123,13 @@ export class Spider extends Phaser.Physics.Arcade.Sprite {
       this.direction = -this.direction;
     }
 
-    this.x += this.direction * SPIDER.walkSpeed * (delta / 1000);
+    this.x += this.direction * SPIDER.walkSpeed * this.pace * (delta / 1000);
     this.body.updateFromGameObject();
 
     const underneath =
-      Math.abs(cat.x - this.x) < SPIDER.dropRange &&
+      Math.abs(cat.x - this.x) < SPIDER.dropRange * this.size &&
       cat.y > this.y &&
-      cat.y < this.y + SPIDER.dropLength + 40;
+      cat.y < this.y + this.reach + 40 * this.size;
 
     if (underneath) {
       this.phase = 'dropping';
@@ -112,10 +137,10 @@ export class Spider extends Phaser.Physics.Arcade.Sprite {
   }
 
   private drop(delta: number): void {
-    this.y += SPIDER.dropSpeed * (delta / 1000);
+    this.y += SPIDER.dropSpeed * this.pace * (delta / 1000);
 
-    if (this.y >= this.ceilingY + SPIDER.dropLength) {
-      this.y = this.ceilingY + SPIDER.dropLength;
+    if (this.y >= this.ceilingY + this.reach) {
+      this.y = this.ceilingY + this.reach;
       this.phase = 'hanging';
       this.timer = SPIDER.hangMs;
     }
@@ -124,10 +149,10 @@ export class Spider extends Phaser.Physics.Arcade.Sprite {
   }
 
   private climb(delta: number): void {
-    this.y -= SPIDER.climbSpeed * (delta / 1000);
+    this.y -= SPIDER.climbSpeed * this.pace * (delta / 1000);
 
-    if (this.y <= this.ceilingY + SPIDER_SIZE.height / 2) {
-      this.y = this.ceilingY + SPIDER_SIZE.height / 2;
+    if (this.y <= this.restY) {
+      this.y = this.restY;
       this.phase = 'resting';
       this.timer = SPIDER.cooldownMs;
     }
@@ -147,7 +172,7 @@ export class Spider extends Phaser.Physics.Arcade.Sprite {
   /** One line of silk, from the rock down to wherever it has got to. */
   private drawThread(): void {
     this.thread.clear();
-    this.thread.lineStyle(1, COLORS.spiderThread, 0.75);
+    this.thread.lineStyle(Math.max(1, this.size / 3), COLORS.spiderThread, 0.75);
     this.thread.lineBetween(this.x, this.ceilingY, this.x, this.y);
   }
 

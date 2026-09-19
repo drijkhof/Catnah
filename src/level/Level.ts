@@ -1,4 +1,4 @@
-import { TILE } from '../config';
+import { SPIDER, TILE } from '../config';
 import { BRANCH_THICKNESS } from '../art';
 import type { ThemeName } from './themes';
 import type { GroundEnemyKind } from '../config';
@@ -28,6 +28,7 @@ import type { GroundEnemyKind } from '../config';
  *   `c`  crow, which circles the nest it is placed at
  *   `s`  spider, which walks the ceiling above the tile it is placed on and
  *        drops on a thread. Needs solid rock directly above it
+ *   `S`  the same, ten times the size. One of them, guarding the cave's heart
  *   `X`  the boss, which guards the end of the level it is placed in
  *   `.`  empty
  *
@@ -108,6 +109,11 @@ export interface Point {
   y: number;
 }
 
+/** A spider hanging under a ceiling. `size` is 1, or ten for the giant. */
+export interface Spider extends Point {
+  size: number;
+}
+
 /** A crocodile lying in a pool, which is also the only water it will enter. */
 export interface Crocodile extends Point {
   /** Index into `pools`. A crocodile never leaves the water it lies in. */
@@ -155,8 +161,8 @@ export interface ParsedLevel {
   /** Crocodiles, by where their backs rest and which pool they hunt in. */
   crocodiles: Crocodile[];
   crows: Point[];
-  /** Spiders, by the underside of the ceiling each one hangs from. */
-  spiders: Point[];
+  /** Spiders, by the underside of the ceiling each hangs from, and how big. */
+  spiders: Spider[];
   /** Where the boss holds its ground, if the level has one. */
   boss: Point | null;
   nests: Point[];
@@ -192,7 +198,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const piranhaSpots: Point[] = [];
   const crocodileSpots: Point[] = [];
   const crows: Point[] = [];
-  const spiders: Point[] = [];
+  const spiders: Spider[] = [];
   const nests: Point[] = [];
   const berries: Point[] = [];
   let spawn: Point | null = null;
@@ -330,7 +336,11 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           break;
 
         case 's':
-          spiders.push({ x: x + TILE / 2, y });
+          spiders.push({ x: x + TILE / 2, y, size: 1 });
+          break;
+
+        case 'S':
+          spiders.push({ x: x + TILE / 2, y, size: SPIDER.giantScale });
           break;
 
         case 'c':
@@ -533,7 +543,7 @@ function assertSpawnHasFooting(
 function assertSpidersHangFromRock(rows: string[], width: number, name: string): void {
   for (let row = 0; row < rows.length; row += 1) {
     for (let column = 0; column < width; column += 1) {
-      if (rows[row][column] !== 's') {
+      if (!'sS'.includes(rows[row][column])) {
         continue;
       }
 
