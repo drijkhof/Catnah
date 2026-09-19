@@ -143,6 +143,8 @@ is meant to land on.
   standing on a back that dipped under would count as being in the water, switch
   to swimming and sink off its own platform. It also has to read as a platform
   at this size, and a correct crocodile — scutes and eyes only — does not.
+- **The back stops short of the head.** The mouth is drawn wide open, and being
+  able to stand in it would undo what the drawing is saying.
 - **`jaws` is a separate, larger rectangle**, tested from `GameScene.update`
   only while the cat is swimming. Landing on the back is safe; being in the
   water beside one is fatal, floating or sunk. The submerged ones still bite,

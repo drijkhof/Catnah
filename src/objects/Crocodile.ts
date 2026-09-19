@@ -5,6 +5,9 @@ import { CROCODILE } from '../config';
 /** How much of the crocodile is back rather than snout and belly, px. */
 const BACK_HEIGHT = 8;
 
+/** How far along it the back runs before the head starts, px. */
+const BACK_WIDTH = 30;
+
 /** Where the back starts inside the frame, px. */
 const BACK_TOP = 2;
 
@@ -32,10 +35,11 @@ const FLOAT_LIFT = 7;
  * It is not dangerous in itself. The danger is the water it lies in, which in
  * the swamp has piranhas in it.
  *
- * **Its body is only the back.** The snout is scenery, so walking into one from
- * the bank does not stop the cat dead against a nose, and the collider it is
- * given is one-way -- exactly like a branch -- so the cat lands on it coming
- * down and never clips it going up.
+ * **Its body is only the back**, and stops short of the head. The jaws are wide
+ * open, so walking into one from the bank does not stop the cat dead against a
+ * nose and standing in its mouth is not something you can do. The collider is
+ * one-way -- exactly like a branch -- so the cat lands on the back coming down
+ * and never clips it going up.
  */
 export class Crocodile extends Phaser.Physics.Arcade.Sprite {
   declare body: Phaser.Physics.Arcade.Body;
@@ -71,8 +75,10 @@ export class Crocodile extends Phaser.Physics.Arcade.Sprite {
     // Immovable, or the cat's weight would push it down the screen instead of
     // standing on it.
     this.body.setImmovable(true);
-    this.body.setSize(CROCODILE_SIZE.width - 6, BACK_HEIGHT, false);
-    this.body.setOffset(3, BACK_TOP);
+    // The back only, stopping short of the head. The jaws are wide open and
+    // standing in them would be an odd thing to be able to do.
+    this.body.setSize(BACK_WIDTH, BACK_HEIGHT, false);
+    this.body.setOffset(2, BACK_TOP);
 
     this.floatY = this.y;
   }

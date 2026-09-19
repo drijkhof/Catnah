@@ -479,6 +479,8 @@ export const COLORS = {
   crocRidge: 0x4a4f22,
   crocBelly: 0xa8ad63,
   crocJaw: 0x5d612b,
+  crocMouth: 0x5e2230,
+  crocTongue: 0xd4566a,
 
   // Lighter than a spider ought to be. It hangs in the black of a tunnel
   // mouth, and a properly black spider there is a smudge rather than a threat.

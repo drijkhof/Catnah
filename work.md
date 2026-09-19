@@ -393,7 +393,10 @@ far end of the arena.
 - **Crocodiles** lie still at the surface of the swamp's water and are the only
   thing in the game you are *meant* to stand on. Land on the back and it sinks
   under you shortly afterwards, then comes back up. They are harmless from
-  above and fatal from the water, sunk or floating.
+  above and **fatal from the water**, sunk or floating — fall in beside one and
+  it eats you. Each lies there with its **mouth wide open**, red tongue and all
+  its teeth showing, so what it is for is never in doubt. Only the back is
+  something to stand on; the jaws are not.
 - **Piranhas** patrol the pool they live in, lurking below the surface and
   leaping straight out every 2.2 seconds, always to the same rhythm so it can be
   learnt. One will chase a cat that swims **into its own pool**, and never
