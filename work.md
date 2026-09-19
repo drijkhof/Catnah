@@ -309,10 +309,22 @@ game.
 
 ### 1 — Forest
 
-Sunlit, with the sun up and shafts of light through the trees. Four ordinary
-trees plus **the great tree**, which runs the full height of the level and has a
-nest at the top with a crow living in it. Two pools, one shaft of boulders, one
-sneaking bough, three hedgehogs, one piranha.
+446 tiles, and **fifteen pieces, no two of them the same**. A long level made of
+one shape repeated is a short level you have to walk through several times,
+which is exactly what the first long draft of this was.
+
+In order: a flat start with one branch to teach the hop; a tree worth climbing;
+stepping stones rising out of a pond; a fallen bough with a single tile under
+it, so only a sneaking cat gets through; **two towers with a shaft between them
+and higher ground beyond**, which cannot be passed without a wall jump; a chasm
+with one branch over the middle; a ledge with three hedgehogs pacing it; **a
+stretch with no ground at all**, crossed on four branches at rising heights; a
+deep pool with two piranhas and a dry route overhead; **the great tree**, with
+the crow's nest at the top and the spare heart in it; a descent on branches
+stepping down over a pit; two wall-jump shafts back to back, the second higher;
+one long jump broken by a single pillar; a thicket of short trees with their
+branches interleaved; and the way out.
+
 ### 2 — City
 
 Night, and built at the scale of the thing walking through it. The cat is 22x18

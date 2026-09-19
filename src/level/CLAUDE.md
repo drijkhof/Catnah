@@ -211,8 +211,10 @@ be sunk into it without opening a hole into the chamber below. That is what the
 old cave's water lacked: it sat in a two-row floor with open air under it, and a
 pool with nothing holding it looks exactly as wrong as it was.
 
-The city is still built from `tower()` calls, because a building's roof line is
-arithmetic and a hand-counted one drifts. Everything else is frozen rows.
+**Length is not design.** The first long draft of the forest was fifteen copies
+of four shapes and it was boring in a way the short version never was. It is
+fifteen *different* pieces now. A generator that repeats a pattern gives you a
+short level you have to walk through several times.
 
 A city building is either **gone through** -- `arcade()` cuts two rows out of it
 at street level -- or **gone over**, with one drainpipe on the side you arrive
