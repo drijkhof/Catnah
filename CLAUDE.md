@@ -1,6 +1,10 @@
 # Hannah1
 
-A 2D platformer that runs in the browser, on **both phone and laptop**. Those
+A 2D platformer that runs in the browser, on **both phone and laptop**.
+
+You play a cat. Level 1 is a sunlit forest: the sun is up, and the platforms are
+the branches of the trees. The cat can move forward and back, jump, and crouch,
+steers in the air, and is always subject to gravity. Those
 are equal targets, not a primary and a fallback: every feature needs to work
 with touch and with a keyboard, and needs to be readable on a small screen.
 
@@ -72,6 +76,13 @@ inline in a scene. If you find yourself typing a number twice, it goes there.
 **Never branch on device type in gameplay code.** Ask `Controls` what the
 player wants; it merges keyboard and touch. See `input/CLAUDE.md`.
 
+**Art is referred to by texture key, never by colour or shape.** Every texture
+is drawn in code in `src/art` and swapped for real art by loading a file under
+the same key. See `art/CLAUDE.md`.
+
+**Scenery scatter must be seeded** (`createRandom`, never `Math.random`), or the
+forest rearranges itself on every hot reload and on every player's device.
+
 **HUD and touch controls use `setScrollFactor(0)`** so they pin to the viewport
 instead of scrolling with the world, plus a high `setDepth` to stay on top.
 
@@ -84,3 +95,30 @@ instead of scrolling with the world, plus a high `setDepth` to stay on top.
 - Physics bodies and velocity vectors: set `physics.arcade.debug` to `true` in
   `src/main.ts`.
 - If `localhost:5180` shows someone else's app, see the port section above.
+
+### Driving the game from the console
+
+`window.game` exists in dev, so the running game can be poked and even tested
+from the browser console.
+
+**A background tab does not run the game.** Chrome pauses `requestAnimationFrame`
+when a tab is hidden, so the game loop stops while any script you run from the
+console keeps going. Anything measured that way is measuring a frozen game --
+check `game.loop.frame` actually advances before trusting a result.
+
+To step the game deterministically instead, drive it by hand at a fixed
+timestep. All three calls are needed: `postUpdate` is what copies physics bodies
+back onto their sprites, and without it positions never appear to change.
+
+```js
+const scene = game.scene.getScene('Game');
+for (let i = 0; i < 60; i++) {
+  const t = i * 16.667;
+  scene.update(t, 16.667);
+  scene.physics.world.update(t, 16.667);
+  scene.physics.world.postUpdate();
+}
+```
+
+Assigning a stub over `scene.controls` (same getters, plain booleans) lets that
+loop play the game without synthetic keyboard events.

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH, PLAYER, COLORS } from './config';
+import { GAME_HEIGHT, GAME_WIDTH, CAT, COLORS } from './config';
 import { BootScene } from './scenes/BootScene';
 import { GameScene } from './scenes/GameScene';
 
@@ -8,7 +8,7 @@ const game = new Phaser.Game({
   parent: 'game',
   width: GAME_WIDTH,
   height: GAME_HEIGHT,
-  backgroundColor: COLORS.sky,
+  backgroundColor: COLORS.skyTop,
 
   // Crisp scaling for low-resolution art. Drop this (and the CSS
   // `image-rendering` rule) if the game moves to high-resolution art.
@@ -25,7 +25,7 @@ const game = new Phaser.Game({
   physics: {
     default: 'arcade',
     arcade: {
-      gravity: { x: 0, y: PLAYER.gravity },
+      gravity: { x: 0, y: CAT.gravity },
       // Flip to true to draw physics bodies and velocity vectors.
       debug: false,
     },

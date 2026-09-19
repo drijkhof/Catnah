@@ -15,18 +15,39 @@ export const GAME_HEIGHT = 360;
 /** Size of one level grid cell, in game pixels. */
 export const TILE = 16;
 
-export const PLAYER = {
-  width: 12,
-  height: 22,
+/**
+ * The cat.
+ *
+ * A cat is wider than it is tall, and gets flatter still when it crouches, so
+ * the two poses use different body sizes. The sprite origin is bottom-centre
+ * (see Player) which keeps the paws planted when the pose swaps.
+ */
+export const CAT = {
+  /**
+   * Standing pose, in game pixels.
+   *
+   * 18 is taller than one tile on purpose: it means a one-tile gap under an
+   * overhang cannot be walked through, only crouched through, so the level
+   * grid alone can create a crouch passage with no special markup.
+   */
+  width: 22,
+  height: 18,
+
+  /** Crouched pose: longer and much flatter, like a cat about to pounce. */
+  crouchWidth: 26,
+  crouchHeight: 9,
 
   /** Horizontal run speed, px/sec. */
   speed: 190,
-  /** How fast the player reaches full speed on the ground, px/sec^2. */
+  /** How fast the cat reaches full speed on the ground, px/sec^2. */
   accel: 2200,
   /** Ground friction when no direction is held, px/sec^2. */
   friction: 2400,
   /** Reduced control while airborne, as a fraction of `accel`. */
   airControl: 0.55,
+
+  /** Crouched movement speed, as a fraction of `speed`. A slow, low stalk. */
+  crouchSpeedMultiplier: 0.42,
 
   gravity: 1500,
   /** Upward velocity applied on jump, px/sec. Negative is up. */
@@ -48,17 +69,58 @@ export const PLAYER = {
 
   /**
    * Grace window before landing during which a jump press is remembered and
-   * fires the instant the player touches ground.
+   * fires the instant the cat touches ground.
    */
   jumpBufferMs: 120,
 } as const;
 
-/** Palette, kept here so placeholder art and real art stay visually consistent. */
+/**
+ * Level 1: a sunlit forest.
+ *
+ * Kept as one palette so the generated placeholder art already reads as a
+ * single scene, and so real art has a colour reference to match.
+ */
 export const COLORS = {
-  sky: 0x1b2838,
-  ground: 0x4a6b4f,
-  groundTop: 0x6bab6b,
-  player: 0xe8d8a0,
-  coin: 0xf2c14e,
+  // Sky, from the top of the screen down to the treeline.
+  skyTop: 0x5f9fc4,
+  skyBottom: 0xe3ecb8,
+
+  // The sun, and the shafts of light coming off it.
+  sun: 0xfffbe0,
+  sunGlow: 0xffe9a3,
+  lightRay: 0xfff4bd,
+
+  // Distant trees are lighter and bluer than near ones: haze in the air makes
+  // far away things lose contrast, which is what sells depth.
+  treeFar: 0x6e9b86,
+  treeFarTrunk: 0x5d7a6b,
+  treeMid: 0x477a5f,
+  treeMidTrunk: 0x4a3b2c,
+
+  bush: 0x4f8f4a,
+  bushDark: 0x3c7038,
+  bushLight: 0x6bab5c,
+
+  // The forest floor.
+  grass: 0x6fb257,
+  grassDark: 0x4f8c3f,
+  dirt: 0x6b4f35,
+  dirtDark: 0x54402b,
+
+  // Branches, which double as the platforms.
+  branch: 0x7d5837,
+  branchDark: 0x5c3f27,
+  leaf: 0x5fa049,
+  leafLight: 0x7cc25e,
+
+  // The cat: ginger, so it stays readable against all that green.
+  cat: 0xe08b4a,
+  catDark: 0xb96a2c,
+  catLight: 0xf8e4cb,
+  catNose: 0xd4645f,
+
+  berry: 0xe0463d,
+  berryLight: 0xff8175,
+
   uiButton: 0xffffff,
 } as const;

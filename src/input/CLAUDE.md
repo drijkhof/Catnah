@@ -4,12 +4,14 @@ One class, `Controls`, and one rule:
 
 > **Gameplay code never asks whether this is a phone.**
 
-It asks `controls.left`, `controls.right`, `controls.jumpJustPressed` and
-`controls.jumpHeld`. `Controls` merges keyboard and touch behind those four
-answers. Adding a device or a key rebinding should touch this folder only.
+It asks `controls.left`, `controls.right`, `controls.down`,
+`controls.jumpJustPressed` and `controls.jumpHeld`. `Controls` merges keyboard
+and touch behind those answers. Adding a device or a key rebinding should touch
+this folder only.
 
-Bindings today: arrows / WASD / Space on a keyboard, and three on-screen buttons
-on a touch device.
+Bindings today: arrows / WASD / Space on a keyboard, and four on-screen buttons
+on a touch device — move back, move forward, crouch, jump. Movement sits under
+the left thumb, actions under the right.
 
 ## `update()` must run first, once per frame
 
@@ -27,9 +29,9 @@ thumb a few pixels off the d-pad fires `pointerout` and silently drops the
 input, so the player keeps running or stops dead. Hit-testing every frame means
 the input reflects where the finger *is*, which is what the player expects.
 
-`scene.input.addPointer(2)` is required and easy to forget: Phaser tracks a
-single pointer by default, so without it a player cannot hold a direction and
-jump at the same time.
+`scene.input.addPointer(3)` is required and easy to forget: Phaser tracks a
+single pointer by default, so without it a player cannot hold a direction,
+crouch and jump at the same time.
 
 ## Adding a control
 

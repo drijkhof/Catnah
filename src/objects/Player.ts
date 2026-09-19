@@ -1,15 +1,19 @@
 import Phaser from 'phaser';
-import { PLAYER } from '../config';
+import { CAT } from '../config';
 import type { Controls } from '../input/Controls';
 
 /**
- * The player character.
+ * The cat.
  *
  * Movement is deliberately not a straight "set velocity from input": it adds
  * acceleration, coyote time, a jump buffer and a variable-height jump cut.
- * Those four things are what separate a platformer that feels responsive from
- * one that feels slippery or unfair, and they are far cheaper to build in now
- * than to retrofit once levels are designed around the old feel.
+ * Those are what separate a platformer that feels responsive from one that
+ * feels slippery or unfair, and they are far cheaper to build in now than to
+ * retrofit once levels are designed around the old feel.
+ *
+ * The sprite origin is at the paws (0.5, 1) and each pose is drawn at exactly
+ * its body size, so swapping between standing and crouching changes the
+ * collision box without the cat sinking into the floor or popping off it.
  */
 export class Player extends Phaser.Physics.Arcade.Sprite {
   declare body: Phaser.Physics.Arcade.Body;
@@ -23,20 +27,28 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   /** True while rising from a jump the player has not yet released. */
   private isJumping = false;
 
+  private isCrouching = false;
+
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, 'player');
+    super(scene, x, y, 'cat');
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
-    this.body.setSize(PLAYER.width, PLAYER.height);
+    this.setOrigin(0.5, 1);
+    this.applyPose(false);
+
     this.body.setCollideWorldBounds(true);
-    this.body.setMaxVelocity(PLAYER.speed * 2, PLAYER.maxFallSpeed);
-    this.setOrigin(0.5, 0.5);
+    this.body.setMaxVelocity(CAT.speed * 2, CAT.maxFallSpeed);
+  }
+
+  /** True while the cat is crouched, so the scene can react (dust, sound). */
+  get crouching(): boolean {
+    return this.isCrouching;
   }
 
   /**
-   * Advances the player by one frame.
+   * Advances the cat by one frame.
    *
    * Called explicitly from the scene rather than via Phaser's own update list,
    * so that input is guaranteed to have been sampled first.
@@ -48,18 +60,35 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const onGround = this.body.blocked.down || this.body.touching.down;
 
     this.tickTimers(delta, onGround, controls);
+
+    // A queued jump beats a held crouch, so a player holding down is never
+    // stuck. Under a low overhang there is no headroom to stand, which is what
+    // stops the jump instead.
+    const wantsJump = this.coyoteTimer > 0 && this.jumpBufferTimer > 0;
+    this.resolvePose(controls.down && onGround && !wantsJump);
+
     this.applyHorizontal(controls, dt, onGround);
-    this.applyJump(controls);
+    this.applyJump(controls, wantsJump && !this.isCrouching);
     this.updateFacing(controls);
+  }
+
+  /** Puts the cat back at a given spot, upright and still. */
+  respawnAt(x: number, y: number): void {
+    this.resolvePose(false);
+    this.setVelocity(0, 0);
+    this.setPosition(x, y);
+    this.coyoteTimer = 0;
+    this.jumpBufferTimer = 0;
+    this.isJumping = false;
   }
 
   private tickTimers(delta: number, onGround: boolean, controls: Controls): void {
     this.coyoteTimer = onGround
-      ? PLAYER.coyoteTimeMs
+      ? CAT.coyoteTimeMs
       : Math.max(0, this.coyoteTimer - delta);
 
     this.jumpBufferTimer = controls.jumpJustPressed
-      ? PLAYER.jumpBufferMs
+      ? CAT.jumpBufferMs
       : Math.max(0, this.jumpBufferTimer - delta);
 
     if (onGround && this.body.velocity.y >= 0) {
@@ -67,35 +96,84 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  private applyHorizontal(controls: Controls, dt: number, onGround: boolean): void {
-    const direction = (controls.right ? 1 : 0) - (controls.left ? 1 : 0);
-    const accel = onGround ? PLAYER.accel : PLAYER.accel * PLAYER.airControl;
+  private resolvePose(wantsCrouch: boolean): void {
+    if (wantsCrouch) {
+      if (!this.isCrouching) {
+        this.applyPose(true);
+      }
+      return;
+    }
 
-    if (direction !== 0) {
-      const target = direction * PLAYER.speed;
-      const next = this.body.velocity.x + direction * accel * dt;
-
-      // Clamp towards the target so acceleration never overshoots top speed,
-      // while still allowing an existing faster velocity (a launch, a slope) to
-      // bleed off naturally instead of being snapped down.
-      this.setVelocityX(
-        direction > 0 ? Math.min(next, target) : Math.max(next, target),
-      );
-    } else {
-      const friction = PLAYER.friction * dt;
-      const speed = Math.abs(this.body.velocity.x);
-
-      this.setVelocityX(
-        speed <= friction ? 0 : this.body.velocity.x - Math.sign(this.body.velocity.x) * friction,
-      );
+    // Only stand back up if there is room, otherwise the cat would be shoved
+    // through the ceiling it is crouching under.
+    if (this.isCrouching && this.hasHeadroom()) {
+      this.applyPose(false);
     }
   }
 
-  private applyJump(controls: Controls): void {
-    const canJump = this.coyoteTimer > 0 && this.jumpBufferTimer > 0;
+  private applyPose(crouching: boolean): void {
+    this.isCrouching = crouching;
+    this.setTexture(crouching ? 'cat-crouch' : 'cat');
 
+    const width = crouching ? CAT.crouchWidth : CAT.width;
+    const height = crouching ? CAT.crouchHeight : CAT.height;
+
+    // Each pose texture is exactly its body size, so no offset is needed: with
+    // a bottom-centre origin the body's feet land on the sprite's y either way.
+    this.body.setSize(width, height, false);
+    this.body.setOffset(0, 0);
+  }
+
+  /** Is the space a standing cat would occupy currently clear? */
+  private hasHeadroom(): boolean {
+    const clearance = CAT.height - CAT.crouchHeight;
+    const bodies = this.scene.physics.overlapRect(
+      // Inset horizontally so brushing a wall does not read as a blocked
+      // ceiling.
+      this.x - CAT.width / 2 + 1,
+      this.y - CAT.height,
+      CAT.width - 2,
+      clearance,
+      false,
+      true,
+    );
+
+    return bodies.length === 0;
+  }
+
+  private applyHorizontal(controls: Controls, dt: number, onGround: boolean): void {
+    const direction = (controls.right ? 1 : 0) - (controls.left ? 1 : 0);
+    const topSpeed = this.isCrouching
+      ? CAT.speed * CAT.crouchSpeedMultiplier
+      : CAT.speed;
+    const accel = onGround ? CAT.accel : CAT.accel * CAT.airControl;
+
+    if (direction !== 0) {
+      const target = direction * topSpeed;
+      const next = this.body.velocity.x + direction * accel * dt;
+
+      // Clamp towards the target so acceleration never overshoots top speed,
+      // while still letting an existing faster velocity bleed off naturally
+      // rather than being snapped down.
+      this.setVelocityX(
+        direction > 0 ? Math.min(next, target) : Math.max(next, target),
+      );
+      return;
+    }
+
+    const friction = CAT.friction * dt;
+    const speed = Math.abs(this.body.velocity.x);
+
+    this.setVelocityX(
+      speed <= friction
+        ? 0
+        : this.body.velocity.x - Math.sign(this.body.velocity.x) * friction,
+    );
+  }
+
+  private applyJump(controls: Controls, canJump: boolean): void {
     if (canJump) {
-      this.setVelocityY(PLAYER.jumpVelocity);
+      this.setVelocityY(CAT.jumpVelocity);
       this.isJumping = true;
 
       // Both windows are spent, otherwise a single press could trigger a second
@@ -104,9 +182,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.jumpBufferTimer = 0;
     }
 
-    // Variable jump height: let go early and the rise is cut short.
+    // Variable jump height: let go early and the hop is cut short.
     if (this.isJumping && !controls.jumpHeld && this.body.velocity.y < 0) {
-      this.setVelocityY(this.body.velocity.y * PLAYER.jumpCutMultiplier);
+      this.setVelocityY(this.body.velocity.y * CAT.jumpCutMultiplier);
       this.isJumping = false;
     }
   }

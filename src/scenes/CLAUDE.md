@@ -20,15 +20,14 @@ Anything reading input must run after it, so entities are stepped explicitly
 from the scene rather than through Phaser's automatic update list — that list
 gives no ordering guarantee relative to the input sample.
 
-## Placeholder art lives in BootScene
+## Placeholder art
 
-`BootScene` draws every texture with `Graphics.generateTexture`, so the repo has
-no binary assets and the game runs straight after clone.
+`BootScene` calls `generatePlaceholderArt` from `src/art` and then starts the
+game. The drawing itself lives in `src/art`, not here — see its CLAUDE.md.
 
-When real art arrives, replace the `generate*` calls with `this.load` calls in
-`preload()`. Nothing outside this scene changes: the rest of the game only ever
-names textures by key (`player`, `tile`, `coin`, `ui-left`, `ui-right`,
-`ui-jump`).
+When real art arrives, load it in `preload()` under the same texture keys and
+delete the matching generator. Nothing else in the game changes, because
+everything refers to art by key alone.
 
 ## Adding a scene
 
