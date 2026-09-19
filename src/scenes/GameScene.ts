@@ -38,12 +38,8 @@ export class GameScene extends Phaser.Scene {
   private player!: Player;
   private level!: ParsedLevel;
   private scoreText!: Phaser.GameObjects.Text;
-  private starIcon?: Phaser.GameObjects.Image;
   private berries!: Phaser.Physics.Arcade.StaticGroup;
   private collected = 0;
-
-  /** True once the level's star has been picked up. Needed to leave. */
-  private hasStar = false;
 
   /** Tries left on this level. Running out starts it over. */
   private lives = LIVES;
@@ -81,7 +77,6 @@ export class GameScene extends Phaser.Scene {
   create(): void {
     this.level = parseLevel(LEVELS[this.levelIndex]);
     this.collected = 0;
-    this.hasStar = false;
     this.lifeIcons = [];
     this.dying = false;
     this.leaving = false;
@@ -260,45 +255,6 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  /**
-   * Places the star, if the level has one.
-   *
-   * It is the one thing a level actually requires: the door will not open
-   * without it, so it is worth the climb it is usually put at the top of.
-   */
-  private buildStar(): void {
-    const at = this.level.star;
-    if (!at) {
-      this.hasStar = true;
-      return;
-    }
-
-    const star = this.physics.add
-      .staticImage(at.x, at.y - 3, 'star')
-      .setDepth(7);
-
-    this.tweens.add({
-      targets: star,
-      y: at.y - 3,
-      scale: { from: 1, to: 1.12 },
-      duration: 900,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut',
-    });
-
-    this.physics.add.overlap(this.player, star, () => {
-      if (!star.active) {
-        return;
-      }
-
-      star.destroy();
-      this.hasStar = true;
-      this.cameras.main.flash(260, 255, 240, 170);
-      this.starIcon?.setAlpha(1);
-    });
-  }
-
   /** A texture name, resolved to this level's theme. */
   private tile(name: string): string {
     return tileKey(this.level.theme, name);
@@ -338,13 +294,6 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
-    // The star is the level's actual goal; the door is just where you take it.
-    if (!this.hasStar) {
-      this.starIcon?.setScale(1.4);
-      this.tweens.add({ targets: this.starIcon, scale: 1, duration: 300 });
-      return;
-    }
-
     this.leaving = true;
     this.cameras.main.fade(450, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => {
@@ -365,7 +314,6 @@ export class GameScene extends Phaser.Scene {
     blocks: Phaser.Physics.Arcade.StaticGroup,
     branches: Phaser.Physics.Arcade.StaticGroup,
   ): void {
-    this.buildStar();
     this.buildExtraLives();
 
     this.walkers = this.level.walkers.map(
@@ -696,15 +644,6 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.refreshLives();
-
-    if (this.level.star) {
-      // Shown dim until it is found, so it reads as something still to get.
-      this.starIcon = this.add
-        .image(TILE * 4, TILE, 'star')
-        .setScrollFactor(0)
-        .setDepth(1000)
-        .setAlpha(0.3);
-    }
 
     this.scoreText = this.add
       .text(TILE + 10, TILE - 7, this.formatScore(), {

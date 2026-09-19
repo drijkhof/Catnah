@@ -43,9 +43,8 @@ removed, and they stack up one per edit. `dispose` clears the container itself.
 
 ## The level-skip shortcut
 
-Ctrl- or Cmd-click the level name in the HUD to jump to the next level. It
-ignores any star the level requires, because skipping past a level you have not
-finished is the point of it.
+Ctrl-click the level name in the HUD to jump to the next level, Cmd-click to go
+back one. Skipping past a level you have not finished is the point of it.
 
 **It lives in its own module on purpose.** Guarding the code with
 `import.meta.env.DEV` stops it *running* in a production build, but a class

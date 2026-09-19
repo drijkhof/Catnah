@@ -76,13 +76,21 @@ tree, and it ignores the cat crossing the ground far below.
 and overshoots instead of tracking like a missile. That is what makes it
 possible to dodge.
 
-> **Still open:** should the nest hold something — an egg, a berry hoard, the
-> level's real prize?
+**Settled: the nest holds a spare heart.** That is the whole point of a nest
+now — a spare heart is only ever found in one, and only ever behind a crow.
 
 **The top of the great tree was a death trap, and is not any more.** Being able
 to stand on a crown and in a nest is what fixed it: the cat now has a floor to
-dodge on instead of hanging off a trunk at 95px/s. Measured: climbing the last
-stretch takes the star and gets away; dawdling from further down still loses.
+dodge on instead of hanging off a trunk at 95px/s.
+
+**The crow is back to its first, fiercest version** (150px notice, 230px give-up,
+180px/s dive), because what it guards changed. It was softened once when it stood
+between the player and something the level *required*; a spare heart is optional,
+so the crow is allowed to be as unpleasant as it likes. Climbing the last stretch
+and taking the heart is now a real fight rather than a formality.
+
+> **Still open:** is an optional prize that most players will fail to take worth
+> building? It could be that nobody ever gets a fourth heart.
 
 **The old note, kept because the shape of the problem is still worth knowing:** Measured: the cat can
 climb the whole 384px trunk, and the crow catches it at the very top every time.
@@ -190,10 +198,9 @@ to a forest and the two read well in sequence.
 forest's "every branch grows from a trunk" rule is off here, as it is in the
 cave and the city.
 
-**No star**, so its door always opens. Only the forest and the city have one.
-
-> **Still open:** should every level need a star? Two out of four having one is
-> a bit arbitrary, and a level with no required goal is just a corridor.
+**Nothing has to be collected here** — nor anywhere else. Every door in the game
+always opens; the only optional prizes are the two spare hearts, in the forest
+and the city.
 
 > **Still open:** the lianas hang from the top of the screen with nothing
 > holding them up, because there is no ceiling to anchor them to. It works, but
@@ -221,7 +228,7 @@ alternative is a dedicated grab button, which is a button more to hold.
 **Added as a new first level**, ahead of the forest, and nothing else moved.
 
 **It is a single idea rather than a place**: liana, jump, platform, repeated
-four times with a hedgehog on the floor. There is no water, no star and no
+four times with a hedgehog on the floor. There is no water, no prize and no
 second route. That suits teaching the move but makes it thinner than the levels
 after it.
 

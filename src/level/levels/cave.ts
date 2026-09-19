@@ -24,7 +24,7 @@ const ROWS: string[] = [
   '#'.repeat(24) + '.'.repeat(7) + '#'.repeat(53),
   '#'.repeat(24) + '..' + 'o'.repeat(4) + '.' + '#'.repeat(53),
   '#'.repeat(24) + '.'.repeat(7) + '#'.repeat(53),
-  '#'.repeat(24) + '...' + '+' + 'T' + '..' + '#'.repeat(53),
+  '#'.repeat(24) + '.'.repeat(4) + 'T' + '..' + '#'.repeat(53),
   '#'.repeat(26) + '..' + 'T' + '..' + '#'.repeat(15) + '.'.repeat(6) + 'T' + '.'.repeat(14) + '#'.repeat(17),
   '#'.repeat(26) + '..' + 'T' + '..' + '#'.repeat(15) + '..' + 'o'.repeat(4) + 'T' + '.'.repeat(14) + '#'.repeat(17),
   '#'.repeat(26) + '..' + 'T' + '..' + '#'.repeat(15) + '.'.repeat(6) + 'T' + '.'.repeat(14) + '#'.repeat(17),

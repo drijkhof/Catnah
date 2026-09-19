@@ -23,7 +23,7 @@ const ROWS: string[] = [
   '',
   '',
   '.'.repeat(52) + 'ooo',
-  '.'.repeat(48) + '+' + 'T' + '.' + '='.repeat(6) + '.' + 'T',
+  '.'.repeat(49) + 'T' + '.' + '='.repeat(6) + '.' + 'T',
   '.'.repeat(34) + 'ooo' + '.'.repeat(12) + 'T' + '.'.repeat(8) + 'T',
   '.'.repeat(31) + 'T' + '.' + '='.repeat(6) + '.' + 'T' + '.'.repeat(8) + 'T' + '.'.repeat(8) + 'T',
   '.'.repeat(16) + 'ooo' + '.'.repeat(12) + 'T' + '.'.repeat(8) + 'T' + '.'.repeat(8) + 'T' + '.'.repeat(8) + 'T',

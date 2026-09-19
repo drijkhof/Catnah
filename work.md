@@ -183,8 +183,14 @@ spare one worth the detour.
 
 ### Spare hearts
 
-Every level has one **spare heart sitting in a nest**, tucked into the scenery
-somewhere off the direct route. None of them is needed to finish a level.
+There are exactly **two spare hearts in the whole game**, and they are always in
+the same two places: the crow's nest at the top of the forest's great tree, and
+the rooftop nest in the city. The cave, the swamp, the canopy and the volcano
+have none. Nothing about them is random, and none of them is needed to finish a
+level.
+
+Both are **guarded by a crow**, which is the point of them: a spare heart is
+something you go and take off a bird, not something you walk past.
 
 The cat sits **in** a nest, not on top of one: the floor of a nest is partway
 down it, and the near rim is drawn over the cat's legs, so only its head and
@@ -201,12 +207,10 @@ takes you to the next. The city leads back to the forest. Berries are optional
 everywhere.
 
 While developing, **Ctrl-clicking the level name** goes to the next level and
-**Cmd-clicking** goes back one, both ignoring the star and both wrapping round.
-Neither is in the built game.
+**Cmd-clicking** goes back one, both wrapping round. Neither is in the built
+game.
 
-Where a level has a **star**, the door will not open without it. The forest's is
-in the crow's nest at the top of the great tree; the city's is on a rooftop. The
-swamp and the cave have none, so their doors always open.
+**Every door always opens.** Nothing in a level has to be collected to leave it.
 
 
 
@@ -297,7 +301,9 @@ far end of the arena.
   learnt. One will chase a cat that swims **into its own pool**, and never
   leaves that pool for any reason. Not every pool has one.
 - **The crow** circles its nest until the cat comes near it, then breaks off and
-  flies at it in curves, giving up once the cat is well away again.
+  flies at it in curves, giving up once the cat is well away again. It notices
+  the cat from a long way off (150px) and is genuinely hard to get past, which
+  is fair because everything it guards is optional.
 
 ## What does not exist yet
 

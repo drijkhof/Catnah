@@ -62,5 +62,5 @@ set partway down the tile (`NEST_SIT_DEPTH` in the level parser). That is what
 puts the cat *in* a nest rather than on top of one — sitting on top looks like
 standing on a hat.
 
-Anything sitting in a nest with it, a star or a spare heart, is drawn in front
-of the near rim, or it would be buried in the straw.
+A spare heart sitting in the nest with it is drawn in front of the near rim, or
+it would be buried in the straw.

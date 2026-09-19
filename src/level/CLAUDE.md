@@ -24,7 +24,15 @@ its platforms must attach to a column. Everything else is derived.
 | `w` | water — swimmable, not solid, harmless on its own |
 | `L` | lava — not solid either, and fatal to touch |
 | `o` | berry |
+| `N` | nest — a ledge set into the tile, so the cat sits *in* it |
+| `+` | nest with a spare heart in it |
+| `A` | parked car — solid, and climbable like any other block |
+| `h` | hedgehog, `r` rat — walkers, only ever on plain `#` floor |
+| `f` | piranha — water *with* a fish in it |
+| `c` | crow |
+| `X` | the evil lord beetle |
 | `P` | cat spawn (exactly one) |
+| `E` | the way out |
 | `.` | empty |
 
 Rows may be written **short** — `parseLevel` pads them to

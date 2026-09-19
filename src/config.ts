@@ -252,15 +252,15 @@ export const CROW = {
   /**
    * How close the cat has to come before it attacks, px.
    *
-   * Kept tight because the crow guards the star, and the star is the one thing
-   * the level requires: a wide range turns the whole top of the tree into a
-   * gauntlet with no way through.
+   * Back to the wide, fierce original. It was narrowed once because the crow
+   * guarded something the level *required*; now it guards a spare heart, which
+   * is optional, so it can be as unpleasant as it likes.
    */
-  attackRange: 120,
+  attackRange: 150,
   /** How far the cat has to get before it gives up, px. Wider, to stop flicker. */
-  releaseRange: 200,
-  /** Speed of an attack run, px/sec. Slower than the cat can fall away. */
-  attackSpeed: 150,
+  releaseRange: 230,
+  /** Speed of an attack run, px/sec. */
+  attackSpeed: 180,
   /** How quickly the velocity turns towards where it is heading, per second. */
   turnRate: 2.6,
 } as const;
@@ -354,9 +354,6 @@ export const COLORS = {
 
   heart: 0xe0333f,
   heartLight: 0xff8a90,
-
-  star: 0xf6c645,
-  starGlow: 0xfff3b0,
 
   berry: 0xe0463d,
   berryLight: 0xff8175,
