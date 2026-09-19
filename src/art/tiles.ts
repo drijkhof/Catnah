@@ -48,6 +48,11 @@ export interface TilePalette {
   carGlass: number;
   carTrim: number;
   carLight: number;
+  houseWall: number;
+  houseWallDark: number;
+  houseRoof: number;
+  houseRoofDark: number;
+  houseWindow: number;
   lava: number;
   lavaDeep: number;
   lavaBright: number;
@@ -420,6 +425,69 @@ export function generateTileset(
     g.fillRect(0, 0, TILE, 2);
     g.fillRect(3, 2, 4, 1);
     g.fillRect(11, 2, 3, 1);
+  });
+
+  // --- houses -------------------------------------------------------------
+  // A house is not a block of flats, and in a city made only of flats every
+  // building is the same building. Plastered wall under a tiled roof, with the
+  // roof drawn on whichever tile happens to be the top of its column -- so a
+  // stepped roof line comes out as a pitched roof.
+  /** Plain plastered wall. Most of a house is this. */
+  const plaster = (g: Phaser.GameObjects.Graphics): void => {
+    g.fillStyle(palette.houseWall, 1);
+    g.fillRect(0, 0, TILE, TILE);
+
+    // Render, in patches rather than lines: plaster is not brick.
+    g.fillStyle(palette.houseWallDark, 0.35);
+    g.fillRect(2, 3, 4, 2);
+    g.fillRect(9, 8, 5, 2);
+    g.fillRect(4, 12, 3, 2);
+  };
+
+  bakeTexture(scene, key('house-fill'), TILE, TILE, plaster);
+
+  bakeTexture(scene, key('house-window'), TILE, TILE, (g) => {
+    plaster(g);
+
+    // A shuttered window with a rounded head, because a square hole in a wall
+    // is a hole and a rounded one is a window.
+    g.fillStyle(palette.houseWallDark, 1);
+    g.fillRect(3, 5, 10, 8);
+    g.fillCircle(8, 5, 5);
+
+    g.fillStyle(palette.houseWindow, 1);
+    g.fillRect(4, 5, 8, 6);
+    g.fillCircle(8, 5, 4);
+
+    // Glazing bars.
+    g.fillStyle(palette.houseWallDark, 1);
+    g.fillRect(7, 2, 2, 9);
+    g.fillRect(4, 6, 8, 1);
+
+    // A sill under it.
+    g.fillRect(2, 11, 12, 2);
+  });
+
+  bakeTexture(scene, key('house-top'), TILE, TILE, (g) => {
+    g.fillStyle(palette.houseWall, 1);
+    g.fillRect(0, 6, TILE, TILE - 6);
+
+    // Pantiles: a scalloped course, which is what makes a roof read as a roof.
+    g.fillStyle(palette.houseRoofDark, 1);
+    g.fillRect(0, 0, TILE, 7);
+    g.fillStyle(palette.houseRoof, 1);
+    g.fillRect(0, 1, TILE, 4);
+
+    for (let x = 1; x < TILE; x += 4) {
+      g.fillStyle(palette.houseRoofDark, 1);
+      g.fillRect(x, 1, 1, 4);
+      g.fillStyle(0xffffff, 0.14);
+      g.fillCircle(x + 2, 3, 1.6);
+    }
+
+    // The eaves, overhanging a little.
+    g.fillStyle(palette.houseRoofDark, 1);
+    g.fillRect(0, 5, TILE, 2);
   });
 
   // --- parked cars -------------------------------------------------------

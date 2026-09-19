@@ -19,7 +19,8 @@ its platforms must attach to a column. Everything else is derived.
 | `#` | forest floor / earth |
 | `=` | branch — what the platforms are in level 1 |
 | `B` | fallen bough, a full-height solid for low overhangs |
-| `R` | boulder — solid rock, and what wall jumps are taken from |
+| `R` | boulder / brick — solid rock, and what wall jumps are taken from |
+| `M` | masonry — a house rather than a flat: plaster under a pantile roof |
 | `T` | tree trunk — climbable, and deliberately *not* solid |
 | `w` | water — swimmable, not solid, harmless on its own |
 | `L` | lava — not solid either, and fatal to touch |

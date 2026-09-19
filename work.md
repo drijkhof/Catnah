@@ -327,31 +327,26 @@ branches interleaved; and the way out.
 
 ### 2 — City
 
-Night, and built at the scale of the thing walking through it. The cat is 22x18
-game pixels; a block of flats here is **sixteen storeys of brick**, an awning is
-four tiles of steel and a **parked car is two tiles tall and five long**.
-Standing in the street you can see the top of nothing. 176 tiles from end to
-end, nine buildings.
+450 tiles, at night, and **houses as well as flats**. A city made only of tower
+blocks is one building repeated: the terraces here are plastered walls under
+pitched pantile roofs with chimneys on them, and the flats behind are brick,
+twenty-one storeys and flat on top. One wall tile in nine has an arched window
+in it, in courses, the way a house does.
 
-**Roofs are sloped** — stepped, one way or the other — so the skyline is a
-skyline rather than a row of boxes.
+**The alleys are the way up.** A building stands on the pavement and blocks it,
+and the gaps between them are three tiles wide — which is a wall-jump shaft, the
+same one the forest teaches. Awnings and balconies step up the faces of the tall
+ones, a few houses have a passage cut through at street level, and there are
+four drainpipes in the whole city for the climbs too tall for anything else.
 
-A building stands on the pavement and blocks it, so each one is either **gone
-through** — an arcade at street level — or **gone over**. The four that are gone
-over have **one drainpipe**, on the side you arrive at; coming down the far side
-needs nothing, because falling is free. Four pipes in the whole city, and every
-one of them bolted to a wall. The only columns standing on their own are the
-**lampposts**, and they are short and have a lamp on top instead of a gutter
-hopper.
-
-Between the buildings are **awnings** to jump between, **parked cars** to
-clamber on, rats on the pavement, and a **canal** eleven tiles wide. Nothing
-swims in this city — the canal is water and no more than water. Two awnings span
-it with five tiles of nothing between them: swim it the slow way, or make that
-jump.
-
-Little hearts are on the roofs. So is the **spare heart**, in a crow's nest on the
-tallest building in the city.
+Twelve pieces, no two the same: a street with a stoop and a low house; a terrace
+of three with alleys between them; a flat with balconies alternating up its
+face; **the canal**, crossed on three awnings because nothing swims here; two
+flats with an alley that has no way through at street level; houses with
+passages cut through them; a zigzag of balconies; **the tallest building in the
+city**, with the crow's nest and the spare heart on top; a rank of parked cars
+to hop along; a long terrace of roofs at four different heights; one last alley,
+taller and narrower; and the way out.
 
 ### 3 — Swamp
 

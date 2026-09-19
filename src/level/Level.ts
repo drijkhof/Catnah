@@ -256,6 +256,10 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           block(x, y, at(column, row - 1) === 'R' ? 'rock-fill' : 'rock-top', column, row);
           break;
 
+        case 'M':
+          block(x, y, houseTexture(at, column, row), column, row);
+          break;
+
         case 'B':
           block(x, y, 'bough', column, row);
           break;
@@ -281,7 +285,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
         case 'T': {
           const isTop = at(column, row - 1) !== 'T';
           const againstWall =
-            'R#B'.includes(at(column - 1, row)) || 'R#B'.includes(at(column + 1, row));
+            'R#BM'.includes(at(column - 1, row)) || 'R#BM'.includes(at(column + 1, row));
 
           climbZones.push({ x, y, width: TILE, height: TILE, isTop, againstWall });
 
@@ -565,7 +569,7 @@ function assertSpidersHangFromRock(rows: string[], width: number, name: string):
 
       const above = rows[row - 1]?.[column] ?? '.';
 
-      if (!'#RB'.includes(above)) {
+      if (!'#RBM'.includes(above)) {
         throw new Error(
           `${name}: the spider at ${column},${row} has no rock over it (found '${above}').`,
         );
@@ -679,6 +683,26 @@ function exposedFaces(
     left: !covered(at(column - 1, row), true),
     right: !covered(at(column + 1, row), true),
   };
+}
+
+/**
+ * Picks which part of a house a tile is.
+ *
+ * The top of a column is its roof. Everything under it is wall, and **one wall
+ * tile in nine has a window in it** -- picked off the tile's own place in the
+ * grid, so the windows line up in courses the way a house's do. Putting one in
+ * every tile, which is what this did first, turns a terrace into graph paper.
+ */
+function houseTexture(
+  at: (column: number, row: number) => string,
+  column: number,
+  row: number,
+): string {
+  if (at(column, row - 1) !== 'M') {
+    return 'house-top';
+  }
+
+  return column % 3 === 1 && row % 3 === 1 ? 'house-window' : 'house-fill';
 }
 
 /**
