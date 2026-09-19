@@ -30,10 +30,10 @@ also the one that can cost a long session.
 the walk back rather than real progress. If they grow, this is the first thing
 that will need revisiting.
 
-**Minnows stay collected through a death**, so dying never undoes work — but
+**Little hearts stay collected through a death**, so dying never undoes work — but
 running out of lives does reset them, since the level itself starts over.
 
-> **Still open:** should the minnow count carry between levels, or is each level
+> **Still open:** should the little heart count carry between levels, or is each level
 > scored on its own? It resets at the moment, and there is no total.
 
 ## Hedgehogs
@@ -118,7 +118,7 @@ there is no cave-specific creature at all.
 bedded rock shelves, stalagmites as well as stalactites.
 
 **It is a tunnel network now**, carved out of solid rock: uneven floors, roofs
-over everything, branches, and dead ends that only hold minnows. One passage is
+over everything, branches, and dead ends that only hold little hearts. One passage is
 a single tile high and only a sneaking cat fits.
 
 > **Still open:** it has no creature of its own and still borrows hedgehogs.
@@ -149,10 +149,10 @@ each ends it. Finishing the city returns you to the forest.
 > **Still open:** there is no win state. What should happen after the city — a
 > score, a "well done", a fourth level?
 
-**Reaching the door is the only goal.** Minnows are optional; nothing requires
+**Reaching the door is the only goal.** Little hearts are optional; nothing requires
 collecting them, and nothing happens when you get them all.
 
-> **Still open:** should the door need all the minnows, or a minimum number?
+> **Still open:** should the door need all the little hearts, or a minimum number?
 
 ## Rules that turned out to be forest-only
 
@@ -377,7 +377,7 @@ it and still have rock underneath, which is what a cave actually is.
 
 > **Still open:** you can never climb back up to the chamber above. Nothing
 > needs you to, and every dead end is on the level it branches from — but a
-> player who misses a minnow has no way back to it.
+> player who misses a little heart has no way back to it.
 
 **Measured, not assumed.** The wall in the second chamber is clearable with a
 straight jump. The towers in the fourth are six rows (96px) against a 90px jump,
@@ -436,7 +436,7 @@ drawn, still walked through, and their crowns are still something to stand on.
 
 ## What the cat collects, and what the cars look like
 
-**Minnows.** The collectible was a berry, and a cat does not pick fruit. It is
+**Little hearts.** The collectible was a berry, and a cat does not pick fruit. It is
 now a little fish: pale blue with an orange tail, twelve pixels by eight, drawn
 deliberately unlike the piranha, which is dark and angular and all teeth. The
 name changed everywhere too rather than leaving a berry-shaped hole in the code

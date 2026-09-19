@@ -31,7 +31,7 @@ import type { LevelDefinition } from '../Level';
  * on a slope you have to climb.
  *
  * The route is a street-and-roof braid: the pavement is quick and has rats on
- * it, the roofs are slower and carry the minnows, and the gaps between
+ * it, the roofs are slower and carry the charms, and the gaps between
  * buildings are crossed by awning, girder or drainpipe. The spare heart is in a
  * crow's nest on the highest roof in the city.
  *
@@ -97,7 +97,7 @@ function tower(
     roof.push(roofRow);
   }
 
-  // Handed back so anything that sits *on* this building -- minnows, a nest --
+  // Handed back so anything that sits *on* this building -- charms, a nest --
   // can be put on the actual roof rather than at a row someone counted by hand.
   return roof;
 }

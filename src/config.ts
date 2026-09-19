@@ -224,6 +224,24 @@ export const CAT = {
  */
 export const LIVES = 3;
 
+/**
+ * How many little hearts buy a life.
+ *
+ * Counted across the whole run, not per level -- no level has a hundred of
+ * them in it, and a target you can only ever get most of the way to is not a
+ * target. Collecting everything in two or three levels earns one.
+ */
+export const CHARMS_PER_LIFE = 100;
+
+/**
+ * The most little hearts any one level may hold.
+ *
+ * Fewer than it takes to buy a life, on purpose: a life is always at least two
+ * levels of collecting, so it is a reward for playing well over a stretch of
+ * the game rather than for combing one room.
+ */
+export const MAX_CHARMS_PER_LEVEL = 60;
+
 /** Things that pace the floor. */
 export type GroundEnemyKind = 'hedgehog' | 'rat';
 
@@ -563,11 +581,11 @@ export const COLORS = {
   heart: 0xe0333f,
   heartLight: 0xff8a90,
 
-  // Bright and cold, so one reads against forest green, night brick and cave
-  // rock alike. It is the one thing in the game you are trying to touch.
-  minnow: 0x5fc9e8,
-  minnowLight: 0xd8f5ff,
-  minnowFin: 0xf29b3c,
+  // A little heart, brighter and pinker than the big ones in the corner so the
+  // two are never confused: those are lives, these are what buys one.
+  charm: 0xff5d7a,
+  charmLight: 0xffa8ba,
+  charmShine: 0xffffff,
 
   uiButton: 0xffffff,
 } as const;

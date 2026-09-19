@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, LIVES, TILE } from '../config';
+import { CHARMS_PER_LIFE, GAME_WIDTH, LIVES, TILE } from '../config';
 import { Controls } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -40,7 +40,13 @@ export class GameScene extends Phaser.Scene {
   private player!: Player;
   private level!: ParsedLevel;
   private scoreText!: Phaser.GameObjects.Text;
-  private minnows!: Phaser.Physics.Arcade.StaticGroup;
+  private charms!: Phaser.Physics.Arcade.StaticGroup;
+  /**
+   * Little hearts collected **this run**, not this level.
+   *
+   * Carried from level to level the way lives are, because a hundred of them
+   * is a life and no single level holds a hundred.
+   */
   private collected = 0;
 
   /** Tries left on this level. Running out starts it over. */
@@ -68,7 +74,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   /** Phaser hands this whatever `scene.start` was given. */
-  init(data: { levelIndex?: number; lives?: number }): void {
+  init(data: { levelIndex?: number; lives?: number; collected?: number }): void {
     const carried = this.registry.get(SNAPSHOT_KEY) as GameSnapshot | undefined;
 
     this.levelIndex = data.levelIndex ?? carried?.levelIndex ?? 0;
@@ -76,11 +82,11 @@ export class GameScene extends Phaser.Scene {
     // in the next, which is the only thing that makes finding one worth a
     // detour.
     this.lives = data.lives ?? LIVES;
+    this.collected = data.collected ?? 0;
   }
 
   create(): void {
     this.level = parseLevel(LEVELS[this.levelIndex]);
-    this.collected = 0;
     this.crocodiles = [];
     this.spiders = [];
     this.lifeIcons = [];
@@ -108,7 +114,7 @@ export class GameScene extends Phaser.Scene {
     const climbZones = this.buildTrunks();
     const waterZones = this.buildWater();
     this.lavaRects = this.buildLava();
-    this.minnows = this.buildMinnows();
+    this.charms = this.buildCharms();
 
     this.player = new Player(
       this,
@@ -128,8 +134,8 @@ export class GameScene extends Phaser.Scene {
       undefined,
       (_cat, branch) => this.canLandOn(branch as Phaser.Physics.Arcade.Sprite),
     );
-    this.physics.add.overlap(this.player, this.minnows, (_cat, minnow) => {
-      this.collectMinnow(minnow as Phaser.Physics.Arcade.Sprite);
+    this.physics.add.overlap(this.player, this.charms, (_cat, charm) => {
+      this.collectCharm(charm as Phaser.Physics.Arcade.Sprite);
     });
 
     this.cameras.main.setBounds(
@@ -170,24 +176,24 @@ export class GameScene extends Phaser.Scene {
       velocityY: this.player.body.velocity.y,
       facingLeft: this.player.flipX,
       // Recorded by position rather than by index, so a level edit that adds or
-      // removes minnows elsewhere does not un-collect the wrong ones.
-      collectedMinnows: this.minnows
+      // removes charms elsewhere does not un-collect the wrong ones.
+      collectedCharms: this.charms
         .getChildren()
-        .filter((minnow) => !(minnow as Phaser.Physics.Arcade.Sprite).active)
-        .map((minnow) => minnow.getData('levelPosition') as { x: number; y: number }),
+        .filter((charm) => !(charm as Phaser.Physics.Arcade.Sprite).active)
+        .map((charm) => charm.getData('levelPosition') as { x: number; y: number }),
     };
   }
 
   /** Puts a snapshot from the previous build back into this one. */
   restoreState(snapshot: GameSnapshot): void {
-    for (const mark of snapshot.collectedMinnows) {
-      const match = this.minnows.getChildren().find((minnow) => {
-        const at = minnow.getData('levelPosition') as { x: number; y: number };
+    for (const mark of snapshot.collectedCharms) {
+      const match = this.charms.getChildren().find((charm) => {
+        const at = charm.getData('levelPosition') as { x: number; y: number };
         return at.x === mark.x && at.y === mark.y;
       });
 
       if (match) {
-        this.collectMinnow(match as Phaser.Physics.Arcade.Sprite);
+        this.collectCharm(match as Phaser.Physics.Arcade.Sprite);
       }
     }
 
@@ -319,6 +325,7 @@ export class GameScene extends Phaser.Scene {
       this.scene.start('Game', {
         levelIndex: (this.levelIndex + 1) % LEVELS.length,
         lives: this.lives,
+        collected: this.collected,
       });
     });
   }
@@ -510,8 +517,8 @@ export class GameScene extends Phaser.Scene {
         .refreshBody() as Phaser.Physics.Arcade.Sprite;
 
       // Probes look for solid ground by asking the physics world what is
-      // nearby, and minnows are static bodies too. Without this flag a hedgehog
-      // turns round at a minnow and the cat can wall jump off one.
+      // nearby, and charms are static bodies too. Without this flag a hedgehog
+      // turns round at a charm and the cat can wall jump off one.
       tile.setData('solid', true);
       if (invisible) {
         tile.setVisible(false);
@@ -654,23 +661,23 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  private buildMinnows(): Phaser.Physics.Arcade.StaticGroup {
-    const minnows = this.physics.add.staticGroup();
+  private buildCharms(): Phaser.Physics.Arcade.StaticGroup {
+    const charms = this.physics.add.staticGroup();
 
-    for (const minnow of this.level.minnows) {
-      const sprite = minnows.create(
-        minnow.x,
-        minnow.y,
-        'minnow',
+    for (const charm of this.level.charms) {
+      const sprite = charms.create(
+        charm.x,
+        charm.y,
+        'charm',
       ) as Phaser.Physics.Arcade.Sprite;
 
       // The bob tween moves the sprite, so its own y is no longer where the
-      // level put it. Remember that, so a minnow can be matched after a reload.
-      sprite.setData('levelPosition', { x: minnow.x, y: minnow.y });
+      // level put it. Remember that, so a charm can be matched after a reload.
+      sprite.setData('levelPosition', { x: charm.x, y: charm.y });
 
       this.tweens.add({
         targets: sprite,
-        y: minnow.y - 3,
+        y: charm.y - 3,
         duration: 700,
         yoyo: true,
         repeat: -1,
@@ -678,23 +685,34 @@ export class GameScene extends Phaser.Scene {
       });
     }
 
-    return minnows;
+    return charms;
   }
 
-  private collectMinnow(minnow: Phaser.Physics.Arcade.Sprite): void {
-    if (!minnow.active) {
+  private collectCharm(charm: Phaser.Physics.Arcade.Sprite): void {
+    if (!charm.active) {
       return;
     }
 
-    minnow.disableBody(true, true);
+    charm.disableBody(true, true);
     this.collected += 1;
     this.scoreText.setText(this.formatScore());
+
+    if (this.collected >= CHARMS_PER_LIFE) {
+      // A hundred of them is a life. The count starts again rather than
+      // carrying on, so the number in the corner is always how far you are
+      // from the *next* one.
+      this.collected -= CHARMS_PER_LIFE;
+      this.lives += 1;
+      this.refreshLives();
+      this.scoreText.setText(this.formatScore());
+      this.cameras.main.flash(260, 255, 150, 180);
+    }
   }
 
   private buildHud(): void {
     // An icon rather than a word, so the HUD needs no translating.
     this.add
-      .image(TILE, TILE, 'minnow')
+      .image(TILE, TILE, 'charm')
       .setScrollFactor(0)
       .setDepth(1000);
 
@@ -797,6 +815,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   private formatScore(): string {
-    return `${this.collected}/${this.level.minnows.length}`;
+    return `${this.collected}/${CHARMS_PER_LIFE}`;
   }
 }

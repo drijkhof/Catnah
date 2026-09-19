@@ -1,4 +1,4 @@
-import { SPIDER, TILE } from '../config';
+import { MAX_CHARMS_PER_LEVEL, SPIDER, TILE } from '../config';
 import { BRANCH_THICKNESS } from '../art';
 import type { ThemeName } from './themes';
 import type { GroundEnemyKind } from '../config';
@@ -13,7 +13,7 @@ import type { GroundEnemyKind } from '../config';
  *   `T`  climbable column — a trunk, a vine, a drainpipe
  *   `w`  water — swimmable, not solid, harmless on its own
  *   `N`  nest, decoration
- *   `o`  minnow
+ *   `o`  charm
  *   `P`  cat spawn (exactly one)
  *   `E`  the way out, to the next level
  *   `h`  hedgehog, pacing the floor it stands on
@@ -166,7 +166,7 @@ export interface ParsedLevel {
   /** Where the boss holds its ground, if the level has one. */
   boss: Point | null;
   nests: Point[];
-  minnows: Point[];
+  charms: Point[];
   /** Spare hearts sitting in nests. Always optional. */
   extraLives: Point[];
   /** Where the cat starts, and returns to after dying. */
@@ -200,7 +200,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const crows: Point[] = [];
   const spiders: Spider[] = [];
   const nests: Point[] = [];
-  const minnows: Point[] = [];
+  const charms: Point[] = [];
   let spawn: Point | null = null;
   let boss: Point | null = null;
   const extraLives: Point[] = [];
@@ -357,7 +357,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           break;
 
         case 'o':
-          minnows.push({ x: x + TILE / 2, y: y + TILE / 2 });
+          charms.push({ x: x + TILE / 2, y: y + TILE / 2 });
           break;
 
         case '+':
@@ -390,6 +390,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   assertCreaturesHaveRoom(rows, width, definition.name);
   assertWalkersStandOnGround(rows, width, definition.name);
   assertSpidersHangFromRock(rows, width, definition.name);
+  assertCharmBudget(charms, definition.name);
   assertSpawnHasFooting(rows, width, definition.name, spawn);
 
   const pools = groupIntoPools(waterZones);
@@ -423,7 +424,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     spiders,
     boss,
     nests,
-    minnows,
+    charms,
     extraLives,
     spawn,
     exit,
@@ -540,6 +541,21 @@ function assertSpawnHasFooting(
  * Without something up there its thread is anchored to nothing and it walks a
  * ceiling that is not there, which looks exactly like a bug because it is one.
  */
+/**
+ * No level holds more than `MAX_CHARMS_PER_LEVEL` little hearts.
+ *
+ * A hundred of them buys a life, and the cap is well under that, so a life is
+ * always at least two levels of collecting. A long level that simply scattered
+ * more of them would quietly turn that into one.
+ */
+function assertCharmBudget(charms: Point[], name: string): void {
+  if (charms.length > MAX_CHARMS_PER_LEVEL) {
+    throw new Error(
+      `${name} has ${charms.length} little hearts in it; the most a level may hold is ${MAX_CHARMS_PER_LEVEL}.`,
+    );
+  }
+}
+
 function assertSpidersHangFromRock(rows: string[], width: number, name: string): void {
   for (let row = 0; row < rows.length; row += 1) {
     for (let column = 0; column < width; column += 1) {

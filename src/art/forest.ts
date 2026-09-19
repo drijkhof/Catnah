@@ -19,7 +19,7 @@ export function generateForestTextures(scene: Phaser.Scene): void {
   generateBush(scene);
   generateGrassTuft(scene);
   generateLife(scene);
-  generateMinnow(scene);
+  generateCharm(scene);
 }
 
 function generateSky(scene: Phaser.Scene): void {
@@ -153,7 +153,7 @@ function generateLife(scene: Phaser.Scene): void {
 }
 
 /**
- * A minnow: the little fish the cat is collecting.
+ * A charm: the little fish the cat is collecting.
  *
  * A cat does not pick fruit, which is what the berry this replaced always
  * looked like. It is drawn facing left and bobbing, so a row of them reads as
@@ -162,37 +162,32 @@ function generateLife(scene: Phaser.Scene): void {
  * Deliberately nothing like the piranha: pale, round-nosed and finger-sized,
  * where that one is dark, angular and all teeth.
  */
-function generateMinnow(scene: Phaser.Scene): void {
-  const width = 12;
-  const height = 8;
+/**
+ * The little heart the cat collects. A hundred of them is a life.
+ *
+ * Smaller, pinker and brighter than the hearts in the corner, because those
+ * are lives and these are what buys one -- at a glance the two have to be
+ * different things.
+ */
+function generateCharm(scene: Phaser.Scene): void {
+  const size = 11;
+  const mid = size / 2;
 
-  bakeTexture(scene, 'minnow', width, height, (g) => {
-    // Tail first, as a notched fork rather than a solid wedge: at this size a
-    // triangle reads as an arrow and a fork reads as a fish.
-    g.fillStyle(COLORS.minnowFin, 1);
-    g.fillRect(0, 1, 1, 2);
-    g.fillRect(0, 5, 1, 2);
-    g.fillRect(1, 2, 1, 4);
-    g.fillRect(2, 3, 1, 2);
+  bakeTexture(scene, 'charm', size, size, (g) => {
+    g.fillStyle(COLORS.charm, 1);
 
-    // Fins, one up one down, two pixels each. Any more and the silhouette
-    // turns to fluff.
-    g.fillRect(6, 1, 2, 1);
-    g.fillRect(6, 6, 2, 1);
+    // Two lobes and a point: the whole shape, and nothing else fits at 11px.
+    g.fillCircle(mid - 2.2, mid - 1.6, 2.9);
+    g.fillCircle(mid + 2.2, mid - 1.6, 2.9);
+    g.fillTriangle(mid - 5, mid - 0.6, mid + 5, mid - 0.6, mid, size);
 
-    // Body: a lens, widest in the middle, with a blunt nose.
-    g.fillStyle(COLORS.minnow, 1);
-    g.fillRect(4, 2, 6, 1);
-    g.fillRect(3, 3, 9, 2);
-    g.fillRect(4, 5, 6, 1);
+    // A soft inner light, so it reads as round rather than as a stamp.
+    g.fillStyle(COLORS.charmLight, 0.85);
+    g.fillCircle(mid - 1.8, mid - 1.8, 1.5);
+    g.fillCircle(mid + 1.8, mid - 1.8, 1.2);
 
-    // A lit back and a pale belly, which is most of what makes it look wet.
-    g.fillStyle(COLORS.minnowLight, 1);
-    g.fillRect(5, 2, 4, 1);
-    g.fillRect(5, 5, 3, 1);
-
-    // One pixel of eye. Two was a face.
-    g.fillStyle(0x16323d, 1);
-    g.fillRect(10, 3, 1, 1);
+    // One pixel of highlight, which is what makes it look wet.
+    g.fillStyle(COLORS.charmShine, 0.9);
+    g.fillRect(mid - 3, mid - 3, 1, 1);
   });
 }
