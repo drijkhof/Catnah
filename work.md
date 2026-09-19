@@ -267,6 +267,21 @@ shoulders show above the straw.
 - At three or more, it simply adds another — the row grows, and you can carry
   four, five, as many as you find.
 
+## How long they are
+
+| Level | Tiles |
+| --- | --- |
+| Forest | 450 |
+| City | 176 |
+| Swamp | 1220 |
+| Canopy | 390 |
+| Cave | 240 wide, 64 deep |
+| Volcano | 520 |
+
+Every one of them is **written out** in its file, row by row. A few were laid
+out once with a throwaway script and then frozen, because a level has to be the
+same thing on every machine and in every run.
+
 ## The six levels
 
 **Forest, city, swamp, canopy, cave, volcano.** Each one starts at one end and

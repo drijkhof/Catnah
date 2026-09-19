@@ -181,7 +181,24 @@ rather than a misplaced character, and cost a debugging session to find.
 
 ## Carved levels
 
-## The cave is generated, not written out
+## Levels are written out, never generated at boot
+
+Every level in `levels/` is a literal `ROWS` array. Some of them were **laid out
+once** with a throwaway builder -- the forest's bays, the swamp's crossings, the
+cave's chambers -- and the builder's output was then frozen into the file and the
+builder deleted.
+
+That is the rule: a level is a fixed thing that is the same on every machine, in
+every run, for every player. A generator that runs at boot is one refactor away
+from being a level that quietly differs, and a level nobody can point at is a
+level nobody can fix.
+
+Rows are written **short** and padded out to `widthInTiles` by `parseLevel`,
+which is why the right-hand ends are ragged. To change a level, edit the rows.
+To lay out a new one, write whatever you like, run it once, paste the output in
+and throw the script away.
+
+## The old note on carving, which still explains the shapes
 
 `cave.ts` builds its grid in code: one block of rock, with chambers carved out of
 it by `hollow`, `carve` and `block`. At 48x96 the hand-written string style the
@@ -194,10 +211,8 @@ be sunk into it without opening a hole into the chamber below. That is what the
 old cave's water lacked: it sat in a two-row floor with open air under it, and a
 pool with nothing holding it looks exactly as wrong as it was.
 
-`swamp.ts` and `city.ts` are built the same way -- the swamp from segments, the
-city from buildings placed at absolute coordinates. `tower()` hands back its own
-roof line so that anything sitting on a building goes on the actual roof rather
-than at a row someone counted by hand.
+The city is still built from `tower()` calls, because a building's roof line is
+arithmetic and a hand-counted one drifts. Everything else is frozen rows.
 
 A city building is either **gone through** -- `arcade()` cuts two rows out of it
 at street level -- or **gone over**, with one drainpipe on the side you arrive
