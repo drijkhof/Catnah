@@ -24,6 +24,7 @@ import type { GroundEnemyKind } from '../config';
  *   `S`  star — a nest tile *with* the star in it, so placing one never
  *        punches a hole in the nest it is meant to be sitting in
  *   `c`  crow, which circles the nest it is placed at
+ *   `X`  the boss, which guards the end of the level it is placed in
  *   `.`  empty
  *
  * Rows may be written short; they are padded out with empty tiles.
@@ -122,6 +123,8 @@ export interface ParsedLevel {
   /** Where each piranha lurks, and which pool it belongs to. */
   piranhas: Piranha[];
   crows: Point[];
+  /** Where the boss holds its ground, if the level has one. */
+  boss: Point | null;
   nests: Point[];
   berries: Point[];
   /** The star, if this level has one. Required to leave. */
@@ -158,6 +161,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const berries: Point[] = [];
   let spawn: Point | null = null;
   let star: Point | null = null;
+  let boss: Point | null = null;
   let exit: Point | null = null;
 
   /**
@@ -278,6 +282,10 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           crows.push({ x: x + TILE / 2, y: y + TILE / 2 });
           break;
 
+        case 'X':
+          boss = { x: x + TILE / 2, y: y + TILE / 2 };
+          break;
+
         case 'N':
           nests.push({ x, y });
           solids.push(platform(x, y, 'nest-ledge'));
@@ -337,6 +345,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     walkers,
     piranhas,
     crows,
+    boss,
     nests,
     berries,
     star,
@@ -397,7 +406,7 @@ function assertCreaturesHaveRoom(rows: string[], width: number, name: string): v
 
   rows.forEach((tiles, row) => {
     for (let column = 0; column < width; column += 1) {
-      if (!'hrfc'.includes(tiles[column])) {
+      if (!'hrfcX'.includes(tiles[column])) {
         continue;
       }
 

@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { TILE } from '../config';
 import { Controls } from '../input/Controls';
 import { Player } from '../objects/Player';
+import { Boss } from '../objects/Boss';
 import { Crow } from '../objects/Crow';
 import { GroundEnemy } from '../objects/GroundEnemy';
 import { Piranha } from '../objects/Piranha';
@@ -52,6 +53,7 @@ export class GameScene extends Phaser.Scene {
   private walkers: GroundEnemy[] = [];
   private piranhas: Piranha[] = [];
   private crows: Crow[] = [];
+  private boss?: Boss;
   private lavaRects: Phaser.Geom.Rectangle[] = [];
 
   /** True from the moment the cat is killed until it is back on its feet. */
@@ -238,6 +240,7 @@ export class GameScene extends Phaser.Scene {
     for (const crow of this.crows) {
       crow.step(cat, delta);
     }
+    this.boss?.step(delta, cat);
 
     if (!this.dying && this.touchingLava()) {
       this.kill();
@@ -366,6 +369,9 @@ export class GameScene extends Phaser.Scene {
       return new Piranha(this, at.x, at.y, pool, index * 700);
     });
     this.crows = this.level.crows.map((at) => new Crow(this, at.x, at.y));
+    this.boss = this.level.boss
+      ? new Boss(this, this.level.boss.x, this.level.boss.y)
+      : undefined;
 
     for (const nest of this.level.nests) {
       this.add.image(nest.x, nest.y, this.tile('nest')).setOrigin(0, 0).setDepth(-2);
@@ -385,7 +391,17 @@ export class GameScene extends Phaser.Scene {
         ),
     );
 
-    for (const creature of [...this.walkers, ...this.piranhas, ...this.crows]) {
+    const everything: Phaser.Physics.Arcade.Sprite[] = [
+      ...this.walkers,
+      ...this.piranhas,
+      ...this.crows,
+    ];
+
+    if (this.boss) {
+      everything.push(this.boss);
+    }
+
+    for (const creature of everything) {
       this.physics.add.overlap(this.player, creature, () => this.kill());
     }
   }
@@ -650,7 +666,7 @@ export class GameScene extends Phaser.Scene {
 
     if (import.meta.env.DEV) {
       // A development shortcut, in its own module so the build drops it.
-      installLevelSkip(this, levelName, (this.levelIndex + 1) % LEVELS.length);
+      installLevelSkip(this, levelName, this.levelIndex, LEVELS.length);
     }
 
     if (this.level.star) {

@@ -270,3 +270,28 @@ the sixth is not a good use of an evening. It is also the safer of the two
 checks, because a hostname test would still ship the code.
 
 > Say the word and it narrows to `location.hostname === 'localhost'`.
+
+
+## The boss
+
+**It cannot be beaten, only got past.** Nothing in this game can be defeated, so
+giving the boss a health bar would have meant inventing combat for one fight.
+Instead it is a pattern: sweep, line up directly overhead, drop.
+
+**The line-up is the whole warning**, and it is deliberately slower than the
+drop. A fast one is not a pattern, it is a coin toss.
+
+Two things the testing forced, both worth knowing:
+
+- **It needs a floor to fight on.** The arena was four-tile islands at first,
+  and since the beetle is 56px wide, the only way out of its path was into the
+  lava. It has one long floor now.
+- **A diagonal dive was useless.** It reached its depth before it reached the
+  cat, so a cat that simply stood still was never hit. Lining up first fixed
+  both that and the readability.
+
+Measured: standing still dies in about three seconds; running to the far end of
+the arena each time it commits survives six drops over thirty seconds untouched.
+
+> **Still open:** there is no sense of progress in the fight and no reward for
+> surviving it — you simply walk out. A boss usually wants one or the other.

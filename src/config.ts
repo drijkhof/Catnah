@@ -187,6 +187,43 @@ export const PIRANHA = {
   intervalMs: 2200,
 } as const;
 
+/**
+ * The boss: the evil lord beetle at the end of the volcano.
+ *
+ * It has no health and cannot be beaten, because nothing in this game can. It
+ * is a pattern to be read and slipped past, which is what the rest of the game
+ * has taught by the time it appears.
+ */
+export const BOSS = {
+  /** How far either side of its lair it sweeps, px. */
+  sweepRadius: 150,
+  /** Speed of that sweep, px/sec. */
+  sweepSpeed: 70,
+  /** How long it hovers between dives, ms. */
+  restMs: 2400,
+  /**
+   * Speed of sliding into position above the cat, px/sec.
+   *
+   * Deliberately slower than the drop. This is the telegraph, and it is the
+   * whole of the warning you get: fast enough and the boss is simply on top of
+   * you, which is not a pattern, it is a coin toss.
+   */
+  aimSpeed: 115,
+
+  /** Speed of the drop itself, px/sec. */
+  diveSpeed: 260,
+  /**
+   * How far it drops on a dive, px.
+   *
+   * Deep enough to reach a cat standing on the arena floor. At 120 the dive
+   * bottomed out 27px above the cat's head, so the boss was menacing and
+   * completely harmless to anyone who simply stood still.
+   */
+  diveDepth: 178,
+  /** How quickly it turns towards where it is going, per second. */
+  turnRate: 3,
+} as const;
+
 /** The crow, which circles its nest and comes at the cat. */
 export const CROW = {
   /** Radius of its patrol circle around the nest, px. */
@@ -274,6 +311,12 @@ export const COLORS = {
   // Anything that can kill the cat shares one eye colour, so danger reads the
   // same however different the creature is.
   dangerEye: 0xe23b2f,
+
+  bossShell: 0x8e1f1f,
+  bossShellDark: 0x5c1212,
+  bossSpot: 0x141013,
+  bossSpine: 0x2b1f22,
+  bossLeg: 0x3a2a2a,
 
   ratBody: 0x5f5a55,
   ratBelly: 0x8a837c,

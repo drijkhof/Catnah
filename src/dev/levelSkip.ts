@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 
 /**
- * Ctrl- or Cmd-click the level name to skip to the next one.
+ * Ctrl-click the level name to skip forward a level, Cmd-click to go back one.
  *
  * A development shortcut. It lives in its own module and is only ever called
  * from inside an `import.meta.env.DEV` branch, so a production build drops the
@@ -11,12 +11,14 @@ import Phaser from 'phaser';
  * you have not finished is the entire point of it.
  *
  * @param label The level name in the HUD, which becomes the click target.
- * @param nextIndex Which level to go to.
+ * @param index Which level this is.
+ * @param count How many there are, so both directions wrap round.
  */
 export function installLevelSkip(
   scene: Phaser.Scene,
   label: Phaser.GameObjects.Text,
-  nextIndex: number,
+  index: number,
+  count: number,
 ): void {
   // Otherwise Ctrl-click opens the browser's own menu on a Mac.
   scene.input.mouse?.disableContextMenu();
@@ -25,14 +27,19 @@ export function installLevelSkip(
 
   label.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
     const event = pointer.event as MouseEvent;
+    const step = event.ctrlKey ? 1 : event.metaKey ? -1 : 0;
 
-    if (!event.ctrlKey && !event.metaKey) {
+    if (step === 0) {
       return;
     }
 
+    // Modulo twice, so stepping back from the first level wraps to the last
+    // rather than landing on a negative index.
+    const target = (((index + step) % count) + count) % count;
+
     scene.cameras.main.fade(180, 0, 0, 0);
     scene.cameras.main.once('camerafadeoutcomplete', () => {
-      scene.scene.start('Game', { levelIndex: nextIndex });
+      scene.scene.start('Game', { levelIndex: target });
     });
   });
 }

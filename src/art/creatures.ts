@@ -10,11 +10,72 @@ export const GROUND_ENEMY_SIZES = {
 export const PIRANHA_SIZE = { width: 17, height: 10 };
 export const CROW_SIZE = { width: 20, height: 15 };
 
+/** The boss. Far bigger than anything else, which is most of the threat. */
+export const BOSS_SIZE = { width: 66, height: 46 };
+
 export function generateCreatureTextures(scene: Phaser.Scene): void {
   generateHedgehog(scene);
   generateRat(scene);
   generatePiranha(scene);
   generateCrow(scene);
+  generateBoss(scene);
+}
+
+/**
+ * The evil lord beetle: a ladybird with the sweetness taken out.
+ *
+ * Everything that makes a ladybird cheerful is inverted -- the red goes dark,
+ * the spots grow spines, and the friendly domed shell gets a jaw under it --
+ * while the silhouette stays unmistakably a ladybird. That contrast is the joke
+ * and the menace at the same time.
+ */
+function generateBoss(scene: Phaser.Scene): void {
+  const { width, height } = BOSS_SIZE;
+  const midY = height / 2;
+
+  bakeTexture(scene, 'boss', width, height, (g) => {
+    // Spines along the back, drawn first so the shell sits over their roots.
+    g.fillStyle(COLORS.bossSpine, 1);
+    for (let i = 0; i < 6; i += 1) {
+      const x = 12 + i * 8;
+      g.fillTriangle(x, 14, x + 6, 14, x + 3, 1);
+    }
+
+    // Legs.
+    g.fillStyle(COLORS.bossLeg, 1);
+    for (const x of [14, 28, 42]) {
+      g.fillRect(x, height - 10, 3, 9);
+      g.fillRect(x - 3, height - 3, 7, 3);
+    }
+
+    // The shell.
+    g.fillStyle(COLORS.bossShell, 1);
+    g.fillEllipse(width / 2 - 4, midY, width - 18, height - 12);
+
+    g.fillStyle(COLORS.bossShellDark, 1);
+    g.fillRect(width / 2 - 5, midY - (height - 12) / 2 + 3, 3, height - 18);
+
+    // Spots.
+    g.fillStyle(COLORS.bossSpot, 1);
+    for (const [sx, sy, r] of [[18, 16, 5], [20, 32, 4], [34, 13, 4], [36, 31, 5], [46, 22, 4]]) {
+      g.fillCircle(sx, sy, r);
+    }
+
+    // Head, jaw and eyes, at the front.
+    g.fillStyle(COLORS.bossSpot, 1);
+    g.fillEllipse(width - 12, midY, 20, height - 20);
+
+    g.fillStyle(COLORS.bossLeg, 1);
+    g.fillTriangle(width - 6, midY + 2, width, midY + 6, width - 10, midY + 10);
+    g.fillTriangle(width - 6, midY - 2, width, midY - 6, width - 10, midY - 10);
+
+    g.fillStyle(COLORS.dangerEye, 1);
+    g.fillCircle(width - 8, midY - 4, 4);
+    g.fillCircle(width - 8, midY + 5, 3);
+
+    g.fillStyle(0xffffff, 0.8);
+    g.fillCircle(width - 9, midY - 5, 1.5);
+  });
 }
 
 function generateRat(scene: Phaser.Scene): void {

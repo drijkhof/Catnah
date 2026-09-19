@@ -179,8 +179,9 @@ Each one starts on the left and ends at a **glowing door** on the right, which
 takes you to the next. The city leads back to the forest. Berries are optional
 everywhere.
 
-While developing, **Ctrl- or Cmd-clicking the level name** skips to the next
-level, ignoring the star. It is not in the built game.
+While developing, **Ctrl-clicking the level name** goes to the next level and
+**Cmd-clicking** goes back one, both ignoring the star and both wrapping round.
+Neither is in the built game.
 
 Where a level has a **star**, the door will not open without it. The forest's is
 in the crow's nest at the top of the great tree; the city's is on a rooftop. The
@@ -248,6 +249,12 @@ nothing.
 Lava is shaped exactly like water and behaves nothing like it: not solid, and
 **fatal to touch**. Cones on the skyline have lava running down them, and embers
 drift up through the whole level.
+
+The last stretch is the lair of the **evil lord beetle** — a ladybird with the
+sweetness taken out, three times the cat in every direction. It sweeps above one
+long floor, slides until it is **directly overhead**, and then drops straight
+down. Standing still is fatal; reading the line-up and moving is not. It cannot
+be beaten, only got past, and the way out is on the far side of it.
 
 ## The creatures
 
