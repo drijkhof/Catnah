@@ -16,6 +16,8 @@ When a ticket is built, set it to `done` and move what it added into `work.md`.
 | [5](#5--piranhas) | Piranhas | `todo` | 1, 4 |
 | [6](#6--hedgehogs) | Hedgehogs | `todo` | 1 |
 | [7](#7--double-jump-off-a-wall-or-trunk) | Double jump off a wall or trunk | `todo` | 3 |
+| [8](#8--the-view-follows-the-cat-upward) | The view follows the cat upward | `todo` | — |
+| [9](#9--the-great-tree-its-nest-and-the-crow) | The great tree, its nest and the crow | `todo` | 1, 8 |
 
 ---
 
@@ -178,3 +180,101 @@ something.
 **Notes** — `Player` already has the structure for this: `body.blocked.left` and
 `blocked.right` say which surface is being touched, and the coyote-time and
 jump-buffer timers are the pattern a wall-jump grace window would follow.
+
+---
+
+## 8 — The view follows the cat upward
+
+`todo`
+
+The viewport should move up with the cat, so it can climb out of the frame it
+starts in.
+
+**The camera already follows vertically** — `startFollow` tracks both axes. The
+problem is that there is nowhere to go: the level is 23 tiles (368px) tall
+against a 360px viewport, which leaves **8px** of vertical travel, against a
+vertical deadzone of 60px. So the view never moves.
+
+What this ticket really needs is vertical *room*: a level taller than the
+screen, and the camera framing tuned for climbing rather than for running
+left to right.
+
+This blocks ticket 9 — a tall tree is pointless if the top of it cannot be seen.
+
+**Acceptance**
+
+- The level is meaningfully taller than the viewport.
+- Climbing moves the view up, and it settles back down on the way down, without
+  snapping or jitter.
+- The cat stays comfortably in frame while jumping — a jump should not shove the
+  view around.
+
+**Open questions**
+
+- Should the view follow upward *faster* than it comes back down? Platformers
+  usually do, so that a jump does not make the screen bob.
+- Should it stay locked while the cat is airborne and only catch up on landing?
+  That is the usual answer to bobbing, at the cost of feeling stiff.
+
+**Notes** — the two knobs are already in `GameScene`: `setDeadzone(120, 60)` and
+the lerp in `startFollow(player, true, 0.12, 0.12)`.
+
+Two things will need checking once the camera actually moves vertically. The
+backdrop in `src/world` plants trees relative to the ground line and has only
+ever been seen with a fixed vertical view, so parallax ranks may show gaps above
+or below. And the fall-out threshold in `GameScene` is derived from the level
+height, which this ticket changes.
+
+---
+
+## 9 — The great tree, its nest and the crow
+
+`todo` · needs [1](#1--hazards-and-dying), [8](#8--the-view-follows-the-cat-upward)
+
+A single great tree standing in the middle of the field, far taller than the
+rest of the forest, with a **nest at the top** — and a **crow** that lives in it
+and attacks.
+
+**The crow**
+
+- Circles its nest, and goes for the cat specifically once the cat comes near.
+- Moves **horizontally and vertically at once**, so it flies in curves and comes
+  in on attack runs rather than sliding along a straight line.
+- Contact kills the cat.
+
+**How the crow looks**
+
+- Black feathers with a slight grey sheen.
+- Red eyes.
+- Almost as big as the cat — so roughly 20x16 game pixels, against the cat's
+  22x18. Big enough to be a real threat on screen, not a bird-shaped dot.
+
+**Buildable in two stages**, and worth doing that way: the tree and its nest are
+level geometry and stand on their own as somewhere to climb, while the crow is
+the most complex enemy on this list. Kept as one ticket because it is one idea.
+
+**Acceptance**
+
+- The tree is climbable to the top, and the nest is a place you can reach.
+- The crow patrols near the nest while the cat is far away.
+- It breaks off and attacks when the cat comes within some range, then returns.
+- Attack runs curve; the crow never just slides horizontally.
+- Contact kills the cat, from any direction.
+- An attack can be dodged by a player who sees it coming.
+
+**Open questions**
+
+- Is the nest the goal of the level, or just a place with something in it?
+- Does the crow ever give up and go home, or keep coming while the cat is close?
+- Can it be defeated, or only avoided?
+- Does it attack while the cat is on the ground far below, or only up in the
+  tree?
+- Does sneaking hide the cat from it? Same question as the hedgehog, and the two
+  answers should probably match.
+
+**Notes** — curved flight wants steering (a velocity turned gradually toward the
+target) rather than arcade physics collision. `Phaser.Math.Vector2` rotation or
+a simple seek-and-turn is enough; gravity should be off for this body.
+
+This is the first enemy that needs to know where the cat *is*, rather than just
+walking a fixed path, so it is a step up from ticket 6 in every respect.
