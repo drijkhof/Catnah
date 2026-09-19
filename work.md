@@ -59,8 +59,14 @@ it, a cat pacing the floor, a crow crossing overhead, a hedgehog trundling the
 other way and a piranha coming out of a puddle now and then. **Catnah**, and
 under it *A Hannah Milatovic Rijkhof Game*. Any key starts it; on a phone, a tap.
 
-Losing your last heart brings you back here rather than straight into the
-forest, so a run visibly ends before the next one begins.
+Losing your last heart does not bring you straight back here and does not drop
+you back into the forest. The screen goes **black, with one line of red on it**:
+
+> YOU UNALIVED
+
+It holds for a moment before it will take an input — a death is usually a
+keypress, and without the pause the press that killed you also dismisses the
+message. Any key after that, or six seconds, and you are back at the title.
 
 **Starting the game goes fullscreen**, and asks for landscape while it is
 there. It has to happen on the keypress or the tap itself — a browser only
@@ -369,9 +375,12 @@ Carved rather than built: the grid starts as one block of rock and the passages
 are cut out of it, so no floor is level and every passage has a roof.
 Stalactites above, stalagmites below.
 
-Each chamber is one idea, and never the same one twice running — pillars to jump,
-shelves to climb, a **sump** (a pool with rock over the middle of it, so the way
-past is under the water), a **squeeze** one tile high that has to be crawled.
+Each chamber is one idea, and never the same one twice running — pillars to
+jump, shelves to climb, a low roof that forces a flat jump, a **squeeze** one
+tile high that has to be crawled.
+
+**There is no water down here.** A cave is dry rock; everything in it is
+something to climb over, squeeze through or drop off.
 
 **It branches, and most branches go nowhere.** They climb *away* from the main
 run, because the main run only goes down: a dead end you have to drop into would

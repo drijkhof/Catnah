@@ -13,6 +13,9 @@ import type { LevelDefinition } from '../Level';
  * passages are cut out of it, which is why no floor is level and every passage
  * has a roof.
  *
+ * **There is no water down here.** A cave is dry rock; everything in it is
+ * something to climb over, squeeze through or drop off.
+ *
  * **It branches, and most branches go nowhere.** They climb *away* from the
  * main run, because the main run only ever goes down: a dead end you have to
  * drop into would be a trap, and one you climb into is a decision.
@@ -111,10 +114,6 @@ function build(): string[] {
     block(grid, startOf(step) + at, floors[step] - up, w, 1, '=');
   };
 
-  const pool = (step: number, at: number, w: number): void => {
-    block(grid, startOf(step) + at, floors[step], w, 2, 'w');
-  };
-
   const spider = (step: number, at: number): void => {
     put(grid, startOf(step) + at, floors[step] - HEADROOM, 's');
   };
@@ -132,9 +131,11 @@ function build(): string[] {
   shelf(2, 8, 5);
   berries(grid, startOf(2) + 8, floors[2] - 6, 3);
 
-  // A sump: rock over the middle of a pool, so the way past is under the water.
-  pool(3, 2, 9);
-  block(grid, startOf(3) + 5, floors[3] - 1, 4, 1, '#');
+  // A low roof over the middle of the chamber. Not low enough to crawl under --
+  // low enough that the jump across the pillars under it has to be flat.
+  block(grid, startOf(3) + 4, floors[3] - HEADROOM, 6, 3, '#');
+  pillar(3, 3, 3);
+  pillar(3, 9, 3);
   spider(3, 1);
 
   // A squeeze. One tile of headroom fits a sneaking cat and nothing else.
@@ -149,7 +150,9 @@ function build(): string[] {
   shelf(6, 7, 3);
   berries(grid, startOf(6) + 2, floors[6] - 5, 3);
 
-  pool(7, 2, 10);
+  shelf(7, 2, 3);
+  pillar(7, 6, 5);
+  shelf(7, 9, 4, 3);
   spider(7, 7);
 
   // Chamber 8 is the fork: the long branch climbs out of it. See below.
@@ -163,8 +166,9 @@ function build(): string[] {
   block(grid, startOf(11) + 5, floors[11] - HEADROOM, 6, HEADROOM - 1, '#');
   spider(11, 1);
 
-  pool(12, 2, 8);
-  pillar(12, 11, 3);
+  pillar(12, 2, 5);
+  pillar(12, 7, 3);
+  pillar(12, 11, 4);
 
   shelf(13, 2, 4);
   shelf(13, 8, 3);

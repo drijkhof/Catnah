@@ -6,14 +6,22 @@ Phaser scenes. Registered in order in `src/main.ts`; the first one starts.
 - **`TitleScene`** — the title screen, and where a finished run ends up.
 - **`GameScene`** — builds the level, owns the player, camera, HUD and the
   update loop.
+- **`GameOverScene`** — black, one line of red, and back to the title.
 
 `BootScene` starts `Title`, **except on a hot reload**, which carries a game in
 progress: dropping the player back on the title screen would throw away the
 place `src/dev/hot.ts` went to such trouble to keep. It tests for the snapshot
 in the registry to tell the two apart.
 
-Losing the last heart sends `GameScene` to `Title`, not back to level 1. Being
-put straight back into the forest gives no moment to notice the run ended.
+Losing the last heart sends `GameScene` to `GameOver`, which sends itself to
+`Title`. Neither straight back to the forest nor straight back to the title:
+being put back into the game gives no moment to notice the run ended.
+
+`GameOverScene` ignores input for its first 900ms. A death is usually a keypress
+or a tap, and without the pause the same press that killed you also dismisses
+the message. Its text is at full alpha from the first frame and only *then*
+given a pulse -- fading it up was prettier and made the one thing that screen
+exists to say depend on a tween having run.
 
 ## The title screen is the game, not a picture of it
 
