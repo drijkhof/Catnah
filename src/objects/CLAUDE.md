@@ -82,6 +82,10 @@ still inside the trunk, and falling into a trunk is exactly what the automatic
 grip catches — so without the pause, stepping off re-grabs on the next frame and
 the cat can never leave.
 
+`climbing` is read by `GameScene` as well: a climbing cat passes through
+branches in both directions, or the branches growing out of a trunk would block
+the climb up it.
+
 The climb stops at `trunkTops` rather than running off the end into thin air,
 which would drop the cat straight back down past the trunk it just climbed. A
 few pixels of overlap are kept at the top (`CLIMB_TOP_MARGIN`), because a cat

@@ -3,19 +3,18 @@
 Future wishes, as tickets. Nothing here is built yet — this is the list we talk
 about and pick from. What *is* built is described in [`work.md`](work.md).
 
-**Statuses**: `todo` · `in progress` · `blocked` · `done` · `icebox`
+**Statuses**: `todo` · `in progress` · `blocked` · `icebox`
 
-When a ticket is built, set it to `done` and move what it added into `work.md`.
+When a ticket is built, what it changed is written up in [`work.md`](work.md)
+and **the ticket is deleted from here**. So this file is only ever what is still
+wanted. Numbers are not reused, which is why there are gaps.
 
 | # | Title | Status | Depends on |
 | --- | --- | --- | --- |
 | [1](#1--hazards-and-dying) | Hazards and dying | `todo` | — |
-| [2](#2--boulders) | Boulders | `done` | — |
-| [3](#3--tree-trunks) | Tree trunks | `done` | — |
 | [4](#4--water) | Water | `todo` | — |
 | [5](#5--piranhas) | Piranhas | `todo` | 1, 4 |
 | [6](#6--hedgehogs) | Hedgehogs | `todo` | 1 |
-| [7](#7--double-jump-off-a-wall-or-trunk) | Double jump off a wall or trunk | `done` | — |
 | [8](#8--the-view-follows-the-cat-upward) | The view follows the cat upward | `todo` | — |
 | [9](#9--the-great-tree-its-nest-and-the-crow) | The great tree, its nest and the crow | `todo` | 1, 8 |
 | [10](#10--cave-level) | Cave level | `todo` | — |
@@ -48,44 +47,6 @@ version of this ticket is to reuse exactly that for contact deaths too.
 - Lives, or infinite retries?
 - Respawn at the level start, or at a checkpoint part-way through?
 - Do collected berries stay collected after dying?
-
----
-
-## 2 — Boulders
-
-`done`
-
-Rocks in the forest. Built as **solid and climbable**: tile character `R`, cool
-grey against the warm forest so a rock face never reads as part of a tree.
-
-Level 1 has two. A small one two tiles tall, met early, to introduce rock as
-something solid. A tower seven tiles tall whose face has to be wall jumped
-(ticket 7), with berries on top as the reward.
-
-**Left unbuilt on purpose**: boulders do not move. Pushing, rolling and crushing
-were the other half of the original question and are a much larger job —
-say the word and they become their own ticket.
-
----
-
-## 3 — Tree trunks
-
-`done`
-
-Standing trunks the cat can meet, tile character `T`.
-
-The original acceptance said a trunk would be *solid*. That was overtaken:
-trunks are climbable and **deliberately not solid** — you walk straight through
-one at ground level, and climb it by pressing up while inside it. Holding on is
-automatic once attached, with no button held down; reaching out sideways lets
-go.
-
-Level 1 has two, each ending two tiles above the branch beside it so that
-letting go at the top drops the cat onto that branch.
-
-**Knock-on for ticket 6** — a trunk can no longer serve as the thing a hedgehog
-turns around at, since a hedgehog would walk through it just as the cat does.
-That ticket needs a different obstacle, and boulders are the obvious candidate.
 
 ---
 
@@ -137,9 +98,9 @@ Hedgehogs patrol back and forth. Touching one kills the cat.
 
 - Walks back and forth along its platform.
 - **Does not walk off the edge** — turns around at a drop.
-- **Turns around at an obstacle.** Note that tree trunks turned out to be
-  walk-through rather than solid (ticket 3), so they cannot serve as one —
-  boulders are the obvious candidate instead.
+- **Turns around at an obstacle.** Tree trunks cannot serve as one: they are
+  walk-through, so a hedgehog would pass straight through just as the cat does.
+  Boulders are the obvious candidate.
 - Contact kills the cat from any direction.
 
 **Open questions**
@@ -152,33 +113,6 @@ Hedgehogs patrol back and forth. Touching one kills the cat.
 **Notes** — edge detection ("is there still floor ahead of me?") is the fiddly
 part. A look-ahead probe below and in front of the hedgehog is the usual answer
 and fits the existing arcade physics.
-
----
-
-## 7 — Double jump off a wall or trunk
-
-`done`
-
-Built as a **wall jump** — settled by "maak boulders en wall jumps", which
-answered the open question this ticket was waiting on. Boulders supplied the
-walls, so the dependency on tree trunks (ticket 3) fell away; trunks will work
-as walls for free once they exist.
-
-- In mid-air against a wall, jump fires again and shoves the cat up and away.
-- Each wall jump needs a fresh press, so holding the button cannot climb a face.
-- Pressing into a wall while falling turns it into a **wall slide** at 95 px/s
-  instead of a 600 px/s drop. Not in the original ticket, added because without
-  it there is no time to react to a wall and the move is unusable.
-
-**What the tuning cost**, worth keeping: the first attempt pushed 250 px/s away
-for 150ms, and a lone wall turned out to be *unclimbable* — steering back cost
-more height than a wall jump gained, so the cat took one jump and sank. Settled
-at 150 px/s for 100ms, where a cycle nets upward. The tower now takes three wall
-jumps in 0.6s.
-
-The level also had to change: a branch overhanging the tower caught the cat's
-head. A climbing face needs clear air across the **whole swing**, about 25px out
-from the wall, not just the column directly above it.
 
 ---
 
@@ -297,8 +231,9 @@ lost, not a spec.
   underground, as would boulders.
 - What does the cat want down there?
 
-**Notes** — the tile format already handles rock, and most of what a cave needs
-is solids with a different palette, so the geometry is close to free. The work
+**Notes** — the tile format already handles rock, trunks and one-way branches,
+and most of what a cave needs is solids with a different palette, so the
+geometry is close to free. The work
 is the lighting and whatever mechanic makes it feel unlike the forest.
 
 ---

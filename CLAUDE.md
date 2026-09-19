@@ -55,8 +55,9 @@ and are **kept up to date as part of the work, not afterwards**:
   contains, and the Dutch/English glossary. Update it in the same change that
   alters the game.
 - **`backlog.md`** — future wishes as numbered tickets. New ideas go here rather
-  than being built straight away. When a ticket is built, mark it `done` and
-  move what it added into `work.md`.
+  than being built straight away. When a ticket is built, write up what changed
+  in `work.md` and **delete the ticket**, so the backlog is only ever what is
+  still wanted. Numbers are not reused.
 
 ## Stack
 

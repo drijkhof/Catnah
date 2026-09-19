@@ -67,7 +67,8 @@ is.
 ### Climbing trunks
 
 Trunks are **not solid** — walk straight through one at ground level and nothing
-happens. Standing inside one, press up and the cat takes hold instead of
+happens. Climbing also passes through the branches growing out of the trunk, in
+both directions. Standing inside one, press up and the cat takes hold instead of
 jumping, the way standing at the foot of a ladder does. Fall onto one in mid-air
 and it catches you: that is the automatic grip, with no button to hold.
 
@@ -75,8 +76,8 @@ Once attached, the cat stays put with nothing pressed. Up climbs, down descends,
 and it stops at the top rather than climbing off into the air. Reaching out
 left or right lets go.
 
-Each trunk in level 1 ends two tiles above the branch beside it, so letting go
-at the top drops the cat onto that branch.
+Each trunk ends two tiles above its highest branch, so letting go at the top
+drops the cat onto it.
 
 ### Wall jumping
 
@@ -99,20 +100,24 @@ light falling through the trees.
 
 **What is in it**
 
-- **Branches** — the platforms. Only as tall as their wood, so the cat lands on
-  the surface you can see; the leaves hanging underneath are decoration and do
-  not collide.
+- **Four trees.** Every branch grows from a trunk, and every trunk runs down to
+  the floor, so anything you can jump to you can also climb to. The game refuses
+  to load a level with a branch attached to nothing.
+- **Branches** — the platforms, and **one-way**: you jump up through one from
+  underneath and land on it coming down. That is what lets a branch grow
+  straight out of a trunk without walling off the climb. They are only as tall
+  as their wood, so the cat lands on the surface you can see; the leaves
+  hanging underneath are decoration and do not collide.
 - **Forest floor** — earth with grass on top, with one gap to jump.
 - **A fallen bough** lying a tile above the floor. Sneak under it, or jump on
   top and cross over. It is a choice, not a wall.
-- **Two trunks** to climb. A short one early on, beside the first branch, and a
-  tall one near the end running from the floor all the way to the high branch —
-  a route that skips the whole climb.
+- **Trunks** to climb, one per tree. The tall one near the end runs from the
+  floor to the highest branch, a route that skips the whole climb.
 - **Boulders**, grey stone against all the green. A small one early on, two
   tiles tall, as a step. And a tower seven tiles tall — higher than any single
   jump — whose face has to be wall jumped. Two berries sit on top, and from
   there it is a short hop to a branch that otherwise takes the long way round.
-- **28 berries** to collect, shown top left.
+- **26 berries** to collect, shown top left.
 - **Scenery**: trees in two depth ranks, bushes and grass along the floor.
 
 **Rules today**

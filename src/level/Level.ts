@@ -55,18 +55,18 @@ const LEVEL_SOURCE: string[] = [
   '',
   '.'.repeat(73) + 'T',
   '.'.repeat(69) + 'ooo' + '.' + 'T',
-  '.'.repeat(68) + '====' + '.' + 'T',
-  '.'.repeat(25) + 'ooo' + '.'.repeat(45) + 'T',
-  '.'.repeat(24) + '=====' + '.'.repeat(28) + 'ooo' + '.'.repeat(13) + 'T',
-  '.'.repeat(56) + '=====' + '.'.repeat(12) + 'T',
-  '.'.repeat(17) + 'ooo' + '.'.repeat(13) + 'ooo' + '.'.repeat(29) + 'oo' + '.'.repeat(6) + 'T',
-  '.'.repeat(16) + '=====' + '.'.repeat(11) + '=====' + '.'.repeat(28) + 'RR' + '.'.repeat(6) + 'T',
-  '.'.repeat(13) + 'T' + '.'.repeat(39) + 'ooo' + '.'.repeat(9) + 'RR' + '.'.repeat(6) + 'T',
-  '.'.repeat(9) + 'ooo' + '.' + 'T' + '.'.repeat(27) + 'oo' + '.'.repeat(9) + '=====' + '.'.repeat(8) + 'RR' + '.'.repeat(6) + 'T',
-  '.'.repeat(8) + '====' + '.' + 'T' + '.'.repeat(26) + '====' + '.'.repeat(21) + 'RR' + '.'.repeat(6) + 'T',
-  '.'.repeat(13) + 'T' + '.'.repeat(51) + 'RR' + '.'.repeat(6) + 'T',
-  '.'.repeat(13) + 'T' + '.'.repeat(3) + 'RR' + '.'.repeat(3) + 'BBBBBB' + '.'.repeat(37) + 'RR' + '.'.repeat(6) + 'T',
-  '...P' + '.'.repeat(9) + 'T' + '.'.repeat(3) + 'RR' + '.'.repeat(46) + 'RR' + '.'.repeat(6) + 'T' + 'ooo',
+  '.'.repeat(69) + '='.repeat(4) + 'T',
+  '.'.repeat(30) + 'T' + '.'.repeat(42) + 'T',
+  '.'.repeat(30) + 'T' + 'ooo' + '.'.repeat(39) + 'T',
+  '.'.repeat(30) + 'T' + '='.repeat(5) + '.'.repeat(37) + 'T',
+  '.'.repeat(10) + 'T' + '.'.repeat(15) + 'ooo' + '.' + 'T' + '.'.repeat(13) + 'T' + '.'.repeat(20) + 'oo' + '.'.repeat(6) + 'T' + 'ooo',
+  '.'.repeat(10) + 'T' + 'ooo' + '.'.repeat(12) + '='.repeat(4) + 'T' + '.'.repeat(13) + 'T' + 'ooo' + '.'.repeat(17) + 'RR' + '.'.repeat(6) + 'T' + '='.repeat(5),
+  '.'.repeat(10) + 'T' + '='.repeat(5) + '.'.repeat(14) + 'T' + '.'.repeat(13) + 'T' + '='.repeat(4) + '.'.repeat(16) + 'RR' + '.'.repeat(6) + 'T',
+  '.'.repeat(6) + 'ooo' + '.' + 'T' + '.'.repeat(19) + 'T' + '.'.repeat(9) + 'ooo' + '.' + 'T' + '.'.repeat(20) + 'RR' + '.'.repeat(6) + 'T',
+  '.'.repeat(6) + '='.repeat(4) + 'T' + '.'.repeat(19) + 'T' + '.'.repeat(9) + '='.repeat(4) + 'T' + '.'.repeat(20) + 'RR' + '.'.repeat(6) + 'T',
+  '.'.repeat(10) + 'T' + '.'.repeat(19) + 'T' + '.'.repeat(13) + 'T' + '.'.repeat(20) + 'RR' + '.'.repeat(6) + 'T',
+  '.'.repeat(10) + 'T' + '.'.repeat(6) + 'RR' + '...' + 'B'.repeat(6) + '..' + 'T' + '.'.repeat(13) + 'T' + '.'.repeat(20) + 'RR' + '.'.repeat(6) + 'T',
+  '...' + 'P' + '.'.repeat(6) + 'T' + '.'.repeat(6) + 'RR' + '.'.repeat(11) + 'T' + '.'.repeat(13) + 'T' + '.'.repeat(20) + 'RR' + '.'.repeat(6) + 'T',
   '#'.repeat(46) + '.'.repeat(5) + '#'.repeat(29),
   '#'.repeat(46) + '.'.repeat(5) + '#'.repeat(29),
   '#'.repeat(46) + '.'.repeat(5) + '#'.repeat(29),
@@ -223,7 +223,11 @@ export function parseLevel(source: string[] = LEVEL_SOURCE): ParsedLevel {
             height: BRANCH_THICKNESS,
             textureKey: branchTexture(at(column - 1, row), at(column + 1, row)),
             isBranch: true,
-            faces: exposedFaces(at, column, row),
+            // Branches are one-way: solid underfoot, and nothing else. You jump
+            // up through one from below and land on it coming down. Leaving the
+            // sides solid would also mean a branch could catch the shoulder of
+            // a cat climbing the very trunk it grows from.
+            faces: { up: true, down: false, left: false, right: false },
           });
           break;
 
@@ -245,6 +249,8 @@ export function parseLevel(source: string[] = LEVEL_SOURCE): ParsedLevel {
     throw new Error("Level has no 'P' spawn tile.");
   }
 
+  assertBranchesGrowFromTrunks(rows);
+
   return {
     solids,
     climbZones,
@@ -254,6 +260,48 @@ export function parseLevel(source: string[] = LEVEL_SOURCE): ParsedLevel {
     widthInPixels: LEVEL_WIDTH_IN_TILES * TILE,
     heightInPixels: rows.length * TILE,
   };
+}
+
+/**
+ * Refuses a level containing a branch that is not attached to a trunk.
+ *
+ * Branches hang in the air on their own quite happily as far as the physics is
+ * concerned, so this is a rule about the world rather than about the code: a
+ * branch belongs to a tree. Checking it here means a level cannot quietly drift
+ * out of that shape while nobody is looking.
+ */
+function assertBranchesGrowFromTrunks(rows: string[]): void {
+  const orphans: string[] = [];
+
+  rows.forEach((tiles, row) => {
+    let column = 0;
+
+    while (column < LEVEL_WIDTH_IN_TILES) {
+      if (tiles[column] !== '=') {
+        column += 1;
+        continue;
+      }
+
+      const first = column;
+      while (tiles[column] === '=') {
+        column += 1;
+      }
+      const last = column - 1;
+
+      // A run is attached if a trunk stands at either end of it.
+      const attached = tiles[first - 1] === 'T' || tiles[last + 1] === 'T';
+
+      if (!attached) {
+        orphans.push(`row ${row}, columns ${first}-${last}`);
+      }
+    }
+  });
+
+  if (orphans.length > 0) {
+    throw new Error(
+      `Every branch must grow from a trunk. Unattached: ${orphans.join('; ')}.`,
+    );
+  }
 }
 
 /** Solids that fill their whole cell, as opposed to a branch's thin bar of wood. */

@@ -36,7 +36,7 @@ export class GameScene extends Phaser.Scene {
 
     new Backdrop(this, this.level.widthInPixels, this.level.groundLine);
 
-    const solids = this.buildSolids();
+    const { blocks, branches } = this.buildSolids();
     const climbZones = this.buildTrunks();
     this.berries = this.buildBerries();
 
@@ -47,7 +47,13 @@ export class GameScene extends Phaser.Scene {
       climbZones,
     );
 
-    this.physics.add.collider(this.player, solids);
+    this.physics.add.collider(this.player, blocks);
+    this.physics.add.collider(
+      this.player,
+      branches,
+      undefined,
+      (_cat, branch) => this.canLandOn(branch as Phaser.Physics.Arcade.Sprite),
+    );
     this.physics.add.overlap(this.player, this.berries, (_cat, berry) => {
       this.collectBerry(berry as Phaser.Physics.Arcade.Sprite);
     });
@@ -152,11 +158,20 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  private buildSolids(): Phaser.Physics.Arcade.StaticGroup {
-    const solids = this.physics.add.staticGroup();
+  /**
+   * Builds the collision, split in two because branches collide differently:
+   * they are one-way, so they need a collider of their own with a rule on it.
+   */
+  private buildSolids(): {
+    blocks: Phaser.Physics.Arcade.StaticGroup;
+    branches: Phaser.Physics.Arcade.StaticGroup;
+  } {
+    const blocks = this.physics.add.staticGroup();
+    const branches = this.physics.add.staticGroup();
 
     for (const solid of this.level.solids) {
-      const tile = solids
+      const group = solid.isBranch ? branches : blocks;
+      const tile = group
         .create(solid.x, solid.y, solid.textureKey)
         .setOrigin(0, 0)
         .refreshBody() as Phaser.Physics.Arcade.Sprite;
@@ -179,7 +194,30 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    return solids;
+    return { blocks, branches };
+  }
+
+  /**
+   * Whether the cat should be stopped by a branch this frame.
+   *
+   * Branches are one-way. You jump up through one from underneath and land on
+   * it coming down, which is what lets a branch grow straight out of a trunk
+   * without walling off the climb.
+   */
+  private canLandOn(branch: Phaser.Physics.Arcade.Sprite): boolean {
+    // A cat on a trunk passes through branches in both directions -- otherwise
+    // the branches growing out of a trunk would block climbing it.
+    if (this.player.climbing) {
+      return false;
+    }
+
+    const cat = this.player.body;
+    const wood = branch.body as Phaser.Physics.Arcade.StaticBody;
+
+    // Only land on a branch the cat was already clear of last frame. Testing
+    // the previous position rather than the current one is what stops a cat
+    // that is halfway up through a branch being snapped back on top of it.
+    return cat.velocity.y >= 0 && cat.prev.y + cat.height <= wood.y + 1;
   }
 
   /**

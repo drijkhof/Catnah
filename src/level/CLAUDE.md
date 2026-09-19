@@ -52,25 +52,36 @@ floor for the same reason.
 Phaser's own tilemaps do this internally when they calculate faces; a static
 group of individual sprites does not, so it is done here.
 
-## Designing for climbing
+## Every branch grows from a trunk
 
-**Keep the columns either side of a trunk clear for its whole length.** The cat
-is 22px wide against a 16px tile, so it overhangs a trunk by about 3px on each
-side. A branch merely *next to* a trunk is enough to catch the cat's shoulder
-and stop the climb dead, several tiles below the top, which reads as broken
-climbing rather than as a level mistake.
+`assertBranchesGrowFromTrunks` refuses to parse a level containing a branch with
+no trunk at either end. Physics is perfectly happy with a branch hanging in
+mid-air, so this is a rule about the world rather than about the code — checking
+it here means a level cannot quietly drift out of that shape.
 
-**End a trunk two tiles above the branch it serves.** Letting go at the top
-needs enough fall time for the cat to drift sideways over the branch before it
-drops past the level of it. One tile is not enough; the cat clips the branch's
-edge instead of landing on it.
+It is what makes climbing worth anything: if every branch belongs to a tree,
+then anything you can jump to you can also climb to.
 
-## Designing for wall jumps
+## Branches are one-way
 
-A climbing face needs clear air across the **whole swing**, roughly 25px out
-from the wall, not merely the column directly above it. A branch overhanging the
-tower by two tiles was enough to catch the cat's head and cap the climb — and it
-looked like a broken wall jump rather than a level problem.
+A branch's faces are forced to `up` only, whatever its neighbours are, and the
+scene gives them a collider of their own with a rule on it. You jump up through
+a branch from underneath and land on it coming down.
+
+This is what lets a branch grow straight out of the trunk it belongs to. Solid
+branches could not: the cat is 22px wide against a 16px tile, so it overhangs a
+trunk by about 3px each side, and a solid branch merely *next to* a trunk caught
+the cat's shoulder and stopped the climb dead several tiles short.
+
+## Designing for climbing and wall jumps
+
+**End a trunk two tiles above its highest branch.** Letting go at the top needs
+enough fall time for the cat to drift sideways over the branch before it drops
+past the level of it. One tile only clips the branch's edge.
+
+**A wall-jump face needs clear air across the whole swing**, roughly 25px out
+from the wall, not merely the column directly above it. Branches no longer count
+here, since they are one-way — but rock, earth and boughs all do.
 
 ## The sneaking passage
 
