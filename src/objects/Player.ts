@@ -24,8 +24,17 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   /** Time remaining, in ms, during which a late jump still counts as grounded. */
   private coyoteTimer = 0;
 
-  /** Time remaining, in ms, that an early jump press stays queued. */
-  private jumpBufferTimer = 0;
+  /**
+   * A jump press waiting to be spent.
+   *
+   * Not on a timer: it is held until something uses it, or until the cat tips
+   * over into a descent. Pressing on the way up therefore stays queued for a
+   * wall to arrive, and pressing on the way down stays queued for the landing.
+   */
+  private jumpQueued = false;
+
+  /** Whether the cat was rising last frame, to spot the turn at the apex. */
+  private wasRising = false;
 
   /** True while rising from a jump the player has not yet released. */
   private isJumping = false;
@@ -133,7 +142,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // A queued jump beats a held sneak, so a player holding the button is
     // never stuck. Under a low overhang there is no headroom to stand, which is
     // what stops the jump instead.
-    const wantsJump = this.coyoteTimer > 0 && this.jumpBufferTimer > 0;
+    const wantsJump = this.coyoteTimer > 0 && this.jumpQueued;
     this.resolvePose(controls.sneak && onGround && !wantsJump);
 
     // Jumping resolves before movement, so that the shove a wall jump gives is
@@ -144,6 +153,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       controls,
       wantsJump && !this.isSneaking,
       this.wallCoyoteTimer > 0 ? this.wallCoyoteSide : 0,
+      dt,
     );
     this.applyHorizontal(controls, dt, onGround);
     this.applyWallSlide(controls, wall, onGround);
@@ -158,7 +168,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.setVelocity(0, 0);
     this.setPosition(x, y);
     this.coyoteTimer = 0;
-    this.jumpBufferTimer = 0;
+    this.jumpQueued = false;
     this.wallJumpLockTimer = 0;
     this.lastWallJumpSide = 0;
     this.wallCoyoteTimer = 0;
@@ -245,7 +255,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.lastWallJumpSide = 0;
     this.wallCoyoteTimer = 0;
     this.coyoteTimer = 0;
-    this.jumpBufferTimer = 0;
+    this.jumpQueued = false;
   }
 
   private releaseTrunk(): void {
@@ -307,9 +317,17 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       ? CAT.coyoteTimeMs
       : Math.max(0, this.coyoteTimer - delta);
 
-    this.jumpBufferTimer = controls.jumpJustPressed
-      ? CAT.jumpBufferMs
-      : Math.max(0, this.jumpBufferTimer - delta);
+    if (controls.jumpJustPressed) {
+      this.jumpQueued = true;
+    }
+
+    // Tipping over into a descent throws the queued jump away. A press made on
+    // the way up was meant for something on the way up.
+    const rising = this.body.velocity.y < 0;
+    if (this.wasRising && !rising) {
+      this.jumpQueued = false;
+    }
+    this.wasRising = rising;
 
     this.wallJumpLockTimer = Math.max(0, this.wallJumpLockTimer - delta);
     this.climbCooldownTimer = Math.max(0, this.climbCooldownTimer - delta);
@@ -415,7 +433,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     );
   }
 
-  private applyJump(controls: Controls, canJump: boolean, wall: number): void {
+  private applyJump(
+    controls: Controls,
+    canJump: boolean,
+    wall: number,
+    dt: number,
+  ): void {
     // A wall jump asks for three things at once. A fresh press, held in the
     // same buffer a ground jump uses, so holding the button cannot climb a face
     // on its own. The opposite side to the last one: left, right, left. And the
@@ -427,7 +450,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       wall !== 0 &&
       wall !== this.lastWallJumpSide &&
       this.body.velocity.y < 0 &&
-      this.jumpBufferTimer > 0 &&
+      this.jumpQueued &&
       !this.isSneaking
     ) {
       this.applyWallJump(wall);
@@ -439,22 +462,34 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.isJumping = true;
       this.jumpCameFromWall = false;
 
-      // Both windows are spent, otherwise a single press could trigger a second
-      // jump on the very next frame while the timers are still warm.
+      // Both are spent, otherwise a single press could trigger a second jump on
+      // the very next frame while the coyote window is still warm.
       this.coyoteTimer = 0;
-      this.jumpBufferTimer = 0;
+      this.jumpQueued = false;
     }
 
-    // Variable jump height: let go early and the hop is cut short. Only for
-    // jumps off the ground -- see `jumpCameFromWall`.
-    if (
-      this.isJumping &&
-      !this.jumpCameFromWall &&
-      !controls.jumpHeld &&
-      this.body.velocity.y < 0
-    ) {
-      this.setVelocityY(this.body.velocity.y * CAT.jumpCutMultiplier);
+    this.applyJumpRelease(controls, dt);
+  }
+
+  /**
+   * Variable jump height: let go early and the cat stops climbing sooner.
+   *
+   * Applied as a heavier gravity rather than a cut to the velocity, so the cat
+   * coasts on a little instead of stopping dead the instant the button comes up.
+   * Only for jumps off the ground -- see `jumpCameFromWall`.
+   */
+  private applyJumpRelease(controls: Controls, dt: number): void {
+    if (!this.isJumping || this.jumpCameFromWall) {
+      return;
+    }
+
+    if (this.body.velocity.y >= 0) {
       this.isJumping = false;
+      return;
+    }
+
+    if (!controls.jumpHeld) {
+      this.setVelocityY(this.body.velocity.y + CAT.jumpReleaseGravity * dt);
     }
   }
 
@@ -475,7 +510,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     // Spent, for the same reason a ground jump spends them: one press, one jump.
     this.coyoteTimer = 0;
-    this.jumpBufferTimer = 0;
+    this.jumpQueued = false;
 
     // Face the way it is travelling, not the wall it just left.
     this.setFlipX(wall > 0);

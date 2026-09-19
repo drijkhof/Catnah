@@ -56,10 +56,16 @@ export const CAT = {
   maxFallSpeed: 600,
 
   /**
-   * Releasing the jump button early cuts the remaining upward velocity by this
-   * factor, which is what makes a jump feel variable-height.
+   * Extra downward acceleration applied while the cat is still rising and the
+   * jump button has been let go, px/sec^2. This is what makes a jump
+   * variable-height.
+   *
+   * Deliberately a heavier gravity rather than an instant cut to the velocity.
+   * Cutting stops the climb dead the moment the button comes up, which feels
+   * like the jump was snatched away; weighing it down instead lets the cat coast
+   * on a little and settle into the fall.
    */
-  jumpCutMultiplier: 0.45,
+  jumpReleaseGravity: 2600,
 
   /**
    * Grace window after walking off a ledge during which a jump still counts.
@@ -68,10 +74,9 @@ export const CAT = {
   coyoteTimeMs: 90,
 
   /**
-   * Grace window before landing during which a jump press is remembered and
-   * fires the instant the cat touches ground.
+   * A queued jump has no timer. It is held until it is spent, or until the cat
+   * tips over into a descent -- see `jumpQueued` in Player.
    */
-  jumpBufferMs: 120,
 
   /**
    * Fall speed while pressing against a wall in mid-air, px/sec.

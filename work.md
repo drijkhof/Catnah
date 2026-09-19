@@ -57,10 +57,17 @@ is.
 - **Gravity is always on.** Falling speed is capped at 600 px/s so long drops
   stay readable.
 - **You steer in the air**, but with less grip than on the ground.
-- **Jump height is variable**: tap for ~41px, hold for ~86px.
-- The jump is forgiving in two ways — it still fires just after you run off a
-  ledge (coyote time), and a press just before you land is remembered and fires
-  on contact (jump buffer).
+- **Jump height is variable**: a flick of the space bar gives about 39px and
+  holding it gives 86px, with everything in between. Letting go does not stop
+  the climb dead — the cat gets heavier and coasts on a little, still rising
+  about 30px after a very short tap.
+- The jump is forgiving in two ways. It still fires just after you run off a
+  ledge (coyote time). And a press that cannot be used yet is **queued**: it
+  waits, with no time limit, until something spends it or until the cat tips
+  over into a descent. So a press on the way down is kept for the landing, and a
+  press on the way up is kept for a wall — but a press on the way up that finds
+  no wall is thrown away at the top of the arc rather than surprising you with a
+  hop when you land.
 - **Sneaking is blocked from standing up** when there is no headroom, so you
   cannot pop up through a log you are sneaking under, nor jump out from under it.
 

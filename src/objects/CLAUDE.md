@@ -29,15 +29,31 @@ from one that feels slippery and unfair. Do not simplify them away:
   than on the ground.
 - **Coyote time** — a jump still fires shortly *after* walking off a ledge.
 - **Jump buffering** — a jump pressed shortly *before* landing fires on contact.
-- **Jump cut** — releasing early shortens the hop, giving variable height.
-  Measured: ~86px held, ~41px tapped.
+- **Variable height** — releasing early makes the cat heavier rather than
+  cutting its velocity, so it eases off instead of stopping dead. Measured:
+  86px held, 39px on a one-frame tap, and about 30px of that still gained after
+  the button came up.
 - **Sneaking**, **wall jumping** and **climbing**, below.
 
 All of it is tuned by the `CAT` block in `src/config.ts`. Tune there; do not
 hardcode numbers in the entity.
 
-Both grace timers are zeroed when a jump fires, otherwise one press could
-trigger a second jump the next frame while the windows are still warm.
+### The queued jump has no timer
+
+`jumpQueued` is a flag, not a countdown. It is held until something spends it,
+or until the cat tips from rising into falling, which `wasRising` watches for.
+
+That turn is the right moment to drop it: a press made on the way up was meant
+for something on the way up -- a wall, most likely -- and keeping it past the
+apex would hand the player a jump they asked for seconds ago. A press made on
+the way down is never near that turn, so it simply waits for the landing.
+
+One consequence worth knowing: a press made while falling has no expiry at all.
+Press at the top of a long drop and the cat jumps the moment it lands.
+
+The coyote timer is still a timer, and both it and the queue are cleared when a
+jump fires -- otherwise one press could trigger a second jump the next frame
+while the window is still warm.
 
 ## The two poses
 
