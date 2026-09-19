@@ -421,12 +421,14 @@ far end of the arena.
 - **Crocodiles** lie still at the surface of the swamp's water and are the only
   thing in the game you are *meant* to stand on. Land on the back and it sinks
   under you shortly afterwards, then comes back up. They are harmless from
-  above and **fatal from the water**, sunk or floating — fall in beside one and
-  it eats you. Lying there it keeps its **mouth shut**, a long flat snout with
-  the teeth showing along the jaw; the moment there is a cat **in the water**
-  every crocodile within sight of it **opens wide** — dark throat, red tongue,
-  every tooth. That is the only warning the swamp gives. Only the back is
-  something to stand on; the jaws are not.
+  above and **fatal from the water**. Lying there it keeps its **mouth shut**, a
+  long flat snout with the teeth showing along the jaw. The moment there is a
+  cat **in its own water**, every crocodile in that pool **opens wide** — dark
+  throat, red tongue, every tooth — **turns round and swims at you**. Only the
+  one that gets there bites: three set off and one arrives. They never leave
+  their own pool, and when you are out of the water they swim back to their
+  places and become platforms again. Only the back is something to stand on;
+  the jaws are not.
 - **Piranhas** patrol the pool they live in, lurking below the surface and
   leaping straight out every 2.2 seconds, always to the same rhythm so it can be
   learnt. One will chase a cat that swims **into its own pool**, and never

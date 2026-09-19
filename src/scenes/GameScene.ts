@@ -348,9 +348,15 @@ export class GameScene extends Phaser.Scene {
     });
     this.crows = this.level.crows.map((at) => new Crow(this, at.x, at.y));
     this.spiders = this.level.spiders.map((at) => new Spider(this, at.x, at.y));
-    this.crocodiles = this.level.crocodiles.map(
-      (at) => new Crocodile(this, at.x, at.y),
-    );
+    this.crocodiles = this.level.crocodiles.map((at) => {
+      // Each crocodile gets only the pool it lies in, never all the water --
+      // the same fence the piranhas swim behind.
+      const pool = (this.level.pools[at.poolIndex] ?? []).map(
+        (tile) => new Phaser.Geom.Rectangle(tile.x, tile.y, tile.width, tile.height),
+      );
+
+      return new Crocodile(this, at.x, at.y, pool);
+    });
 
     for (const crocodile of this.crocodiles) {
       // One-way, exactly like a branch: the cat lands on the back coming down

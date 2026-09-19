@@ -108,6 +108,12 @@ export interface Point {
   y: number;
 }
 
+/** A crocodile lying in a pool, which is also the only water it will enter. */
+export interface Crocodile extends Point {
+  /** Index into `pools`. A crocodile never leaves the water it lies in. */
+  poolIndex: number;
+}
+
 /** A tile of water. Not collision -- the cat swims through it. */
 export interface WaterZone extends Point {
   width: number;
@@ -146,8 +152,8 @@ export interface ParsedLevel {
   walkers: Walker[];
   /** Where each piranha lurks, and which pool it belongs to. */
   piranhas: Piranha[];
-  /** Crocodiles, by the point on the water surface their backs rest at. */
-  crocodiles: Point[];
+  /** Crocodiles, by where their backs rest and which pool they hunt in. */
+  crocodiles: Crocodile[];
   crows: Point[];
   /** Spiders, by the underside of the ceiling each one hangs from. */
   spiders: Point[];
@@ -184,7 +190,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const lavaZones: WaterZone[] = [];
   const walkers: Walker[] = [];
   const piranhaSpots: Point[] = [];
-  const crocodiles: Point[] = [];
+  const crocodileSpots: Point[] = [];
   const crows: Point[] = [];
   const spiders: Point[] = [];
   const nests: Point[] = [];
@@ -307,7 +313,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           }
 
           if (tiles[column] === 'C') {
-            crocodiles.push({ x: x + TILE / 2, y });
+            crocodileSpots.push({ x: x + TILE / 2, y });
           }
           break;
 
@@ -377,6 +383,13 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   assertSpawnHasFooting(rows, width, definition.name, spawn);
 
   const pools = groupIntoPools(waterZones);
+
+  const crocodiles: Crocodile[] = crocodileSpots.map((at) => ({
+    ...at,
+    poolIndex: pools.findIndex((pool) =>
+      pool.some((tile) => tile.x === at.x - TILE / 2 && tile.y === at.y),
+    ),
+  }));
   const piranhas: Piranha[] = piranhaSpots.map((spot) => ({
     ...spot,
     poolIndex: pools.findIndex((pool) =>

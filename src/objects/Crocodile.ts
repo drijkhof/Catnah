@@ -32,9 +32,13 @@ const FLOAT_LIFT = 7;
  * it has had enough. That is what turns a stretch of water from a swim into a
  * crossing: you get from one to the next by not stopping.
  *
- * **Its mouth is shut until there is a cat in the water.** Lying there with its
- * jaws open the whole time makes it scenery; opening them the moment you fall
- * in makes it the reason not to. It is the only warning the swamp gives.
+ * **It hunts.** Its mouth is shut and it lies still until there is a cat in its
+ * own water; then every crocodile in the pool opens up, turns round and swims
+ * at it. Only the one that gets there bites -- three set off and one arrives,
+ * which is a far better thing to be caught by than a rectangle you swam into.
+ *
+ * It never leaves its own pool, for the same reason the piranhas do not: a
+ * crocodile crossing dry land to reach you is not a crocodile.
  *
  * **Its body is only the back**, and stops short of the head. The jaws are wide
  * open, so walking into one from the bank does not stop the cat dead against a
@@ -48,7 +52,22 @@ export class Crocodile extends Phaser.Physics.Arcade.Sprite {
   /** Where the top of its back rests when it is afloat, in world pixels. */
   private readonly floatY: number;
 
-  private phase: 'afloat' | 'sinking' | 'under' | 'rising' = 'afloat';
+  /** The spot in the water it lies at, and swims back to. */
+  private readonly homeX: number;
+
+  /** The tiles of this crocodile's own pool. Nothing else counts as water. */
+  private readonly pool: Phaser.Geom.Rectangle[];
+
+  /** The extent of that pool, used to fence it in. */
+  private readonly bounds: Phaser.Geom.Rectangle;
+
+  private phase:
+    | 'afloat'
+    | 'sinking'
+    | 'under'
+    | 'rising'
+    | 'hunting'
+    | 'returning' = 'afloat';
 
   /** Counts down the delay before sinking, and then the time spent under, ms. */
   private timer = 0;
@@ -56,12 +75,27 @@ export class Crocodile extends Phaser.Physics.Arcade.Sprite {
   /** Runs on forever, so the idle bob does not restart when one is stepped on. */
   private bobClock = 0;
 
+  /** Which way it is swimming, in radians. Only used while it is in the water. */
+  private heading = 0;
+
   /**
    * @param x Centre of the crocodile.
    * @param surfaceY Top of the water it lies in. Its back rests there.
    */
-  constructor(scene: Phaser.Scene, x: number, surfaceY: number) {
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    surfaceY: number,
+    pool: Phaser.Geom.Rectangle[] = [],
+  ) {
     super(scene, x, surfaceY - BACK_TOP - FLOAT_LIFT, 'crocodile');
+
+    this.homeX = x;
+    this.pool = pool;
+    this.bounds = pool.reduce(
+      (box, tile) => Phaser.Geom.Rectangle.Union(box, tile),
+      new Phaser.Geom.Rectangle(pool[0]?.x ?? x, pool[0]?.y ?? surfaceY, 0, 0),
+    );
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
@@ -92,12 +126,13 @@ export class Crocodile extends Phaser.Physics.Arcade.Sprite {
   /**
    * What it can reach from where it is lying.
    *
-   * Landing on the back is safe; being in the water beside one is not. The
+   * Landing on the back is safe; being reached by one in the water is not. The
    * whole crocodile plus a little margin, rather than the body, because the
-   * body is only the back and the part that bites is the end that is in the
-   * water. It bites while submerged too -- a crocodile you cannot see is the
-   * dangerous one, and it is what makes dawdling on a sinking back cost
-   * something.
+   * body is only the back and the part that bites is the head.
+   *
+   * With the crocodiles swimming at the cat rather than waiting in place, this
+   * is what decides which of them gets there: they all set off, and the bite
+   * belongs to whichever one arrives.
    */
   get jaws(): Phaser.Geom.Rectangle {
     return new Phaser.Geom.Rectangle(
@@ -135,11 +170,14 @@ export class Crocodile extends Phaser.Physics.Arcade.Sprite {
     const dt = delta / 1000;
     this.bobClock += delta;
 
-    this.setTexture(
-      catIsSwimming && Math.abs(cat.x - this.x) < CROCODILE.noticeRange
-        ? 'crocodile-open'
-        : 'crocodile',
-    );
+    const hunting = this.wants(cat, catIsSwimming);
+    this.setTexture(hunting ? 'crocodile-open' : 'crocodile');
+
+    if (hunting) {
+      this.phase = 'hunting';
+    } else if (this.phase === 'hunting') {
+      this.phase = 'returning';
+    }
 
     switch (this.phase) {
       case 'afloat':
@@ -157,9 +195,104 @@ export class Crocodile extends Phaser.Physics.Arcade.Sprite {
       case 'rising':
         this.rise(dt);
         break;
+
+      case 'hunting':
+        this.hunt(dt, cat);
+        break;
+
+      case 'returning':
+        this.goHome(dt);
+        break;
     }
 
     this.body.updateFromGameObject();
+  }
+
+  /**
+   * Whether there is a cat worth going after.
+   *
+   * It has to be in the water, in *this* crocodile's pool, and near enough.
+   * A cat swimming in the next pond along is somebody else's problem.
+   */
+  private wants(cat: Phaser.Math.Vector2, catIsSwimming: boolean): boolean {
+    return (
+      catIsSwimming &&
+      Phaser.Math.Distance.Between(cat.x, cat.y, this.x, this.y) <
+        CROCODILE.noticeRange &&
+      this.pool.some((tile) => tile.contains(cat.x, cat.y))
+    );
+  }
+
+  /**
+   * Swims at the cat.
+   *
+   * Nothing to stand on while it does: a hunting crocodile is in the water like
+   * everything else in there, so its body goes off and the one-way collider
+   * with it. It comes back when the crocodile does.
+   */
+  private hunt(dt: number, cat: Phaser.Math.Vector2): void {
+    this.body.enable = false;
+
+    this.swimTowards(cat.x, cat.y, CROCODILE.chaseSpeed, dt);
+    this.setFlipX(cat.x < this.x);
+  }
+
+  /** Back to its place, and back to being something to stand on. */
+  private goHome(dt: number): void {
+    this.setFlipX(this.homeX < this.x);
+    this.swimTowards(this.homeX, this.floatY, CROCODILE.returnSpeed, dt);
+
+    if (
+      Math.abs(this.x - this.homeX) < 2 &&
+      Math.abs(this.y - this.floatY) < 2
+    ) {
+      this.setPosition(this.homeX, this.floatY);
+      this.setFlipX(false);
+      this.phase = 'afloat';
+      this.timer = 0;
+      this.body.enable = true;
+    }
+  }
+
+  /**
+   * Moves towards a point, turning rather than snapping round.
+   *
+   * Turning is what makes it read as swimming: a crocodile that changed
+   * direction instantly would look like a cursor.
+   */
+  private swimTowards(x: number, y: number, speed: number, dt: number): void {
+    const wanted = Math.atan2(y - this.y, x - this.x);
+    const turn = Phaser.Math.Angle.Wrap(wanted - this.heading);
+
+    this.heading += Phaser.Math.Clamp(
+      turn,
+      -CROCODILE.turnRate * dt,
+      CROCODILE.turnRate * dt,
+    );
+
+    this.setPosition(
+      this.x + Math.cos(this.heading) * speed * dt,
+      this.y + Math.sin(this.heading) * speed * dt,
+    );
+
+    this.keepInPool();
+  }
+
+  /** Never out of its own water, whatever it is chasing. */
+  private keepInPool(): void {
+    const halfW = CROCODILE_SIZE.width / 2;
+
+    if (this.x - halfW < this.bounds.left) {
+      this.setX(this.bounds.left + halfW);
+    } else if (this.x + halfW > this.bounds.right) {
+      this.setX(this.bounds.right - halfW);
+    }
+
+    if (this.y < this.bounds.top - FLOAT_LIFT) {
+      this.setY(this.bounds.top - FLOAT_LIFT);
+    } else if (this.y + CROCODILE_SIZE.height > this.bounds.bottom) {
+      this.setY(this.bounds.bottom - CROCODILE_SIZE.height);
+    }
   }
 
   /** Bobs on the water, and counts down any weight it is carrying. */

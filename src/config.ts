@@ -317,12 +317,22 @@ export const CROCODILE = {
   submergedMs: 1600,
 
   /**
-   * How close a swimming cat has to be before it opens its mouth, px.
+   * How close a swimming cat has to be before it comes for you, px.
    *
-   * Wide enough that falling in opens every crocodile within sight of you
-   * rather than only the nearest one, which is most of the effect.
+   * Every crocodile in the pool within this much opens its mouth and turns
+   * round. Only the one that reaches you bites, which is the whole shape of it:
+   * three of them set off and one of them gets there.
    */
-  noticeRange: 220,
+  noticeRange: 260,
+
+  /** Speed of a crocodile swimming at a cat, px/sec. */
+  chaseSpeed: 86,
+
+  /** Speed of swimming back to its place afterwards, px/sec. Unhurried. */
+  returnSpeed: 46,
+
+  /** How sharply it turns towards where it is going, per second. */
+  turnRate: 2.6,
 
   /** How far it bobs while afloat, px, and how long one bob takes, ms. */
   bobHeight: 1.5,

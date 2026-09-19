@@ -143,10 +143,14 @@ is meant to land on.
   standing on a back that dipped under would count as being in the water, switch
   to swimming and sink off its own platform. It also has to read as a platform
   at this size, and a correct crocodile — scutes and eyes only — does not.
-- **The mouth is shut until there is a cat in the water**, and then every
-  crocodile within `noticeRange` opens it. Jaws open the whole time is scenery;
-  jaws that open the moment you fall in are a reason not to. It is two textures
-  and one line in `step`, and it is most of what the swamp has to say.
+- **The mouth is shut until there is a cat in its own water**, and then it opens
+  and the crocodile *hunts*: it turns and swims at the cat at `chaseSpeed`,
+  turning rather than snapping round, and it is fenced into its own pool exactly
+  as a piranha is. Waiting in place made the bite a rectangle you swam into;
+  swimming at you makes it something that reached you.
+- **While hunting its body is off.** A crocodile in the water is in the water
+  like everything else there, so there is nothing to stand on until it has swum
+  home and settled.
 - **The back stops short of the head**, because being able to stand in an open
   mouth would undo what the drawing is saying.
 - **`jaws` is a separate, larger rectangle**, tested from `GameScene.update`
