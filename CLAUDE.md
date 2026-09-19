@@ -46,6 +46,13 @@ them.
 `npm run dev` prints a `Network:` URL (e.g. `http://192.168.1.169:5180`).
 Open that on a phone on the same Wi-Fi; hot reload works there too.
 
+## Every finished change is committed and pushed
+
+Not batched up. When a change stands on its own — a mechanic, a level, a fix —
+it is committed with its `work.md`, `questions.md` and folder-`CLAUDE.md`
+updates in the same commit, and pushed. `main` is what GitHub Pages deploys, so
+pushing is also how it goes live.
+
 ## Project docs
 
 Two documents outside this file carry the game itself rather than the codebase,
