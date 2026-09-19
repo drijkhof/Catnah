@@ -255,3 +255,18 @@ by lava would be stranger than dying in it.
 > **Still open:** the lava lake is flat and static. Rising lava, or a level that
 > floods as you climb, is the obvious thing a volcano wants and is a much bigger
 > job.
+
+
+## The level-skip shortcut
+
+**Enabled whenever the dev server is serving, not strictly on localhost.** You
+said localhost; I used `import.meta.env.DEV`, which is true for the dev server
+however you reach it, and false in a built game.
+
+That is a wider net than you asked for, and deliberately: it means the shortcut
+also works on a phone pointed at the dev server over the network, which is where
+skipping ahead is most wanted — walking five levels on a touchscreen to reach
+the sixth is not a good use of an evening. It is also the safer of the two
+checks, because a hostname test would still ship the code.
+
+> Say the word and it narrows to `location.hostname === 'localhost'`.

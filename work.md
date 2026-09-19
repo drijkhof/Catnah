@@ -179,6 +179,9 @@ Each one starts on the left and ends at a **glowing door** on the right, which
 takes you to the next. The city leads back to the forest. Berries are optional
 everywhere.
 
+While developing, **Ctrl- or Cmd-clicking the level name** skips to the next
+level, ignoring the star. It is not in the built game.
+
 Where a level has a **star**, the door will not open without it. The forest's is
 in the crow's nest at the top of the great tree; the city's is on a rooftop. The
 swamp and the cave have none, so their doors always open.

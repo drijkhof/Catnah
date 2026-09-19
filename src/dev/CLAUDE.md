@@ -41,6 +41,22 @@ place.
 loop that has just been stopped, so the old canvas is orphaned rather than
 removed, and they stack up one per edit. `dispose` clears the container itself.
 
+## The level-skip shortcut
+
+Ctrl- or Cmd-click the level name in the HUD to jump to the next level. It
+ignores any star the level requires, because skipping past a level you have not
+finished is the point of it.
+
+**It lives in its own module on purpose.** Guarding the code with
+`import.meta.env.DEV` stops it *running* in a production build, but a class
+method guarded from the inside is still in the bundle: Rollup will not drop a
+method, since anything could call it by name. A standalone function whose only
+call sits inside a dead branch does get dropped. Checked after building:
+`installLevelSkip` appears zero times in `dist`.
+
+Mac needs `disableContextMenu()`, or Ctrl-click opens the browser's own menu
+instead.
+
 ## Restoring is allowed to refuse
 
 The level can change between builds. `GameScene.restoreState` checks the saved

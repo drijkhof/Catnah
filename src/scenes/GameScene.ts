@@ -9,6 +9,7 @@ import { createBackdrop } from '../world';
 import { parseLevel, type ParsedLevel } from '../level/Level';
 import { LEVELS } from '../level/levels';
 import { tileKey } from '../art';
+import { installLevelSkip } from '../dev/levelSkip';
 import { SNAPSHOT_KEY, type GameSnapshot } from '../dev/hot';
 
 /**
@@ -635,7 +636,7 @@ export class GameScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(1000);
 
-    this.add
+    const levelName = this.add
       .text(TILE + 10, TILE + 9, this.level.name, {
         fontFamily: 'monospace',
         fontSize: '10px',
@@ -646,6 +647,11 @@ export class GameScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(1000)
       .setAlpha(0.75);
+
+    if (import.meta.env.DEV) {
+      // A development shortcut, in its own module so the build drops it.
+      installLevelSkip(this, levelName, (this.levelIndex + 1) % LEVELS.length);
+    }
 
     if (this.level.star) {
       // Shown dim until it is found, so it reads as something still to get.
