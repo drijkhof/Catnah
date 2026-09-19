@@ -1,6 +1,14 @@
 # Level
 
-Level data and the parser that turns it into world coordinates.
+Level data, the palettes, and the parser that turns a grid into world
+coordinates.
+
+- `Level.ts` — the `LevelDefinition` shape and `parseLevel`.
+- `themes.ts` — one palette per place.
+- `levels/` — the three levels, one file each, plus the order they play in.
+
+A level is a grid of characters plus a theme, a width, a ground row, and whether
+its platforms must attach to a column. Everything else is derived.
 
 ## Format
 
@@ -53,10 +61,22 @@ floor for the same reason.
 Phaser's own tilemaps do this internally when they calculate faces; a static
 group of individual sprites does not, so it is done here.
 
-## Every branch grows from a trunk
+## Themes are palettes, not new tiles
+
+All three levels use the same tile *shapes* and differ by colour: a girder and a
+branch are the same one-way platform underneath, a drainpipe and a trunk are the
+same climbable column. Tilesets are baked per theme under namespaced keys
+(`cave:rock-fill`), and the scene resolves names through `this.tile()`.
+
+Character comes from the backdrop, which is where each place actually differs —
+stalactites and crystals, or a skyline of lit windows.
+
+## Every branch grows from a trunk — in the forest
 
 `assertBranchesGrowFromTrunks` refuses to parse a level containing a branch with
-no trunk at either end. Physics is perfectly happy with a branch hanging in
+no trunk at either end, but only when the definition asks for it. That is the
+forest's rule: a branch belongs to a tree. The cave's stone shelves and the
+city's girders stand on their own. Physics is perfectly happy with a branch hanging in
 mid-air, so this is a rule about the world rather than about the code — checking
 it here means a level cannot quietly drift out of that shape.
 
@@ -141,3 +161,10 @@ than the level (`FALL_OUT_MARGIN`) so a missed jump falls into empty space and
 respawns, instead of landing on an invisible floor at the bottom of the screen.
 
 A level with a pit therefore needs no special markup — just leave the floor out.
+
+## Creatures need clear space
+
+`assertCreaturesHaveRoom` refuses a level where an `h`, `f` or `c` has been
+written over a solid tile. Doing so leaves a hole in the tile *and* a creature
+wedged in it, jittering on the spot — which looks like broken patrol logic
+rather than a misplaced character, and cost a debugging session to find.

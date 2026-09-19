@@ -17,6 +17,8 @@ export interface BerryMark {
  * point of reloading.
  */
 export interface GameSnapshot {
+  /** Which level was being played. */
+  levelIndex: number;
   x: number;
   y: number;
   velocityX: number;

@@ -5,8 +5,10 @@ import { Player } from '../objects/Player';
 import { Crow } from '../objects/Crow';
 import { Hedgehog } from '../objects/Hedgehog';
 import { Piranha } from '../objects/Piranha';
-import { Backdrop } from '../world/Backdrop';
+import { createBackdrop } from '../world';
 import { parseLevel, type ParsedLevel } from '../level/Level';
+import { LEVELS } from '../level/levels';
+import { tileKey } from '../art';
 import { SNAPSHOT_KEY, type GameSnapshot } from '../dev/hot';
 
 /**
@@ -36,6 +38,12 @@ export class GameScene extends Phaser.Scene {
   private scoreText!: Phaser.GameObjects.Text;
   private berries!: Phaser.Physics.Arcade.StaticGroup;
   private collected = 0;
+
+  /** Which level is being played, as an index into LEVELS. */
+  private levelIndex = 0;
+
+  /** True while the level is being left, so the exit cannot fire twice. */
+  private leaving = false;
   private hedgehogs: Hedgehog[] = [];
   private piranhas: Piranha[] = [];
   private crows: Crow[] = [];
@@ -47,9 +55,18 @@ export class GameScene extends Phaser.Scene {
     super('Game');
   }
 
+  /** Phaser hands this whatever `scene.start` was given. */
+  init(data: { levelIndex?: number }): void {
+    const carried = this.registry.get(SNAPSHOT_KEY) as GameSnapshot | undefined;
+
+    this.levelIndex = data.levelIndex ?? carried?.levelIndex ?? 0;
+  }
+
   create(): void {
-    this.level = parseLevel();
+    this.level = parseLevel(LEVELS[this.levelIndex]);
     this.collected = 0;
+    this.dying = false;
+    this.leaving = false;
 
     // The world is taller than the level so a cat that misses a jump falls into
     // empty space and respawns, rather than landing on an invisible floor.
@@ -60,7 +77,12 @@ export class GameScene extends Phaser.Scene {
       this.level.heightInPixels + FALL_OUT_MARGIN * 2,
     );
 
-    new Backdrop(this, this.level.widthInPixels, this.level.groundLine);
+    createBackdrop(
+      this.level.theme,
+      this,
+      this.level.widthInPixels,
+      this.level.groundLine,
+    );
 
     const { blocks, branches } = this.buildSolids();
     const climbZones = this.buildTrunks();
@@ -99,6 +121,7 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.setDeadzone(140, 44);
 
     this.buildCreatures(blocks, branches);
+    this.buildExit();
 
     this.controls = new Controls(this);
     this.buildHud();
@@ -116,6 +139,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     return {
+      levelIndex: this.levelIndex,
       x: this.player.x,
       y: this.player.y,
       velocityX: this.player.body.velocity.x,
@@ -157,8 +181,15 @@ export class GameScene extends Phaser.Scene {
   private resumeFromHotReload(): void {
     const snapshot = this.registry.get(SNAPSHOT_KEY) as GameSnapshot | undefined;
 
-    if (snapshot) {
-      this.registry.remove(SNAPSHOT_KEY);
+    if (!snapshot) {
+      return;
+    }
+
+    this.registry.remove(SNAPSHOT_KEY);
+
+    // A snapshot from another level says nothing useful about this one, beyond
+    // which level to be on -- and that was already applied before create ran.
+    if (snapshot.levelIndex === this.levelIndex) {
       this.restoreState(snapshot);
     }
   }
@@ -204,6 +235,54 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  /** A texture name, resolved to this level's theme. */
+  private tile(name: string): string {
+    return tileKey(this.level.theme, name);
+  }
+
+  /**
+   * Places the way out, if the level has one.
+   *
+   * Reaching it starts the next level. The last level loops back to the first,
+   * which is a placeholder for whatever finishing the game should actually do.
+   */
+  private buildExit(): void {
+    const exit = this.level.exit;
+    if (!exit) {
+      return;
+    }
+
+    const door = this.physics.add
+      .staticImage(exit.x, exit.y, this.tile('exit'))
+      .setOrigin(0.5, 1);
+    door.refreshBody();
+
+    this.tweens.add({
+      targets: door,
+      alpha: { from: 0.75, to: 1 },
+      duration: 900,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+
+    this.physics.add.overlap(this.player, door, () => this.leaveLevel());
+  }
+
+  private leaveLevel(): void {
+    if (this.leaving || this.dying) {
+      return;
+    }
+
+    this.leaving = true;
+    this.cameras.main.fade(450, 0, 0, 0);
+    this.cameras.main.once('camerafadeoutcomplete', () => {
+      this.scene.start('Game', {
+        levelIndex: (this.levelIndex + 1) % LEVELS.length,
+      });
+    });
+  }
+
   /**
    * Builds everything that can kill the cat, and wires it to do so.
    *
@@ -223,7 +302,7 @@ export class GameScene extends Phaser.Scene {
     this.crows = this.level.crows.map((at) => new Crow(this, at.x, at.y));
 
     for (const nest of this.level.nests) {
-      this.add.image(nest.x, nest.y, 'nest').setOrigin(0, 0).setDepth(-2);
+      this.add.image(nest.x, nest.y, this.tile('nest')).setOrigin(0, 0).setDepth(-2);
     }
 
     this.physics.add.collider(this.hedgehogs, blocks);
@@ -288,7 +367,7 @@ export class GameScene extends Phaser.Scene {
     for (const solid of this.level.solids) {
       const group = solid.isBranch ? branches : blocks;
       const tile = group
-        .create(solid.x, solid.y, solid.textureKey)
+        .create(solid.x, solid.y, this.tile(solid.textureKey))
         .setOrigin(0, 0)
         .refreshBody() as Phaser.Physics.Arcade.Sprite;
 
@@ -309,7 +388,7 @@ export class GameScene extends Phaser.Scene {
       // collision box, so the cat lands on the wood rather than on foliage.
       if (solid.isBranch) {
         this.add
-          .image(solid.x, solid.y + solid.height, 'branch-leaves')
+          .image(solid.x, solid.y + solid.height, this.tile('branch-leaves'))
           .setOrigin(0, 0)
           .setDepth(-5);
       }
@@ -344,7 +423,7 @@ export class GameScene extends Phaser.Scene {
   private buildTrunks(): Phaser.Geom.Rectangle[] {
     return this.level.climbZones.map((zone) => {
       this.add
-        .image(zone.x, zone.y, zone.isTop ? 'trunk-top' : 'trunk')
+        .image(zone.x, zone.y, this.tile(zone.isTop ? 'trunk-top' : 'trunk'))
         .setOrigin(0, 0)
         // Behind the cat, so a climbing cat is seen against its trunk.
         .setDepth(-3);
@@ -364,12 +443,12 @@ export class GameScene extends Phaser.Scene {
     return this.level.waterZones.map((zone) => {
       // Opaque bed first, behind the cat, so the forest does not show through.
       this.add
-        .image(zone.x, zone.y, 'water-bed')
+        .image(zone.x, zone.y, this.tile('water-bed'))
         .setOrigin(0, 0)
         .setDepth(-8);
 
       const tile = this.add
-        .image(zone.x, zone.y, zone.isSurface ? 'water-surface' : 'water')
+        .image(zone.x, zone.y, this.tile(zone.isSurface ? 'water-surface' : 'water'))
         .setOrigin(0, 0)
         .setAlpha(0.62)
         .setDepth(20);
@@ -434,6 +513,18 @@ export class GameScene extends Phaser.Scene {
       .image(TILE, TILE, 'berry')
       .setScrollFactor(0)
       .setDepth(1000);
+
+    this.add
+      .text(TILE + 10, TILE + 9, this.level.name, {
+        fontFamily: 'monospace',
+        fontSize: '10px',
+        color: '#ffffff',
+        stroke: '#1d2a18',
+        strokeThickness: 3,
+      })
+      .setScrollFactor(0)
+      .setDepth(1000)
+      .setAlpha(0.75);
 
     this.scoreText = this.add
       .text(TILE + 10, TILE - 7, this.formatScore(), {

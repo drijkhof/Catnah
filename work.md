@@ -10,8 +10,8 @@ trunks and collect berries. There is no win state, no enemies and no way to die 
 
 ## The idea
 
-A 2D platformer. You play a **cat** in a sunlit forest, moving left to right
-along the branches of the trees, collecting berries.
+A 2D platformer. You play a **cat**, moving left to right through three places,
+collecting berries and finding the way out of each.
 
 It runs in a browser on **both a phone and a laptop**. Neither is the "real"
 version — every feature has to work with touch and with a keyboard.
@@ -27,7 +27,7 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | boomstam | `bough` / `trunk` | fallen log; climbable standing trunk |
 | bes | `berry` | the collectible |
 | struik | `bush` | scenery |
-| egel | `hedgehog` | enemy — see backlog |
+| egel | `hedgehog` | enemy — paces a platform, deadly to touch |
 | rots | `boulder` / `rock` | solid, climbable stone |
 
 ## The cat
@@ -144,7 +144,7 @@ light falling through the trees.
   left one overhangs, so you walk in underneath it at ground level; getting back
   out means alternating wall jumps between the two faces, quickly enough that
   you never stop rising.
-- **37 berries** to collect, shown top left.
+- Berries to collect, counted top left, per level.
 - **Scenery**: trees in two depth ranks, bushes and grass along the floor.
 
 **Rules today**
@@ -153,7 +153,49 @@ light falling through the trees.
 - Falling into the gap respawns you at the start, with a screen flash.
 - Nothing else can hurt you.
 
+## Dying
+
+Anything dangerous kills the cat on contact, and so does falling out of the
+world. There is a short pause — a flash and a shake — and then the cat is back
+at the start of the level. Retries are unlimited, and **berries you have already
+collected stay collected**.
+
+## The three levels
+
+Each one starts on the left and ends at a **glowing door** on the right, which
+takes you to the next. The city leads back to the forest. Berries are optional
+everywhere.
+
+### 1 — Forest
+
+Sunlit, with the sun up and shafts of light through the trees. Four ordinary
+trees plus **the great tree**, which runs the full height of the level and has a
+nest at the top with a crow living in it. Two pools, one shaft of boulders, one
+sneaking bough, three hedgehogs, one piranha.
+
+### 2 — Cave
+
+Underground: a rock roof with stalactites, glowing crystals along the floor,
+hanging vines to climb instead of trunks, stone shelves instead of branches, and
+a cold pool with something in it.
+
+### 3 — City
+
+Night. Brick buildings to climb, steel girders lit along their edges as
+platforms, drainpipes to climb, a canal, and a crow nesting on a rooftop. The
+buildings behind are lit window by window.
+
+## The creatures
+
+- **Hedgehogs** pace whatever they are standing on, turning at anything solid
+  and at the edge of the floor, so they never fall off. They are slow. They
+  cannot be defeated — touching one is fatal from any direction.
+- **Piranhas** lurk below the surface of a pool and leap out every 2.2 seconds,
+  always to the same rhythm so it can be learnt. Only one pool per level has one.
+- **The crow** circles its nest until the cat comes near it, then breaks off and
+  flies at it in curves, giving up once the cat is well away again.
+
 ## What does not exist yet
 
-No enemies, no water, no hazards, no death other than falling, no second level,
-no sound, no menu, no saved progress. All of that is [`backlog.md`](backlog.md).
+No win state, no score, no sound, no menu, no saved progress. The open design
+questions are in [`questions.md`](questions.md).

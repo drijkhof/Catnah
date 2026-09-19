@@ -54,6 +54,8 @@ and are **kept up to date as part of the work, not afterwards**:
 - **`work.md`** — what the game is: characters, movement, rules, what level 1
   contains, and the Dutch/English glossary. Update it in the same change that
   alters the game.
+- **`questions.md`** — decisions taken without the user, and the ones still
+  open. Add to it whenever a judgement call is made that they might want back.
 - **`backlog.md`** — future wishes as numbered tickets. New ideas go here rather
   than being built straight away. When a ticket is built, write up what changed
   in `work.md` and **delete the ticket**, so the backlog is only ever what is
@@ -82,7 +84,7 @@ src/
   scenes/       Phaser scenes. See scenes/CLAUDE.md
   objects/      Game entities. See objects/CLAUDE.md
   input/        Keyboard + touch, unified. See input/CLAUDE.md
-  level/        Level data and parsing. See level/CLAUDE.md
+  level/        Level data, themes and the three levels. See level/CLAUDE.md
 public/assets/  Static art and audio. See assets/CLAUDE.md
 ```
 

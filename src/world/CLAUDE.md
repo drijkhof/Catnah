@@ -1,9 +1,20 @@
 # World
 
-Scenery: everything that is looked at rather than landed on.
+Scenery: everything that is looked at rather than landed on. None of it has a
+physics body.
 
-`Backdrop` builds level 1's forest -- sky, sun, shafts of light, two ranks of
-trees, and bushes along the floor. None of it has a physics body.
+One backdrop per place, chosen by `createBackdrop`:
+
+- `Backdrop` — the forest: sky, sun, shafts of light, two ranks of trees, bushes.
+- `CaveBackdrop` — stalactites at two depths, crystals, a pool of floor light.
+- `CityBackdrop` — night sky, moon, two ranks of buildings with lit windows.
+
+The backdrop is where a level's character lives, because the tiles themselves
+are shared across all three and differ only by palette.
+
+**The city inverts the forest's depth rule.** Outdoors, haze lightens distance,
+so far trees are paler. At night, distance is where the *lights* are and the
+near thing is what blocks them, so the near buildings are darker.
 
 ## Depth and parallax
 

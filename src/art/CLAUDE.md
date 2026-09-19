@@ -6,8 +6,12 @@ binary assets and runs straight after clone.
 - `canvas.ts` — `bakeTexture` (draw once, register under a key) and
   `createRandom` (seeded scatter).
 - `cat.ts` — the cat, standing and sneaking.
-- `forest.ts` — sky, sun, trees, bushes, grass, ground, rock, trunks, branches,
-  berries.
+- `tiles.ts` — every level tile, drawn from a palette so three themes share one
+  set of shapes. Keys are namespaced: `cave:rock-fill`.
+- `forest.ts` — the forest's own scenery: sky, sun, trees, bushes, grass. And
+  the berry, which is the same everywhere.
+- `backdrops.ts` — cave and city scenery: stalactites, crystals, skylines, moon.
+- `creatures.ts` — hedgehog, piranha, crow.
 - `ui.ts` — the touch-button glyphs.
 - `index.ts` — `generatePlaceholderArt`, called once by `BootScene`.
 
@@ -39,3 +43,14 @@ All colours come from `COLORS` in `src/config.ts`, so the placeholder art
 already reads as one scene and real art has a reference to match. Distant trees
 are deliberately lighter and bluer than near ones: losing contrast with distance
 is what sells depth.
+
+## Gradients have to be drawn by hand
+
+`fillVerticalGradient` paints a stack of bands instead of calling
+`fillGradientStyle`. That call renders correctly to the screen but bakes to a
+**fully transparent texture** through `generateTexture`, so a sky made with it
+is invisible and what shows is the canvas clear colour behind it.
+
+This hid itself for a long time: the clear colour was a perfectly reasonable
+sky blue, so the forest looked fine and nobody looked twice. It only surfaced
+when the cave's sky was supposed to be nearly black and came out blue.
