@@ -33,13 +33,13 @@ is rounded off where it ends, and earth only grows grass where it is actually
 exposed to the sky. That last rule is what stops a stack of ground tiles reading
 as stripes.
 
-## The crouch passage
+## The sneaking passage
 
 The bough on row 17 leaves a one-tile gap above the floor. A standing cat is
-18px and does not fit; a crouched one is 9px and does. It can still be jumped
+18px and does not fit; a sneaking one is 9px and does. It can still be jumped
 onto and crossed over the top, which keeps it a choice rather than a wall.
 
-A mandatory crouch needs a ceiling *and* no way over it. Nothing in the format
+A mandatory sneak needs a ceiling *and* no way over it. Nothing in the format
 enforces that — it is a level-design decision.
 
 ## Parsing is separate from rendering on purpose
@@ -56,7 +56,7 @@ generator without touching physics or rendering: anything that can produce a
 
 `GROUND_ROW` states where the forest floor's surface is, and `parseLevel`
 passes it through as `groundLine` for scenery to plant against. It is stated
-rather than derived because the crouch bough is also solid and sits higher, so
+rather than derived because the sneaking bough is also solid and sits higher, so
 scanning the tiles for "the topmost solid" would find the wrong line.
 
 ## Falling out of the world

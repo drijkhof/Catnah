@@ -12,7 +12,7 @@ import type { Controls } from '../input/Controls';
  * retrofit once levels are designed around the old feel.
  *
  * The sprite origin is at the paws (0.5, 1) and each pose is drawn at exactly
- * its body size, so swapping between standing and crouching changes the
+ * its body size, so swapping between standing and sneaking changes the
  * collision box without the cat sinking into the floor or popping off it.
  */
 export class Player extends Phaser.Physics.Arcade.Sprite {
@@ -27,7 +27,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   /** True while rising from a jump the player has not yet released. */
   private isJumping = false;
 
-  private isCrouching = false;
+  private isSneaking = false;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'cat');
@@ -42,9 +42,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.body.setMaxVelocity(CAT.speed * 2, CAT.maxFallSpeed);
   }
 
-  /** True while the cat is crouched, so the scene can react (dust, sound). */
-  get crouching(): boolean {
-    return this.isCrouching;
+  /** True while the cat is sneaking, so the scene can react (dust, sound). */
+  get sneaking(): boolean {
+    return this.isSneaking;
   }
 
   /**
@@ -61,14 +61,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.tickTimers(delta, onGround, controls);
 
-    // A queued jump beats a held crouch, so a player holding down is never
-    // stuck. Under a low overhang there is no headroom to stand, which is what
-    // stops the jump instead.
+    // A queued jump beats a held sneak, so a player holding the button is
+    // never stuck. Under a low overhang there is no headroom to stand, which is
+    // what stops the jump instead.
     const wantsJump = this.coyoteTimer > 0 && this.jumpBufferTimer > 0;
-    this.resolvePose(controls.down && onGround && !wantsJump);
+    this.resolvePose(controls.sneak && onGround && !wantsJump);
 
     this.applyHorizontal(controls, dt, onGround);
-    this.applyJump(controls, wantsJump && !this.isCrouching);
+    this.applyJump(controls, wantsJump && !this.isSneaking);
     this.updateFacing(controls);
   }
 
@@ -96,27 +96,27 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  private resolvePose(wantsCrouch: boolean): void {
-    if (wantsCrouch) {
-      if (!this.isCrouching) {
+  private resolvePose(wantsSneak: boolean): void {
+    if (wantsSneak) {
+      if (!this.isSneaking) {
         this.applyPose(true);
       }
       return;
     }
 
     // Only stand back up if there is room, otherwise the cat would be shoved
-    // through the ceiling it is crouching under.
-    if (this.isCrouching && this.hasHeadroom()) {
+    // through the ceiling it is sneaking under.
+    if (this.isSneaking && this.hasHeadroom()) {
       this.applyPose(false);
     }
   }
 
-  private applyPose(crouching: boolean): void {
-    this.isCrouching = crouching;
-    this.setTexture(crouching ? 'cat-crouch' : 'cat');
+  private applyPose(sneaking: boolean): void {
+    this.isSneaking = sneaking;
+    this.setTexture(sneaking ? 'cat-sneak' : 'cat');
 
-    const width = crouching ? CAT.crouchWidth : CAT.width;
-    const height = crouching ? CAT.crouchHeight : CAT.height;
+    const width = sneaking ? CAT.sneakWidth : CAT.width;
+    const height = sneaking ? CAT.sneakHeight : CAT.height;
 
     // Each pose texture is exactly its body size, so no offset is needed: with
     // a bottom-centre origin the body's feet land on the sprite's y either way.
@@ -126,7 +126,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   /** Is the space a standing cat would occupy currently clear? */
   private hasHeadroom(): boolean {
-    const clearance = CAT.height - CAT.crouchHeight;
+    const clearance = CAT.height - CAT.sneakHeight;
     const bodies = this.scene.physics.overlapRect(
       // Inset horizontally so brushing a wall does not read as a blocked
       // ceiling.
@@ -143,8 +143,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   private applyHorizontal(controls: Controls, dt: number, onGround: boolean): void {
     const direction = (controls.right ? 1 : 0) - (controls.left ? 1 : 0);
-    const topSpeed = this.isCrouching
-      ? CAT.speed * CAT.crouchSpeedMultiplier
+    const topSpeed = this.isSneaking
+      ? CAT.speed * CAT.sneakSpeedMultiplier
       : CAT.speed;
     const accel = onGround ? CAT.accel : CAT.accel * CAT.airControl;
 

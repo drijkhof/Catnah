@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH, COLORS } from '../config';
 import { BUTTON_SIZE } from '../art';
 
-type ControlName = 'left' | 'right' | 'jump' | 'duck';
+type ControlName = 'left' | 'right' | 'jump' | 'sneak';
 
 /** A rectangular on-screen touch target, in game-pixel coordinates. */
 interface TouchButton {
@@ -19,7 +19,7 @@ const BUTTON_MARGIN = 12;
  * One input surface for both platforms.
  *
  * Gameplay code never asks "is this a phone?" -- it reads `left`, `right`,
- * `down`, `jumpJustPressed` and `jumpHeld`, and this class merges keyboard and
+ * `sneak`, `jumpJustPressed` and `jumpHeld`, and this class merges keyboard and
  * touch into those answers.
  *
  * `update()` must be called once at the top of the scene's update, before
@@ -49,7 +49,7 @@ export class Controls {
     >;
 
     if (scene.game.device.input.touch) {
-      // Three extra pointers so a player can hold a direction, crouch and jump
+      // Three extra pointers so a player can hold a direction, sneak and jump
       // at the same time. Phaser tracks only one by default.
       scene.input.addPointer(3);
       this.createTouchUi();
@@ -66,9 +66,9 @@ export class Controls {
     return this.cursors.right.isDown || this.keys.D.isDown || this.isButtonDown('right');
   }
 
-  /** True while the player wants to crouch. */
-  get down(): boolean {
-    return this.cursors.down.isDown || this.keys.S.isDown || this.isButtonDown('duck');
+  /** True while the player wants to sneak: low, flat and slow. */
+  get sneak(): boolean {
+    return this.cursors.down.isDown || this.keys.S.isDown || this.isButtonDown('sneak');
   }
 
   /** True on the single frame the jump input goes from released to pressed. */
@@ -134,7 +134,7 @@ export class Controls {
     const layout: Array<{ name: ControlName; x: number }> = [
       { name: 'left', x: BUTTON_MARGIN },
       { name: 'right', x: BUTTON_MARGIN * 2 + BUTTON_SIZE },
-      { name: 'duck', x: GAME_WIDTH - BUTTON_MARGIN * 2 - BUTTON_SIZE * 2 },
+      { name: 'sneak', x: GAME_WIDTH - BUTTON_MARGIN * 2 - BUTTON_SIZE * 2 },
       { name: 'jump', x: GAME_WIDTH - BUTTON_MARGIN - BUTTON_SIZE },
     ];
 

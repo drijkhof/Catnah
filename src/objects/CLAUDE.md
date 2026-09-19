@@ -31,7 +31,7 @@ from one that feels slippery and unfair. Do not simplify them away:
 - **Jump buffering** — a jump pressed shortly *before* landing fires on contact.
 - **Jump cut** — releasing early shortens the hop, giving variable height.
   Measured: ~86px held, ~41px tapped.
-- **Crouching**, below.
+- **Sneaking**, below.
 
 All of it is tuned by the `CAT` block in `src/config.ts`. Tune there; do not
 hardcode numbers in the entity.
@@ -41,22 +41,22 @@ trigger a second jump the next frame while the windows are still warm.
 
 ## The two poses
 
-The cat is drawn standing (22x18) and crouched (26x9), each baked at exactly
+The cat is drawn standing (22x18) and sneaking (26x9), each baked at exactly
 its physics body size. The sprite origin is at the **paws**, `(0.5, 1)`, so with
 body and frame identical the offset is always zero and the cat neither sinks
 into the floor nor pops off it when the pose swaps. Spawn points are therefore
 ground lines, not sprite centres.
 
 Standing is 18px — taller than one 16px tile on purpose. A one-tile gap under an
-overhang cannot be walked through, only crouched through, so the level grid
-alone creates a crouch passage with no special markup.
+overhang cannot be walked through, only sneaked through, so the level grid
+alone creates a sneaking passage with no special markup.
 
 **Standing up is conditional.** `hasHeadroom()` tests the space a standing cat
-would occupy with `physics.overlapRect` before un-crouching; without it the cat
-would be shoved through the ceiling it is crouching under. The same flag blocks
+would occupy with `physics.overlapRect` before standing up; without it the cat
+would be shoved through the ceiling it is sneaking under. The same flag blocks
 jumping, which is what stops a player escaping upward through the log.
 
-A queued jump beats a held crouch, so a player holding down is never stuck —
+A queued jump beats a held sneak, so a player holding the button is never stuck —
 under a low overhang it is the missing headroom, not the input, that stops them.
 
 ## Body access

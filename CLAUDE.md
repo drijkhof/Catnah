@@ -3,7 +3,7 @@
 A 2D platformer that runs in the browser, on **both phone and laptop**.
 
 You play a cat. Level 1 is a sunlit forest: the sun is up, and the platforms are
-the branches of the trees. The cat can move forward and back, jump, and crouch,
+the branches of the trees. The cat can move forward and back, jump, and sneak,
 steers in the air, and is always subject to gravity. Those
 are equal targets, not a primary and a fallback: every feature needs to work
 with touch and with a keyboard, and needs to be readable on a small screen.
@@ -35,6 +35,18 @@ fail loudly instead of drifting to a random port.
 
 `npm run dev` prints a `Network:` URL (e.g. `http://192.168.1.169:5180`).
 Open that on a phone on the same Wi-Fi; hot reload works there too.
+
+## Project docs
+
+Two documents outside this file carry the game itself rather than the codebase,
+and are **kept up to date as part of the work, not afterwards**:
+
+- **`work.md`** — what the game is: characters, movement, rules, what level 1
+  contains, and the Dutch/English glossary. Update it in the same change that
+  alters the game.
+- **`backlog.md`** — future wishes as numbered tickets. New ideas go here rather
+  than being built straight away. When a ticket is built, mark it `done` and
+  move what it added into `work.md`.
 
 ## Stack
 
@@ -102,23 +114,32 @@ instead of scrolling with the world, plus a high `setDepth` to stay on top.
 from the browser console.
 
 **A background tab does not run the game.** Chrome pauses `requestAnimationFrame`
-when a tab is hidden, so the game loop stops while any script you run from the
-console keeps going. Anything measured that way is measuring a frozen game --
-check `game.loop.frame` actually advances before trusting a result.
+when a tab is hidden, so the game loop stops while any script run from the
+console keeps going. Anything measured that way is measuring a frozen game, and
+a tab that was hidden from the start has not even booted -- `BootScene` never
+ran, so no textures exist. Check `game.loop.frame` before trusting a result.
 
-To step the game deterministically instead, drive it by hand at a fixed
-timestep. All three calls are needed: `postUpdate` is what copies physics bodies
-back onto their sprites, and without it positions never appear to change.
+`game.step(time, delta)` runs a whole frame by hand -- update, physics and
+render -- so the game can be booted and driven with no visible tab at all, at a
+fixed timestep that does not vary with machine speed:
 
 ```js
+let clock = 0;
+const frame = () => { clock += 16.667; game.step(clock, 16.667); };
+
+for (let i = 0; i < 10; i++) frame();          // boot through to the Game scene
 const scene = game.scene.getScene('Game');
-for (let i = 0; i < 60; i++) {
-  const t = i * 16.667;
-  scene.update(t, 16.667);
-  scene.physics.world.update(t, 16.667);
-  scene.physics.world.postUpdate();
-}
 ```
 
-Assigning a stub over `scene.controls` (same getters, plain booleans) lets that
-loop play the game without synthetic keyboard events.
+Assigning a stub over `scene.controls` (same getters, plain booleans) then lets
+that loop play the game without synthetic keyboard events, which Phaser does not
+reliably pick up anyway:
+
+```js
+const stub = { left:false, right:false, sneak:false,
+               jumpJustPressed:false, jumpHeld:false, update(){} };
+scene.controls = stub;
+stub.right = true;
+for (let i = 0; i < 120; i++) frame();
+console.log(scene.player.x, scene.player.sneaking);
+```

@@ -12,7 +12,7 @@ import { bakeTexture } from './canvas';
  */
 export function generateCatTextures(scene: Phaser.Scene): void {
   generateStanding(scene);
-  generateCrouching(scene);
+  generateSneaking(scene);
 }
 
 function generateStanding(scene: Phaser.Scene): void {
@@ -59,11 +59,11 @@ function generateStanding(scene: Phaser.Scene): void {
   });
 }
 
-function generateCrouching(scene: Phaser.Scene): void {
-  const width = CAT.crouchWidth;
-  const height = CAT.crouchHeight;
+function generateSneaking(scene: Phaser.Scene): void {
+  const width = CAT.sneakWidth;
+  const height = CAT.sneakHeight;
 
-  bakeTexture(scene, 'cat-crouch', width, height, (g) => {
+  bakeTexture(scene, 'cat-sneak', width, height, (g) => {
     // Tail held low and straight out behind.
     g.fillStyle(COLORS.cat, 1);
     g.fillRect(0, 4, 5, 2);

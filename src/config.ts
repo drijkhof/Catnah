@@ -18,7 +18,7 @@ export const TILE = 16;
 /**
  * The cat.
  *
- * A cat is wider than it is tall, and gets flatter still when it crouches, so
+ * A cat is wider than it is tall, and gets flatter still when it sneaks, so
  * the two poses use different body sizes. The sprite origin is bottom-centre
  * (see Player) which keeps the paws planted when the pose swaps.
  */
@@ -27,15 +27,15 @@ export const CAT = {
    * Standing pose, in game pixels.
    *
    * 18 is taller than one tile on purpose: it means a one-tile gap under an
-   * overhang cannot be walked through, only crouched through, so the level
-   * grid alone can create a crouch passage with no special markup.
+   * overhang cannot be walked through, only sneaked through, so the level
+   * grid alone can create a sneaking passage with no special markup.
    */
   width: 22,
   height: 18,
 
-  /** Crouched pose: longer and much flatter, like a cat about to pounce. */
-  crouchWidth: 26,
-  crouchHeight: 9,
+  /** Sneaking pose: longer and much flatter, like a cat about to pounce. */
+  sneakWidth: 26,
+  sneakHeight: 9,
 
   /** Horizontal run speed, px/sec. */
   speed: 190,
@@ -46,8 +46,8 @@ export const CAT = {
   /** Reduced control while airborne, as a fraction of `accel`. */
   airControl: 0.55,
 
-  /** Crouched movement speed, as a fraction of `speed`. A slow, low stalk. */
-  crouchSpeedMultiplier: 0.42,
+  /** Sneaking movement speed, as a fraction of `speed`. A slow, low stalk. */
+  sneakSpeedMultiplier: 0.42,
 
   gravity: 1500,
   /** Upward velocity applied on jump, px/sec. Negative is up. */

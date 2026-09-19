@@ -34,9 +34,9 @@ export function generateUiTextures(scene: Phaser.Scene): void {
     g.fillTriangle(half - 11, half + 8, half + 11, half + 8, half, half - 10);
   });
 
-  // Crouch: an arrow down onto a floor line, to read as "get low" rather than
+  // Sneak: an arrow down onto a floor line, to read as "get low" rather than
   // "go down", which an arrow on its own would suggest.
-  bakeTexture(scene, 'ui-duck', BUTTON_SIZE, BUTTON_SIZE, (g) => {
+  bakeTexture(scene, 'ui-sneak', BUTTON_SIZE, BUTTON_SIZE, (g) => {
     drawBase(g);
     g.fillTriangle(half - 11, half - 6, half + 11, half - 6, half, half + 6);
     g.fillRect(half - 12, half + 9, 24, 3);

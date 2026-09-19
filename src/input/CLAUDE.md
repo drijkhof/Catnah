@@ -10,7 +10,7 @@ and touch behind those answers. Adding a device or a key rebinding should touch
 this folder only.
 
 Bindings today: arrows / WASD / Space on a keyboard, and four on-screen buttons
-on a touch device — move back, move forward, crouch, jump. Movement sits under
+on a touch device — move back, move forward, sneak, jump. Movement sits under
 the left thumb, actions under the right.
 
 ## `update()` must run first, once per frame
@@ -31,7 +31,7 @@ the input reflects where the finger *is*, which is what the player expects.
 
 `scene.input.addPointer(3)` is required and easy to forget: Phaser tracks a
 single pointer by default, so without it a player cannot hold a direction,
-crouch and jump at the same time.
+sneak and jump at the same time.
 
 ## Adding a control
 

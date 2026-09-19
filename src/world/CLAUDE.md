@@ -29,7 +29,7 @@ across it. Only things clearly far away can afford to move at a different rate.
 Tree trunks are planted slightly *below* the ground line so the forest floor,
 drawn in front of them, hides their bases. That is why `Backdrop` takes the
 ground line from `ParsedLevel` rather than guessing it from the tiles — the
-crouch log is also solid and would otherwise be mistaken for ground level.
+sneaking log is also solid and would otherwise be mistaken for ground level.
 
 ## Adding scenery
 

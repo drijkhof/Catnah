@@ -21,9 +21,9 @@ export const LEVEL_WIDTH_IN_TILES = 80;
  * debug.
  *
  * The route climbs the branches left to right, drops back to the floor for a
- * gap to clear, then climbs again. The fallen bough on row 17 is the crouch
+ * gap to clear, then climbs again. The fallen bough on row 17 is the sneaking
  * passage: it leaves a one-tile gap above the floor, and the standing cat is
- * taller than that, so the only way through at ground level is crouched. It can
+ * taller than that, so the only way through at ground level is sneaking. It can
  * still be jumped onto and crossed over the top, which keeps it a choice rather
  * than a wall.
  */
@@ -56,7 +56,7 @@ const LEVEL_SOURCE: string[] = [
 /**
  * Row of the forest floor's surface. Scenery is planted against this line, so
  * it is stated once here rather than guessed from the parsed tiles -- the
- * crouch overhang is also made of earth and would otherwise be mistaken for
+ * sneaking overhang is also made of earth and would otherwise be mistaken for
  * ground level.
  */
 export const GROUND_ROW = 19;
