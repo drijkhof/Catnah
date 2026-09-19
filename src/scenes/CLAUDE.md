@@ -13,9 +13,17 @@ progress: dropping the player back on the title screen would throw away the
 place `src/dev/hot.ts` went to such trouble to keep. It tests for the snapshot
 in the registry to tell the two apart.
 
-Losing the last heart sends `GameScene` to `GameOver`, which sends itself to
-`Title`. Neither straight back to the forest nor straight back to the title:
-being put back into the game gives no moment to notice the run ended.
+Losing the last heart does not switch scenes. `GameScene.endRun` drains the
+colour out of its **own camera** with a `ColorMatrix` filter, pauses itself, and
+*launches* `GameOver` over the top — so what is underneath is the exact frame
+the cat died on, still and colourless, with one red word on it.
+
+Two things that follow from it being an overlay:
+
+- `GameOverScene` **stops** the `Game` scene when it leaves. A paused scene
+  stays paused for ever otherwise, sitting behind the title screen.
+- `GameScene.create` **clears the camera's filters**. Nothing else does, and a
+  new run starting in black and white is a haunting little bug.
 
 `GameOverScene` ignores input for its first 900ms. A death is usually a keypress
 or a tap, and without the pause the same press that killed you also dismisses

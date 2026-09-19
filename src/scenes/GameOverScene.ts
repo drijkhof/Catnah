@@ -9,15 +9,17 @@ import { GAME_HEIGHT, GAME_WIDTH } from '../config';
  */
 const HOLD_MS = 900;
 
-/** How long it waits before going back to the title on its own, ms. */
-const LINGER_MS = 6000;
-
 /**
- * The end of a run: black, with one line of red.
+ * The end of a run, laid over the game rather than replacing it.
  *
- * Deliberately nothing else. No score, no scenery, no cat -- the title screen
- * is where the game starts and this is where it stops, and the only thing that
- * has to land is that it stopped.
+ * `GameScene` pauses itself and drains the colour out of its own camera, so
+ * what is underneath is the exact frame the cat died on, in black and white and
+ * perfectly still. This scene adds one word to it, in red, and that red is the
+ * only colour left on the screen.
+ *
+ * It is an overlay and not a picture of its own on purpose: a black screen
+ * tells you the game stopped; a frozen, colourless one tells you *where* it
+ * stopped and what stopped it.
  */
 export class GameOverScene extends Phaser.Scene {
   private ready = false;
@@ -25,29 +27,33 @@ export class GameOverScene extends Phaser.Scene {
   private leaving = false;
 
   constructor() {
-    super('GameOver');
+    // Transparent, so the paused game shows through it.
+    super({ key: 'GameOver' });
   }
 
   create(): void {
     this.ready = false;
     this.leaving = false;
 
-    this.cameras.main.setBackgroundColor('#000000');
+    this.cameras.main.setBackgroundColor('rgba(0,0,0,0)');
 
     const text = this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'YOU UNALIVED', {
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'Game Over', {
         fontFamily: 'monospace',
-        fontSize: `${Math.round(GAME_WIDTH * 0.075)}px`,
+        fontSize: `${Math.round(GAME_WIDTH * 0.09)}px`,
         color: '#e0202a',
+        stroke: '#1a0507',
+        strokeThickness: 6,
       })
-      .setOrigin(0.5);
+      .setOrigin(0.5)
+      .setDepth(2000);
 
     // Readable from the first frame, and *then* given a slow pulse. Fading it
-    // up from nothing was prettier and meant the one thing this screen exists
-    // to say depended on a tween having run.
+    // up was prettier and made the one thing this screen exists to say depend
+    // on a tween having run.
     this.tweens.add({
       targets: text,
-      alpha: { from: 1, to: 0.7 },
+      alpha: { from: 1, to: 0.72 },
       duration: 1100,
       ease: 'Sine.easeInOut',
       yoyo: true,
@@ -60,8 +66,6 @@ export class GameOverScene extends Phaser.Scene {
       this.input.keyboard?.once('keydown', () => this.leave());
       this.input.once('pointerdown', () => this.leave());
     });
-
-    this.time.delayedCall(LINGER_MS, () => this.leave());
   }
 
   /** Back to the title, where a new run starts. */
@@ -71,7 +75,10 @@ export class GameOverScene extends Phaser.Scene {
     }
 
     this.leaving = true;
-    this.cameras.main.fade(400, 0, 0, 0);
-    this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('Title'));
+
+    // The game underneath is paused, not stopped. It has to be stopped here or
+    // it stays paused for ever behind the title screen.
+    this.scene.stop('Game');
+    this.scene.start('Title');
   }
 }

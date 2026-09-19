@@ -59,14 +59,18 @@ it, a cat pacing the floor, a crow crossing overhead, a hedgehog trundling the
 other way and a piranha coming out of a puddle now and then. **Catnah**, and
 under it *A Hannah Milatovic Rijkhof Game*. Any key starts it; on a phone, a tap.
 
-Losing your last heart does not bring you straight back here and does not drop
-you back into the forest. The screen goes **black, with one line of red on it**:
+Losing your last heart stops the game **where it stands**. The level stays on
+screen, frozen on the frame the cat died on, and all the colour drains out of
+it — and then one word in red, which is the only colour left:
 
-> YOU UNALIVED
+> Game Over
 
 It holds for a moment before it will take an input — a death is usually a
-keypress, and without the pause the press that killed you also dismisses the
-message. Any key after that, or six seconds, and you are back at the title.
+keypress, and without the pause the press that killed you also dismisses it.
+Any key after that and you are back at the title.
+
+A black screen would say the game stopped. A frozen, colourless one says *where*
+it stopped and what stopped it.
 
 **Starting the game goes fullscreen**, and asks for landscape while it is
 there. It has to happen on the keypress or the tap itself — a browser only

@@ -86,6 +86,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
+    // A scene that ended a run left its camera drained of colour. Nothing else
+    // clears it, and a new run starting in black and white is a haunting bug.
+    this.cameras.main.filters.internal.clear();
+
     this.level = parseLevel(LEVELS[this.levelIndex]);
     this.crocodiles = [];
     this.spiders = [];
@@ -480,10 +484,7 @@ export class GameScene extends Phaser.Scene {
 
     this.time.delayedCall(650, () => {
       if (this.lives <= 0) {
-        // Out of hearts. Not straight back to the title and not straight back
-        // into the forest: a black screen with one red line on it, so the run
-        // visibly ends before anything else happens.
-        this.scene.start('GameOver');
+        this.endRun();
         return;
       }
 
@@ -500,6 +501,20 @@ export class GameScene extends Phaser.Scene {
       this.cameras.main.centerOn(this.player.x, this.player.y);
       this.dying = false;
     });
+  }
+
+  /**
+   * Out of hearts.
+   *
+   * The level is left on screen and **paused where it stands**, with the colour
+   * drained out of this scene's own camera, and `GameOverScene` lays one red
+   * word over it. A black screen would say the game stopped; a frozen,
+   * colourless one says where it stopped and what stopped it.
+   */
+  private endRun(): void {
+    this.cameras.main.filters.internal.addColorMatrix().colorMatrix.grayscale(1);
+    this.scene.pause();
+    this.scene.launch('GameOver');
   }
 
   /**
