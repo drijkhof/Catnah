@@ -31,6 +31,16 @@ wildcard address, **both servers can start "successfully" at once** while
 `localhost` silently serves the other project's app. `strictPort` makes a clash
 fail loudly instead of drifting to a random port.
 
+### Editing while the game runs
+
+A code change swaps the game in place and **keeps the player where they are**,
+along with what they have collected — no page reload, no walk back from the
+spawn point. Change a jump height or a level tile and it shows up around the cat
+standing there.
+
+It has a few sharp edges that are easy to reintroduce; `src/dev/CLAUDE.md` has
+them.
+
 ### Previewing on a phone
 
 `npm run dev` prints a `Network:` URL (e.g. `http://192.168.1.169:5180`).
