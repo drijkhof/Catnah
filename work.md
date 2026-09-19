@@ -111,11 +111,14 @@ drops the cat onto it.
 Water is **not dangerous**. Some pools have nothing in them at all, so falling
 in is a change of pace rather than a punishment.
 
-The cat is **neutrally buoyant**: it holds its depth with nothing pressed, and
-**climb and sneak take it up and down**. Horizontally it moves at about half
-speed. Jump still works as a stroke, strong enough to break the surface. Water
-is somewhere to move about in rather than something to struggle out of, which is
-why it is not dangerous.
+A cat in water is **in** it. Touch a pool and it sinks until its back is under
+the surface, then holds that depth — it does not skate along the top.
+
+From there it is **neutrally buoyant**: it stays at whatever depth it has with
+nothing pressed, and **up and sneak take it up and down**. Horizontally it moves
+at about half speed. A press of up is a stroke, strong enough to break the
+surface and land the cat on a bank. Water is somewhere to move about in rather
+than something to struggle out of, which is why it is not dangerous.
 
 ### Wall jumping
 

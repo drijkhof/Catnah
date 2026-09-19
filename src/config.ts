@@ -125,6 +125,27 @@ export const CAT = {
   swimStrokeVelocity: -280,
 
   /**
+   * How fast a stroke bleeds off, px/sec^2.
+   *
+   * Without this a stroke lasts exactly one frame: the next frame writes the
+   * steady swimming speed straight over it, and the burst that was meant to
+   * carry the cat up out of a pool never happens.
+   */
+  swimDrag: 900,
+
+  /**
+   * How fast the cat sinks until it is under the surface, px/sec.
+   *
+   * A cat in water is *in* it, not on it. Neutral buoyancy holds whatever depth
+   * it is at, which on entering a pool meant floating with only its paws wet --
+   * skating across the top of the water. It now sinks until its back is under
+   * the surface, and holds depth from there.
+   *
+   * Slow on purpose: dropping into a pool should settle, not plunge.
+   */
+  sinkSpeed: 70,
+
+  /**
    * Grace window after letting go of a column, ms.
    *
    * Longer than the ledge coyote time on purpose. Stepping off a ledge is

@@ -87,9 +87,25 @@ Water replaces ordinary movement the way climbing does, and is checked first: a
 pool has no walls to kick off and no trunks in it, so nothing after it needs to
 run.
 
-Buoyancy only ever *slows a sink*; it never lifts the cat by itself. Rising is
-entirely down to strokes, one per press of jump, which is what keeps a pool
-somewhere you have to swim rather than something you bob out of.
+**The cat sinks until it is under.** Holding depth from the moment the paws
+touch meant floating with the whole cat above the water, skating across the top
+of it. `applyBuoyancy` sinks at `sinkSpeed` while the cat still breaks the
+surface and nothing is pressed, and holds depth only once it is under.
+
+`SUBMERGED_MARGIN` puts it two pixels lower than the arithmetic needs, because
+the surface tiles swell on a slow tween and a cat resting exactly on the line
+pokes out of the trough.
+
+The sink is skipped when there is no water left to sink into, or a puddle
+shallower than the cat would press it into the bed forever.
+
+A stroke is allowed to **carry**: an upward velocity stronger than what is being
+asked for bleeds off at `swimDrag` rather than being written over. Without that
+a stroke lasts exactly one frame and never lifts the cat out of anything.
+
+`waterSurfaceY` and `waterBedY` scan every water tile standing over the cat's
+own x, because pools are stored tile by tile and what is wanted is the surface
+of the pool rather than of the nearest tile.
 
 Water is harmless by design — the original wish was that not every pool has a
 piranha in it, which only means anything if a pool without one is safe.

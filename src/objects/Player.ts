@@ -16,6 +16,15 @@ const CLIMB_TOP_MARGIN = 0;
 const WALL_PROBE = 2;
 
 /**
+ * How far below the surface the cat settles before it counts as under, px.
+ *
+ * Level with the surface is submerged by the arithmetic and not quite by eye:
+ * the surface tiles swell a pixel and a half on a slow tween, and a cat resting
+ * exactly on the line pokes out of the trough.
+ */
+const SUBMERGED_MARGIN = 2;
+
+/**
  * The cat.
  *
  * Movement is deliberately not a straight "set velocity from input": it adds
@@ -188,9 +197,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
    * Moves the cat through water.
    *
    * The cat is neutrally buoyant: it holds its depth with nothing pressed, and
-   * climb and sneak take it up and down. Horizontally it moves at about half
-   * speed. Jump still works, as a stroke strong enough to break the surface and
-   * carry it out onto a bank.
+   * up and sneak take it up and down. Horizontally it moves at about half
+   * speed. A press of up is a stroke, strong enough to break the surface and
+   * carry the cat out onto a bank.
+   *
+   * **It sinks until it is properly under**, though. Holding depth from the
+   * moment the paws touch meant floating with the whole cat above the water,
+   * skating across the top of it. Nothing pressed now sinks the cat until its
+   * back is below the surface, and holds depth only from there.
    *
    * Water is a place to move about in rather than something to struggle out of,
    * which is the point of it not being dangerous.
@@ -225,8 +239,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (controls.jumpJustPressed) {
       this.setVelocityY(CAT.swimStrokeVelocity);
     } else {
-      const vertical = (controls.sneak ? 1 : 0) - (controls.up ? 1 : 0);
-      this.setVelocityY(vertical * CAT.swimVerticalSpeed);
+      this.applyBuoyancy(controls, dt);
     }
 
     if (onGround) {
@@ -234,6 +247,75 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     this.updateFacing(controls);
+  }
+
+  /**
+   * Settles the cat at its depth, or sinks it until it has one.
+   *
+   * A stroke is allowed to carry: an upward velocity stronger than what is
+   * being asked for bleeds off rather than being written over, or the burst
+   * that lifts the cat out of a pool would last exactly one frame.
+   */
+  private applyBuoyancy(controls: Controls, dt: number): void {
+    const vertical = (controls.sneak ? 1 : 0) - (controls.up ? 1 : 0);
+    const surface = this.waterSurfaceY();
+    const bed = this.waterBedY();
+
+    // Nothing pressed, and still breaking the surface: sink. Only while there
+    // is water left to sink into -- a puddle shallower than the cat can never
+    // cover it, and would otherwise press it into the bed forever.
+    if (
+      vertical === 0 &&
+      this.body.y < surface + SUBMERGED_MARGIN &&
+      this.body.bottom < bed
+    ) {
+      this.setVelocityY(CAT.sinkSpeed);
+      return;
+    }
+
+    const target = vertical * CAT.swimVerticalSpeed;
+    const current = this.body.velocity.y;
+
+    this.setVelocityY(
+      current < target ? Math.min(target, current + CAT.swimDrag * dt) : target,
+    );
+  }
+
+  /**
+   * The top of the water the cat is in.
+   *
+   * Taken from every water tile standing over the cat's own x, so what comes
+   * back is the surface of this pool rather than of the nearest tile. Pools are
+   * stored tile by tile, which is why it is a scan.
+   */
+  private waterSurfaceY(): number {
+    let surface = Number.POSITIVE_INFINITY;
+
+    for (const zone of this.waterZones) {
+      if (this.overlapsColumn(zone)) {
+        surface = Math.min(surface, zone.y);
+      }
+    }
+
+    return surface;
+  }
+
+  /** The bed of that same column of water. */
+  private waterBedY(): number {
+    let bed = Number.NEGATIVE_INFINITY;
+
+    for (const zone of this.waterZones) {
+      if (this.overlapsColumn(zone)) {
+        bed = Math.max(bed, zone.bottom);
+      }
+    }
+
+    return bed;
+  }
+
+  /** Does this tile stand in the same vertical column as the cat? */
+  private overlapsColumn(zone: Phaser.Geom.Rectangle): boolean {
+    return this.body.right > zone.x && this.body.x < zone.right;
   }
 
   /** Is any part of the cat inside one of these rectangles? */
