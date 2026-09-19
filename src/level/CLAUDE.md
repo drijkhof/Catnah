@@ -82,11 +82,11 @@ past the level of it. One tile only clips the branch's edge.
 **Wall jumps need two walls facing each other**, not one. Sides have to
 alternate, so a lone face gives a single jump and nothing more.
 
-**Three tiles apart is about right, and the number is not free.** A wall jump
-only counts while the cat is still rising, so the gap sets how long a player has
-to react. Measured in the level 1 shaft: at three tiles a player can dawdle
-about six frames at each wall and still make it, and the chain breaks at eight.
-At four tiles that margin roughly halves.
+**A shaft has to be taller than two jumps to be worth building.** A wall jump
+is a full jump now, and one wall is worth exactly one of them, so a jump off the
+floor plus a single wall jump reaches about 172px. The level 1 shaft is 224px
+precisely so that one wall cannot do it and alternating can. Build one shorter
+and it quietly stops testing anything.
 
 **A shaft has to be enterable.** Two walls standing on the floor cannot be
 walked between — you meet the first one. Level 1 solves it by stopping the left

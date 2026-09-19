@@ -61,13 +61,9 @@ is.
   holding it gives 86px, with everything in between. Letting go does not stop
   the climb dead — the cat gets heavier and coasts on a little, still rising
   about 30px after a very short tap.
-- The jump is forgiving in two ways. It still fires just after you run off a
-  ledge (coyote time). And a press that cannot be used yet is **queued**: it
-  waits, with no time limit, until something spends it or until the cat tips
-  over into a descent. So a press on the way down is kept for the landing, and a
-  press on the way up is kept for a wall — but a press on the way up that finds
-  no wall is thrown away at the top of the arc rather than surprising you with a
-  hop when you land.
+- The jump still fires just after you run off a ledge (coyote time).
+- **There is no jump buffer.** A press either jumps or is forgotten; nothing is
+  stored for later.
 - **Sneaking is blocked from standing up** when there is no headroom, so you
   cannot pop up through a log you are sneaking under, nor jump out from under it.
 
@@ -88,35 +84,25 @@ drops the cat onto it.
 
 ### Wall jumping
 
-Press into a rock face in mid-air and the cat **slides** down it at 95 px/s
-instead of falling at 600. Sliding is a cushion, not a launchpad: by the time
-you are sliding you are falling, and a falling cat cannot wall jump. It buys you
-a soft way down when a chain breaks.
+A wall jump is **an ordinary jump that you are allowed to take off a wall**. It
+has no push of its own: the height is a normal jump's, variable in the usual
+way, and it does not touch your horizontal direction or speed at all. Where you
+go next is entirely your steering.
 
-**You have to alternate sides.** The same wall cannot be used twice in a row:
-left, then right, then left. So a single wall is never a climb — it gives you
-one jump and no more. Two walls facing each other are. Landing resets it.
+- **Being against the wall is enough.** No need to hold yourself into it, and no
+  horizontal movement required — resting against one and pressing jump does it.
+- **Rising or falling makes no difference.** You can take one on the way down.
+- **You have to alternate sides.** The same wall cannot be used twice in a row:
+  left, then right, then left. Landing resets it.
 
-**And you have to still be going up.** A wall jump carries momentum on rather
-than making it, so a chain has to be strung together on the way up and is over
-the moment you start to fall. Miss it and you slide down and start again.
+Pressing into a wall while falling still makes the cat **slide** at 95 px/s
+instead of 600, which is a way to buy time rather than a requirement.
 
-**A wall jump is never cut short**, however briefly you tap. Only jumps off the
-ground have variable height. Chaining wall jumps means letting go of the button
-to press it again, and cutting the rise for that release would sabotage the very
-move the release was for.
+Level 1 has a **shaft** between two rock towers for this: walk in under the
+overhanging left tower and alternate your way up 224px to the berries on top.
+One wall alone will not do it — a jump off the floor plus a single wall jump
+reaches 172px, and there it stops.
 
-**Press away from the wall and jump.** The wall stays available for a moment
-after you stop touching it, so you steer where you want to go and jump, rather
-than having to hold *into* the wall and hope. Holding into it still works.
-
-Each wall jump needs its own press, so holding the button does not climb. For a
-moment after the shove the steering is ignored, otherwise still holding
-"towards the wall" would cancel the push and drop you straight back down.
-
-Level 1 has a **shaft** between two rock towers for exactly this: walk in under
-the overhanging left tower, then alternate your way up the 160px to the berries
-on top. Two wall jumps do it, if you are prompt.
 
 ## Level 1 — the forest
 

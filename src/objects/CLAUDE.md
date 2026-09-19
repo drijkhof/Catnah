@@ -28,7 +28,6 @@ from one that feels slippery and unfair. Do not simplify them away:
   `airControl` in the air — the cat steers while airborne, but less sharply
   than on the ground.
 - **Coyote time** — a jump still fires shortly *after* walking off a ledge.
-- **Jump buffering** — a jump pressed shortly *before* landing fires on contact.
 - **Variable height** — releasing early makes the cat heavier rather than
   cutting its velocity, so it eases off instead of stopping dead. Measured:
   86px held, 39px on a one-frame tap, and about 30px of that still gained after
@@ -126,54 +125,38 @@ on the same frame.
 
 ### Sides must alternate
 
-`lastWallJumpSide` blocks a second wall jump from the same side. A lone wall is
-therefore never a climb -- it gives one jump and no more -- and a shaft of two
-facing walls is. Landing clears it.
+`lastWallJumpSide` blocks a second wall jump from the same side, so one wall is
+worth exactly one jump. Landing clears it.
 
-### A wall jump is never cut short
+### A wall jump is only a jump
 
-`jumpCameFromWall` exempts wall jumps from the variable-height cut, and this is
-not a nicety -- without it the move fights itself.
+`applyWallJump` sets the vertical velocity and nothing else. No sideways shove,
+so it leaves direction and speed alone, and the player keeps full control of
+where they go. It is an ordinary jump with ordinary variable height that happens
+to have been taken off a wall.
 
-Chaining wall jumps needs a fresh press each time, which means letting go of the
-button. Letting go fires the cut, which takes 55% of the rise. Combined with
-"only on the way up", the release needed to make the next wall jump is what
-destroys the rise that wall jump requires. Measured before the fix: a player
-tapping for three frames reached the walls at -75, then -3, then +95, and got
-65px up a 160px shaft. After it, every tap length clears it.
+Because there is no shove to protect, there is no input lock either.
 
-Ground jumps keep their variable height, which is where it belongs.
+### Walls are found by probe, not by collision flags
 
-### Only on the way up
+`solidBeside` asks the physics world what is a couple of pixels to either side.
+The collision flags (`blocked`, `touching`) only light up when there was an
+overlap to separate, which in practice means pressing into the wall -- and
+resting against one with no horizontal movement at all has to count.
 
-A wall jump also requires `velocity.y < 0`. It carries momentum on rather than
-manufacturing it, so a chain is strung together on the way up and is over the
-moment the cat starts to fall.
-
-This leaves the wall slide as a cushion rather than a launchpad -- by the time
-the cat is sliding it is falling, and a falling cat cannot wall jump. That is
-deliberate, but it does mean the slide no longer leads anywhere on its own.
+The probe filters on the obstacle's own `checkCollision` face, which is what
+keeps one-way branches from reading as walls.
 
 ### The wall is remembered for a moment
 
-`wallCoyoteTimer` keeps a wall jumpable briefly after contact is lost, and
-`applyJump` is handed that remembered side rather than the one being touched
-right now.
+`wallCoyoteTimer` keeps a wall jumpable briefly after contact is lost, so
+steering away and jumping works. It is spent on use, so one contact cannot be
+cashed in twice.
 
-Without it the move demands you keep pressing *into* the wall: pressing away
-breaks the very contact the jump is looking for, leaving a single frame to press
-jump in. Pressing away and jumping is what players actually do, and it is how
-they say where they want to go. The timer is spent on use, so one contact cannot
-be cashed in twice.
+### No buffer
 
-### The push and the lock are a pair, and both cost height
+A jump happens on the press or not at all. `coyoteTimer` is the only grace left.
 
-Every pixel of push has to be paid back by steering into the wall again, and
-that return takes time the cat spends falling. Tuned too high, a lone wall
-becomes *unclimbable*: the first attempt used 250 px/s for 150ms and a cycle lost
-more height than a wall jump gained, so the cat took exactly one jump and sank.
-150 px/s for 100ms nets upward. Change either number and re-measure a climb —
-the failure is silent and looks like a level problem, not a tuning one.
 
 ## Body access
 

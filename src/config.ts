@@ -74,8 +74,7 @@ export const CAT = {
   coyoteTimeMs: 90,
 
   /**
-   * A queued jump has no timer. It is held until it is spent, or until the cat
-   * tips over into a descent -- see `jumpQueued` in Player.
+   * There is no jump buffer. A jump happens on the press or not at all.
    */
 
   /**
@@ -86,31 +85,6 @@ export const CAT = {
    * a move.
    */
   wallSlideSpeed: 95,
-
-  /**
-   * Sideways shove away from the wall on a wall jump, px/sec.
-   *
-   * Tuned against the cost of coming back. Every push has to be paid for by
-   * steering back into the wall, and that return costs height; at 250 it cost
-   * more height than a wall jump gained, so a lone wall could not be climbed at
-   * all -- the cat got exactly one jump and sank. At 150 a cycle nets upward.
-   */
-  wallJumpPushX: 150,
-
-  /** Upward velocity on a wall jump, px/sec. A little weaker than off the ground. */
-  wallJumpVelocityY: -470,
-
-  /**
-   * How long horizontal input is ignored after a wall jump, ms.
-   *
-   * Without it, a player holding "towards the wall" -- which is exactly what
-   * they were holding to cling to it -- cancels their own shove and slides
-   * straight back down the same face.
-   *
-   * Kept short for the same reason the push is gentle: every locked frame is a
-   * frame of falling away from the wall.
-   */
-  wallJumpLockMs: 100,
 
   /**
    * How long a wall stays available to jump from after the cat stops touching
