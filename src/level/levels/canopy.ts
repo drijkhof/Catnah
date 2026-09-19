@@ -10,6 +10,10 @@ import type { LevelDefinition } from '../Level';
  *
  * In the middle, five lianas hang side by side: holding on is not pinned to
  * one rope, so that stretch is crossed sideways as much as climbed.
+ *
+ * The cat starts on a small boulder. A hedgehog paces the floor it would
+ * otherwise start on, and nothing should be able to kill a player who has not
+ * touched the controls yet.
  */
 const ROWS: string[] = [
   '#'.repeat(78),
@@ -36,8 +40,8 @@ const ROWS: string[] = [
   '.'.repeat(7) + 'T' + 'o',
   '.'.repeat(7) + 'T',
   '.'.repeat(7) + 'T',
-  '.'.repeat(7) + 'T',
-  '..' + 'P' + '.'.repeat(31) + 'h',
+  '..' + 'P' + '.'.repeat(4) + 'T',
+  '.' + 'RRR' + '.'.repeat(30) + 'h',
   '#'.repeat(78),
   '#'.repeat(78),
   '#'.repeat(78),

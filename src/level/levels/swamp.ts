@@ -134,8 +134,13 @@ function lianas(
  * cat has -- and the last few crossings are the long ones.
  */
 const SEGMENTS: string[][] = [
+  // A rock to start on. The hedgehog that paces this bank turns at it, so
+  // standing still at the start of the level cannot kill anybody.
   bank(12, [
-    [ROW_LINE, 2, 'P'],
+    [ROW_LINE - 1, 2, 'P'],
+    [ROW_LINE, 1, 'R'],
+    [ROW_LINE, 2, 'R'],
+    [ROW_LINE, 3, 'R'],
     [ROW_LINE, 5, 'o'],
     [ROW_LINE, 6, 'o'],
     [ROW_LINE, 9, 'h'],

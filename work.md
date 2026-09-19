@@ -42,6 +42,16 @@ Ginger, so it stays readable against all that green. Two poses:
 Standing is deliberately taller than one 16px tile, which is what makes a
 one-tile gap something you can only get through by sneaking.
 
+## Nothing can kill you before you move
+
+Every level starts somewhere nothing can reach. Measured by standing perfectly
+still for forty-five seconds on each one: the forest, the city and the volcano
+put the cat out of everything's way already, and the swamp and the canopy did
+not — a hedgehog simply walked into it. Both now start the cat on **a small
+boulder**, which a hedgehog turns at and cannot climb.
+
+A player who has not touched the controls yet should not be able to lose.
+
 ## Starting, and starting over
 
 The game opens on a **title screen**: the forest of level 1 with nobody playing
