@@ -17,6 +17,10 @@ import type { LevelDefinition } from '../Level';
  * Fall in either and it costs you. A crocodile eats a cat that is in the water
  * beside it, and piranha water has more fish in it than anything can swim past.
  *
+ * **Nothing walks the banks.** The banks are where you stand still and work out
+ * the next crossing, and a hedgehog wandering into that is an interruption
+ * rather than a danger. Everything in this level is in the water.
+ *
  * **The lianas hang from nothing, and that is deliberate.** They are five tiles
  * long, low over the water, so all you can do with one is cross. There is no
  * roof in this level to hang them from and none should ever come into view --
@@ -134,8 +138,8 @@ function lianas(
  * cat has -- and the last few crossings are the long ones.
  */
 const SEGMENTS: string[][] = [
-  // A rock to start on. The hedgehog that paces this bank turns at it, so
-  // standing still at the start of the level cannot kill anybody.
+  // A rock to start on, where nothing can reach a player who has not touched
+  // the controls yet.
   bank(12, [
     [ROW_LINE - 1, 2, 'P'],
     [ROW_LINE, 1, 'R'],
@@ -143,17 +147,16 @@ const SEGMENTS: string[][] = [
     [ROW_LINE, 3, 'R'],
     [ROW_LINE, 5, 'o'],
     [ROW_LINE, 6, 'o'],
-    [ROW_LINE, 9, 'h'],
   ]),
   crocodiles(16, [3, 8, 13]),
-  bank(8, [[ROW_LINE, 4, 'h']]),
+  bank(8),
   lianas(18, [2, 6, 10, 14], [4, 9, 14]),
   bank(8, [
     [ROW_LINE, 3, 'o'],
     [ROW_LINE, 4, 'o'],
   ]),
   crocodiles(22, [3, 9, 15, 20]),
-  bank(7, [[ROW_LINE, 3, 'h']]),
+  bank(7),
   lianas(24, [2, 6, 10, 14, 18, 22], [5, 11, 17, 21]),
   bank(8, [
     [ROW_LINE, 3, 'o'],
@@ -161,14 +164,14 @@ const SEGMENTS: string[][] = [
     [ROW_LINE, 5, 'o'],
   ]),
   crocodiles(26, [4, 10, 17, 23]),
-  bank(7, [[ROW_LINE, 3, 'h']]),
+  bank(7),
   lianas(22, [2, 6, 10, 14, 18], [5, 11, 17]),
   bank(8, [
     [ROW_LINE, 3, 'o'],
     [ROW_LINE, 4, 'o'],
   ]),
   crocodiles(24, [4, 11, 18]),
-  bank(8, [[ROW_LINE, 4, 'h']]),
+  bank(8),
   lianas(20, [2, 6, 10, 14, 18], [5, 11, 16]),
   bank(10, [
     [ROW_LINE, 2, 'o'],

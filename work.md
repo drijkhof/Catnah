@@ -310,6 +310,10 @@ two kinds never mix; a stretch of water has one danger, not two.
   route: jump off the bank, catch one in mid-air, leap to the next, and land on
   the far side. Nothing at water level gets you across.
 
+**Nothing walks the banks.** The banks are where you stand still and work out
+the next crossing; a hedgehog wandering into that is an interruption rather than
+a danger. Everything dangerous in this level is in the water.
+
 The lianas here are five tiles long, hang low over the water and **hang from
 nothing**. That is on purpose: all you can do with one is cross, there is no
 climbing up out of the level on them, and the swamp has sky overhead rather than
