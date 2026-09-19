@@ -245,8 +245,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const trunk = this.findTrunk();
 
     if (this.isClimbing) {
-      // Reaching out sideways is how you let go; there is no release button,
-      // for the same reason there is no grab button.
+      // Jumping off is now possible, because jump is its own button. Handing
+      // back the coyote window lets the ordinary jump fire this same frame.
+      if (controls.jumpJustPressed) {
+        this.releaseTrunk();
+        this.coyoteTimer = CAT.coyoteTimeMs;
+        return false;
+      }
+
+      // Reaching out sideways is the other way to let go.
       if (!trunk || controls.left || controls.right) {
         this.releaseTrunk();
         return false;
@@ -258,7 +265,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     const activeTrunk = trunk as Phaser.Geom.Rectangle;
-    const direction = (controls.sneak ? 1 : 0) - (controls.jumpHeld ? 1 : 0);
+    const direction = (controls.sneak ? 1 : 0) - (controls.up ? 1 : 0);
 
     // Climbing down onto the floor simply stands the cat up.
     if (onGround && direction >= 0) {
@@ -285,8 +292,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
    * Whether the cat takes hold of a trunk it is overlapping.
    *
    * Falling onto one catches it -- that is the automatic grip, with no button
-   * to hold. From the floor, reaching up starts the climb instead of jumping,
-   * the way standing at the foot of a ladder does.
+   * to hold. Otherwise it is the climb button that takes hold, which is why
+   * that button is not the jump button: sharing one would mean never being able
+   * to jump off the thing being climbed.
    */
   private wantsToGrab(controls: Controls, onGround: boolean): boolean {
     if (this.climbCooldownTimer > 0) {
@@ -297,7 +305,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       return true;
     }
 
-    return controls.jumpJustPressed;
+    return controls.up || controls.sneak;
   }
 
   private grabTrunk(): void {

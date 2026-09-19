@@ -9,9 +9,16 @@ It asks `controls.left`, `controls.right`, `controls.down`,
 and touch behind those answers. Adding a device or a key rebinding should touch
 this folder only.
 
-Bindings today: arrows / WASD / Space on a keyboard, and four on-screen buttons
-on a touch device — move back, move forward, sneak, jump. Movement sits under
-the left thumb, actions under the right.
+Bindings today: arrows / WASD / Space on a keyboard, and five on-screen buttons
+on a touch device — back, forward, climb, sneak, jump. Movement sits under the
+left thumb, actions under the right, with climb stacked above sneak so up and
+down sit the way they do on a keyboard.
+
+## Jump and climb must stay separate
+
+They were one button once, and that was a mistake worth remembering: both are
+things you do upwards, so sharing a button means you can **never jump off the
+thing you are climbing**. `↑` climbs now; `Space` jumps.
 
 ## `update()` must run first, once per frame
 
@@ -29,9 +36,9 @@ thumb a few pixels off the d-pad fires `pointerout` and silently drops the
 input, so the player keeps running or stops dead. Hit-testing every frame means
 the input reflects where the finger *is*, which is what the player expects.
 
-`scene.input.addPointer(3)` is required and easy to forget: Phaser tracks a
+`scene.input.addPointer(4)` is required and easy to forget: Phaser tracks a
 single pointer by default, so without it a player cannot hold a direction,
-sneak and jump at the same time.
+climb, sneak and jump at once.
 
 ## Adding a control
 

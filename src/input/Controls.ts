@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH, COLORS } from '../config';
 import { BUTTON_SIZE } from '../art';
 
-type ControlName = 'left' | 'right' | 'jump' | 'sneak';
+type ControlName = 'left' | 'right' | 'jump' | 'sneak' | 'up';
 
 /** A rectangular on-screen touch target, in game-pixel coordinates. */
 interface TouchButton {
@@ -18,9 +18,13 @@ const BUTTON_MARGIN = 12;
 /**
  * One input surface for both platforms.
  *
- * Gameplay code never asks "is this a phone?" -- it reads `left`, `right`,
+ * Gameplay code never asks "is this a phone?" -- it reads `left`, `right`, `up`,
  * `sneak`, `jumpJustPressed` and `jumpHeld`, and this class merges keyboard and
  * touch into those answers.
+ *
+ * **Up and jump are separate**, and have to be: climbing and jumping are both
+ * things you do going upwards, and sharing a button means you cannot jump off
+ * the thing you are climbing.
  *
  * `update()` must be called once at the top of the scene's update, before
  * anything reads the edge-triggered `jumpJustPressed`.
@@ -49,9 +53,9 @@ export class Controls {
     >;
 
     if (scene.game.device.input.touch) {
-      // Three extra pointers so a player can hold a direction, sneak and jump
-      // at the same time. Phaser tracks only one by default.
-      scene.input.addPointer(3);
+      // Four extra pointers so a player can hold a direction, climb, sneak and
+      // jump at once. Phaser tracks only one by default.
+      scene.input.addPointer(4);
       this.createTouchUi();
     }
   }
@@ -64,6 +68,11 @@ export class Controls {
   /** True while the player wants to move forwards. */
   get right(): boolean {
     return this.cursors.right.isDown || this.keys.D.isDown || this.isButtonDown('right');
+  }
+
+  /** True while the player wants to go up: climbing, or taking hold of a rope. */
+  get up(): boolean {
+    return this.cursors.up.isDown || this.keys.W.isDown || this.isButtonDown('up');
   }
 
   /** True while the player wants to sneak: low, flat and slow. */
@@ -84,10 +93,9 @@ export class Controls {
   /** Samples edge-triggered state. Call once per frame, before reading. */
   update(): void {
     this.jumpHeldLastFrame = this.jumpHeldNow;
+    // Space alone on a keyboard. The arrow and W are climbing now.
     this.jumpHeldNow =
-      this.cursors.up.isDown ||
       this.cursors.space.isDown ||
-      this.keys.W.isDown ||
       this.keys.SPACE.isDown ||
       this.isButtonDown('jump');
   }
@@ -130,25 +138,31 @@ export class Controls {
   private createTouchUi(): void {
     const bottom = GAME_HEIGHT - BUTTON_SIZE - BUTTON_MARGIN;
 
-    // Movement under the left thumb, actions under the right.
-    const layout: Array<{ name: ControlName; x: number }> = [
-      { name: 'left', x: BUTTON_MARGIN },
-      { name: 'right', x: BUTTON_MARGIN * 2 + BUTTON_SIZE },
-      { name: 'sneak', x: GAME_WIDTH - BUTTON_MARGIN * 2 - BUTTON_SIZE * 2 },
-      { name: 'jump', x: GAME_WIDTH - BUTTON_MARGIN - BUTTON_SIZE },
+    // Movement under the left thumb, actions under the right. Climb sits above
+    // sneak, so up and down are stacked the way they are on a keyboard.
+    const layout: Array<{ name: ControlName; x: number; y: number }> = [
+      { name: 'left', x: BUTTON_MARGIN, y: bottom },
+      { name: 'right', x: BUTTON_MARGIN * 2 + BUTTON_SIZE, y: bottom },
+      {
+        name: 'up',
+        x: GAME_WIDTH - BUTTON_MARGIN * 2 - BUTTON_SIZE * 2,
+        y: bottom - BUTTON_SIZE - BUTTON_MARGIN,
+      },
+      { name: 'sneak', x: GAME_WIDTH - BUTTON_MARGIN * 2 - BUTTON_SIZE * 2, y: bottom },
+      { name: 'jump', x: GAME_WIDTH - BUTTON_MARGIN - BUTTON_SIZE, y: bottom },
     ];
 
-    for (const { name, x } of layout) {
+    for (const { name, x, y } of layout) {
       this.buttons.push({
         name,
         x,
-        y: bottom,
+        y,
         width: BUTTON_SIZE,
         height: BUTTON_SIZE,
       });
 
       this.scene.add
-        .image(x, bottom, `ui-${name}`)
+        .image(x, y, `ui-${name}`)
         .setOrigin(0, 0)
         .setScrollFactor(0)
         .setDepth(1000)

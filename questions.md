@@ -187,3 +187,19 @@ cave and the city.
 > **Still open:** the lianas hang from the top of the screen with nothing
 > holding them up, because there is no ceiling to anchor them to. It works, but
 > a canopy to hang them from would look less like they start in mid-air.
+
+
+---
+
+## Controls changed
+
+**`↑` no longer jumps; `Space` does, and `↑` climbs.** Jump and climb had been
+the same button, which meant you could never jump off a rope or a liana — the
+press that should have launched you just kept climbing.
+
+Worth flagging because an up arrow that does not jump is not what a player
+expects from a platformer, and a child especially will try it first. The
+alternative is a dedicated grab button, which is a button more to hold.
+
+> **Still open:** is `Space` the right jump key, or should jump be `↑` and climb
+> get its own key? Any split works; this one puts climbing where a ladder is.

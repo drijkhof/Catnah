@@ -9,14 +9,20 @@ import { PIRANHA } from '../config';
  * leap is on a fixed rhythm: a hazard whose timing cannot be learnt is just bad
  * luck.
  *
- * It keeps itself in the water by looking ahead rather than by being fenced in,
- * which means it needs no idea of which pool is "its" -- it simply never swims
- * at anything that is not water.
+ * It is given **its own pool** and is fenced into it. Looking ahead for water
+ * was not enough: chasing steered the fish straight at the cat, which meant
+ * across dry land, through the ground and into somebody else's pond as soon as
+ * the cat swam anywhere nearby. A fish belongs to one body of water.
  */
 export class Piranha extends Phaser.Physics.Arcade.Sprite {
   declare body: Phaser.Physics.Arcade.Body;
 
-  private readonly water: Phaser.Geom.Rectangle[];
+  /** The tiles of this fish's own pool. Nothing else counts as water. */
+  private readonly pool: Phaser.Geom.Rectangle[];
+
+  /** The extent of that pool, used to fence the fish in. */
+  private readonly bounds: Phaser.Geom.Rectangle;
+
   private readonly surfaceY: number;
 
   /** 1 swimming right, -1 swimming left. */
@@ -31,7 +37,7 @@ export class Piranha extends Phaser.Physics.Arcade.Sprite {
     scene: Phaser.Scene,
     x: number,
     surfaceY: number,
-    water: Phaser.Geom.Rectangle[],
+    pool: Phaser.Geom.Rectangle[],
     delayMs = 0,
   ) {
     super(scene, x, surfaceY + PIRANHA.lurkDepth, 'piranha');
@@ -39,7 +45,11 @@ export class Piranha extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
-    this.water = water;
+    this.pool = pool;
+    this.bounds = pool.reduce(
+      (box, tile) => Phaser.Geom.Rectangle.Union(box, tile),
+      new Phaser.Geom.Rectangle(pool[0]?.x ?? x, pool[0]?.y ?? surfaceY, 0, 0),
+    );
     this.surfaceY = surfaceY;
     this.timer = -delayMs;
 
@@ -59,8 +69,13 @@ export class Piranha extends Phaser.Physics.Arcade.Sprite {
       return;
     }
 
+    // Only a cat in *this* pool is worth chasing. One swimming in the next pond
+    // along is none of this fish's business, and going after it would mean
+    // leaving the water.
     const chasing =
-      catSwimming && Phaser.Math.Distance.BetweenPoints(this, cat) < PIRANHA.chaseRange;
+      catSwimming &&
+      this.inWater(cat.x, cat.y) &&
+      Phaser.Math.Distance.BetweenPoints(this, cat) < PIRANHA.chaseRange;
 
     if (chasing) {
       this.swimTowards(cat.x, cat.y, PIRANHA.chaseSpeed, delta);
@@ -72,8 +87,42 @@ export class Piranha extends Phaser.Physics.Arcade.Sprite {
       this.beginLeap();
     }
 
+    this.keepInPool();
+
     this.setFlipX(this.body.velocity.x < 0);
     this.setAngle(Phaser.Math.Clamp(this.body.velocity.y * 0.15, -35, 35));
+  }
+
+  /**
+   * Hard stop at the edge of its own water.
+   *
+   * The steering alone is not enough: it turns gradually, so a sharp chase can
+   * carry the fish past the bank before it comes round. Horizontally this
+   * always applies; vertically it does not, because a leap is meant to take it
+   * clear of the surface.
+   */
+  private keepInPool(): void {
+    const half = this.width / 2;
+
+    if (this.x - half < this.bounds.left) {
+      this.setX(this.bounds.left + half);
+      this.setVelocityX(Math.max(0, this.body.velocity.x));
+    } else if (this.x + half > this.bounds.right) {
+      this.setX(this.bounds.right - half);
+      this.setVelocityX(Math.min(0, this.body.velocity.x));
+    }
+
+    if (this.leaping) {
+      return;
+    }
+
+    if (this.y < this.bounds.top) {
+      this.setY(this.bounds.top);
+      this.setVelocityY(Math.max(0, this.body.velocity.y));
+    } else if (this.y > this.bounds.bottom) {
+      this.setY(this.bounds.bottom);
+      this.setVelocityY(Math.min(0, this.body.velocity.y));
+    }
   }
 
   /** Up and down its pool, at its preferred depth. */
@@ -134,7 +183,8 @@ export class Piranha extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
+  /** Is this point inside *this fish's* pool? Other water does not count. */
   private inWater(x: number, y: number): boolean {
-    return this.water.some((zone) => zone.contains(x, y));
+    return this.pool.some((tile) => tile.contains(x, y));
   }
 }

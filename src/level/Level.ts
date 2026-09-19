@@ -76,6 +76,12 @@ export interface Solid {
   faces: Faces;
 }
 
+/** A piranha, and the pool it lives in. */
+export interface Piranha extends Point {
+  /** Index into `pools`. A fish belongs to one body of water, and only that. */
+  poolIndex: number;
+}
+
 /** A creature that paces the floor, and which kind it is. */
 export interface Walker extends Point {
   kind: GroundEnemyKind;
@@ -107,9 +113,12 @@ export interface ParsedLevel {
   solids: Solid[];
   climbZones: ClimbZone[];
   waterZones: WaterZone[];
+  /** Water, grouped into connected pools. A piranha never leaves its own. */
+  pools: WaterZone[][];
   /** Creatures that pace the floor: hedgehogs, and rats in the city. */
   walkers: Walker[];
-  piranhas: Point[];
+  /** Where each piranha lurks, and which pool it belongs to. */
+  piranhas: Piranha[];
   crows: Point[];
   nests: Point[];
   berries: Point[];
@@ -140,7 +149,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const climbZones: ClimbZone[] = [];
   const waterZones: WaterZone[] = [];
   const walkers: Walker[] = [];
-  const piranhas: Point[] = [];
+  const piranhaSpots: Point[] = [];
   const crows: Point[] = [];
   const nests: Point[] = [];
   const berries: Point[] = [];
@@ -236,7 +245,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           });
 
           if (tiles[column] === 'f') {
-            piranhas.push({ x: x + TILE / 2, y });
+            piranhaSpots.push({ x: x + TILE / 2, y });
           }
           break;
 
@@ -296,12 +305,21 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   assertWalkersStandOnGround(rows, width, definition.name);
   assertSpawnHasFooting(rows, width, definition.name, spawn);
 
+  const pools = groupIntoPools(waterZones);
+  const piranhas: Piranha[] = piranhaSpots.map((spot) => ({
+    ...spot,
+    poolIndex: pools.findIndex((pool) =>
+      pool.some((tile) => tile.x === spot.x - TILE / 2 && tile.y === spot.y),
+    ),
+  }));
+
   return {
     name: definition.name,
     theme: definition.theme,
     solids,
     climbZones,
     waterZones,
+    pools,
     walkers,
     piranhas,
     crows,
@@ -437,6 +455,54 @@ function assertWalkersStandOnGround(rows: string[], width: number, name: string)
       `Floor creatures in "${name}" must stand on plain floor: ${misplaced.join('; ')}.`,
     );
   }
+}
+
+/**
+ * Groups water tiles into connected pools.
+ *
+ * A piranha is given one of these and never leaves it. Without that, chasing a
+ * swimming cat steered the fish straight at it -- across dry land, through the
+ * ground, and into somebody else's pond.
+ */
+function groupIntoPools(tiles: WaterZone[]): WaterZone[][] {
+  const byKey = new Map<string, WaterZone>();
+  const key = (x: number, y: number): string => `${x},${y}`;
+
+  for (const tile of tiles) {
+    byKey.set(key(tile.x, tile.y), tile);
+  }
+
+  const pools: WaterZone[][] = [];
+  const seen = new Set<string>();
+
+  for (const tile of tiles) {
+    if (seen.has(key(tile.x, tile.y))) {
+      continue;
+    }
+
+    const pool: WaterZone[] = [];
+    const queue = [tile];
+    seen.add(key(tile.x, tile.y));
+
+    while (queue.length > 0) {
+      const current = queue.pop() as WaterZone;
+      pool.push(current);
+
+      for (const [dx, dy] of [[TILE, 0], [-TILE, 0], [0, TILE], [0, -TILE]]) {
+        const neighbourKey = key(current.x + dx, current.y + dy);
+        const neighbour = byKey.get(neighbourKey);
+
+        if (neighbour && !seen.has(neighbourKey)) {
+          seen.add(neighbourKey);
+          queue.push(neighbour);
+        }
+      }
+    }
+
+    pools.push(pool);
+  }
+
+  return pools;
 }
 
 /** Solids that fill their whole cell, as opposed to a platform's thin bar. */

@@ -51,7 +51,6 @@ export class GameScene extends Phaser.Scene {
   private walkers: GroundEnemy[] = [];
   private piranhas: Piranha[] = [];
   private crows: Crow[] = [];
-  private waterRects: Phaser.Geom.Rectangle[] = [];
 
   /** True from the moment the cat is killed until it is back on its feet. */
   private dying = false;
@@ -94,7 +93,6 @@ export class GameScene extends Phaser.Scene {
     const { blocks, branches } = this.buildSolids();
     const climbZones = this.buildTrunks();
     const waterZones = this.buildWater();
-    this.waterRects = waterZones;
     this.berries = this.buildBerries();
 
     this.player = new Player(
@@ -352,9 +350,14 @@ export class GameScene extends Phaser.Scene {
     this.walkers = this.level.walkers.map(
       (at) => new GroundEnemy(this, at.x, at.y, at.kind),
     );
-    this.piranhas = this.level.piranhas.map(
-      (at, index) => new Piranha(this, at.x, at.y, this.waterRects, index * 700),
-    );
+    this.piranhas = this.level.piranhas.map((at, index) => {
+      // Each fish gets only the pool it lives in, never all the water.
+      const pool = (this.level.pools[at.poolIndex] ?? []).map(
+        (tile) => new Phaser.Geom.Rectangle(tile.x, tile.y, tile.width, tile.height),
+      );
+
+      return new Piranha(this, at.x, at.y, pool, index * 700);
+    });
     this.crows = this.level.crows.map((at) => new Crow(this, at.x, at.y));
 
     for (const nest of this.level.nests) {

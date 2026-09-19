@@ -47,12 +47,15 @@ one-tile gap something you can only get through by sneaking.
 | Action | Keyboard | Touch |
 | --- | --- | --- |
 | Forward / back | `→` `←` or `D` `A` | two buttons, bottom left |
-| Jump | `↑`, `Space` or `W` | button, bottom right |
-| Sneak | `↓` or `S` | button, left of jump |
+| **Jump** | `Space` | button, bottom right |
+| **Climb up** | `↑` or `W` | ladder button, above sneak |
+| Sneak / climb down | `↓` or `S` | button, left of jump |
 
-There is no separate button for wall jumping or climbing. The jump button means
-"up" and the sneak button means "down"; what they do depends on where the cat
-is.
+**Jump and climb are separate buttons, and have to be.** They are both things
+you do upwards, and sharing one means you can never jump off the thing you are
+climbing. `↑` no longer jumps; `Space` does.
+
+Wall jumping has no button of its own: in mid-air against a wall, jump does it.
 
 - **Gravity is always on.** Falling speed is capped at 600 px/s so long drops
   stay readable.
@@ -191,8 +194,10 @@ sneaking bough, three hedgehogs, one piranha.
 
 Standing water almost everywhere, under an overcast sky going brown at the
 horizon. Dead trees hung with moss, reeds along the waterline, and mist drifting
-across in two bands. **Lianas** hang from above to climb instead of trunks, and
-the platforms are logs lying across the water. Three pools, three piranhas.
+across in two bands. The platforms are logs lying across the water, and a **liana hangs in the gap
+between each pair of them**, running from the height of the upper log down to
+the lower one. So a liana is the way across rather than something dangling
+overhead: drop onto it, climb, and jump off onto the next log.
 
 ### 3 — Cave
 
@@ -224,8 +229,10 @@ lit window by window.
   ground: never on platforms, never on boulders, never in water. They are slow,
   and cannot be defeated — touching one is fatal from any direction.
 - **Rats** are the city's version: the same behaviour, nearly twice as quick.
-- **Piranhas** lurk below the surface of a pool and leap out every 2.2 seconds,
-  always to the same rhythm so it can be learnt. Only one pool per level has one.
+- **Piranhas** patrol the pool they live in, lurking below the surface and
+  leaping straight out every 2.2 seconds, always to the same rhythm so it can be
+  learnt. One will chase a cat that swims **into its own pool**, and never
+  leaves that pool for any reason. Not every pool has one.
 - **The crow** circles its nest until the cat comes near it, then breaks off and
   flies at it in curves, giving up once the cat is well away again.
 
