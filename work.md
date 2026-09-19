@@ -191,6 +191,9 @@ platform is far too high to be reached from the ground — the best jump from
 down there falls 138px short — so there is no way through that does not involve
 letting go in mid-air.
 
+In the middle, **five lianas hang side by side** — that stretch is crossed
+sideways as much as climbed.
+
 It is also the level that could not exist while jump and climb shared a button.
 
 ### 2 — Forest

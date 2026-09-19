@@ -105,6 +105,11 @@ There is no grab button and no release button:
   of a ladder does.
 - **Reaching out sideways lets go.**
 
+**Holding on is not centred on a column.** Left and right move the cat sideways
+at `climbHorizontalSpeed` instead of letting go, which is what makes a bank of
+ropes a wall rather than a row of poles. Climbing off the end of one drops the
+cat, because `findTrunk` stops finding anything.
+
 **Letting go hands back a coyote window**, and that is not a nicety either.
 Without it only a jump pressed on the *exact* frame worked: pressing a direction
 first -- which is what hands actually do -- dropped the cat off the rope, and

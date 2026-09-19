@@ -138,10 +138,13 @@ export const CAT = {
   climbSpeed: 95,
 
   /**
-   * How firmly the cat is drawn to the middle of a trunk while climbing, as a
-   * velocity per pixel of offset. Enough to centre it without a visible snap.
+   * Speed of moving sideways while holding on, px/sec.
+   *
+   * Climbing is not pinned to the middle of a column. Ropes hung side by side
+   * make a wall to be crossed as well as climbed, and a cat that snapped to the
+   * nearest one could only ever go up and down.
    */
-  climbCentringPull: 7,
+  climbHorizontalSpeed: 74,
 
   /**
    * How long after stepping off a trunk the cat cannot catch it again, ms.

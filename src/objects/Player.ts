@@ -264,17 +264,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         return false;
       }
 
-      // Reaching out sideways is the other way to let go, and it carries a
-      // little push so the cat steps off rather than sliding down the rope it
-      // was holding.
-      const sideways = (controls.right ? 1 : 0) - (controls.left ? 1 : 0);
-
-      if (sideways !== 0) {
-        this.releaseTrunk();
-        this.setVelocityX(sideways * CAT.speed * 0.6);
-        return false;
-      }
-
+      // Sideways no longer means letting go: it moves along. Climbing off the
+      // end of a bank of ropes is what drops the cat, which falls out of
+      // `findTrunk` returning nothing.
       if (!trunk) {
         this.releaseTrunk();
         return false;
@@ -286,25 +278,24 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     const activeTrunk = trunk as Phaser.Geom.Rectangle;
-    const direction = (controls.sneak ? 1 : 0) - (controls.up ? 1 : 0);
+    const vertical = (controls.sneak ? 1 : 0) - (controls.up ? 1 : 0);
+    const sideways = (controls.right ? 1 : 0) - (controls.left ? 1 : 0);
 
     // Climbing down onto the floor simply stands the cat up.
-    if (onGround && direction >= 0) {
+    if (onGround && vertical >= 0) {
       this.releaseTrunk();
       return false;
     }
 
     // Stop at the top rather than climbing off the end into thin air, which
-    // would drop the cat straight back down past the trunk it just climbed.
-    // A few pixels of overlap are kept, or the cat would let go of the trunk by
-    // reaching the top of it.
+    // would drop the cat straight back down past the column it just climbed.
+    // A few pixels of overlap are kept, or the cat would let go by reaching the
+    // top of it.
     const topY = this.trunkTops.get(activeTrunk.x) ?? activeTrunk.y;
     const atTop = this.y <= topY + CLIMB_TOP_MARGIN;
 
-    this.setVelocityY(direction < 0 && atTop ? 0 : direction * CAT.climbSpeed);
-    // Drawn to the middle of the trunk rather than snapped, so grabbing one
-    // off-centre does not look like a teleport.
-    this.setVelocityX((activeTrunk.centerX - this.x) * CAT.climbCentringPull);
+    this.setVelocityY(vertical < 0 && atTop ? 0 : vertical * CAT.climbSpeed);
+    this.setVelocityX(sideways * CAT.climbHorizontalSpeed);
 
     return true;
   }
