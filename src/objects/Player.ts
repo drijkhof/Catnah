@@ -30,6 +30,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   /** True while rising from a jump the player has not yet released. */
   private isJumping = false;
 
+  /**
+   * Whether the jump currently in the air came off a wall.
+   *
+   * Wall jumps are never cut short. The cut exists to give a *ground* jump
+   * variable height, but a wall jump has to be re-pressed to chain, and
+   * releasing to re-press would cut the very rise the next wall jump needs --
+   * so letting go to press again would end the climb it was meant to continue.
+   */
+  private jumpCameFromWall = false;
+
   private isSneaking = false;
 
   private isClimbing = false;
@@ -319,6 +329,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     if (onGround && this.body.velocity.y >= 0) {
       this.isJumping = false;
+      this.jumpCameFromWall = false;
     }
   }
 
@@ -426,6 +437,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (canJump) {
       this.setVelocityY(CAT.jumpVelocity);
       this.isJumping = true;
+      this.jumpCameFromWall = false;
 
       // Both windows are spent, otherwise a single press could trigger a second
       // jump on the very next frame while the timers are still warm.
@@ -433,8 +445,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.jumpBufferTimer = 0;
     }
 
-    // Variable jump height: let go early and the hop is cut short.
-    if (this.isJumping && !controls.jumpHeld && this.body.velocity.y < 0) {
+    // Variable jump height: let go early and the hop is cut short. Only for
+    // jumps off the ground -- see `jumpCameFromWall`.
+    if (
+      this.isJumping &&
+      !this.jumpCameFromWall &&
+      !controls.jumpHeld &&
+      this.body.velocity.y < 0
+    ) {
       this.setVelocityY(this.body.velocity.y * CAT.jumpCutMultiplier);
       this.isJumping = false;
     }
@@ -450,6 +468,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.wallJumpLockTimer = CAT.wallJumpLockMs;
     this.lastWallJumpSide = wall;
+    this.jumpCameFromWall = true;
     // Spent, so one contact cannot be cashed in twice.
     this.wallCoyoteTimer = 0;
     this.isJumping = true;

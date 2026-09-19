@@ -144,7 +144,12 @@ const scene = game.scene.getScene('Game');
 
 Assigning a stub over `scene.controls` (same getters, plain booleans) then lets
 that loop play the game without synthetic keyboard events, which Phaser does not
-reliably pick up anyway:
+reliably pick up anyway.
+
+**Make the stub let go of buttons.** It is tempting to hold `jumpHeld` true and
+just pulse `jumpJustPressed`, but no player can do that -- a second press needs a
+release first, and the release has consequences of its own. A whole class of bug
+lives in that gap, and a stub that never releases will report the game as fine:
 
 ```js
 const stub = { left:false, right:false, sneak:false,

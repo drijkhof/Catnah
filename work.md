@@ -92,8 +92,12 @@ one jump and no more. Two walls facing each other are. Landing resets it.
 
 **And you have to still be going up.** A wall jump carries momentum on rather
 than making it, so a chain has to be strung together on the way up and is over
-the moment you start to fall. In the shaft that leaves about a tenth of a second
-of slack at each wall — miss it and you slide down and start again.
+the moment you start to fall. Miss it and you slide down and start again.
+
+**A wall jump is never cut short**, however briefly you tap. Only jumps off the
+ground have variable height. Chaining wall jumps means letting go of the button
+to press it again, and cutting the rise for that release would sabotage the very
+move the release was for.
 
 **Press away from the wall and jump.** The wall stays available for a moment
 after you stop touching it, so you steer where you want to go and jump, rather

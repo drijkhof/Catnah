@@ -114,6 +114,20 @@ on the same frame.
 therefore never a climb -- it gives one jump and no more -- and a shaft of two
 facing walls is. Landing clears it.
 
+### A wall jump is never cut short
+
+`jumpCameFromWall` exempts wall jumps from the variable-height cut, and this is
+not a nicety -- without it the move fights itself.
+
+Chaining wall jumps needs a fresh press each time, which means letting go of the
+button. Letting go fires the cut, which takes 55% of the rise. Combined with
+"only on the way up", the release needed to make the next wall jump is what
+destroys the rise that wall jump requires. Measured before the fix: a player
+tapping for three frames reached the walls at -75, then -3, then +95, and got
+65px up a 160px shaft. After it, every tap length clears it.
+
+Ground jumps keep their variable height, which is where it belongs.
+
 ### Only on the way up
 
 A wall jump also requires `velocity.y < 0`. It carries momentum on rather than
