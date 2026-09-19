@@ -79,6 +79,15 @@ the cat's shoulder and stopped the climb dead several tiles short.
 enough fall time for the cat to drift sideways over the branch before it drops
 past the level of it. One tile only clips the branch's edge.
 
+**Wall jumps need two walls facing each other**, not one. Sides have to
+alternate, so a lone face gives a single jump and nothing more. Level 1 has a
+shaft of two towers four tiles apart; much wider and the cat starts falling
+before it crosses, since a wall jump only rises for about a third of a second.
+
+**A shaft has to be enterable.** Two walls standing on the floor cannot be
+walked between — you meet the first one. Level 1 solves it by stopping the left
+tower two rows short of the ground, so the cat walks in underneath it.
+
 **A wall-jump face needs clear air across the whole swing**, roughly 25px out
 from the wall, not merely the column directly above it. Branches no longer count
 here, since they are one-way — but rock, earth and boughs all do.

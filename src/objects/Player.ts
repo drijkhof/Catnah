@@ -49,6 +49,21 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
    */
   private wallJumpLockTimer = 0;
 
+  /**
+   * Which side the last wall jump was taken from, or 0 for none.
+   *
+   * The same side cannot be used twice in a row, so a lone wall cannot be
+   * climbed -- two walls facing each other are needed, alternating between
+   * them. Touching down clears it.
+   */
+  private lastWallJumpSide = 0;
+
+  /** Time remaining, in ms, that a wall just left can still be jumped from. */
+  private wallCoyoteTimer = 0;
+
+  /** Which side that remembered wall was on. */
+  private wallCoyoteSide = 0;
+
   constructor(
     scene: Phaser.Scene,
     x: number,
@@ -95,16 +110,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   step(controls: Controls, delta: number): void {
     const dt = delta / 1000;
     const onGround = this.body.blocked.down || this.body.touching.down;
+    const wall = this.findWall(onGround);
 
-    this.tickTimers(delta, onGround, controls);
+    this.tickTimers(delta, onGround, controls, wall);
 
     // Climbing replaces ordinary movement outright -- no gravity, no jumping,
     // no wall logic -- so it is resolved first and short-circuits the rest.
     if (this.updateClimb(controls, onGround)) {
       return;
     }
-
-    const wall = this.findWall(onGround);
 
     // A queued jump beats a held sneak, so a player holding the button is
     // never stuck. Under a low overhang there is no headroom to stand, which is
@@ -114,7 +128,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     // Jumping resolves before movement, so that the shove a wall jump gives is
     // the velocity the frame ends with rather than something input overwrites.
-    this.applyJump(controls, wantsJump && !this.isSneaking, wall);
+    // Jumping uses the remembered wall rather than the one being touched right
+    // now, so pressing away from it and jumping works.
+    this.applyJump(
+      controls,
+      wantsJump && !this.isSneaking,
+      this.wallCoyoteTimer > 0 ? this.wallCoyoteSide : 0,
+    );
     this.applyHorizontal(controls, dt, onGround);
     this.applyWallSlide(controls, wall, onGround);
     this.updateFacing(controls);
@@ -130,6 +150,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.coyoteTimer = 0;
     this.jumpBufferTimer = 0;
     this.wallJumpLockTimer = 0;
+    this.lastWallJumpSide = 0;
+    this.wallCoyoteTimer = 0;
     this.isJumping = false;
   }
 
@@ -210,6 +232,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.isJumping = false;
     this.wallJumpLockTimer = 0;
+    this.lastWallJumpSide = 0;
+    this.wallCoyoteTimer = 0;
     this.coyoteTimer = 0;
     this.jumpBufferTimer = 0;
   }
@@ -263,7 +287,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     return 0;
   }
 
-  private tickTimers(delta: number, onGround: boolean, controls: Controls): void {
+  private tickTimers(
+    delta: number,
+    onGround: boolean,
+    controls: Controls,
+    wall: number,
+  ): void {
     this.coyoteTimer = onGround
       ? CAT.coyoteTimeMs
       : Math.max(0, this.coyoteTimer - delta);
@@ -274,6 +303,19 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.wallJumpLockTimer = Math.max(0, this.wallJumpLockTimer - delta);
     this.climbCooldownTimer = Math.max(0, this.climbCooldownTimer - delta);
+
+    if (wall !== 0) {
+      this.wallCoyoteTimer = CAT.wallCoyoteMs;
+      this.wallCoyoteSide = wall;
+    } else {
+      this.wallCoyoteTimer = Math.max(0, this.wallCoyoteTimer - delta);
+    }
+
+    if (onGround) {
+      // Touching down is what earns the next wall jump from either side.
+      this.lastWallJumpSide = 0;
+      this.wallCoyoteTimer = 0;
+    }
 
     if (onGround && this.body.velocity.y >= 0) {
       this.isJumping = false;
@@ -364,8 +406,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   private applyJump(controls: Controls, canJump: boolean, wall: number): void {
     // A wall jump needs a fresh press, held in the same buffer a ground jump
-    // uses, so holding the button cannot climb a face on its own.
-    if (!canJump && wall !== 0 && this.jumpBufferTimer > 0 && !this.isSneaking) {
+    // uses, so holding the button cannot climb a face on its own. It also has
+    // to come off the opposite side to the last one: left, right, left.
+    if (
+      !canJump &&
+      wall !== 0 &&
+      wall !== this.lastWallJumpSide &&
+      this.jumpBufferTimer > 0 &&
+      !this.isSneaking
+    ) {
       this.applyWallJump(wall);
       return;
     }
@@ -396,6 +445,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.setVelocity(-wall * CAT.wallJumpPushX, CAT.wallJumpVelocityY);
 
     this.wallJumpLockTimer = CAT.wallJumpLockMs;
+    this.lastWallJumpSide = wall;
+    // Spent, so one contact cannot be cashed in twice.
+    this.wallCoyoteTimer = 0;
     this.isJumping = true;
 
     // Spent, for the same reason a ground jump spends them: one press, one jump.

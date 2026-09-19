@@ -107,6 +107,18 @@ export const CAT = {
    */
   wallJumpLockMs: 100,
 
+  /**
+   * How long a wall stays available to jump from after the cat stops touching
+   * it, ms.
+   *
+   * Without this, a wall jump demands you keep pressing *into* the wall, since
+   * pressing away breaks the contact the jump was looking for -- leaving a
+   * single frame to press jump in. Pressing away from the wall and jumping is
+   * what players actually do, and it is also how they say where they want to
+   * go, so the wall is remembered for a moment after it is let go of.
+   */
+  wallCoyoteMs: 130,
+
   /** Speed of climbing a trunk, px/sec. The same going up and coming down. */
   climbSpeed: 95,
 

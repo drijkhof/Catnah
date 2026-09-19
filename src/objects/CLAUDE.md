@@ -108,6 +108,24 @@ the floor beside a rock is not clinging to it. From there:
 gives is the velocity the frame ends with rather than something input overwrites
 on the same frame.
 
+### Sides must alternate
+
+`lastWallJumpSide` blocks a second wall jump from the same side. A lone wall is
+therefore never a climb -- it gives one jump and no more -- and a shaft of two
+facing walls is. Landing clears it.
+
+### The wall is remembered for a moment
+
+`wallCoyoteTimer` keeps a wall jumpable briefly after contact is lost, and
+`applyJump` is handed that remembered side rather than the one being touched
+right now.
+
+Without it the move demands you keep pressing *into* the wall: pressing away
+breaks the very contact the jump is looking for, leaving a single frame to press
+jump in. Pressing away and jumping is what players actually do, and it is how
+they say where they want to go. The timer is spent on use, so one contact cannot
+be cashed in twice.
+
 ### The push and the lock are a pair, and both cost height
 
 Every pixel of push has to be paid back by steering into the wall again, and

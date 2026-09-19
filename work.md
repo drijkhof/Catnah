@@ -85,13 +85,21 @@ Press into a rock face in mid-air and the cat **slides** down it at 95 px/s
 instead of falling at 600 — slow enough to see what is coming. Press jump there
 and it launches up and away from the wall.
 
+**You have to alternate sides.** The same wall cannot be used twice in a row:
+left, then right, then left. So a single wall is never a climb — it gives you
+one jump and no more. Two walls facing each other are. Landing resets it.
+
+**Press away from the wall and jump.** The wall stays available for a moment
+after you stop touching it, so you steer where you want to go and jump, rather
+than having to hold *into* the wall and hope. Holding into it still works.
+
 Each wall jump needs its own press, so holding the button does not climb. For a
 moment after the shove the steering is ignored, otherwise still holding
-"towards the wall" — which is what you were holding to cling to it — would
-cancel the push and drop you straight back down.
+"towards the wall" would cancel the push and drop you straight back down.
 
-Climbing a face is a rhythm: jump, let the shove carry you out, steer back in,
-jump again. The tower in level 1 takes three of them and about half a second.
+Level 1 has a **shaft** between two rock towers for exactly this: walk in under
+the overhanging left tower, then alternate your way up the 160px to the berries
+on top. Two wall jumps do it.
 
 ## Level 1 — the forest
 
@@ -113,11 +121,13 @@ light falling through the trees.
   top and cross over. It is a choice, not a wall.
 - **Trunks** to climb, one per tree. The tall one near the end runs from the
   floor to the highest branch, a route that skips the whole climb.
-- **Boulders**, grey stone against all the green. A small one early on, two
-  tiles tall, as a step. And a tower seven tiles tall — higher than any single
-  jump — whose face has to be wall jumped. Two berries sit on top, and from
-  there it is a short hop to a branch that otherwise takes the long way round.
-- **26 berries** to collect, shown top left.
+- **Boulders**, grey stone against all the green. Three broad ones, six tiles
+  wide, are platforms in their own right — you land on them and cross them, with
+  berries on top.
+- **A shaft** made of two rock towers facing each other across four tiles. The
+  left one overhangs, so you walk in underneath it at ground level; getting back
+  out means alternating wall jumps between the two faces.
+- **37 berries** to collect, shown top left.
 - **Scenery**: trees in two depth ranks, bushes and grass along the floor.
 
 **Rules today**
