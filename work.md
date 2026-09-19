@@ -275,16 +275,21 @@ shoulders show above the straw.
 
 | Level | Tiles |
 | --- | --- |
-| Forest | 450 |
-| City | 176 |
-| Swamp | 1220 |
-| Canopy | 390 |
+| Forest | 446 |
+| City | 450 |
+| Swamp | 248 |
+| Canopy | 78 |
 | Cave | 240 wide, 64 deep |
-| Volcano | 520 |
+| Volcano | 104 |
 
-Every one of them is **written out** in its file, row by row. A few were laid
-out once with a throwaway script and then frozen, because a level has to be the
-same thing on every machine and in every run.
+Every one of them is **written out** in its file, row by row, and every one was
+laid out by hand. A stretched level is not a longer level: the swamp, the canopy
+and the volcano were each pulled out to five times their length by repeating a
+pattern, and all three came back shorter, because what they lost was the
+reason to walk through them.
+
+The forest and the city are long *and* hand-designed — fifteen pieces and twelve
+pieces, no two the same.
 
 ## The six levels
 
@@ -379,16 +384,15 @@ climbing up out of the level on them, and the swamp has sky overhead rather than
 a roof.
 ### 4 — Canopy
 
-Built around one move: **jumping off a liana onto a platform out of its reach**.
-The lianas hang from the roof rather than standing on the floor, and every
-platform is far too high to be reached from the ground — the best jump from
-down there falls 138px short — so there is no way through that does not involve
-letting go in mid-air.
+78 tiles and one idea all the way through: **jumping off a liana onto a platform
+out of its reach**. The lianas hang from the roof rather than standing on the
+floor, and every platform is far too high to be reached from the ground — the
+best jump from down there falls 138px short — so there is no way through that
+does not involve letting go in mid-air.
 
-In the middle, **five lianas hang side by side** — that stretch is crossed
-sideways as much as climbed.
+In the middle, **five lianas hang side by side**: holding on is not pinned to
+one rope, so that stretch is crossed sideways as much as it is climbed.
 
-Getting off a liana and across a gap is up plus the direction you want to go.
 ### 5 — Cave
 
 **Long, and all the way down.** 240 tiles end to end like everywhere else, but
