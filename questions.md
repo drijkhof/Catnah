@@ -13,13 +13,18 @@ Change any of these and I will rebuild around it; none is baked in deep.
 **Three lives**, shown as hearts. Each death spends one; losing all three
 restarts the level.
 
-**They are per level, not for the whole game.** Running out sends you back to
-the start of the level you are on and never to an earlier one. Losing an hour to
-a bad jump is not a lesson, it is a reason to stop playing.
+**They carry between levels, and losing the last one restarts the whole game**
+from the forest. You asked for both, and they belong together: lives that reset
+each level would make the spare hearts pointless, and spare hearts are what make
+the stakes bearable.
 
-> **Still open:** should lives carry between levels, so the run has stakes
-> across the whole game? That is the usual arrangement, and it is also the one
-> that can cost a long session.
+It does mean a run has real stakes now — losing the last heart in the volcano
+costs everything. That is the usual arrangement for this kind of game, and it is
+also the one that can cost a long session.
+
+> **Still open:** worth watching whether that lands as tension or as
+> frustration. A checkpoint at the level you reached would soften it without
+> giving up the stakes.
 
 **No checkpoints.** The levels are a couple of minutes long, so a death costs
 the walk back rather than real progress. If they grow, this is the first thing

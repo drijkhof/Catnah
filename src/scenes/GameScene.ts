@@ -68,17 +68,20 @@ export class GameScene extends Phaser.Scene {
   }
 
   /** Phaser hands this whatever `scene.start` was given. */
-  init(data: { levelIndex?: number }): void {
+  init(data: { levelIndex?: number; lives?: number }): void {
     const carried = this.registry.get(SNAPSHOT_KEY) as GameSnapshot | undefined;
 
     this.levelIndex = data.levelIndex ?? carried?.levelIndex ?? 0;
+    // Lives cross level boundaries; a spare heart found in one is still yours
+    // in the next, which is the only thing that makes finding one worth a
+    // detour.
+    this.lives = data.lives ?? LIVES;
   }
 
   create(): void {
     this.level = parseLevel(LEVELS[this.levelIndex]);
     this.collected = 0;
     this.hasStar = false;
-    this.lives = LIVES;
     this.lifeIcons = [];
     this.dying = false;
     this.leaving = false;
@@ -347,6 +350,7 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.once('camerafadeoutcomplete', () => {
       this.scene.start('Game', {
         levelIndex: (this.levelIndex + 1) % LEVELS.length,
+        lives: this.lives,
       });
     });
   }
@@ -362,6 +366,7 @@ export class GameScene extends Phaser.Scene {
     branches: Phaser.Physics.Arcade.StaticGroup,
   ): void {
     this.buildStar();
+    this.buildExtraLives();
 
     this.walkers = this.level.walkers.map(
       (at) => new GroundEnemy(this, at.x, at.y, at.kind),
@@ -450,8 +455,8 @@ export class GameScene extends Phaser.Scene {
 
     this.time.delayedCall(650, () => {
       if (this.lives <= 0) {
-        // Out of tries: the level starts over, berries and all.
-        this.scene.start('Game', { levelIndex: this.levelIndex });
+        // Out of hearts: back to the very beginning.
+        this.scene.start('Game', { levelIndex: 0, lives: LIVES });
         return;
       }
 
@@ -684,15 +689,6 @@ export class GameScene extends Phaser.Scene {
       installLevelSkip(this, levelName, this.levelIndex, LEVELS.length);
     }
 
-    // Lives, on the right so they never collide with the berry count.
-    for (let i = 0; i < LIVES; i += 1) {
-      this.lifeIcons.push(
-        this.add
-          .image(GAME_WIDTH - TILE - i * 15, TILE, 'life')
-          .setScrollFactor(0)
-          .setDepth(1000),
-      );
-    }
     this.refreshLives();
 
     if (this.level.star) {
@@ -717,14 +713,69 @@ export class GameScene extends Phaser.Scene {
       .setDepth(1000);
   }
 
-  /** Dims the hearts that have been spent, rather than removing them. */
+  /**
+   * Redraws the row of hearts.
+   *
+   * There are always at least three, so spent ones stay visible as something to
+   * win back rather than vanishing. Above three the row simply grows, which is
+   * what a spare heart looks like once you are already full.
+   */
   private refreshLives(): void {
+    const wanted = Math.max(LIVES, this.lives);
+
+    while (this.lifeIcons.length < wanted) {
+      this.lifeIcons.push(
+        this.add
+          .image(0, TILE, 'life')
+          .setScrollFactor(0)
+          .setDepth(1000),
+      );
+    }
+
+    while (this.lifeIcons.length > wanted) {
+      this.lifeIcons.pop()?.destroy();
+    }
+
     this.lifeIcons.forEach((icon, index) => {
       const spent = index >= this.lives;
 
+      icon.setPosition(GAME_WIDTH - TILE - index * 15, TILE);
       icon.setAlpha(spent ? 0.22 : 1);
       icon.setScale(spent ? 0.85 : 1);
     });
+  }
+
+  /**
+   * Places the spare hearts sitting in nests.
+   *
+   * Never required to finish a level. Below three they fill a spent heart back
+   * in; at three or above they simply add another.
+   */
+  private buildExtraLives(): void {
+    for (const at of this.level.extraLives) {
+      const heart = this.physics.add.staticImage(at.x, at.y, 'life').setDepth(5);
+
+      this.tweens.add({
+        targets: heart,
+        y: at.y - 3,
+        scale: { from: 1, to: 1.15 },
+        duration: 800,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+      });
+
+      this.physics.add.overlap(this.player, heart, () => {
+        if (!heart.active) {
+          return;
+        }
+
+        heart.destroy();
+        this.lives += 1;
+        this.refreshLives();
+        this.cameras.main.flash(180, 255, 190, 150);
+      });
+    }
   }
 
   private formatScore(): string {

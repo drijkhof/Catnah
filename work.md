@@ -172,12 +172,23 @@ Anything dangerous kills the cat on contact, and so does falling out of the
 world. There is a short pause — a flash and a shake — and then the cat is back
 at the start of the level.
 
-You get **three lives**, shown as hearts in the top right. Each death dims one,
-and **berries you have already collected stay collected** between them. Lose all
-three and the level starts over from scratch, hearts and berries both.
+You get **three lives**, shown as red hearts in the top right. Each death dims
+one, and **berries you have already collected stay collected** between them.
 
-The three are per level, not for the whole game: running out never sends you
-back to an earlier one.
+Lose the last heart and the whole game starts again from the forest, with three
+fresh hearts.
+
+**Lives travel with you** from level to level, which is what makes finding a
+spare one worth the detour.
+
+### Spare hearts
+
+Every level has one **spare heart sitting in a nest**, tucked into the scenery
+somewhere off the direct route. None of them is needed to finish a level.
+
+- Below three hearts, it fills a spent one back in.
+- At three or more, it simply adds another — the row grows, and you can carry
+  four, five, as many as you find.
 
 ## The three levels
 

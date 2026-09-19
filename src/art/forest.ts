@@ -145,13 +145,12 @@ function generateLife(scene: Phaser.Scene): void {
   const size = 13;
 
   bakeTexture(scene, 'life', size, size, (g) => {
-    // A heart, in the cat's own colour so it reads as *its* lives.
-    g.fillStyle(COLORS.cat, 1);
+    g.fillStyle(COLORS.heart, 1);
     g.fillCircle(4, 4, 3.4);
     g.fillCircle(9, 4, 3.4);
     g.fillTriangle(0.5, 5, 12.5, 5, 6.5, 12.5);
 
-    g.fillStyle(COLORS.catLight, 1);
+    g.fillStyle(COLORS.heartLight, 1);
     g.fillCircle(3, 3, 1.3);
   });
 }

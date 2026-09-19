@@ -23,6 +23,7 @@ import type { GroundEnemyKind } from '../config';
  *        punches a hole in the pool it is meant to be swimming in
  *   `S`  star — a nest tile *with* the star in it, so placing one never
  *        punches a hole in the nest it is meant to be sitting in
+ *   `+`  extra life — a nest tile with a spare heart in it. Never required.
  *   `c`  crow, which circles the nest it is placed at
  *   `X`  the boss, which guards the end of the level it is placed in
  *   `.`  empty
@@ -129,6 +130,8 @@ export interface ParsedLevel {
   berries: Point[];
   /** The star, if this level has one. Required to leave. */
   star: Point | null;
+  /** Spare hearts sitting in nests. Always optional. */
+  extraLives: Point[];
   /** Where the cat starts, and returns to after dying. */
   spawn: Point;
   /** Where the level is left, if it has a way out. */
@@ -162,6 +165,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   let spawn: Point | null = null;
   let star: Point | null = null;
   let boss: Point | null = null;
+  const extraLives: Point[] = [];
   let exit: Point | null = null;
 
   /**
@@ -301,6 +305,12 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           solids.push(platform(x, y, 'nest-ledge'));
           break;
 
+        case '+':
+          extraLives.push({ x: x + TILE / 2, y: y + TILE / 2 });
+          nests.push({ x, y });
+          solids.push(platform(x, y, 'nest-ledge'));
+          break;
+
         case 'P':
           spawn = { x: x + TILE / 2, y: y + TILE };
           break;
@@ -349,6 +359,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     nests,
     berries,
     star,
+    extraLives,
     spawn,
     exit,
     groundLine: definition.groundRow * TILE,

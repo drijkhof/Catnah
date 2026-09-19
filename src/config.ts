@@ -352,6 +352,9 @@ export const COLORS = {
   crowSheen: 0x3b3f4d,
   crowBeak: 0xc8a13c,
 
+  heart: 0xe0333f,
+  heartLight: 0xff8a90,
+
   star: 0xf6c645,
   starGlow: 0xfff3b0,
 

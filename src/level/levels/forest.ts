@@ -15,7 +15,7 @@ const ROWS: string[] = [
   '',
   '.'.repeat(57) + 'N' + 'S' + 'N',
   '.'.repeat(58) + 'T',
-  '.'.repeat(58) + 'T',
+  '.'.repeat(57) + '+' + 'T',
   '.'.repeat(58) + 'T',
   '.'.repeat(54) + 'ooo' + '.' + 'T',
   '.'.repeat(54) + '='.repeat(4) + 'T',
