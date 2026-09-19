@@ -7,6 +7,7 @@ import { Crocodile } from '../objects/Crocodile';
 import { Crow } from '../objects/Crow';
 import { GroundEnemy } from '../objects/GroundEnemy';
 import { Piranha } from '../objects/Piranha';
+import { Spider } from '../objects/Spider';
 import { createBackdrop } from '../world';
 import { parseLevel, type ParsedLevel } from '../level/Level';
 import { LEVELS } from '../level/levels';
@@ -55,6 +56,7 @@ export class GameScene extends Phaser.Scene {
   private piranhas: Piranha[] = [];
   private crows: Crow[] = [];
   private crocodiles: Crocodile[] = [];
+  private spiders: Spider[] = [];
   private boss?: Boss;
   private lavaRects: Phaser.Geom.Rectangle[] = [];
 
@@ -80,6 +82,7 @@ export class GameScene extends Phaser.Scene {
     this.level = parseLevel(LEVELS[this.levelIndex]);
     this.collected = 0;
     this.crocodiles = [];
+    this.spiders = [];
     this.lifeIcons = [];
     this.dying = false;
     this.leaving = false;
@@ -250,6 +253,9 @@ export class GameScene extends Phaser.Scene {
     for (const crocodile of this.crocodiles) {
       crocodile.step(delta);
     }
+    for (const spider of this.spiders) {
+      spider.step(delta, cat);
+    }
     this.boss?.step(delta, cat);
 
     if (!this.dying && this.touchingLava()) {
@@ -338,6 +344,7 @@ export class GameScene extends Phaser.Scene {
       return new Piranha(this, at.x, at.y, pool, index * 700);
     });
     this.crows = this.level.crows.map((at) => new Crow(this, at.x, at.y));
+    this.spiders = this.level.spiders.map((at) => new Spider(this, at.x, at.y));
     this.crocodiles = this.level.crocodiles.map(
       (at) => new Crocodile(this, at.x, at.y),
     );
@@ -385,6 +392,7 @@ export class GameScene extends Phaser.Scene {
       ...this.walkers,
       ...this.piranhas,
       ...this.crows,
+      ...this.spiders,
     ];
 
     if (this.boss) {

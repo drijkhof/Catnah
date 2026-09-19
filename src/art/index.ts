@@ -19,6 +19,7 @@ export {
   CROW_SIZE,
   GROUND_ENEMY_SIZES,
   PIRANHA_SIZE,
+  SPIDER_SIZE,
 } from './creatures';
 
 /**

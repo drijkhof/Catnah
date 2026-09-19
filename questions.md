@@ -358,3 +358,42 @@ nothing above it at all, rather than a long rope with a dead upper half.
 gets over the first crocodile water and the first liana water — bank, liana,
 liana, far bank — and dies in the water beside a crocodile but not in open water
 that has none.
+
+## The cave, rebuilt as a descent
+
+**The cave moved to fifth and became the only vertical level.** Asked for: the
+idea of going deeper and deeper, and the cave as the level before the volcano.
+Everything else follows from putting those two together — you descend into the
+earth and come out where the earth is on fire, so the cave had to stop being a
+corridor and start being a shaft.
+
+**Eight chambers, and the holes alternate ends.** Otherwise the level plays
+itself: one hole under another is a single fall from top to bottom. Alternating
+makes each chamber a crossing, which is where the puzzle jumps live.
+
+**Three rows of floor between chambers.** The old cave's water hung in mid-air
+with open space under it. A thicker floor means a pool or a pit can be sunk into
+it and still have rock underneath, which is what a cave actually is.
+
+> **Still open:** you can never climb back up to the chamber above. Nothing
+> needs you to, and every dead end is on the level it branches from — but a
+> player who misses a berry has no way back to it.
+
+**Measured, not assumed.** The wall in the second chamber is clearable with a
+straight jump. The towers in the fourth are six rows (96px) against a 90px jump,
+so the shaft between them has to be wall-jumped — confirmed the cat gets above
+them. The sump is swum under and climbed out of. The squeeze is crawled. The
+spawn survives forty-five seconds of standing still.
+
+**The cave's creature is the spider, and only the spider.** No hedgehogs down
+there any more. The cave had nothing of its own before, which was an open
+question in this file; it does now, and a ceiling that has to be watched is a
+different kind of attention from a floor that has to be watched.
+
+**A third spare heart.** There were two, deliberately, and this adds one. It is
+in the longest dead end, which is what was asked for, and it is guarded by two
+spiders rather than by a crow.
+
+**The spider was drawn three times.** Two attempts at generating eight legs from
+a loop produced a solid block either side of the body. At 16px what makes a
+spider read is the *gaps* between the legs, so they are placed pixel by pixel.

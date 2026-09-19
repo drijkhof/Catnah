@@ -255,6 +255,40 @@ export const PIRANHA = {
 } as const;
 
 /**
+ * The spiders in the cave.
+ *
+ * A spider owns the ceiling the way a hedgehog owns the floor, and it is the
+ * first thing in the game that attacks from above without flying. It walks
+ * upside down until a cat passes under it, then drops the length of its thread
+ * and climbs back.
+ *
+ * The drop is meant to be survivable by a cat that is moving and fatal to one
+ * that stops underneath to look at it.
+ */
+export const SPIDER = {
+  /** Speed of walking along the ceiling, px/sec. Slower than a hedgehog. */
+  walkSpeed: 34,
+
+  /** How close the cat has to pass underneath, horizontally, before it drops. */
+  dropRange: 44,
+
+  /** How far it lets itself down, px. Just over three tiles. */
+  dropLength: 52,
+
+  /** Speed of the drop, px/sec. Fast: the drop is the attack. */
+  dropSpeed: 330,
+
+  /** How long it hangs at the bottom before hauling itself back, ms. */
+  hangMs: 550,
+
+  /** Speed of the climb back up, px/sec. Slow, so the ceiling is safe for a while. */
+  climbSpeed: 80,
+
+  /** How long after getting home before it will drop again, ms. */
+  cooldownMs: 800,
+} as const;
+
+/**
  * The crocodiles in the swamp.
  *
  * A crocodile is a platform with a temper: it floats still enough to land on
@@ -445,6 +479,13 @@ export const COLORS = {
   crocRidge: 0x4a4f22,
   crocBelly: 0xa8ad63,
   crocJaw: 0x5d612b,
+
+  // Lighter than a spider ought to be. It hangs in the black of a tunnel
+  // mouth, and a properly black spider there is a smudge rather than a threat.
+  spiderBody: 0x585066,
+  spiderLeg: 0x3e3750,
+  spiderMark: 0xd0687e,
+  spiderThread: 0xcfd4e0,
 
   crowBody: 0x1e1f26,
   crowSheen: 0x3b3f4d,

@@ -110,6 +110,26 @@ of the pool rather than of the nearest tile.
 Water is harmless by design — the original wish was that not every pool has a
 piranha in it, which only means anything if a pool without one is safe.
 
+## Spiders
+
+The mirror of a `GroundEnemy`: it walks a ceiling rather than a floor, and
+`ceilingAhead` probes the `down` face of whatever is above it exactly as
+`groundAhead` probes the `up` face of whatever is below. A one-way ledge has no
+underside to hang from and correctly does not count as a ceiling.
+
+It only drops on a cat that is genuinely **below** it. A cat level with the
+spider is not something on a thread can reach, and dropping at one reads as the
+spider missing rather than as the player dodging.
+
+The thread is a `Graphics` redrawn each frame from the anchor down to wherever
+it has got to, and is destroyed with the sprite -- a `Graphics` is not a child
+of the sprite and will otherwise outlive it as a line hanging in an empty cave.
+
+Nothing collides with it and it has no gravity: where it is, is decided entirely
+in `step`. `parseLevel` refuses a spider with no rock over it, because its
+thread would be anchored to nothing and it would walk a ceiling that is not
+there.
+
 ## Crocodiles
 
 A crocodile is a platform with a temper, and the only thing in the game the cat

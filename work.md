@@ -228,14 +228,15 @@ spare one worth the detour.
 
 ### Spare hearts
 
-There are exactly **two spare hearts in the whole game**, and they are always in
-the same two places: the crow's nest at the top of the forest's great tree, and
-the rooftop nest in the city. The cave, the swamp, the canopy and the volcano
-have none. Nothing about them is random, and none of them is needed to finish a
+There are exactly **three spare hearts in the whole game**, and they are always
+in the same three places: the crow's nest at the top of the forest's great tree,
+the rooftop nest in the city, and the back of the cave's longest dead end. The
+swamp, the canopy and the volcano have none. Nothing about them is random, and none of them is needed to finish a
 level.
 
-Both are **guarded by a crow**, which is the point of them: a spare heart is
-something you go and take off a bird, not something you walk past.
+Each is **guarded**, which is the point of them: a spare heart is something you
+go and take off a bird, or walk a tunnel of spiders for, not something you pass
+on the way.
 
 The cat sits **in** a nest, not on top of one: the floor of a nest is partway
 down it, and the near rim is drawn over the cat's legs, so only its head and
@@ -245,11 +246,15 @@ shoulders show above the straw.
 - At three or more, it simply adds another — the row grows, and you can carry
   four, five, as many as you find.
 
-## The three levels
+## The six levels
 
-Each one starts on the left and ends at a **glowing door** on the right, which
-takes you to the next. The city leads back to the forest. Berries are optional
-everywhere.
+**Forest, city, swamp, canopy, cave, volcano.** Each one starts at one end and
+ends at a **glowing door**, which takes you to the next; the volcano leads back
+to the forest. Berries are optional everywhere.
+
+The cave comes second to last rather than second. It is the descent, and what it
+descends into is the volcano, so it has to be the thing you do immediately
+before arriving there.
 
 While developing, **Ctrl-clicking the level name** goes to the next level and
 **Cmd-clicking** goes back one, both wrapping round. Neither is in the built
@@ -268,20 +273,7 @@ Sunlit, with the sun up and shafts of light through the trees. Four ordinary
 trees plus **the great tree**, which runs the full height of the level and has a
 nest at the top with a crow living in it. Two pools, one shaft of boulders, one
 sneaking bough, three hedgehogs, one piranha.
-### 2 — Cave
-
-Caving, not a corridor. The level is **solid rock with tunnels cut out of it**,
-so the floor is never level and every passage has a roof. It branches, and
-**not every branch goes anywhere**: several are dead ends with berries at the
-back, so the point is to explore rather than to run right.
-
-**Ropes bolted to the roof** hang down the shafts, bedded rock shelves make the
-ledges, stalactites hang above and stalagmites rise below. One passage is a
-single tile high, so only a sneaking cat fits through it — and what is behind it
-is berries, not the way on.
-
-A flooded chamber low down has something living in it.
-### 3 — City
+### 2 — City
 
 Night, and properly urban. Brick flats to climb, **steel I-beam girders** lit
 along their edges, **drainpipes and lampposts** to climb, **parked cars** to
@@ -289,7 +281,7 @@ clamber over, a canal, and a crow nesting on a rooftop. The buildings behind are
 lit window by window.
 
 **Rats here, not hedgehogs** — same idea, but faster and low to the ground.
-### 4 — Swamp
+### 3 — Swamp
 
 By far the longest level — 248 tiles, three times any other — and all of it is
 one question: how do you get over the water? Overcast sky going brown at the
@@ -318,7 +310,7 @@ The lianas here are five tiles long, hang low over the water and **hang from
 nothing**. That is on purpose: all you can do with one is cross, there is no
 climbing up out of the level on them, and the swamp has sky overhead rather than
 a roof.
-### 5 — Canopy
+### 4 — Canopy
 
 Built around one move: **jumping off a liana onto a platform out of its reach**.
 The lianas hang from the roof rather than standing on the floor, and every
@@ -330,6 +322,37 @@ In the middle, **five lianas hang side by side** — that stretch is crossed
 sideways as much as climbed.
 
 Getting off a liana and across a gap is up plus the direction you want to go.
+### 5 — Cave
+
+The only level about **going down**. Eight chambers stacked one under the other,
+each crossed to reach the hole in its floor, and the holes alternate ends so the
+route zigzags deeper and deeper instead of dropping straight through. 48 tiles
+wide and 96 deep, which makes it the tallest thing in the game by a long way.
+
+Carved rather than built: the grid starts as one block of rock and the chambers
+are cut out of it, so no passage has a level floor and every one has a roof.
+Stalactites above, stalagmites below.
+
+Each chamber is one idea:
+
+1. The way in — plain, so the first thing you learn is that the floor has a hole.
+2. **A wall with its gap at the ceiling**, and shelves up to it.
+3. **A sump** — a pool sunk into the floor with a lip of rock over the middle, so
+   the only way past is *under* the water.
+4. **Two rock towers with a shaft between them**, six rows tall: a straight jump
+   reaches 90px and falls short by a hand's width, so it has to be wall-jumped.
+5. **The fork.** The hole down is in the middle and in plain sight. The whole
+   right-hand side is a low tunnel that goes nowhere, and at the back of it is a
+   **spare heart** — the longest dead end in the game, with spiders over it the
+   whole way.
+6. **The squeeze** — one tile of headroom, so it has to be crawled.
+7. The deepest gallery: a shelf climb with the roof close over it.
+8. The bottom, and the only door in the game that leads further *down*.
+
+Water down here sits in a hollow with rock under it. The floor between chambers
+is three rows thick on purpose, so a pool can be sunk into it without opening a
+hole into the chamber below.
+
 ### 6 — Volcano
 
 The floor is a **lava lake** and only the islands are safe, so the level reads
@@ -362,6 +385,11 @@ far end of the arena.
   ground: never on platforms, never on boulders, never in water. They are slow,
   and cannot be defeated — touching one is fatal from any direction.
 - **Rats** are the city's version: the same behaviour, nearly twice as quick.
+- **Spiders** own the cave's ceilings the way a hedgehog owns a floor. One
+  walks the underside of the rock, upside down, turning wherever the rock stops,
+  and drops the length of its thread on any cat that passes under it — then
+  hangs a moment and hauls itself back up. Fatal to touch, like everything else.
+  It is the cave's own creature and the only one down there.
 - **Crocodiles** lie still at the surface of the swamp's water and are the only
   thing in the game you are *meant* to stand on. Land on the back and it sinks
   under you shortly afterwards, then comes back up. They are harmless from

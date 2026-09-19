@@ -13,6 +13,9 @@ export const PIRANHA_SIZE = { width: 17, height: 10 };
 export const CROCODILE_SIZE = { width: 44, height: 16 };
 export const CROW_SIZE = { width: 20, height: 15 };
 
+/** Legs included, because the legs are what makes a spider read as one. */
+export const SPIDER_SIZE = { width: 16, height: 12 };
+
 /** The boss. Far bigger than anything else, which is most of the threat. */
 export const BOSS_SIZE = { width: 66, height: 46 };
 
@@ -21,6 +24,7 @@ export function generateCreatureTextures(scene: Phaser.Scene): void {
   generateRat(scene);
   generatePiranha(scene);
   generateCrocodile(scene);
+  generateSpider(scene);
   generateCrow(scene);
   generateBoss(scene);
 }
@@ -247,5 +251,58 @@ function generateCrocodile(scene: Phaser.Scene): void {
     g.fillStyle(0x1d2313, 1);
     g.fillRect(33, 1, 1, 1);
     g.fillRect(42, 5, 1, 1);
+  });
+}
+
+/**
+ * A cave spider, seen from the side, hanging the right way up.
+ *
+ * It is drawn as it hangs rather than as it walks, because it spends most of
+ * its time upside down under a ceiling and all of the time it matters coming
+ * straight down at the cat. The legs reach up and out to either side, which is
+ * what a hanging spider's legs do and also what makes the silhouette wide
+ * enough to read at 16px.
+ */
+function generateSpider(scene: Phaser.Scene): void {
+  const { width, height } = SPIDER_SIZE;
+
+  /**
+   * The four left legs, each as the pixels it runs through.
+   *
+   * Written out pixel by pixel, and mirrored for the right side. Two attempts
+   * at generating them from a loop both came out as a solid block either side
+   * of the body: at 16px what makes a spider read is the *gaps* between the
+   * legs, and those have to be placed by hand.
+   */
+  const legs: Array<Array<[number, number]>> = [
+    [[5, 4], [4, 3], [3, 2], [2, 1]],
+    [[5, 5], [4, 5], [3, 4], [2, 3]],
+    [[5, 7], [4, 7], [3, 8], [2, 9]],
+    [[5, 8], [4, 9], [3, 10], [2, 11]],
+  ];
+
+  bakeTexture(scene, 'spider', width, height, (g) => {
+    g.fillStyle(COLORS.spiderLeg, 1);
+
+    for (const leg of legs) {
+      for (const [x, y] of leg) {
+        g.fillRect(x, y, 1, 1);
+        g.fillRect(width - 1 - x, y, 1, 1);
+      }
+    }
+
+    // Head and abdomen as one rounded mass, narrow enough that the legs still
+    // stand clear of it.
+    g.fillStyle(COLORS.spiderBody, 1);
+    g.fillRect(6, 3, 4, 7);
+    g.fillRect(5, 5, 6, 4);
+
+    // The mark on its back, the one bit of colour on it.
+    g.fillStyle(COLORS.spiderMark, 1);
+    g.fillRect(7, 6, 2, 3);
+
+    g.fillStyle(COLORS.dangerEye, 1);
+    g.fillRect(6, 4, 1, 1);
+    g.fillRect(9, 4, 1, 1);
   });
 }

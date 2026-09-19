@@ -26,6 +26,8 @@ import type { GroundEnemyKind } from '../config';
  *   `+`  extra life — a nest tile with a spare heart in it. Never required,
  *        and always guarded.
  *   `c`  crow, which circles the nest it is placed at
+ *   `s`  spider, which walks the ceiling above the tile it is placed on and
+ *        drops on a thread. Needs solid rock directly above it
  *   `X`  the boss, which guards the end of the level it is placed in
  *   `.`  empty
  *
@@ -127,6 +129,8 @@ export interface ParsedLevel {
   /** Crocodiles, by the point on the water surface their backs rest at. */
   crocodiles: Point[];
   crows: Point[];
+  /** Spiders, by the underside of the ceiling each one hangs from. */
+  spiders: Point[];
   /** Where the boss holds its ground, if the level has one. */
   boss: Point | null;
   nests: Point[];
@@ -162,6 +166,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const piranhaSpots: Point[] = [];
   const crocodiles: Point[] = [];
   const crows: Point[] = [];
+  const spiders: Point[] = [];
   const nests: Point[] = [];
   const berries: Point[] = [];
   let spawn: Point | null = null;
@@ -296,6 +301,10 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           block(x, y, carTexture(at(column - 1, row), at(column + 1, row)), column, row);
           break;
 
+        case 's':
+          spiders.push({ x: x + TILE / 2, y });
+          break;
+
         case 'c':
           crows.push({ x: x + TILE / 2, y: y + TILE / 2 });
           break;
@@ -342,6 +351,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   }
   assertCreaturesHaveRoom(rows, width, definition.name);
   assertWalkersStandOnGround(rows, width, definition.name);
+  assertSpidersHangFromRock(rows, width, definition.name);
   assertSpawnHasFooting(rows, width, definition.name, spawn);
 
   const pools = groupIntoPools(waterZones);
@@ -364,6 +374,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     walkers,
     piranhas,
     crows,
+    spiders,
     boss,
     nests,
     berries,
@@ -477,6 +488,30 @@ function assertSpawnHasFooting(
  * not under water. That is a rule about the world, and it is far easier to hold
  * to here than to notice by looking at a grid.
  */
+/**
+ * A spider hangs from the rock directly over it.
+ *
+ * Without something up there its thread is anchored to nothing and it walks a
+ * ceiling that is not there, which looks exactly like a bug because it is one.
+ */
+function assertSpidersHangFromRock(rows: string[], width: number, name: string): void {
+  for (let row = 0; row < rows.length; row += 1) {
+    for (let column = 0; column < width; column += 1) {
+      if (rows[row][column] !== 's') {
+        continue;
+      }
+
+      const above = rows[row - 1]?.[column] ?? '.';
+
+      if (!'#RB'.includes(above)) {
+        throw new Error(
+          `${name}: the spider at ${column},${row} has no rock over it (found '${above}').`,
+        );
+      }
+    }
+  }
+}
+
 function assertWalkersStandOnGround(rows: string[], width: number, name: string): void {
   const misplaced: string[] = [];
 

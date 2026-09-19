@@ -30,6 +30,7 @@ its platforms must attach to a column. Everything else is derived.
 | `h` | hedgehog, `r` rat — walkers, only ever on plain `#` floor |
 | `f` | piranha — water *with* a fish in it |
 | `c` | crow |
+| `s` | spider — walks the ceiling above it, so it needs rock directly above |
 | `X` | the evil lord beetle |
 | `P` | cat spawn (exactly one) |
 | `E` | the way out |
@@ -179,6 +180,21 @@ wedged in it, jittering on the spot — which looks like broken patrol logic
 rather than a misplaced character, and cost a debugging session to find.
 
 ## Carved levels
+
+## The cave is generated, not written out
+
+`cave.ts` builds its grid in code: one block of rock, with chambers carved out of
+it by `hollow`, `carve` and `block`. At 48x96 the hand-written string style the
+other levels use stopped being readable, and the cave's structure -- eight
+chambers at a fixed spacing, each with a hole through a three-row floor -- is
+arithmetic anyway.
+
+The floor between chambers is **three rows thick** so that a pit or a pool can
+be sunk into it without opening a hole into the chamber below. That is what the
+old cave's water lacked: it sat in a two-row floor with open air under it, and a
+pool with nothing holding it looks exactly as wrong as it was.
+
+`swamp.ts` is built the same way, from segments rather than from chambers.
 
 The cave is not built up from a floor; it starts as solid rock and tunnels are
 cut out of it. That is what gives it an uneven floor and a roof over every
