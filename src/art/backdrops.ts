@@ -7,12 +7,54 @@ export const BUILDING_SIZE = { width: 96, height: 230 };
 export const MOON_SIZE = 84;
 export const DEAD_TREE_SIZE = { width: 80, height: 200 };
 export const STALAGMITE_SIZE = { width: 30, height: 46 };
+export const CONE_SIZE = { width: 220, height: 170 };
 
 /** Skies and scenery for the places that are not the forest. */
 export function generateBackdropTextures(scene: Phaser.Scene): void {
   generateCave(scene);
   generateCity(scene);
   generateSwamp(scene);
+  generateVolcano(scene);
+}
+
+function generateVolcano(scene: Phaser.Scene): void {
+  bakeTexture(scene, 'volcano-sky', GAME_WIDTH, GAME_HEIGHT, (g) => {
+    // Dark overhead, and lit from below by what is on the ground.
+    fillVerticalGradient(g, GAME_WIDTH, GAME_HEIGHT, 0x1a1114, 0x7a2f1c);
+  });
+
+  const { width, height } = CONE_SIZE;
+  for (const [key, seed, shade] of [
+    ['cone-far', 17, 0x39232a],
+    ['cone-near', 53, 0x241519],
+  ] as const) {
+    const random = createRandom(seed);
+
+    bakeTexture(scene, key, width, height, (g) => {
+      const peak = width / 2 + (random() - 0.5) * 30;
+
+      g.fillStyle(shade, 1);
+      g.fillTriangle(0, height, width, height, peak, 0);
+
+      // A lit crater, and lava running down one side of it.
+      g.fillStyle(0xe8622a, 0.9);
+      g.fillTriangle(peak - 14, 10, peak + 14, 10, peak, 0);
+
+      g.fillStyle(0xe8622a, 0.55);
+      let x = peak;
+      for (let y = 8; y < height * 0.8; y += 10) {
+        x += (random() - 0.5) * 14;
+        g.fillRect(x, y, 2, 10);
+      }
+    });
+  }
+
+  bakeTexture(scene, 'ember', 6, 6, (g) => {
+    g.fillStyle(0xffc44d, 1);
+    g.fillCircle(3, 3, 2);
+    g.fillStyle(0xe8622a, 0.6);
+    g.fillCircle(3, 3, 3);
+  });
 }
 
 function generateSwamp(scene: Phaser.Scene): void {

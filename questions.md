@@ -235,3 +235,23 @@ where the cat still sticks to a rope, so worth knowing about.
 > **Still open:** should a jump off a rope refuse to re-grab until the player
 > lets go of climb? It would stop that, at the cost of not grabbing a rope you
 > walk into while already holding climb.
+
+
+## The volcano
+
+**Lava kills on touch.** You did not say, but a volcano whose lava is safe is
+not a volcano, and it costs nothing: it reuses the same death the enemies use.
+
+**It is shaped exactly like water and behaves nothing like it** — not solid, so
+you fall in rather than being stopped by it. That is deliberate: being stopped
+by lava would be stranger than dying in it.
+
+**Chains instead of ropes or vines**, since nothing grows here.
+
+> **Still open:** it is the last level and the hardest-looking, but mechanically
+> it is the simplest — islands, gaps, chains. It has no idea of its own the way
+> the canopy has the liana jump or the cave has its tunnels.
+
+> **Still open:** the lava lake is flat and static. Rising lava, or a level that
+> floods as you climb, is the obvious thing a volcano wants and is a much bigger
+> job.

@@ -115,6 +115,8 @@ export interface ParsedLevel {
   waterZones: WaterZone[];
   /** Water, grouped into connected pools. A piranha never leaves its own. */
   pools: WaterZone[][];
+  /** Lava. Shaped like water, but touching it kills. */
+  lavaZones: WaterZone[];
   /** Creatures that pace the floor: hedgehogs, and rats in the city. */
   walkers: Walker[];
   /** Where each piranha lurks, and which pool it belongs to. */
@@ -148,6 +150,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const solids: Solid[] = [];
   const climbZones: ClimbZone[] = [];
   const waterZones: WaterZone[] = [];
+  const lavaZones: WaterZone[] = [];
   const walkers: Walker[] = [];
   const piranhaSpots: Point[] = [];
   const crows: Point[] = [];
@@ -233,6 +236,16 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           }
           break;
         }
+
+        case 'L':
+          lavaZones.push({
+            x,
+            y,
+            width: TILE,
+            height: TILE,
+            isSurface: at(column, row - 1) !== 'L',
+          });
+          break;
 
         case 'w':
         case 'f':
@@ -320,6 +333,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     climbZones,
     waterZones,
     pools,
+    lavaZones,
     walkers,
     piranhas,
     crows,

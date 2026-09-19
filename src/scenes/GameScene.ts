@@ -51,6 +51,7 @@ export class GameScene extends Phaser.Scene {
   private walkers: GroundEnemy[] = [];
   private piranhas: Piranha[] = [];
   private crows: Crow[] = [];
+  private lavaRects: Phaser.Geom.Rectangle[] = [];
 
   /** True from the moment the cat is killed until it is back on its feet. */
   private dying = false;
@@ -93,6 +94,7 @@ export class GameScene extends Phaser.Scene {
     const { blocks, branches } = this.buildSolids();
     const climbZones = this.buildTrunks();
     const waterZones = this.buildWater();
+    this.lavaRects = this.buildLava();
     this.berries = this.buildBerries();
 
     this.player = new Player(
@@ -234,6 +236,10 @@ export class GameScene extends Phaser.Scene {
     }
     for (const crow of this.crows) {
       crow.step(cat, delta);
+    }
+
+    if (!this.dying && this.touchingLava()) {
+      this.kill();
     }
 
     if (!this.dying && this.player.y > this.level.heightInPixels + FALL_OUT_MARGIN) {
@@ -383,6 +389,19 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  /** Is any part of the cat in the lava? */
+  private touchingLava(): boolean {
+    const body = this.player.body;
+
+    return this.lavaRects.some(
+      (zone) =>
+        body.right > zone.x &&
+        body.x < zone.right &&
+        body.bottom > zone.y &&
+        body.y < zone.bottom,
+    );
+  }
+
   /**
    * Kills the cat and puts it back at the start.
    *
@@ -528,6 +547,43 @@ export class GameScene extends Phaser.Scene {
           repeat: -1,
           ease: 'Sine.easeInOut',
           delay: (zone.x / TILE) * 90,
+        });
+      }
+
+      return new Phaser.Geom.Rectangle(zone.x, zone.y, zone.width, zone.height);
+    });
+  }
+
+  /**
+   * Draws the lava and returns the rectangles that kill.
+   *
+   * Shaped exactly like water, and deliberately not solid: the danger is in
+   * touching it, not in being stopped by it. It is drawn over the cat, so
+   * falling in is visibly falling *in*.
+   */
+  private buildLava(): Phaser.Geom.Rectangle[] {
+    return this.level.lavaZones.map((zone) => {
+      this.add
+        .image(zone.x, zone.y, this.tile('lava'))
+        .setOrigin(0, 0)
+        .setDepth(-8);
+
+      const tile = this.add
+        .image(zone.x, zone.y, this.tile(zone.isSurface ? 'lava-surface' : 'lava'))
+        .setOrigin(0, 0)
+        .setAlpha(0.9)
+        .setDepth(20);
+
+      if (zone.isSurface) {
+        this.tweens.add({
+          targets: tile,
+          y: zone.y + 1.5,
+          alpha: { from: 0.78, to: 1 },
+          duration: 1100,
+          yoyo: true,
+          repeat: -1,
+          ease: 'Sine.easeInOut',
+          delay: (zone.x / TILE) * 70,
         });
       }
 

@@ -183,36 +183,18 @@ Where a level has a **star**, the door will not open without it. The forest's is
 in the crow's nest at the top of the great tree; the city's is on a rooftop. The
 swamp and the cave have none, so their doors always open.
 
-### 1 — Canopy
 
-Built around one move: **jumping off a liana onto a platform out of its reach**.
-The lianas hang from the roof rather than standing on the floor, and every
-platform is far too high to be reached from the ground — the best jump from
-down there falls 138px short — so there is no way through that does not involve
-letting go in mid-air.
 
-In the middle, **five lianas hang side by side** — that stretch is crossed
-sideways as much as climbed.
 
-It is also the level that could not exist while jump and climb shared a button.
 
-### 2 — Forest
+
+### 1 — Forest
 
 Sunlit, with the sun up and shafts of light through the trees. Four ordinary
 trees plus **the great tree**, which runs the full height of the level and has a
 nest at the top with a crow living in it. Two pools, one shaft of boulders, one
 sneaking bough, three hedgehogs, one piranha.
-
-### 3 — Swamp
-
-Standing water almost everywhere, under an overcast sky going brown at the
-horizon. Dead trees hung with moss, reeds along the waterline, and mist drifting
-across in two bands. The platforms are logs lying across the water, and a **liana hangs in the gap
-between each pair of them**, running from the height of the upper log down to
-the lower one. So a liana is the way across rather than something dangling
-overhead: drop onto it, climb, and jump off onto the next log.
-
-### 4 — Cave
+### 2 — Cave
 
 Caving, not a corridor. The level is **solid rock with tunnels cut out of it**,
 so the floor is never level and every passage has a roof. It branches, and
@@ -225,8 +207,7 @@ single tile high, so only a sneaking cat fits through it — and what is behind 
 is berries, not the way on.
 
 A flooded chamber low down has something living in it.
-
-### 5 — City
+### 3 — City
 
 Night, and properly urban. Brick flats to climb, **steel I-beam girders** lit
 along their edges, **drainpipes and lampposts** to climb, **parked cars** to
@@ -234,6 +215,36 @@ clamber over, a canal, and a crow nesting on a rooftop. The buildings behind are
 lit window by window.
 
 **Rats here, not hedgehogs** — same idea, but faster and low to the ground.
+### 4 — Swamp
+
+Standing water almost everywhere, under an overcast sky going brown at the
+horizon. Dead trees hung with moss, reeds along the waterline, and mist drifting
+across in two bands. The platforms are logs lying across the water, and a **liana hangs in the gap
+between each pair of them**, running from the height of the upper log down to
+the lower one. So a liana is the way across rather than something dangling
+overhead: drop onto it, climb, and jump off onto the next log.
+### 5 — Canopy
+
+Built around one move: **jumping off a liana onto a platform out of its reach**.
+The lianas hang from the roof rather than standing on the floor, and every
+platform is far too high to be reached from the ground — the best jump from
+down there falls 138px short — so there is no way through that does not involve
+letting go in mid-air.
+
+In the middle, **five lianas hang side by side** — that stretch is crossed
+sideways as much as climbed.
+
+It is also the level that could not exist while jump and climb shared a button.
+### 6 — Volcano
+
+The floor is a **lava lake** and only the islands are safe, so the level reads
+as somewhere not to land rather than somewhere to walk. Chains hang over the
+gaps where there is nothing living left to climb, bolted to rings in the roof of
+nothing.
+
+Lava is shaped exactly like water and behaves nothing like it: not solid, and
+**fatal to touch**. Cones on the skyline have lava running down them, and embers
+drift up through the whole level.
 
 ## The creatures
 

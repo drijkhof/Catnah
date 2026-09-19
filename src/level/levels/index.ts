@@ -1,9 +1,10 @@
 import type { LevelDefinition } from '../Level';
-import { CANOPY } from './canopy';
 import { FOREST } from './forest';
-import { SWAMP } from './swamp';
 import { CAVE } from './cave';
 import { CITY } from './city';
+import { SWAMP } from './swamp';
+import { CANOPY } from './canopy';
+import { VOLCANO } from './volcano';
 
 /** The levels, in the order they are played. */
-export const LEVELS: LevelDefinition[] = [CANOPY, FOREST, SWAMP, CAVE, CITY];
+export const LEVELS: LevelDefinition[] = [FOREST, CAVE, CITY, SWAMP, CANOPY, VOLCANO];

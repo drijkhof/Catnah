@@ -16,7 +16,7 @@ export const BRANCH_LEAF_DROP = 11;
  * are the same one-way platform underneath. Character comes from the backdrop.
  */
 /** What a climbable column is made of, in this place. */
-export type ColumnStyle = 'trunk' | 'liana' | 'rope' | 'pipe';
+export type ColumnStyle = 'trunk' | 'liana' | 'rope' | 'pipe' | 'chain';
 
 /** What a one-way platform is made of. */
 export type PlatformStyle = 'branch' | 'shelf' | 'girder';
@@ -47,6 +47,9 @@ export interface TilePalette {
   carBody: number;
   carGlass: number;
   carTrim: number;
+  lava: number;
+  lavaDeep: number;
+  lavaBright: number;
 }
 
 /** Namespaced so three themes can be in memory at once. */
@@ -162,6 +165,23 @@ export function generateTileset(
         break;
       }
 
+      case 'chain': {
+        // Links, alternating flat and edge-on down the run.
+        g.fillStyle(palette.trunkDark, 1);
+        for (let y = 0; y < TILE; y += 8) {
+          g.fillRect(5, y, 6, 7);
+          g.fillRect(7, y + 4, 2, 5);
+        }
+        g.fillStyle(palette.trunk, 1);
+        for (let y = 0; y < TILE; y += 8) {
+          g.fillRect(6, y + 1, 4, 2);
+          g.fillRect(6, y + 4, 4, 1);
+        }
+        g.fillStyle(palette.trunkLight, 1);
+        g.fillRect(6, 1, 1, 5);
+        break;
+      }
+
       case 'pipe': {
         // A drainpipe, with a bracket bolted to the wall.
         g.fillStyle(palette.trunkDark, 1);
@@ -199,6 +219,15 @@ export function generateTileset(
       g.fillRect(2, 0, 12, 5);
       g.fillStyle(palette.leafLight, 1);
       g.fillRect(4, 4, 8, 3);
+      return;
+    }
+
+    if (palette.columnStyle === 'chain') {
+      // A ring bolted into the rock above.
+      g.fillStyle(palette.rockDark, 1);
+      g.fillRect(3, 0, 10, 4);
+      g.fillStyle(palette.rockLight, 1);
+      g.fillRect(6, 1, 4, 2);
       return;
     }
 
@@ -377,6 +406,30 @@ export function generateTileset(
   for (const part of ['left', 'mid', 'right'] as const) {
     bakeTexture(scene, key(`car-${part}`), TILE, TILE, (g) => drawCar(g, part));
   }
+
+  // --- lava ---------------------------------------------------------------
+  bakeTexture(scene, key('lava'), TILE, TILE, (g) => {
+    g.fillStyle(palette.lavaDeep, 1);
+    g.fillRect(0, 0, TILE, TILE);
+
+    g.fillStyle(palette.lava, 1);
+    g.fillRect(2, 3, 6, 2);
+    g.fillRect(9, 9, 5, 2);
+  });
+
+  bakeTexture(scene, key('lava-surface'), TILE, TILE, (g) => {
+    g.fillStyle(palette.lava, 1);
+    g.fillRect(0, 0, TILE, TILE);
+
+    // A bright crust along the top, so the line not to touch is unmistakable.
+    g.fillStyle(palette.lavaBright, 1);
+    g.fillRect(0, 0, TILE, 3);
+    g.fillRect(2, 3, 5, 1);
+    g.fillRect(10, 3, 4, 1);
+
+    g.fillStyle(palette.lavaDeep, 1);
+    g.fillRect(4, 8, 5, 1);
+  });
 
   // --- the way out -------------------------------------------------------
   bakeTexture(scene, key('exit'), TILE, TILE * 2, (g) => {

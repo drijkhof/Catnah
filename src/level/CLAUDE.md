@@ -22,6 +22,7 @@ its platforms must attach to a column. Everything else is derived.
 | `R` | boulder — solid rock, and what wall jumps are taken from |
 | `T` | tree trunk — climbable, and deliberately *not* solid |
 | `w` | water — swimmable, not solid, harmless on its own |
+| `L` | lava — not solid either, and fatal to touch |
 | `o` | berry |
 | `P` | cat spawn (exactly one) |
 | `.` | empty |

@@ -4,6 +4,7 @@ import { Backdrop } from './Backdrop';
 import { CaveBackdrop } from './CaveBackdrop';
 import { CityBackdrop } from './CityBackdrop';
 import { SwampBackdrop } from './SwampBackdrop';
+import { VolcanoBackdrop } from './VolcanoBackdrop';
 
 /**
  * Builds the scenery for a place.
@@ -24,6 +25,9 @@ export function createBackdrop(
       break;
     case 'swamp':
       new SwampBackdrop(scene, levelWidth, groundLine);
+      break;
+    case 'volcano':
+      new VolcanoBackdrop(scene, levelWidth, groundLine);
       break;
     case 'city':
       new CityBackdrop(scene, levelWidth, groundLine);

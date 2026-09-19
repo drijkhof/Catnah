@@ -1,7 +1,7 @@
 import type { TilePalette } from '../art/tiles';
 
 /** The places the game visits. */
-export type ThemeName = 'jungle' | 'forest' | 'swamp' | 'cave' | 'city';
+export type ThemeName = 'jungle' | 'forest' | 'swamp' | 'cave' | 'city' | 'volcano';
 
 /**
  * One palette per place.
@@ -39,6 +39,9 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     carBody: 0x9a4a3f,
     carGlass: 0x7fa8c4,
     carTrim: 0x3a3a40,
+    lava: 0xe8622a,
+    lavaDeep: 0x8f2d10,
+    lavaBright: 0xffc44d,
   },
 
   forest: {
@@ -67,6 +70,9 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     carBody: 0x9a4a3f,
     carGlass: 0x7fa8c4,
     carTrim: 0x3a3a40,
+    lava: 0xe8622a,
+    lavaDeep: 0x8f2d10,
+    lavaBright: 0xffc44d,
   },
 
   // Standing water, mud and rot. The greens are sicklier than the forest's and
@@ -97,6 +103,9 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     carBody: 0x6b5a45,
     carGlass: 0x7f9a86,
     carTrim: 0x35322a,
+    lava: 0xe8622a,
+    lavaDeep: 0x8f2d10,
+    lavaBright: 0xffc44d,
   },
 
   // Underground, and caved rather than merely dark: ropes bolted to the roof,
@@ -127,6 +136,9 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     carBody: 0x6b6472,
     carGlass: 0x8b84a0,
     carTrim: 0x3a3542,
+    lava: 0xe8622a,
+    lavaDeep: 0x8f2d10,
+    lavaBright: 0xffc44d,
   },
 
   // Night city: brick, concrete, steel girders, drainpipes and lamplight.
@@ -156,5 +168,41 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     carBody: 0x9a4a3f,
     carGlass: 0x7fa8c4,
     carTrim: 0x3a3a40,
+    lava: 0xe8622a,
+    lavaDeep: 0x8f2d10,
+    lavaBright: 0xffc44d,
+  },
+
+  // Black rock and open lava. Chains hang where there is nothing living to
+  // climb, and the only greens left are the glow of the stuff below.
+  volcano: {
+    columnStyle: 'chain',
+    platformStyle: 'shelf',
+    grass: 0x6b4038,
+    grassDark: 0x4a2a25,
+    dirt: 0x3a2f2c,
+    dirtDark: 0x271f1d,
+    rock: 0x453a38,
+    rockDark: 0x2c2422,
+    rockLight: 0x6a5a56,
+    branch: 0x5a4a45,
+    branchDark: 0x392f2c,
+    leaf: 0xe8622a,
+    leafLight: 0xffc44d,
+    trunk: 0x8a8a92,
+    trunkDark: 0x55555d,
+    trunkLight: 0xb6b6be,
+    water: 0x3f86b8,
+    waterDeep: 0x2f6a95,
+    waterFoam: 0xbfe3f5,
+    nestStraw: 0x9a8f78,
+    nestStrawLight: 0xc0b394,
+    nestShadow: 0x4e4638,
+    carBody: 0x6b4038,
+    carGlass: 0x8a8a92,
+    carTrim: 0x2c2422,
+    lava: 0xe8622a,
+    lavaDeep: 0x8f2d10,
+    lavaBright: 0xffc44d,
   },
 };
