@@ -47,7 +47,7 @@ one-tile gap something you can only get through by sneaking.
 The game opens on a **title screen**: the forest of level 1 with nobody playing
 it, a cat pacing the floor, a crow crossing overhead, a hedgehog trundling the
 other way and a piranha coming out of a puddle now and then. **Catnah**, and
-under it *A Hannah Milatovic Game*. Any key starts it; on a phone, a tap.
+under it *A Hannah Milatovic Rijkhof Game*. Any key starts it; on a phone, a tap.
 
 Losing your last heart brings you back here rather than straight into the
 forest, so a run visibly ends before the next one begins.

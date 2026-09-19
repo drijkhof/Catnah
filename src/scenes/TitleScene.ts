@@ -181,7 +181,7 @@ export class TitleScene extends Phaser.Scene {
     });
 
     this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.26 + Math.round(GAME_WIDTH * 0.08), 'A Hannah Milatovic Game', {
+      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.26 + Math.round(GAME_WIDTH * 0.08), 'A Hannah Milatovic Rijkhof Game', {
         fontFamily: 'monospace',
         fontSize: `${Math.round(GAME_WIDTH * 0.022)}px`,
         color: '#ffffff',
