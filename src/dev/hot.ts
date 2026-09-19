@@ -3,8 +3,8 @@ import Phaser from 'phaser';
 /** Registry key the incoming game reads its restored state from. */
 export const SNAPSHOT_KEY = 'hot-snapshot';
 
-/** Where a berry sits in the level, used to re-collect it after a reload. */
-export interface BerryMark {
+/** Where a minnow sits in the level, used to re-collect it after a reload. */
+export interface MinnowMark {
   x: number;
   y: number;
 }
@@ -24,7 +24,7 @@ export interface GameSnapshot {
   velocityX: number;
   velocityY: number;
   facingLeft: boolean;
-  collectedBerries: BerryMark[];
+  collectedMinnows: MinnowMark[];
 }
 
 /** A scene that can hand its state over to the build replacing it. */

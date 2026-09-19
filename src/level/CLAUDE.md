@@ -23,7 +23,7 @@ its platforms must attach to a column. Everything else is derived.
 | `T` | tree trunk — climbable, and deliberately *not* solid |
 | `w` | water — swimmable, not solid, harmless on its own |
 | `L` | lava — not solid either, and fatal to touch |
-| `o` | berry |
+| `o` | minnow — the little fish the cat collects |
 | `N` | nest — a ledge set into the tile, so the cat sits *in* it |
 | `+` | nest with a spare heart in it |
 | `A` | parked car — two rows: a long lower one, a short upper one over its middle |

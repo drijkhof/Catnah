@@ -74,8 +74,8 @@ function carve(grid: Grid, x: number, y: number, w: number, h: number): void {
   block(grid, x, y, w, h, '.');
 }
 
-/** A row of berries, which is how a dead end says it was worth walking into. */
-function berries(grid: Grid, x: number, y: number, count: number): void {
+/** A row of minnows, which is how a dead end says it was worth walking into. */
+function minnows(grid: Grid, x: number, y: number, count: number): void {
   block(grid, x, y, count, 1, 'o');
 }
 
@@ -122,14 +122,14 @@ function build(): string[] {
   // so the first thing the cave teaches is that it goes down.
   block(grid, startOf(0) + 1, floors[0] - 1, 3, 1, 'R');
   put(grid, startOf(0) + 2, floors[0] - 2, 'P');
-  berries(grid, startOf(0) + 8, floors[0] - 1, 3);
+  minnows(grid, startOf(0) + 8, floors[0] - 1, 3);
 
   pillar(1, 5, 3);
   spider(1, 10);
 
   shelf(2, 3, 3);
   shelf(2, 8, 5);
-  berries(grid, startOf(2) + 8, floors[2] - 6, 3);
+  minnows(grid, startOf(2) + 8, floors[2] - 6, 3);
 
   // A low roof over the middle of the chamber. Not low enough to crawl under --
   // low enough that the jump across the pillars under it has to be flat.
@@ -140,7 +140,7 @@ function build(): string[] {
 
   // A squeeze. One tile of headroom fits a sneaking cat and nothing else.
   block(grid, startOf(4) + 4, floors[4] - HEADROOM, 7, HEADROOM - 1, '#');
-  berries(grid, startOf(4) + 1, floors[4] - 1, 3);
+  minnows(grid, startOf(4) + 1, floors[4] - 1, 3);
 
   pillar(5, 3, 4);
   pillar(5, 8, 3);
@@ -148,7 +148,7 @@ function build(): string[] {
 
   shelf(6, 2, 4);
   shelf(6, 7, 3);
-  berries(grid, startOf(6) + 2, floors[6] - 5, 3);
+  minnows(grid, startOf(6) + 2, floors[6] - 5, 3);
 
   shelf(7, 2, 3);
   pillar(7, 6, 5);
@@ -161,7 +161,7 @@ function build(): string[] {
 
   shelf(10, 3, 3);
   shelf(10, 8, 5);
-  berries(grid, startOf(10) + 8, floors[10] - 6, 3);
+  minnows(grid, startOf(10) + 8, floors[10] - 6, 3);
 
   block(grid, startOf(11) + 5, floors[11] - HEADROOM, 6, HEADROOM - 1, '#');
   spider(11, 1);
@@ -173,17 +173,17 @@ function build(): string[] {
   shelf(13, 2, 4);
   shelf(13, 8, 3);
   spider(13, 6);
-  berries(grid, startOf(13) + 2, floors[13] - 5, 3);
+  minnows(grid, startOf(13) + 2, floors[13] - 5, 3);
 
   pillar(14, 4, 4);
   spider(14, 10);
 
   // The bottom, and the only door in the game that leads further down.
-  berries(grid, startOf(15) + 3, floors[15] - 1, 3);
+  minnows(grid, startOf(15) + 3, floors[15] - 1, 3);
   put(grid, startOf(15) + 10, floors[15] - 1, 'E');
 
   // --- the short dead ends ------------------------------------------------
-  // Each climbs out of the main run and stops. They are worth berries and
+  // Each climbs out of the main run and stops. They are worth minnows and
   // nothing else, which is what makes the long one mean something.
   const deadEnd = (step: number, at: number, length: number): void => {
     const x = startOf(step) + at;
@@ -192,7 +192,7 @@ function build(): string[] {
     // A shaft up out of the chamber, then a gallery running on from it.
     carve(grid, x, mouth - 5, 3, 6);
     carve(grid, x, mouth - 5, length, 4);
-    berries(grid, x + length - 4, mouth - 2, 3);
+    minnows(grid, x + length - 4, mouth - 2, 3);
   };
 
   deadEnd(2, 11, 9);
@@ -215,7 +215,7 @@ function build(): string[] {
 
   carve(grid, lairX, lairFloor - 14, 26, 14);
   put(grid, lairX + 6, lairFloor - 14, 'S');
-  berries(grid, lairX + 14, lairFloor - 1, 3);
+  minnows(grid, lairX + 14, lairFloor - 1, 3);
   put(grid, lairX + 22, lairFloor - 1, '+');
 
   return grid.map((row) => row.join(''));

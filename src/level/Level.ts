@@ -13,7 +13,7 @@ import type { GroundEnemyKind } from '../config';
  *   `T`  climbable column — a trunk, a vine, a drainpipe
  *   `w`  water — swimmable, not solid, harmless on its own
  *   `N`  nest, decoration
- *   `o`  berry
+ *   `o`  minnow
  *   `P`  cat spawn (exactly one)
  *   `E`  the way out, to the next level
  *   `h`  hedgehog, pacing the floor it stands on
@@ -166,7 +166,7 @@ export interface ParsedLevel {
   /** Where the boss holds its ground, if the level has one. */
   boss: Point | null;
   nests: Point[];
-  berries: Point[];
+  minnows: Point[];
   /** Spare hearts sitting in nests. Always optional. */
   extraLives: Point[];
   /** Where the cat starts, and returns to after dying. */
@@ -200,7 +200,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const crows: Point[] = [];
   const spiders: Spider[] = [];
   const nests: Point[] = [];
-  const berries: Point[] = [];
+  const minnows: Point[] = [];
   let spawn: Point | null = null;
   let boss: Point | null = null;
   const extraLives: Point[] = [];
@@ -357,7 +357,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           break;
 
         case 'o':
-          berries.push({ x: x + TILE / 2, y: y + TILE / 2 });
+          minnows.push({ x: x + TILE / 2, y: y + TILE / 2 });
           break;
 
         case '+':
@@ -423,7 +423,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     spiders,
     boss,
     nests,
-    berries,
+    minnows,
     extraLives,
     spawn,
     exit,

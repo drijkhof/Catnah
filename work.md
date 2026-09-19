@@ -4,14 +4,14 @@ What the game *is*. Future wishes live in [`backlog.md`](backlog.md); how the
 code is built lives in [`CLAUDE.md`](CLAUDE.md).
 
 Status: **level 1 playable** — you can run, jump, sneak, wall jump, climb
-trunks and collect berries. There is no win state, no enemies and no way to die except falling.
+trunks and collect minnows. There is no win state, no enemies and no way to die except falling.
 
 ---
 
 ## The idea
 
 A 2D platformer. You play a **cat**, moving left to right through three places,
-collecting berries and finding the way out of each.
+collecting minnows and finding the way out of each.
 
 It runs in a browser on **both a phone and a laptop**. Neither is the "real"
 version — every feature has to work with touch and with a keyboard.
@@ -25,7 +25,7 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | sluipen | `sneak` | moving low, flat and slow |
 | tak | `branch` | the platforms |
 | boomstam | `bough` / `trunk` | fallen log; climbable standing trunk |
-| bes | `berry` | the collectible |
+| bes | `minnow` | the collectible |
 | struik | `bush` | scenery |
 | egel | `hedgehog` | enemy — paces a platform, deadly to touch |
 | rots | `boulder` / `rock` | solid, climbable stone |
@@ -189,7 +189,7 @@ Pressing into a wall while falling still makes the cat **slide** at 95 px/s
 instead of 600, which is a way to buy time rather than a requirement.
 
 Level 1 has a **shaft** between two rock towers for this: walk in under the
-overhanging left tower and alternate your way up 224px to the berries on top.
+overhanging left tower and alternate your way up 224px to the minnows on top.
 One wall alone will not do it — a jump off the floor plus a single wall jump
 reaches 172px, and there it stops.
 
@@ -216,19 +216,19 @@ light falling through the trees.
   floor to the highest branch, a route that skips the whole climb.
 - **Boulders**, grey stone against all the green. Three broad ones, six tiles
   wide, are platforms in their own right — you land on them and cross them, with
-  berries on top.
+  minnows on top.
 - **Two pools** cut into the forest floor, three tiles deep. Neither has
   anything living in it — that comes later.
 - **A shaft** made of two rock towers facing each other across three tiles. The
   left one overhangs, so you walk in underneath it at ground level; getting back
   out means alternating wall jumps between the two faces, quickly enough that
   you never stop rising.
-- Berries to collect, counted top left, per level.
+- Minnows to collect, counted top left, per level.
 - **Scenery**: trees in two depth ranks, bushes and grass along the floor.
 
 **Rules today**
 
-- Collecting a berry increases the counter. Nothing happens at 26 yet.
+- Collecting a minnow increases the counter. Nothing happens at 26 yet.
 - Falling into the gap respawns you at the start, with a screen flash.
 - Nothing else can hurt you.
 
@@ -239,7 +239,7 @@ world. There is a short pause — a flash and a shake — and then the cat is ba
 at the start of the level.
 
 You get **three lives**, shown as red hearts in the top right. Each death dims
-one, and **berries you have already collected stay collected** between them.
+one, and **minnows you have already collected stay collected** between them.
 
 Lose the last heart and the whole game starts again from the forest, with three
 fresh hearts.
@@ -271,7 +271,7 @@ shoulders show above the straw.
 
 **Forest, city, swamp, canopy, cave, volcano.** Each one starts at one end and
 ends at a **glowing door**, which takes you to the next; the volcano leads back
-to the forest. Berries are optional everywhere.
+to the forest. Minnows are optional everywhere.
 
 The cave comes second to last rather than second. It is the descent, and what it
 descends into is the volcano, so it has to be the thing you do immediately
@@ -319,7 +319,7 @@ swims in this city — the canal is water and no more than water. Two awnings sp
 it with five tiles of nothing between them: swim it the slow way, or make that
 jump.
 
-Berries are on the roofs. So is the **spare heart**, in a crow's nest on the
+Minnows are on the roofs. So is the **spare heart**, in a crow's nest on the
 tallest building in the city.
 
 ### 3 — Swamp
@@ -384,7 +384,7 @@ something to climb over, squeeze through or drop off.
 
 **It branches, and most branches go nowhere.** They climb *away* from the main
 run, because the main run only goes down: a dead end you have to drop into would
-be a trap, one you climb into is a decision. Three of them are worth berries.
+be a trap, one you climb into is a decision. Three of them are worth minnows.
 
 The fourth runs back over the top of the level for thirty tiles and ends in a
 chamber with the **spare heart** in it — and hanging over the doorway, a spider
@@ -424,6 +424,17 @@ aimed at where you are *going*, not where you stand — and drops straight down.
 
 Measured: standing still in the arena kills you in **2.7 seconds**. It cannot be
 beaten, only got past, and the way out is at the far end of the arena.
+
+## What you collect
+
+**Little fish.** A cat does not pick fruit, which is what the minnows replaced
+always looked like, and it does not eat them either — it collects them, the way
+a cat collects anything: because they were there and moving. They are pale blue
+with an orange tail, deliberately nothing like the piranha, which is dark and
+angular and all teeth.
+
+They are optional everywhere. The count in the top left is how many of this
+level's fish you have.
 
 ## The creatures
 

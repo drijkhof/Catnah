@@ -9,7 +9,7 @@ binary assets and runs straight after clone.
 - `tiles.ts` — every level tile, drawn from a palette so three themes share one
   set of shapes. Keys are namespaced: `cave:rock-fill`.
 - `forest.ts` — the forest's own scenery: sky, sun, trees, bushes, grass. And
-  the berry, which is the same everywhere.
+  the minnow, which is the same everywhere.
 - `backdrops.ts` — cave and city scenery: stalactites, crystals, skylines, moon.
 - `creatures.ts` — hedgehog, piranha, crow.
 - `ui.ts` — the touch-button glyphs.

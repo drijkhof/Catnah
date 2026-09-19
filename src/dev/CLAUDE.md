@@ -62,7 +62,7 @@ The level can change between builds. `GameScene.restoreState` checks the saved
 position is not inside something solid and falls back to the spawn if it is,
 rather than wedging the cat inside a rock that was not there a second ago.
 
-Berries are remembered by their **level position**, not their index, so adding
-or removing berries elsewhere does not un-collect the wrong ones. Their sprites
+Minnows are remembered by their **level position**, not their index, so adding
+or removing minnows elsewhere does not un-collect the wrong ones. Their sprites
 carry that position in `levelPosition` data, because the bob tween means a
 sprite's own `y` is no longer where the level put it.

@@ -30,10 +30,10 @@ also the one that can cost a long session.
 the walk back rather than real progress. If they grow, this is the first thing
 that will need revisiting.
 
-**Berries stay collected through a death**, so dying never undoes work — but
+**Minnows stay collected through a death**, so dying never undoes work — but
 running out of lives does reset them, since the level itself starts over.
 
-> **Still open:** should the berry count carry between levels, or is each level
+> **Still open:** should the minnow count carry between levels, or is each level
 > scored on its own? It resets at the moment, and there is no total.
 
 ## Hedgehogs
@@ -118,7 +118,7 @@ there is no cave-specific creature at all.
 bedded rock shelves, stalagmites as well as stalactites.
 
 **It is a tunnel network now**, carved out of solid rock: uneven floors, roofs
-over everything, branches, and dead ends that only hold berries. One passage is
+over everything, branches, and dead ends that only hold minnows. One passage is
 a single tile high and only a sneaking cat fits.
 
 > **Still open:** it has no creature of its own and still borrows hedgehogs.
@@ -149,10 +149,10 @@ each ends it. Finishing the city returns you to the forest.
 > **Still open:** there is no win state. What should happen after the city — a
 > score, a "well done", a fourth level?
 
-**Reaching the door is the only goal.** Berries are optional; nothing requires
+**Reaching the door is the only goal.** Minnows are optional; nothing requires
 collecting them, and nothing happens when you get them all.
 
-> **Still open:** should the door need all the berries, or a minimum number?
+> **Still open:** should the door need all the minnows, or a minimum number?
 
 ## Rules that turned out to be forest-only
 
@@ -377,7 +377,7 @@ it and still have rock underneath, which is what a cave actually is.
 
 > **Still open:** you can never climb back up to the chamber above. Nothing
 > needs you to, and every dead end is on the level it branches from — but a
-> player who misses a berry has no way back to it.
+> player who misses a minnow has no way back to it.
 
 **Measured, not assumed.** The wall in the second chamber is clearable with a
 straight jump. The towers in the fourth are six rows (96px) against a 90px jump,
@@ -433,3 +433,24 @@ drawn, still walked through, and their crowns are still something to stand on.
 > **Still open:** nothing in the game says a tree cannot be climbed until you
 > try. A cat that visibly fails to grip would say it; at the moment the trunk
 > just does nothing.
+
+## What the cat collects, and what the cars look like
+
+**Minnows.** The collectible was a berry, and a cat does not pick fruit. It is
+now a little fish: pale blue with an orange tail, twelve pixels by eight, drawn
+deliberately unlike the piranha, which is dark and angular and all teeth. The
+name changed everywhere too rather than leaving a berry-shaped hole in the code
+with a fish drawn over it.
+
+**It took two goes.** The first one had a two-pixel eye and a gill line, and at
+this size that reads as a *face* rather than as a fish. One pixel of eye, no
+gill, and a notched fork for a tail instead of a solid wedge -- a triangle reads
+as an arrow.
+
+**The cars were a slab with a window painted on.** They now have a bonnet that
+drops away, a raked windscreen, a B-pillar between two side windows, a chrome
+rubbing strip the length of the car, wheels with hubs sat in their arches, a
+headlight, a tail light, a number plate and a shadow on the road.
+
+> **Still open:** every car in the game is the same car. A second body colour
+> per level, or per car, would cost one number.

@@ -14,7 +14,7 @@ expected, not a bug to fix in code.
 1. Drop the file here.
 2. Load it in `BootScene.preload()` under the **same texture key** the
    placeholder used (`cat`, `cat-sneak`, `ground-top`, `ground-fill`,
-   `branch-*`, `bough`, `berry`, `tree-*`, `bush`, `grass-tuft`, `sun`, `sky`,
+   `branch-*`, `bough`, `minnow`, `tree-*`, `bush`, `grass-tuft`, `sun`, `sky`,
    `ui-*`).
 3. Delete the matching generator in `src/art`.
 

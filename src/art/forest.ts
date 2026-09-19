@@ -19,7 +19,7 @@ export function generateForestTextures(scene: Phaser.Scene): void {
   generateBush(scene);
   generateGrassTuft(scene);
   generateLife(scene);
-  generateBerry(scene);
+  generateMinnow(scene);
 }
 
 function generateSky(scene: Phaser.Scene): void {
@@ -152,17 +152,47 @@ function generateLife(scene: Phaser.Scene): void {
   });
 }
 
-function generateBerry(scene: Phaser.Scene): void {
-  const size = 10;
+/**
+ * A minnow: the little fish the cat is collecting.
+ *
+ * A cat does not pick fruit, which is what the berry this replaced always
+ * looked like. It is drawn facing left and bobbing, so a row of them reads as
+ * a shoal rather than as a row of dots.
+ *
+ * Deliberately nothing like the piranha: pale, round-nosed and finger-sized,
+ * where that one is dark, angular and all teeth.
+ */
+function generateMinnow(scene: Phaser.Scene): void {
+  const width = 12;
+  const height = 8;
 
-  bakeTexture(scene, 'berry', size, size, (g) => {
-    g.fillStyle(COLORS.berry, 1);
-    g.fillCircle(size / 2, size / 2 + 1, 4);
+  bakeTexture(scene, 'minnow', width, height, (g) => {
+    // Tail first, as a notched fork rather than a solid wedge: at this size a
+    // triangle reads as an arrow and a fork reads as a fish.
+    g.fillStyle(COLORS.minnowFin, 1);
+    g.fillRect(0, 1, 1, 2);
+    g.fillRect(0, 5, 1, 2);
+    g.fillRect(1, 2, 1, 4);
+    g.fillRect(2, 3, 1, 2);
 
-    g.fillStyle(COLORS.berryLight, 1);
-    g.fillCircle(size / 2 - 1, size / 2 - 1, 1.6);
+    // Fins, one up one down, two pixels each. Any more and the silhouette
+    // turns to fluff.
+    g.fillRect(6, 1, 2, 1);
+    g.fillRect(6, 6, 2, 1);
 
-    g.fillStyle(COLORS.leaf, 1);
-    g.fillRect(size / 2 - 1, 0, 2, 2);
+    // Body: a lens, widest in the middle, with a blunt nose.
+    g.fillStyle(COLORS.minnow, 1);
+    g.fillRect(4, 2, 6, 1);
+    g.fillRect(3, 3, 9, 2);
+    g.fillRect(4, 5, 6, 1);
+
+    // A lit back and a pale belly, which is most of what makes it look wet.
+    g.fillStyle(COLORS.minnowLight, 1);
+    g.fillRect(5, 2, 4, 1);
+    g.fillRect(5, 5, 3, 1);
+
+    // One pixel of eye. Two was a face.
+    g.fillStyle(0x16323d, 1);
+    g.fillRect(10, 3, 1, 1);
   });
 }

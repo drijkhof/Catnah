@@ -563,8 +563,11 @@ export const COLORS = {
   heart: 0xe0333f,
   heartLight: 0xff8a90,
 
-  berry: 0xe0463d,
-  berryLight: 0xff8175,
+  // Bright and cold, so one reads against forest green, night brick and cave
+  // rock alike. It is the one thing in the game you are trying to touch.
+  minnow: 0x5fc9e8,
+  minnowLight: 0xd8f5ff,
+  minnowFin: 0xf29b3c,
 
   uiButton: 0xffffff,
 } as const;
