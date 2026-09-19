@@ -82,12 +82,18 @@ drops the cat onto it.
 ### Wall jumping
 
 Press into a rock face in mid-air and the cat **slides** down it at 95 px/s
-instead of falling at 600 — slow enough to see what is coming. Press jump there
-and it launches up and away from the wall.
+instead of falling at 600. Sliding is a cushion, not a launchpad: by the time
+you are sliding you are falling, and a falling cat cannot wall jump. It buys you
+a soft way down when a chain breaks.
 
 **You have to alternate sides.** The same wall cannot be used twice in a row:
 left, then right, then left. So a single wall is never a climb — it gives you
 one jump and no more. Two walls facing each other are. Landing resets it.
+
+**And you have to still be going up.** A wall jump carries momentum on rather
+than making it, so a chain has to be strung together on the way up and is over
+the moment you start to fall. In the shaft that leaves about a tenth of a second
+of slack at each wall — miss it and you slide down and start again.
 
 **Press away from the wall and jump.** The wall stays available for a moment
 after you stop touching it, so you steer where you want to go and jump, rather
@@ -99,7 +105,7 @@ moment after the shove the steering is ignored, otherwise still holding
 
 Level 1 has a **shaft** between two rock towers for exactly this: walk in under
 the overhanging left tower, then alternate your way up the 160px to the berries
-on top. Two wall jumps do it.
+on top. Two wall jumps do it, if you are prompt.
 
 ## Level 1 — the forest
 
@@ -124,9 +130,10 @@ light falling through the trees.
 - **Boulders**, grey stone against all the green. Three broad ones, six tiles
   wide, are platforms in their own right — you land on them and cross them, with
   berries on top.
-- **A shaft** made of two rock towers facing each other across four tiles. The
+- **A shaft** made of two rock towers facing each other across three tiles. The
   left one overhangs, so you walk in underneath it at ground level; getting back
-  out means alternating wall jumps between the two faces.
+  out means alternating wall jumps between the two faces, quickly enough that
+  you never stop rising.
 - **37 berries** to collect, shown top left.
 - **Scenery**: trees in two depth ranks, bushes and grass along the floor.
 

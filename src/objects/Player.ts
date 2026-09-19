@@ -405,13 +405,17 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   private applyJump(controls: Controls, canJump: boolean, wall: number): void {
-    // A wall jump needs a fresh press, held in the same buffer a ground jump
-    // uses, so holding the button cannot climb a face on its own. It also has
-    // to come off the opposite side to the last one: left, right, left.
+    // A wall jump asks for three things at once. A fresh press, held in the
+    // same buffer a ground jump uses, so holding the button cannot climb a face
+    // on its own. The opposite side to the last one: left, right, left. And the
+    // cat still rising -- a wall jump carries momentum on rather than
+    // manufacturing it, so a chain has to be strung together on the way up and
+    // is over the moment it starts to fall.
     if (
       !canJump &&
       wall !== 0 &&
       wall !== this.lastWallJumpSide &&
+      this.body.velocity.y < 0 &&
       this.jumpBufferTimer > 0 &&
       !this.isSneaking
     ) {

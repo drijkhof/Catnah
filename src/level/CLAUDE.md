@@ -80,9 +80,13 @@ enough fall time for the cat to drift sideways over the branch before it drops
 past the level of it. One tile only clips the branch's edge.
 
 **Wall jumps need two walls facing each other**, not one. Sides have to
-alternate, so a lone face gives a single jump and nothing more. Level 1 has a
-shaft of two towers four tiles apart; much wider and the cat starts falling
-before it crosses, since a wall jump only rises for about a third of a second.
+alternate, so a lone face gives a single jump and nothing more.
+
+**Three tiles apart is about right, and the number is not free.** A wall jump
+only counts while the cat is still rising, so the gap sets how long a player has
+to react. Measured in the level 1 shaft: at three tiles a player can dawdle
+about six frames at each wall and still make it, and the chain breaks at eight.
+At four tiles that margin roughly halves.
 
 **A shaft has to be enterable.** Two walls standing on the floor cannot be
 walked between — you meet the first one. Level 1 solves it by stopping the left

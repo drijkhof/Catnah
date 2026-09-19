@@ -114,6 +114,16 @@ on the same frame.
 therefore never a climb -- it gives one jump and no more -- and a shaft of two
 facing walls is. Landing clears it.
 
+### Only on the way up
+
+A wall jump also requires `velocity.y < 0`. It carries momentum on rather than
+manufacturing it, so a chain is strung together on the way up and is over the
+moment the cat starts to fall.
+
+This leaves the wall slide as a cushion rather than a launchpad -- by the time
+the cat is sliding it is falling, and a falling cat cannot wall jump. That is
+deliberate, but it does mean the slide no longer leads anywhere on its own.
+
 ### The wall is remembered for a moment
 
 `wallCoyoteTimer` keeps a wall jumpable briefly after contact is lost, and
