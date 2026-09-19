@@ -69,6 +69,16 @@ possible to dodge.
 > **Still open:** should the nest hold something — an egg, a berry hoard, the
 > level's real prize?
 
+**The top of the great tree is currently a death trap.** Measured: the cat can
+climb the whole 384px trunk, and the crow catches it at the very top every time.
+There is nothing up there to reach and no way to survive arriving, so at the
+moment the tree is something to admire rather than to climb.
+
+That is a straight consequence of the crow being undefeatable and the nest being
+empty. Whatever the answer to the question above is, it probably settles this
+one too — a prize worth the climb needs a way to survive taking it, whether that
+is a slower crow, a place to shelter, or being able to fight back.
+
 ## The cave
 
 **A separate level, reached through a door**, not a hole you fall into from the
