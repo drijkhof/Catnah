@@ -148,6 +148,15 @@ is meant to land on.
   turning rather than snapping round, and it is fenced into its own pool exactly
   as a piranha is. Waiting in place made the bite a rectangle you swam into;
   swimming at you makes it something that reached you.
+- **It has to be able to get home.** `keepInPool` clamps its top to `floatY`,
+  which is above the waterline. It clamped two pixels short of that once, and
+  `goHome` waits to be within two pixels of home -- so a crocodile that had
+  chased you never settled again. It circled its pool with its mouth open for
+  the rest of the run and the crossing was gone.
+- **`settle()` puts one straight back**, and `GameScene` calls it on every
+  crocodile when the cat respawns. While the cat is dying it is not stepped, so
+  whatever `swimming` said at the moment of death goes on being true: a cat that
+  drowned otherwise leaves the whole pool hunting something that is not there.
 - **While hunting its body is off.** A crocodile in the water is in the water
   like everything else there, so there is nothing to stand on until it has swum
   home and settled.

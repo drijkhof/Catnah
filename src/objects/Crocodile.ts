@@ -278,7 +278,15 @@ export class Crocodile extends Phaser.Physics.Arcade.Sprite {
     this.keepInPool();
   }
 
-  /** Never out of its own water, whatever it is chasing. */
+  /**
+   * Never out of its own water, whatever it is chasing.
+   *
+   * The ceiling has to allow `floatY`, which is above the waterline. It did
+   * not, once: the clamp stopped two pixels short of home, `goHome` waited to
+   * be within two pixels of it, and so a crocodile that had chased you never
+   * settled again. It circled its pool with its mouth open forever and the
+   * crossing was gone for the rest of the run.
+   */
   private keepInPool(): void {
     const halfW = CROCODILE_SIZE.width / 2;
 
@@ -288,11 +296,30 @@ export class Crocodile extends Phaser.Physics.Arcade.Sprite {
       this.setX(this.bounds.right - halfW);
     }
 
-    if (this.y < this.bounds.top - FLOAT_LIFT) {
-      this.setY(this.bounds.top - FLOAT_LIFT);
+    if (this.y < this.floatY) {
+      this.setY(this.floatY);
     } else if (this.y + CROCODILE_SIZE.height > this.bounds.bottom) {
       this.setY(this.bounds.bottom - CROCODILE_SIZE.height);
     }
+  }
+
+  /**
+   * Puts it straight back where it belongs, afloat and calm.
+   *
+   * Called when the cat dies. Nothing else resets a crocodile: while the cat
+   * is dying it is not stepped, so whatever `swimming` said at the moment of
+   * death goes on being true -- and a cat that drowned leaves every crocodile
+   * in its pool hunting a thing that is no longer there.
+   */
+  settle(): void {
+    this.setPosition(this.homeX, this.floatY);
+    this.setFlipX(false);
+    this.setTexture('crocodile');
+    this.phase = 'afloat';
+    this.timer = 0;
+    this.heading = 0;
+    this.body.enable = true;
+    this.body.updateFromGameObject();
   }
 
   /** Bobs on the water, and counts down any weight it is carrying. */

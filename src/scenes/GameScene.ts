@@ -490,6 +490,13 @@ export class GameScene extends Phaser.Scene {
       this.player.clearTint();
       this.player.body.setAllowGravity(true);
       this.player.respawnAt(this.level.spawn.x, this.level.spawn.y);
+
+      // Everything that was coming for the cat goes back to where it lives.
+      // A crocodile is not stepped while the cat is dying, so without this it
+      // goes on hunting a cat that drowned three seconds ago.
+      for (const crocodile of this.crocodiles) {
+        crocodile.settle();
+      }
       this.cameras.main.centerOn(this.player.x, this.player.y);
       this.dying = false;
     });

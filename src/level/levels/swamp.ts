@@ -133,10 +133,75 @@ function lianas(
 /**
  * The level, left to right.
  *
- * Crocodile gaps run 5 to 7 tiles (80 to 112px). A jump carries about 130px
- * from a run, so the short ones are a hop and the long ones are everything the
- * cat has -- and the last few crossings are the long ones.
+ * **Thirty-five crossings over more than twelve hundred tiles**, alternating crocodile water and
+ * piranha water, with a bank between each pair to stand on and work out the
+ * next one. Nothing walks the banks; everything in this level is in the water.
+ *
+ * Built rather than listed. At this length a hand-written list of segments is
+ * unreadable and impossible to keep honest, so the crossings are generated from
+ * a pattern that widens as it goes:
+ *
+ * - Crocodile gaps start at 5 tiles and finish at 7 (80px to 112px). A jump
+ *   carries about 130px from a run and 119px from a standstill, and a back is
+ *   38px wide, so the last ones are everything the cat has.
+ * - Liana water starts short and ends long, and the fish thicken with it.
+ *
+ * The little hearts are spread over the banks rather than heaped on the first
+ * few, and there are fewer of them than there are banks, because a level may
+ * hold sixty at the outside and this one has a lot of banks.
  */
+
+/** How many water crossings the level has, counting both kinds. */
+const CROSSINGS = 35;
+
+/** Every nth bank gets a little heart on it. */
+const HEART_EVERY = 2;
+
+function crossings(): string[][] {
+  const made: string[][] = [];
+
+  for (let i = 0; i < CROSSINGS; i += 1) {
+    // How far through the level this one is, 0 to 1. Everything scales on it.
+    const t = i / (CROSSINGS - 1);
+
+    if (i % 2 === 0) {
+      // Crocodile water. Backs 5 tiles apart at the start, 7 at the end.
+      const gap = Math.round(5 + t * 2);
+      const count = 3 + (i % 3);
+      const backs = Array.from({ length: count }, (_, n) => 3 + n * gap);
+      const width = backs[backs.length - 1] + 4;
+
+      made.push(crocodiles(width, backs));
+    } else {
+      // Piranha water, crossed by liana. Ropes 5 to 6 tiles apart, with a fish
+      // between every pair of them.
+      const gap = Math.round(5 + t);
+      const count = 3 + (i % 3);
+      const ropes = Array.from({ length: count }, (_, n) => 4 + n * gap);
+      const width = ropes[ropes.length - 1] + 5;
+      const fish = Array.from({ length: count + 2 }, (_, n) => 2 + n * (gap - 1));
+
+      made.push(lianas(width, fish.filter((x) => x < width - 1), ropes));
+    }
+
+    // The bank after it, with a little heart on some of them.
+    const heart = i % HEART_EVERY === 0;
+    made.push(
+      bank(
+        9,
+        heart
+          ? [
+              [ROW_LINE, 3, 'o'],
+              [ROW_LINE, 5, 'o'],
+            ]
+          : [],
+      ),
+    );
+  }
+
+  return made;
+}
+
 const SEGMENTS: string[][] = [
   // A rock to start on, where nothing can reach a player who has not touched
   // the controls yet.
@@ -145,38 +210,14 @@ const SEGMENTS: string[][] = [
     [ROW_LINE, 1, 'R'],
     [ROW_LINE, 2, 'R'],
     [ROW_LINE, 3, 'R'],
-    [ROW_LINE, 5, 'o'],
     [ROW_LINE, 6, 'o'],
+    [ROW_LINE, 8, 'o'],
   ]),
-  crocodiles(16, [3, 8, 13]),
-  bank(8),
-  lianas(18, [2, 6, 10, 14], [4, 9, 14]),
-  bank(8, [
+  ...crossings(),
+  bank(12, [
     [ROW_LINE, 3, 'o'],
-    [ROW_LINE, 4, 'o'],
-  ]),
-  crocodiles(22, [3, 9, 15, 20]),
-  bank(7),
-  lianas(24, [2, 6, 10, 14, 18, 22], [5, 11, 17, 21]),
-  bank(8, [
-    [ROW_LINE, 3, 'o'],
-    [ROW_LINE, 4, 'o'],
     [ROW_LINE, 5, 'o'],
-  ]),
-  crocodiles(26, [4, 10, 17, 23]),
-  bank(7),
-  lianas(22, [2, 6, 10, 14, 18], [5, 11, 17]),
-  bank(8, [
-    [ROW_LINE, 3, 'o'],
-    [ROW_LINE, 4, 'o'],
-  ]),
-  crocodiles(24, [4, 11, 18]),
-  bank(8),
-  lianas(20, [2, 6, 10, 14, 18], [5, 11, 16]),
-  bank(10, [
-    [ROW_LINE, 2, 'o'],
-    [ROW_LINE, 3, 'o'],
-    [ROW_LINE, 6, 'E'],
+    [ROW_LINE, 8, 'E'],
   ]),
 ];
 
