@@ -202,6 +202,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     this.releaseTrunk();
+    this.refreshTexture();
 
     const direction = (controls.right ? 1 : 0) - (controls.left ? 1 : 0);
     const topSpeed = CAT.speed * CAT.swimSpeedMultiplier;
@@ -258,17 +259,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const trunk = this.findTrunk();
 
     if (this.isClimbing) {
-      // Jumping off is possible because jump is its own button.
-      if (controls.jumpJustPressed) {
-        this.releaseTrunk();
-        return false;
-      }
-
       // Sideways no longer means letting go: it moves along. Climbing off the
       // end of a bank of ropes is what drops the cat, which falls out of
       // `findTrunk` returning nothing.
       if (!trunk) {
         this.releaseTrunk();
+        return false;
+      }
+
+      if (this.wantsToLeap(controls)) {
+        this.leapFromTrunk();
         return false;
       }
     } else if (!trunk || !this.wantsToGrab(controls, onGround)) {
@@ -304,9 +304,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
    * Whether the cat takes hold of a trunk it is overlapping.
    *
    * Falling onto one catches it -- that is the automatic grip, with no button
-   * to hold. Otherwise it is the climb button that takes hold, which is why
-   * that button is not the jump button: sharing one would mean never being able
-   * to jump off the thing being climbed.
+   * to hold. Otherwise holding up takes hold, which is the same input as jump:
+   * standing at the foot of a liana and pressing up climbs it rather than
+   * hopping, and holding up on the way past one catches it.
    */
   private wantsToGrab(controls: Controls, onGround: boolean): boolean {
     if (this.climbCooldownTimer > 0) {
@@ -320,6 +320,41 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     return controls.up || controls.sneak;
   }
 
+  /**
+   * Whether the cat is being asked to leap off the thing it is holding.
+   *
+   * Up and a direction together, in whichever order the hand presses them.
+   * With up and jump sharing one input this is the whole answer to "how do you
+   * jump off a rope": up on its own climbs it, a direction on its own moves
+   * along it, and the two together throw the cat off it towards where you are
+   * pointing.
+   *
+   * It asks for a *fresh* press of one of the two rather than merely both being
+   * held, or catching a rope in mid-run -- direction held, up held for jump
+   * height -- would fling the cat straight back off the rope it just caught.
+   */
+  private wantsToLeap(controls: Controls): boolean {
+    const sideways = (controls.right ? 1 : 0) - (controls.left ? 1 : 0);
+
+    if (sideways === 0 || !controls.up) {
+      return false;
+    }
+
+    return controls.jumpJustPressed || controls.directionJustPressed;
+  }
+
+  /** Lets go and jumps in one move. Horizontal speed is left to the player. */
+  private leapFromTrunk(): void {
+    this.releaseTrunk();
+
+    this.setVelocityY(CAT.jumpVelocity);
+    this.isJumping = true;
+
+    // Spent: the coyote window `releaseTrunk` just handed out would otherwise
+    // let the same press buy a second jump on the very next frame.
+    this.coyoteTimer = 0;
+  }
+
   private grabTrunk(): void {
     this.isClimbing = true;
     this.body.setAllowGravity(false);
@@ -329,6 +364,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (this.isSneaking) {
       this.applyPose(false);
     }
+
+    this.refreshTexture();
 
     this.isJumping = false;
     this.lastWallJumpSide = 0;
@@ -354,6 +391,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.body.setAllowGravity(true);
     this.climbCooldownTimer = CAT.climbCooldownMs;
     this.coyoteTimer = CAT.climbReleaseCoyoteMs;
+
+    this.refreshTexture();
   }
 
   /** The trunk the cat's body is currently over, if any. */
@@ -461,7 +500,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   private applyPose(sneaking: boolean): void {
     this.isSneaking = sneaking;
-    this.setTexture(sneaking ? 'cat-sneak' : 'cat');
+    this.refreshTexture();
 
     const frameWidth = sneaking ? CAT.sneakWidth : CAT.width;
     const height = sneaking ? CAT.sneakHeight : CAT.height;
@@ -471,6 +510,23 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // by hand. The bottom-centre origin still puts its feet on the sprite's y.
     this.body.setSize(width, height, false);
     this.body.setOffset((frameWidth - width) / 2, 0);
+  }
+
+  /**
+   * Picks the picture to match what the cat is doing.
+   *
+   * Separate from `applyPose`, because the climbing pose is drawn at the
+   * standing frame size and so changes nothing about the body -- taking hold of
+   * a rope is a change of picture only, and has to survive the pose logic
+   * leaving the body alone.
+   */
+  private refreshTexture(): void {
+    if (this.isClimbing) {
+      this.setTexture('cat-climb');
+      return;
+    }
+
+    this.setTexture(this.isSneaking ? 'cat-sneak' : 'cat');
   }
 
   /** Is the space a standing cat would occupy currently clear? */

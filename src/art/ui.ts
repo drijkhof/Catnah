@@ -36,16 +36,6 @@ export function generateUiTextures(scene: Phaser.Scene): void {
 
   // Sneak: an arrow down onto a floor line, to read as "get low" rather than
   // "go down", which an arrow on its own would suggest.
-  // Climb: a ladder, so it cannot be mistaken for the jump arrow.
-  bakeTexture(scene, 'ui-up', BUTTON_SIZE, BUTTON_SIZE, (g) => {
-    drawBase(g);
-    g.fillRect(half - 9, half - 14, 3, 28);
-    g.fillRect(half + 6, half - 14, 3, 28);
-    for (let i = 0; i < 4; i += 1) {
-      g.fillRect(half - 9, half - 11 + i * 7, 18, 3);
-    }
-  });
-
   bakeTexture(scene, 'ui-sneak', BUTTON_SIZE, BUTTON_SIZE, (g) => {
     drawBase(g);
     g.fillTriangle(half - 11, half - 6, half + 11, half - 6, half, half + 6);

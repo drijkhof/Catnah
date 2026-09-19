@@ -54,7 +54,7 @@ The coyote timer is still a timer, and both it and the queue are cleared when a
 jump fires -- otherwise one press could trigger a second jump the next frame
 while the window is still warm.
 
-## The two poses
+## The poses
 
 The cat is drawn standing (22x18) and sneaking (26x9), each baked at exactly
 its physics body size. The sprite origin is at the **paws**, `(0.5, 1)`, so with
@@ -65,6 +65,13 @@ ground lines, not sprite centres.
 Standing is 18px — taller than one 16px tile on purpose. A one-tile gap under an
 overhang cannot be walked through, only sneaked through, so the level grid
 alone creates a sneaking passage with no special markup.
+
+**Climbing is a third picture but not a third pose.** `cat-climb` is baked at
+the standing frame size and the body is left alone, so taking hold of a rope
+changes nothing but the drawing. That is why `refreshTexture` is separate from
+`applyPose`. The cat is drawn head-up and from behind, and is never flipped
+vertically: a cat climbing *down* a rope still goes head-up, backwards, the way
+a real one does. Head-down would read as falling.
 
 **Standing up is conditional.** `hasHeadroom()` tests the space a standing cat
 would occupy with `physics.overlapRect` before standing up; without it the cat
@@ -102,8 +109,25 @@ There is no grab button and no release button:
 
 - **Falling onto a trunk catches it.** That is the automatic grip.
 - **From the floor, up grabs instead of jumping**, the way standing at the foot
-  of a ladder does.
+  of a ladder does. Measured on the great tree: standing at its foot and holding
+  up climbs, it does not hop.
 - **Reaching out sideways lets go.**
+
+### Leaping off is up plus a direction
+
+Up and jump are one input now (see `../input/CLAUDE.md`), so "jump off the rope"
+needs an answer that is not a second button. It is up *and* a direction: up
+alone climbs, a direction alone moves along, and the two together throw the cat
+off towards where you are pointing.
+
+`wantsToLeap` asks for a **fresh press of one of the two**, not merely both
+being held. Without that, catching a rope in mid-run — direction held, up held
+for jump height — flings the cat straight back off the rope it just caught.
+Measured: with both held throughout, the cat catches a liana and holds it for 23
+frames before shimmying off the end, rather than bouncing off it on frame one.
+
+`leapFromTrunk` clears the coyote window `releaseTrunk` just handed out, or the
+same press would buy a second jump on the very next frame.
 
 **Holding on is not centred on a column.** Left and right move the cat sideways
 at `climbHorizontalSpeed` instead of letting go, which is what makes a bank of

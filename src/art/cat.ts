@@ -13,6 +13,7 @@ import { bakeTexture } from './canvas';
 export function generateCatTextures(scene: Phaser.Scene): void {
   generateStanding(scene);
   generateSneaking(scene);
+  generateClimbing(scene);
 }
 
 function generateStanding(scene: Phaser.Scene): void {
@@ -94,5 +95,61 @@ function generateSneaking(scene: Phaser.Scene): void {
 
     g.fillStyle(COLORS.catNose, 1);
     g.fillRect(24, 5, 1, 2);
+  });
+}
+
+/**
+ * Clinging to a rope, seen from behind.
+ *
+ * Baked at the *standing* frame size, so the physics body is untouched and
+ * taking hold of a rope changes nothing but the picture. The drawing only uses
+ * the middle of that frame, which is why an upright cat fits in a box that is
+ * wider than it is tall.
+ *
+ * There is one pose for both directions, and it is never flipped vertically:
+ * a cat climbing down a rope still goes head-up, backwards, the way a cat
+ * actually does it. Head-down would read as falling.
+ */
+function generateClimbing(scene: Phaser.Scene): void {
+  const { width, height } = CAT;
+  const mid = width / 2;
+
+  bakeTexture(scene, 'cat-climb', width, height, (g) => {
+    g.fillStyle(COLORS.cat, 1);
+
+    // Forepaws, reaching out to either side of the rope and gripping it.
+    g.fillRect(mid - 9, 3, 3, 3);
+    g.fillRect(mid + 6, 3, 3, 3);
+
+    // Head, at the top, where it stays.
+    g.fillRect(mid - 4, 1, 8, 6);
+
+    // Ears.
+    g.fillTriangle(mid - 4, 2, mid - 1, 2, mid - 4, -1);
+    g.fillTriangle(mid + 1, 2, mid + 4, 2, mid + 4, -1);
+
+    // Back, hanging straight down from the shoulders.
+    g.fillRect(mid - 4, 6, 8, 9);
+
+    // Hind paws, tucked in lower down.
+    g.fillRect(mid - 7, 10, 3, 3);
+    g.fillRect(mid + 4, 10, 3, 3);
+
+    // Tail, dropping away below.
+    g.fillRect(mid - 1, 14, 2, 4);
+
+    // Pale scruff, so the head reads as separate from the back.
+    g.fillStyle(COLORS.catLight, 1);
+    g.fillRect(mid - 3, 7, 6, 2);
+
+    // Tabby stripes down the spine.
+    g.fillStyle(COLORS.catDark, 1);
+    g.fillRect(mid - 1, 9, 2, 5);
+    g.fillRect(mid - 3, 2, 6, 1);
+
+    // Both eyes: this is the back of a cat's head turned to look up.
+    g.fillStyle(0x2a2118, 1);
+    g.fillRect(mid - 3, 3, 2, 2);
+    g.fillRect(mid + 1, 3, 2, 2);
   });
 }

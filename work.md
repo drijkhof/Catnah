@@ -47,13 +47,19 @@ one-tile gap something you can only get through by sneaking.
 | Action | Keyboard | Touch |
 | --- | --- | --- |
 | Forward / back | `→` `←` or `D` `A` | two buttons, bottom left |
-| **Jump** | `Space` | button, bottom right |
-| **Climb up** | `↑` or `W` | ladder button, above sneak |
-| Sneak / climb down | `↓` or `S` | button, left of jump |
+| **Jump / climb up / swim up** | `Space`, `↑` or `W` | button, bottom right |
+| Sneak / climb down / swim down | `↓` or `S` | button, left of jump |
 
-**Jump and climb are separate buttons, and have to be.** They are both things
-you do upwards, and sharing one means you can never jump off the thing you are
-climbing. `↑` no longer jumps; `Space` does.
+**Up and jump are one button.** `Space`, `↑` and `W` do exactly the same thing,
+and there are three buttons on a phone, not four. What it does depends on where
+the cat is: on the ground it jumps, on a rope it climbs, in water it swims up.
+
+They were two buttons once, because you cannot jump off the thing you are
+climbing with only one. Two buttons for one intention turned out to be worse,
+especially under a thumb, so the answer moved into the game instead: **leaping
+off a rope is up *and* a direction**, together. Up alone climbs it, a direction
+alone slides along it, and the two at once throw the cat off towards where you
+are pointing.
 
 Wall jumping has no button of its own: in mid-air against a wall, jump does it.
 
@@ -90,7 +96,12 @@ and it catches you: that is the automatic grip, with no button to hold.
 
 Once attached, the cat stays put with nothing pressed. Up climbs, down descends,
 and it stops at the top rather than climbing off into the air. Reaching out
-left or right lets go.
+left or right lets go — and **up together with a direction leaps off**, in
+whichever order you press them.
+
+A climbing cat is drawn clinging to the rope from behind, **head up**, and stays
+that way climbing down: a cat comes down a rope backwards, and head-first would
+read as falling.
 
 Each trunk ends two tiles above its highest branch, so letting go at the top
 drops the cat onto it.
@@ -263,7 +274,7 @@ letting go in mid-air.
 In the middle, **five lianas hang side by side** — that stretch is crossed
 sideways as much as climbed.
 
-It is also the level that could not exist while jump and climb shared a button.
+Getting off a liana and across a gap is up plus the direction you want to go.
 ### 6 — Volcano
 
 The floor is a **lava lake** and only the islands are safe, so the level reads
