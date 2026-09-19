@@ -33,6 +33,17 @@ export const CAT = {
   width: 22,
   height: 18,
 
+  /**
+   * Collision width, narrower than the drawing.
+   *
+   * A one-tile gap is 16px, and a cat as wide as it looks simply bridges one
+   * instead of dropping through. Narrowing the body is the usual answer: the
+   * cat still *looks* 22 wide, and a gap you can see through is a gap you can
+   * fall through.
+   */
+  bodyWidth: 13,
+  sneakBodyWidth: 18,
+
   /** Sneaking pose: longer and much flatter, like a cat about to pounce. */
   sneakWidth: 26,
   sneakHeight: 9,
@@ -141,12 +152,20 @@ export const HEDGEHOG = {
   probe: 3,
 } as const;
 
-/** The piranha, which lurks in a pool and leaps out of it. */
+/** The piranha, which patrols its pool, chases, and leaps out of it. */
 export const PIRANHA = {
-  /** How far below the surface it waits, px. Deep enough to be a surprise. */
+  /** How far below the surface it prefers to swim, px. */
   lurkDepth: 14,
+  /** Speed while patrolling its own pool, px/sec. */
+  swimSpeed: 48,
+  /** Speed while chasing a cat that is in the water with it, px/sec. */
+  chaseSpeed: 92,
+  /** How close a swimming cat has to be before it gives chase, px. */
+  chaseRange: 180,
+  /** How sharply it turns towards where it is going, per second. */
+  turnRate: 3.2,
   /** Upward velocity of a leap, px/sec. */
-  leapVelocity: -330,
+  leapVelocity: -495,
   /** Time between leaps, ms. Fixed, so the rhythm can be learnt. */
   intervalMs: 2200,
 } as const;
@@ -157,12 +176,18 @@ export const CROW = {
   circleRadius: 70,
   /** Angular speed of that circle, radians/sec. */
   circleSpeed: 1.5,
-  /** How close the cat has to come before it attacks, px. */
-  attackRange: 150,
+  /**
+   * How close the cat has to come before it attacks, px.
+   *
+   * Kept tight because the crow guards the star, and the star is the one thing
+   * the level requires: a wide range turns the whole top of the tree into a
+   * gauntlet with no way through.
+   */
+  attackRange: 120,
   /** How far the cat has to get before it gives up, px. Wider, to stop flicker. */
-  releaseRange: 230,
-  /** Speed of an attack run, px/sec. */
-  attackSpeed: 180,
+  releaseRange: 200,
+  /** Speed of an attack run, px/sec. Slower than the cat can fall away. */
+  attackSpeed: 150,
   /** How quickly the velocity turns towards where it is heading, per second. */
   turnRate: 2.6,
 } as const;
@@ -243,6 +268,9 @@ export const COLORS = {
   crowBody: 0x1e1f26,
   crowSheen: 0x3b3f4d,
   crowBeak: 0xc8a13c,
+
+  star: 0xf6c645,
+  starGlow: 0xfff3b0,
 
   berry: 0xe0463d,
   berryLight: 0xff8175,

@@ -16,7 +16,10 @@ import type { ThemeName } from './themes';
  *   `P`  cat spawn (exactly one)
  *   `E`  the way out, to the next level
  *   `h`  hedgehog, pacing whatever it is standing on
- *   `f`  piranha, waiting in the pool it is placed in
+ *   `f`  piranha — water *with* a piranha in it, so placing one never
+ *        punches a hole in the pool it is meant to be swimming in
+ *   `S`  star — a nest tile *with* the star in it, so placing one never
+ *        punches a hole in the nest it is meant to be sitting in
  *   `c`  crow, which circles the nest it is placed at
  *   `.`  empty
  *
@@ -35,6 +38,13 @@ export interface LevelDefinition {
    * have no trees, so their ledges stand on their own.
    */
   branchesNeedTrunks: boolean;
+  /**
+   * Whether `=` platforms are solid from every side rather than one-way.
+   *
+   * The forest and the cave grow theirs out of the world, so you pass up
+   * through them. A city girder is a girder.
+   */
+  solidPlatforms?: boolean;
   rows: string[];
 }
 
@@ -94,6 +104,8 @@ export interface ParsedLevel {
   crows: Point[];
   nests: Point[];
   berries: Point[];
+  /** The star, if this level has one. Required to leave. */
+  star: Point | null;
   /** Where the cat starts, and returns to after dying. */
   spawn: Point;
   /** Where the level is left, if it has a way out. */
@@ -124,7 +136,22 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const nests: Point[] = [];
   const berries: Point[] = [];
   let spawn: Point | null = null;
+  let star: Point | null = null;
   let exit: Point | null = null;
+
+  /**
+   * A thin one-way ledge, used for the tops of trees and for nests. Invisible
+   * in itself -- whatever drew the tile is what you see.
+   */
+  const platform = (x: number, y: number, textureKey: string): Solid => ({
+    x,
+    y,
+    width: TILE,
+    height: BRANCH_THICKNESS,
+    textureKey,
+    isBranch: true,
+    faces: { up: true, down: false, left: false, right: false },
+  });
 
   const block = (x: number, y: number, textureKey: string, column: number, row: number): void => {
     solids.push({
@@ -167,39 +194,45 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
             // exactly the surface something lands on.
             height: BRANCH_THICKNESS,
             textureKey: branchTexture(at(column - 1, row), at(column + 1, row)),
-            isBranch: true,
-            // One-way: solid underfoot and nothing else. You pass up through
-            // one from below and land on it coming down.
-            faces: { up: true, down: false, left: false, right: false },
+            isBranch: !definition.solidPlatforms,
+            faces: definition.solidPlatforms
+              ? exposedFaces(at, column, row)
+              // One-way: solid underfoot and nothing else. You pass up through
+              // one from below and land on it coming down.
+              : { up: true, down: false, left: false, right: false },
           });
           break;
 
-        case 'T':
-          climbZones.push({
-            x,
-            y,
-            width: TILE,
-            height: TILE,
-            isTop: at(column, row - 1) !== 'T',
-          });
+        case 'T': {
+          const isTop = at(column, row - 1) !== 'T';
+
+          climbZones.push({ x, y, width: TILE, height: TILE, isTop });
+
+          // The crown of a tree is somewhere to stand. One-way, so climbing up
+          // the inside of the trunk still passes through it.
+          if (isTop) {
+            solids.push(platform(x, y, 'trunk-top-ledge'));
+          }
           break;
+        }
 
         case 'w':
+        case 'f':
           waterZones.push({
             x,
             y,
             width: TILE,
             height: TILE,
-            isSurface: at(column, row - 1) !== 'w',
+            isSurface: !'wf'.includes(at(column, row - 1)),
           });
+
+          if (tiles[column] === 'f') {
+            piranhas.push({ x: x + TILE / 2, y });
+          }
           break;
 
         case 'h':
           hedgehogs.push({ x: x + TILE / 2, y: y + TILE });
-          break;
-
-        case 'f':
-          piranhas.push({ x: x + TILE / 2, y });
           break;
 
         case 'c':
@@ -208,10 +241,17 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
 
         case 'N':
           nests.push({ x, y });
+          solids.push(platform(x, y, 'nest-ledge'));
           break;
 
         case 'o':
           berries.push({ x: x + TILE / 2, y: y + TILE / 2 });
+          break;
+
+        case 'S':
+          star = { x: x + TILE / 2, y: y + TILE / 2 };
+          nests.push({ x, y });
+          solids.push(platform(x, y, 'nest-ledge'));
           break;
 
         case 'P':
@@ -236,6 +276,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     assertBranchesGrowFromTrunks(rows, width, definition.name);
   }
   assertCreaturesHaveRoom(rows, width, definition.name);
+  assertHedgehogsStandOnGround(rows, width, definition.name);
 
   return {
     name: definition.name,
@@ -248,6 +289,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     crows,
     nests,
     berries,
+    star,
     spawn,
     exit,
     groundLine: definition.groundRow * TILE,
@@ -317,6 +359,35 @@ function assertCreaturesHaveRoom(rows: string[], width: number, name: string): v
 
   if (wedged.length > 0) {
     throw new Error(`Creatures in "${name}" need clear space: ${wedged.join('; ')}.`);
+  }
+}
+
+/**
+ * Refuses a level with a hedgehog anywhere but on the floor.
+ *
+ * Hedgehogs belong on the ground: not on platforms, not on top of boulders, and
+ * not under water. That is a rule about the world, and it is far easier to hold
+ * to here than to notice by looking at a grid.
+ */
+function assertHedgehogsStandOnGround(rows: string[], width: number, name: string): void {
+  const misplaced: string[] = [];
+
+  rows.forEach((tiles, row) => {
+    for (let column = 0; column < width; column += 1) {
+      if (tiles[column] !== 'h') {
+        continue;
+      }
+
+      if ((rows[row + 1]?.[column] ?? '.') !== '#') {
+        misplaced.push(`row ${row}, column ${column}`);
+      }
+    }
+  });
+
+  if (misplaced.length > 0) {
+    throw new Error(
+      `Hedgehogs in "${name}" must stand on plain floor: ${misplaced.join('; ')}.`,
+    );
   }
 }
 

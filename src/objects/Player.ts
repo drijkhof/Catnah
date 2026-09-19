@@ -3,8 +3,14 @@ import { CAT } from '../config';
 import type { Controls } from '../input/Controls';
 import { isSolidTile } from './solid';
 
-/** How far the cat's paws stay below the very top of a trunk, in pixels. */
-const CLIMB_TOP_MARGIN = 5;
+/**
+ * How far the cat's paws stop below the very top of a climbable column.
+ *
+ * Zero: the top of a column is a ledge you can stand on, so climbing to it
+ * should let go and leave the cat standing there rather than clinging just
+ * below the surface it could be on.
+ */
+const CLIMB_TOP_MARGIN = 0;
 
 /** How far to either side of the cat a wall is looked for, in pixels. */
 const WALL_PROBE = 2;
@@ -427,13 +433,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.isSneaking = sneaking;
     this.setTexture(sneaking ? 'cat-sneak' : 'cat');
 
-    const width = sneaking ? CAT.sneakWidth : CAT.width;
+    const frameWidth = sneaking ? CAT.sneakWidth : CAT.width;
     const height = sneaking ? CAT.sneakHeight : CAT.height;
+    const width = sneaking ? CAT.sneakBodyWidth : CAT.bodyWidth;
 
-    // Each pose texture is exactly its body size, so no offset is needed: with
-    // a bottom-centre origin the body's feet land on the sprite's y either way.
+    // The body is narrower than the drawing, so it is centred within the frame
+    // by hand. The bottom-centre origin still puts its feet on the sprite's y.
     this.body.setSize(width, height, false);
-    this.body.setOffset(0, 0);
+    this.body.setOffset((frameWidth - width) / 2, 0);
   }
 
   /** Is the space a standing cat would occupy currently clear? */
@@ -442,9 +449,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const bodies = this.scene.physics.overlapRect(
       // Inset horizontally so brushing a wall does not read as a blocked
       // ceiling.
-      this.x - CAT.width / 2 + 1,
+      this.x - CAT.bodyWidth / 2 + 1,
       this.y - CAT.height,
-      CAT.width - 2,
+      CAT.bodyWidth - 2,
       clearance,
       false,
       true,

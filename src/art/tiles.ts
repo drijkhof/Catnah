@@ -33,6 +33,9 @@ export interface TilePalette {
   water: number;
   waterDeep: number;
   waterFoam: number;
+  nestStraw: number;
+  nestStrawLight: number;
+  nestShadow: number;
 }
 
 /** Namespaced so three themes can be in memory at once. */
@@ -189,18 +192,27 @@ export function generateTileset(
     g.fillRect(11, 0, 3, 1);
   });
 
+  // A nest is somewhere to stand, so it is drawn as a bowl of woven straw
+  // rather than as a bar: a dipped rim, and stems crossing every which way.
   bakeTexture(scene, key('nest'), TILE, TILE, (g) => {
-    g.fillStyle(palette.branchDark, 1);
-    g.fillRect(0, 6, TILE, 8);
+    g.fillStyle(palette.nestShadow, 1);
+    g.fillRect(0, 4, TILE, TILE - 4);
 
-    g.fillStyle(palette.branch, 1);
-    for (let i = 0; i < 5; i += 1) {
-      g.fillRect(i * 3, 7 + (i % 2), TILE - i * 3, 1);
-    }
+    g.fillStyle(palette.nestStraw, 1);
+    g.fillRect(0, 2, 4, 4);
+    g.fillRect(TILE - 4, 2, 4, 4);
+    g.fillRect(0, 6, TILE, 4);
 
-    g.fillStyle(palette.leaf, 1);
-    g.fillRect(2, 5, 3, 1);
-    g.fillRect(10, 4, 4, 1);
+    // Loose stems, angled so the weave does not read as stripes.
+    g.fillStyle(palette.nestStrawLight, 1);
+    g.fillRect(1, 5, 5, 1);
+    g.fillRect(9, 4, 6, 1);
+    g.fillRect(3, 9, 7, 1);
+    g.fillRect(8, 11, 6, 1);
+    g.fillRect(2, 12, 4, 1);
+
+    g.fillStyle(palette.nestShadow, 1);
+    g.fillRect(5, 3, 6, 2);
   });
 
   // --- water -------------------------------------------------------------

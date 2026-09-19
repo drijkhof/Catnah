@@ -36,8 +36,12 @@ export class GameScene extends Phaser.Scene {
   private player!: Player;
   private level!: ParsedLevel;
   private scoreText!: Phaser.GameObjects.Text;
+  private starIcon?: Phaser.GameObjects.Image;
   private berries!: Phaser.Physics.Arcade.StaticGroup;
   private collected = 0;
+
+  /** True once the level's star has been picked up. Needed to leave. */
+  private hasStar = false;
 
   /** Which level is being played, as an index into LEVELS. */
   private levelIndex = 0;
@@ -47,6 +51,7 @@ export class GameScene extends Phaser.Scene {
   private hedgehogs: Hedgehog[] = [];
   private piranhas: Piranha[] = [];
   private crows: Crow[] = [];
+  private waterRects: Phaser.Geom.Rectangle[] = [];
 
   /** True from the moment the cat is killed until it is back on its feet. */
   private dying = false;
@@ -65,6 +70,7 @@ export class GameScene extends Phaser.Scene {
   create(): void {
     this.level = parseLevel(LEVELS[this.levelIndex]);
     this.collected = 0;
+    this.hasStar = false;
     this.dying = false;
     this.leaving = false;
 
@@ -87,6 +93,7 @@ export class GameScene extends Phaser.Scene {
     const { blocks, branches } = this.buildSolids();
     const climbZones = this.buildTrunks();
     const waterZones = this.buildWater();
+    this.waterRects = waterZones;
     this.berries = this.buildBerries();
 
     this.player = new Player(
@@ -224,7 +231,7 @@ export class GameScene extends Phaser.Scene {
       hedgehog.step();
     }
     for (const piranha of this.piranhas) {
-      piranha.step(delta);
+      piranha.step(delta, cat, this.player.swimming);
     }
     for (const crow of this.crows) {
       crow.step(cat, delta);
@@ -233,6 +240,45 @@ export class GameScene extends Phaser.Scene {
     if (!this.dying && this.player.y > this.level.heightInPixels + FALL_OUT_MARGIN) {
       this.kill();
     }
+  }
+
+  /**
+   * Places the star, if the level has one.
+   *
+   * It is the one thing a level actually requires: the door will not open
+   * without it, so it is worth the climb it is usually put at the top of.
+   */
+  private buildStar(): void {
+    const at = this.level.star;
+    if (!at) {
+      this.hasStar = true;
+      return;
+    }
+
+    const star = this.physics.add
+      .staticImage(at.x, at.y, 'star')
+      .setDepth(5);
+
+    this.tweens.add({
+      targets: star,
+      y: at.y - 3,
+      scale: { from: 1, to: 1.12 },
+      duration: 900,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+
+    this.physics.add.overlap(this.player, star, () => {
+      if (!star.active) {
+        return;
+      }
+
+      star.destroy();
+      this.hasStar = true;
+      this.cameras.main.flash(260, 255, 240, 170);
+      this.starIcon?.setAlpha(1);
+    });
   }
 
   /** A texture name, resolved to this level's theme. */
@@ -274,6 +320,13 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
+    // The star is the level's actual goal; the door is just where you take it.
+    if (!this.hasStar) {
+      this.starIcon?.setScale(1.4);
+      this.tweens.add({ targets: this.starIcon, scale: 1, duration: 300 });
+      return;
+    }
+
     this.leaving = true;
     this.cameras.main.fade(450, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => {
@@ -293,11 +346,13 @@ export class GameScene extends Phaser.Scene {
     blocks: Phaser.Physics.Arcade.StaticGroup,
     branches: Phaser.Physics.Arcade.StaticGroup,
   ): void {
+    this.buildStar();
+
     this.hedgehogs = this.level.hedgehogs.map(
       (at) => new Hedgehog(this, at.x, at.y),
     );
     this.piranhas = this.level.piranhas.map(
-      (at, index) => new Piranha(this, at.x, at.y, index * 700),
+      (at, index) => new Piranha(this, at.x, at.y, this.waterRects, index * 700),
     );
     this.crows = this.level.crows.map((at) => new Crow(this, at.x, at.y));
 
@@ -366,8 +421,11 @@ export class GameScene extends Phaser.Scene {
 
     for (const solid of this.level.solids) {
       const group = solid.isBranch ? branches : blocks;
+      // Ledges carry no art of their own: the tree crown or the nest is
+      // already drawn, and this is only the surface to stand on.
+      const invisible = solid.textureKey.endsWith('-ledge');
       const tile = group
-        .create(solid.x, solid.y, this.tile(solid.textureKey))
+        .create(solid.x, solid.y, this.tile(invisible ? 'branch-mid' : solid.textureKey))
         .setOrigin(0, 0)
         .refreshBody() as Phaser.Physics.Arcade.Sprite;
 
@@ -375,6 +433,9 @@ export class GameScene extends Phaser.Scene {
       // nearby, and berries are static bodies too. Without this flag a hedgehog
       // turns round at a berry and the cat can wall jump off one.
       tile.setData('solid', true);
+      if (invisible) {
+        tile.setVisible(false);
+      }
 
       // Sides buried inside a mass of rock or earth are switched off, so the
       // cat cannot snag on the seam between two tiles. See `exposedFaces`.
@@ -525,6 +586,15 @@ export class GameScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(1000)
       .setAlpha(0.75);
+
+    if (this.level.star) {
+      // Shown dim until it is found, so it reads as something still to get.
+      this.starIcon = this.add
+        .image(TILE * 4, TILE, 'star')
+        .setScrollFactor(0)
+        .setDepth(1000)
+        .setAlpha(0.3);
+    }
 
     this.scoreText = this.add
       .text(TILE + 10, TILE - 7, this.formatScore(), {

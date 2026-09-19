@@ -18,6 +18,7 @@ export function generateForestTextures(scene: Phaser.Scene): void {
   generateTrees(scene);
   generateBush(scene);
   generateGrassTuft(scene);
+  generateStar(scene);
   generateBerry(scene);
 }
 
@@ -138,6 +139,24 @@ function generateGrassTuft(scene: Phaser.Scene): void {
 
 
 
+
+function generateStar(scene: Phaser.Scene): void {
+  const size = 16;
+  const mid = size / 2;
+
+  bakeTexture(scene, 'star', size, size, (g) => {
+    // A five-pointed star, drawn as two crossed triangles so it reads at 16px.
+    g.fillStyle(COLORS.starGlow, 0.35);
+    g.fillCircle(mid, mid, mid);
+
+    g.fillStyle(COLORS.star, 1);
+    g.fillTriangle(mid, 0, 1, size - 3, size - 1, size - 3);
+    g.fillTriangle(mid, size - 1, 1, 5, size - 1, 5);
+
+    g.fillStyle(COLORS.starGlow, 1);
+    g.fillRect(mid - 1, 5, 2, 4);
+  });
+}
 
 function generateBerry(scene: Phaser.Scene): void {
   const size = 10;

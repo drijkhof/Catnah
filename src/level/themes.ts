@@ -29,6 +29,9 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     water: 0x3f86b8,
     waterDeep: 0x2f6a95,
     waterFoam: 0xbfe3f5,
+    nestStraw: 0xc9a75a,
+    nestStrawLight: 0xe6cd8a,
+    nestShadow: 0x6b5227,
   },
 
   // Underground: wet stone, moss instead of grass, and a cold pool.
@@ -50,6 +53,9 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     water: 0x2e5f82,
     waterDeep: 0x1d3f59,
     waterFoam: 0x8fc4dd,
+    nestStraw: 0x8a8470,
+    nestStrawLight: 0xb0a98f,
+    nestShadow: 0x4a4438,
   },
 
   // Night city: concrete, brick, steel girders, and a canal under lamplight.
@@ -71,5 +77,8 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     water: 0x2f4d63,
     waterDeep: 0x1e3345,
     waterFoam: 0x9dc0d4,
+    nestStraw: 0x9a8f78,
+    nestStrawLight: 0xc0b394,
+    nestShadow: 0x4e4638,
   },
 };

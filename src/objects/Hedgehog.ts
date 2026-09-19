@@ -37,12 +37,21 @@ export class Hedgehog extends Phaser.Physics.Arcade.Sprite {
       return;
     }
 
-    if (this.blockedAhead() || !this.groundAhead()) {
+    if (this.atLevelEdge() || this.blockedAhead() || !this.groundAhead()) {
       this.direction = -this.direction;
     }
 
     this.setVelocityX(this.direction * HEDGEHOG.speed);
     this.setFlipX(this.direction < 0);
+  }
+
+  /** Has it reached the end of the world? */
+  private atLevelEdge(): boolean {
+    const bounds = this.scene.physics.world.bounds;
+
+    return this.direction > 0
+      ? this.body.right >= bounds.right - HEDGEHOG.probe
+      : this.body.x <= bounds.x + HEDGEHOG.probe;
   }
 
   /**
