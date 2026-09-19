@@ -201,6 +201,16 @@ export const BOSS = {
   sweepSpeed: 70,
   /** How long it hovers between dives, ms. */
   restMs: 2400,
+
+  /**
+   * Extra pause before the *first* attack after the cat arrives, ms.
+   *
+   * Without it the beetle could already be halfway through its count when you
+   * walked in, and drop the moment you arrived. Being hit by something you have
+   * not had a chance to look at yet is not a pattern -- you need to see one
+   * sweep before you are asked to read one.
+   */
+  approachGraceMs: 1400,
   /**
    * Speed of sliding into position above the cat, px/sec.
    *
@@ -219,7 +229,7 @@ export const BOSS = {
    * bottomed out 27px above the cat's head, so the boss was menacing and
    * completely harmless to anyone who simply stood still.
    */
-  diveDepth: 178,
+  diveDepth: 150,
   /** How quickly it turns towards where it is going, per second. */
   turnRate: 3,
 } as const;

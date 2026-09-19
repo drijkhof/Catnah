@@ -30,6 +30,9 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
   /** The column it commits to once it has lined up. */
   private aimX = 0;
 
+  /** Whether the cat is close enough to be its business. */
+  private engaged = false;
+
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'boss');
 
@@ -67,6 +70,13 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
         // side of the level is not its problem, and going after it dragged the
         // boss out of its own lair and across the rest of the volcano.
         const withinReach = Math.abs(cat.x - this.lair.x) < BOSS.sweepRadius * 1.6;
+
+        if (withinReach !== this.engaged) {
+          this.engaged = withinReach;
+          // Arriving restarts the count, with a grace period on top, so the
+          // first attack is never already half wound up when you walk in.
+          this.timer = withinReach ? -BOSS.approachGraceMs : 0;
+        }
 
         if (this.timer >= BOSS.restMs && withinReach) {
           this.timer = 0;

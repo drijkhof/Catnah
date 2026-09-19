@@ -250,11 +250,19 @@ Lava is shaped exactly like water and behaves nothing like it: not solid, and
 **fatal to touch**. Cones on the skyline have lava running down them, and embers
 drift up through the whole level.
 
-The last stretch is the lair of the **evil lord beetle** — a ladybird with the
-sweetness taken out, three times the cat in every direction. It sweeps above one
-long floor, slides until it is **directly overhead**, and then drops straight
-down. Standing still is fatal; reading the line-up and moving is not. It cannot
-be beaten, only got past, and the way out is on the far side of it.
+The level ends at the **volcano itself**: a cone of rock with a crater notch at
+the top and a mouth at ground level. Walk in through the mouth and you are in an
+enclosed **arena** — walls all round, the cone's slope for a ceiling.
+
+Inside waits the **evil lord beetle**, a ladybird with the sweetness taken out,
+three times the cat in every direction. It sweeps above the floor, slides until
+it is **directly overhead**, then drops straight down. Standing still is fatal;
+reading the line-up and moving is not.
+
+It leaves you alone until you are properly inside, and then waits a few seconds
+more before its first attack — long enough to watch one sweep before you are
+asked to read one. It cannot be beaten, only got past, and the way out is at the
+far end of the arena.
 
 ## The creatures
 

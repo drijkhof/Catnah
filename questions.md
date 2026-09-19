@@ -290,6 +290,14 @@ Two things the testing forced, both worth knowing:
   cat, so a cat that simply stood still was never hit. Lining up first fixed
   both that and the readability.
 
+**It waits before its first attack.** Arriving restarts its count with a grace
+period on top, so it can never already be half wound up when you walk in.
+Measured at 4.8 seconds from entering the arena to the first drop, the same
+three times running.
+
+**The arena is inside the volcano now** — a cone with a mouth at ground level
+and an enclosed chamber behind it, rather than a stretch of open ground.
+
 Measured: standing still dies in about three seconds; running to the far end of
 the arena each time it commits survives six drops over thirty seconds untouched.
 
