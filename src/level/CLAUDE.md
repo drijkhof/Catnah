@@ -168,3 +168,29 @@ A level with a pit therefore needs no special markup — just leave the floor ou
 written over a solid tile. Doing so leaves a hole in the tile *and* a creature
 wedged in it, jittering on the spot — which looks like broken patrol logic
 rather than a misplaced character, and cost a debugging session to find.
+
+## Carved levels
+
+The cave is not built up from a floor; it starts as solid rock and tunnels are
+cut out of it. That is what gives it an uneven floor and a roof over every
+passage, and it makes dead ends free — a branch that leads nowhere is just a
+tunnel nobody carved through.
+
+Two things are worth checking with a flood fill when carving one, outside the
+game: that the exit is reachable from the spawn at all, and that no carved
+pocket is sealed off from everything else. A sealed pocket is invisible in the
+grid and is simply wasted space.
+
+## Three guards worth having
+
+`parseLevel` refuses a level rather than shipping one that looks fine and plays
+broken. Each of these cost a debugging session before it existed:
+
+- **Creatures need clear space.** An `h` written over a boulder leaves a hole in
+  the boulder and a hedgehog wedged in it, jittering on the spot — which reads
+  as broken patrol logic.
+- **Floor creatures stand on plain floor.** Never on platforms, boulders or in
+  water. Carving a chamber under one silently removes its footing.
+- **The spawn has footing.** A `P` one row too low replaces a floor tile and
+  leaves the cat sealed under the surface, where it falls out of the world and
+  respawns into the same hole, forever.

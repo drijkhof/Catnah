@@ -33,11 +33,11 @@ const ROWS: string[] = [
   '.'.repeat(10) + '='.repeat(5),
   '',
   '',
-  '.'.repeat(22) + 'h' + '.'.repeat(17) + 'h' + '.'.repeat(28) + 'h' + '.' + 'E',
+  '..' + 'P' + '.'.repeat(19) + 'h' + '.'.repeat(17) + 'h' + '.'.repeat(28) + 'h' + '.' + 'E',
   '#'.repeat(8) + 'w'.repeat(4) + 'f' + 'w'.repeat(6) + '#'.repeat(7) + 'w'.repeat(10) + '#'.repeat(8) + 'w'.repeat(4) + 'f' + 'w'.repeat(5) + '#'.repeat(6) + 'www' + 'f' + 'www' + '#'.repeat(7),
   '#'.repeat(8) + 'w'.repeat(11) + '#'.repeat(7) + 'w'.repeat(10) + '#'.repeat(8) + 'w'.repeat(10) + '#'.repeat(6) + 'w'.repeat(7) + '#'.repeat(7),
   '#'.repeat(8) + 'w'.repeat(11) + '#'.repeat(7) + 'w'.repeat(10) + '#'.repeat(8) + 'w'.repeat(10) + '#'.repeat(6) + 'w'.repeat(7) + '#'.repeat(7),
-  '##' + 'P' + '#'.repeat(71),
+  '#'.repeat(74),
 ];
 
 export const SWAMP: LevelDefinition = {

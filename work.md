@@ -196,9 +196,17 @@ the platforms are logs lying across the water. Three pools, three piranhas.
 
 ### 3 — Cave
 
-Caving, not just darkness: **ropes bolted to the roof** to climb, bedded rock
-shelves to stand on, stalactites above and stalagmites below, glowing crystals
-along the floor, and a cold pool with something in it.
+Caving, not a corridor. The level is **solid rock with tunnels cut out of it**,
+so the floor is never level and every passage has a roof. It branches, and
+**not every branch goes anywhere**: several are dead ends with berries at the
+back, so the point is to explore rather than to run right.
+
+**Ropes bolted to the roof** hang down the shafts, bedded rock shelves make the
+ledges, stalactites hang above and stalagmites rise below. One passage is a
+single tile high, so only a sneaking cat fits through it — and what is behind it
+is berries, not the way on.
+
+A flooded chamber low down has something living in it.
 
 ### 4 — City
 

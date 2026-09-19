@@ -16,10 +16,11 @@ export function createBackdrop(
   scene: Phaser.Scene,
   levelWidth: number,
   groundLine: number,
+  levelHeight: number,
 ): void {
   switch (theme) {
     case 'cave':
-      new CaveBackdrop(scene, levelWidth, groundLine);
+      new CaveBackdrop(scene, levelWidth, levelHeight);
       break;
     case 'swamp':
       new SwampBackdrop(scene, levelWidth, groundLine);

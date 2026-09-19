@@ -294,6 +294,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   }
   assertCreaturesHaveRoom(rows, width, definition.name);
   assertWalkersStandOnGround(rows, width, definition.name);
+  assertSpawnHasFooting(rows, width, definition.name, spawn);
 
   return {
     name: definition.name,
@@ -377,6 +378,36 @@ function assertCreaturesHaveRoom(rows: string[], width: number, name: string): v
   if (wedged.length > 0) {
     throw new Error(`Creatures in "${name}" need clear space: ${wedged.join('; ')}.`);
   }
+}
+
+/**
+ * Refuses a level whose spawn is buried in the floor.
+ *
+ * A `P` written one row too low replaces a floor tile and leaves the cat in a
+ * sealed hole beneath the surface, where it drops straight out of the world and
+ * respawns into the same hole. The level looks fine in the grid and is
+ * unplayable from the first frame, so it is worth refusing outright.
+ */
+function assertSpawnHasFooting(
+  rows: string[],
+  width: number,
+  name: string,
+  spawn: Point,
+): void {
+  const column = Math.floor(spawn.x / TILE);
+  const row = Math.floor(spawn.y / TILE) - 1;
+
+  // Something to stand on, within a few tiles.
+  for (let below = row + 1; below < rows.length && below <= row + 4; below += 1) {
+    if (FULL_CELL.has(rows[below]?.[column] ?? '.')) {
+      return;
+    }
+  }
+
+  void width;
+  throw new Error(
+    `The spawn in "${name}" (row ${row}, column ${column}) has no floor under it.`,
+  );
 }
 
 /**

@@ -10,7 +10,7 @@ import { STALACTITE_SIZE, STALAGMITE_SIZE, createRandom } from '../art';
  * stalactites moving at two different rates rather than from a horizon.
  */
 export class CaveBackdrop {
-  constructor(scene: Phaser.Scene, levelWidth: number, groundLine: number) {
+  constructor(scene: Phaser.Scene, levelWidth: number, levelHeight: number) {
     scene.add
       .image(0, 0, 'cave-sky')
       .setOrigin(0, 0)
@@ -39,32 +39,31 @@ export class CaveBackdrop {
       }
     }
 
-    // Stalagmites growing up off the floor, to match the roof.
-    for (let x = 0; x < levelWidth; x += 120) {
-      if (random() < 0.35) {
-        continue;
+    // The cave is solid rock with tunnels cut through it, so there is no single
+    // floor to stand things on. Stalagmites and crystals are scattered through
+    // the whole depth instead, and show wherever a chamber has been carved out.
+    for (let x = 0; x < levelWidth; x += 70) {
+      const y = 40 + random() * (levelHeight - 60);
+
+      if (random() < 0.4) {
+        const scale = 0.6 + random() * 0.7;
+
+        scene.add
+          .image(x + (random() - 0.5) * 50, y, random() < 0.5 ? 'stalagmite-a' : 'stalagmite-b')
+          .setOrigin(0.5, 1)
+          .setDisplaySize(STALAGMITE_SIZE.width * scale, STALAGMITE_SIZE.height * scale)
+          .setScrollFactor(0.85)
+          .setDepth(-12);
       }
 
-      const scale = 0.7 + random() * 0.7;
-
-      scene.add
-        .image(x + (random() - 0.5) * 80, groundLine + 3, random() < 0.5 ? 'stalagmite-a' : 'stalagmite-b')
-        .setOrigin(0.5, 1)
-        .setDisplaySize(STALAGMITE_SIZE.width * scale, STALAGMITE_SIZE.height * scale)
-        .setDepth(-12);
-    }
-
-    // Crystals sit on the floor the cat walks on, so they scroll with it.
-    for (let x = 0; x < levelWidth; x += 90) {
-      if (random() < 0.45) {
-        continue;
+      if (random() < 0.55) {
+        scene.add
+          .image(x + (random() - 0.5) * 60, y + 20, 'crystal')
+          .setOrigin(0.5, 1)
+          .setScrollFactor(0.85)
+          .setDepth(-11)
+          .setBlendMode(Phaser.BlendModes.ADD);
       }
-
-      scene.add
-        .image(x + (random() - 0.5) * 60, groundLine + 2, 'crystal')
-        .setOrigin(0.5, 1)
-        .setDepth(-10)
-        .setBlendMode(Phaser.BlendModes.ADD);
     }
 
     // A soft pool of light near the floor, so the level does not read as a

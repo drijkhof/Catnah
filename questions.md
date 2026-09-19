@@ -98,9 +98,16 @@ there is no cave-specific creature at all.
 **It is now caving rather than merely dark**: ropes bolted to the roof to climb,
 bedded rock shelves, stalagmites as well as stalactites.
 
-> **Still open:** it still has no creature of its own, and it still borrows
-> hedgehogs. Bats, or something blind and crawling, would fix that. You have
-> said the cave gets thought through later, so this is parked.
+**It is a tunnel network now**, carved out of solid rock: uneven floors, roofs
+over everything, branches, and dead ends that only hold berries. One passage is
+a single tile high and only a sneaking cat fits.
+
+> **Still open:** it has no creature of its own and still borrows hedgehogs.
+> Bats, or something blind and crawling, would fix that. Parked, as you said.
+
+> **Still open:** the tunnels are hand-carved, so the layout is mine rather than
+> designed. It holds together and the exit is reachable, but it is a first pass
+> and worth playing before it is called done.
 
 ## The city
 

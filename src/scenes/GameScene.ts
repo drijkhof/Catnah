@@ -88,6 +88,7 @@ export class GameScene extends Phaser.Scene {
       this,
       this.level.widthInPixels,
       this.level.groundLine,
+      this.level.heightInPixels,
     );
 
     const { blocks, branches } = this.buildSolids();
