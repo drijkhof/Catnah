@@ -51,5 +51,9 @@ export const FOREST: LevelDefinition = {
   widthInTiles: 90,
   groundRow: 30,
   branchesNeedTrunks: true,
+  // You cannot climb a tree. The trunks are still drawn and still walked
+  // through, and their crowns are still something to stand on -- but the way up
+  // a tree is its branches, which is why every branch here grows out of one.
+  climbableColumns: false,
   rows: ROWS,
 };

@@ -26,7 +26,7 @@ its platforms must attach to a column. Everything else is derived.
 | `o` | berry |
 | `N` | nest — a ledge set into the tile, so the cat sits *in* it |
 | `+` | nest with a spare heart in it |
-| `A` | parked car — solid, and climbable like any other block |
+| `A` | parked car — two rows: a long lower one, a short upper one over its middle |
 | `h` | hedgehog, `r` rat — walkers, only ever on plain `#` floor |
 | `f` | piranha — water *with* a fish in it |
 | `c` | crow |
@@ -194,7 +194,16 @@ be sunk into it without opening a hole into the chamber below. That is what the
 old cave's water lacked: it sat in a two-row floor with open air under it, and a
 pool with nothing holding it looks exactly as wrong as it was.
 
-`swamp.ts` is built the same way, from segments rather than from chambers.
+`swamp.ts` and `city.ts` are built the same way -- the swamp from segments, the
+city from buildings placed at absolute coordinates. `tower()` hands back its own
+roof line so that anything sitting on a building goes on the actual roof rather
+than at a row someone counted by hand.
+
+**Every city building gets a drainpipe on both sides**, placed by `tower()`
+itself. A building stands on the pavement and blocks it, so the way past one is
+over it -- and a pipe on one side only is a wall to whoever arrives from the
+other. A column with a wall beside it is drawn with a gutter hopper on top
+(`trunk-head`); one standing on its own gets a lamp, and is a lamppost.
 
 The cave is not built up from a floor; it starts as solid rock and tunnels are
 cut out of it. That is what gives it an uneven floor and a roof over every

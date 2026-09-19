@@ -397,3 +397,39 @@ spiders rather than by a crow.
 **The spider was drawn three times.** Two attempts at generating eight legs from
 a loop produced a solid block either side of the body. At 16px what makes a
 spider read is the *gaps* between the legs, so they are placed pixel by pixel.
+
+## The city, rebuilt at the cat's scale
+
+**Buildings block the pavement, so every one has a pipe on both sides.** The
+first version put a drainpipe on whichever side looked right, and a bot walking
+right got exactly seven tiles before a six-storey wall stopped it. A building is
+not scenery here: it is the obstacle, and the route is pipe up, roof across,
+pipe down.
+
+> **Still open:** that is nine climbs over 176 tiles, one every twenty or so.
+> It gives the level a rhythm; it may also turn out to be the same puzzle nine
+> times. Ground-floor passages through some of them would break it up.
+
+**A car is two tiles tall and five long now**, with the cabin over the middle
+three, and each tile works out which part of the car it is from its neighbours
+alone. The old one was one tile tall -- shorter than the cat climbing on it --
+and drawn as a slab with a window painted on.
+
+**A drainpipe is told from a lamppost by what is beside it.** A column with a
+wall on either side gets a gutter hopper; one standing in the open gets a lamp.
+Nothing else about them differs.
+
+## You cannot climb a tree
+
+Asked for, and the forest survives it. The great tree's branches are four tiles
+apart, which is 64px against a 90px jump, and they alternate sides of the trunk
+-- so the climb that used to be holding up against a trunk is now a zigzag of
+five jumps. Measured: every hop lands, and the last one reaches the nest.
+
+It is a per-level switch rather than a per-theme one, because it is a statement
+about trees and the forest is the only level that has any. The trunks are still
+drawn, still walked through, and their crowns are still something to stand on.
+
+> **Still open:** nothing in the game says a tree cannot be climbed until you
+> try. A cat that visibly fails to grip would say it; at the moment the trunk
+> just does nothing.

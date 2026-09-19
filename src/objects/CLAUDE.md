@@ -164,6 +164,12 @@ Trunks carry no physics body at all. They are meant to be walked through, so
 rather than going through Arcade. That also keeps it free of ordering problems:
 an overlap callback would not have run yet at the point `step` needs the answer.
 
+**Not every column is climbable.** A level can turn it off
+(`climbableColumns: false`, which the forest does): the zones are still parsed
+and still drawn, and `GameScene` simply hands the player an empty list. Walking
+through, standing on a crown and everything else stays exactly as it was; only
+the climb goes. You cannot climb a tree.
+
 There is no grab button and no release button:
 
 - **Falling onto a trunk catches it.** That is the automatic grip.

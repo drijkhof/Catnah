@@ -47,6 +47,7 @@ export interface TilePalette {
   carBody: number;
   carGlass: number;
   carTrim: number;
+  carLight: number;
   lava: number;
   lavaDeep: number;
   lavaBright: number;
@@ -209,6 +210,33 @@ export function generateTileset(
   };
 
   bakeTexture(scene, key('trunk'), TILE, TILE, drawColumn);
+
+  /**
+   * The top of a column that is bolted to a wall.
+   *
+   * Only the city has anything to say here: a drainpipe ends in a hopper under
+   * the gutter, not in a lamp. Everywhere else a column against a wall looks
+   * exactly like one standing on its own.
+   */
+  bakeTexture(scene, key('trunk-head'), TILE, TILE, (g) => {
+    drawColumn(g);
+
+    if (palette.columnStyle !== 'pipe') {
+      g.fillStyle(palette.leaf, 1);
+      g.fillCircle(3, 3, 4);
+      g.fillCircle(13, 4, 4);
+      g.fillStyle(palette.leafLight, 1);
+      g.fillCircle(8, 1, 3);
+      return;
+    }
+
+    g.fillStyle(palette.trunkDark, 1);
+    g.fillRect(2, 0, 12, 6);
+    g.fillStyle(palette.trunk, 1);
+    g.fillRect(3, 1, 10, 4);
+    g.fillStyle(palette.trunkLight, 1);
+    g.fillRect(4, 1, 8, 1);
+  });
 
   bakeTexture(scene, key('trunk-top'), TILE, TILE, (g) => {
     drawColumn(g);
@@ -395,39 +423,112 @@ export function generateTileset(
   });
 
   // --- parked cars -------------------------------------------------------
-  const drawCar = (g: Phaser.GameObjects.Graphics, part: 'left' | 'mid' | 'right'): void => {
-    g.fillStyle(palette.carBody, 1);
-    g.fillRect(0, 4, TILE, TILE - 6);
+  // A car is two tiles tall and five long, with the cabin only over the middle
+  // three: a low bonnet, a raised cabin, a low boot. The cat is 22x18, so a car
+  // at one tile tall was shorter than the thing climbing on it.
+  //
+  // Each tile is drawn for the place it holds in that shape, and every drawing
+  // starts at the top of its tile, because the top of the tile is what the cat
+  // actually stands on.
+  const TYRE = 0x15161a;
+  const HUB = 0x4a4f56;
 
-    if (part !== 'mid') {
-      g.fillStyle(palette.carBody, 1);
-      g.fillRect(part === 'left' ? 2 : 0, 2, TILE - 2, 3);
-    }
-
-    // Cabin glass, only across the middle of the car.
-    if (part !== 'right') {
-      g.fillStyle(palette.carGlass, 1);
-      g.fillRect(part === 'left' ? 6 : 0, 3, TILE - 6, 4);
-    }
-
-    g.fillStyle(palette.carTrim, 1);
-    g.fillRect(0, TILE - 4, TILE, 2);
-
-    // Wheels sit under the ends.
-    if (part !== 'mid') {
-      g.fillStyle(0x15161a, 1);
-      g.fillCircle(part === 'left' ? 5 : 11, TILE - 2, 3);
-    }
-
-    if (part === 'right') {
-      g.fillStyle(palette.leafLight, 1);
-      g.fillRect(TILE - 3, 6, 3, 3);
-    }
+  /** The lower row: sills, wheels and the two ends. */
+  const wheel = (g: Phaser.GameObjects.Graphics, x: number): void => {
+    g.fillStyle(TYRE, 1);
+    g.fillCircle(x, TILE - 4, 4);
+    g.fillStyle(HUB, 1);
+    g.fillCircle(x, TILE - 4, 1.5);
   };
 
-  for (const part of ['left', 'mid', 'right'] as const) {
-    bakeTexture(scene, key(`car-${part}`), TILE, TILE, (g) => drawCar(g, part));
-  }
+  const sill = (g: Phaser.GameObjects.Graphics): void => {
+    g.fillStyle(palette.carTrim, 1);
+    g.fillRect(0, TILE - 8, TILE, 2);
+  };
+
+  bakeTexture(scene, key('car-nose'), TILE, TILE, (g) => {
+    g.fillStyle(palette.carBody, 1);
+    // The bonnet rises towards the cabin.
+    g.fillRect(3, 4, TILE - 3, TILE - 10);
+    g.fillRect(1, 6, TILE - 1, TILE - 12);
+
+    g.fillStyle(palette.carLight, 1);
+    g.fillRect(1, 5, 3, 3);
+
+    sill(g);
+    wheel(g, 10);
+  });
+
+  bakeTexture(scene, key('car-sill'), TILE, TILE, (g) => {
+    g.fillStyle(palette.carBody, 1);
+    g.fillRect(0, 2, TILE, TILE - 10);
+    sill(g);
+  });
+
+  bakeTexture(scene, key('car-door'), TILE, TILE, (g) => {
+    g.fillStyle(palette.carBody, 1);
+    g.fillRect(0, 0, TILE, TILE - 8);
+
+    // A door shut line and a handle, which is all it takes to read as a door.
+    g.fillStyle(palette.carTrim, 1);
+    g.fillRect(2, 0, 1, TILE - 9);
+    g.fillRect(9, 3, 4, 1);
+
+    sill(g);
+  });
+
+  bakeTexture(scene, key('car-tail'), TILE, TILE, (g) => {
+    g.fillStyle(palette.carBody, 1);
+    g.fillRect(0, 4, TILE - 3, TILE - 10);
+    g.fillRect(0, 6, TILE - 1, TILE - 12);
+
+    g.fillStyle(0xd0463a, 1);
+    g.fillRect(TILE - 4, 5, 3, 3);
+
+    sill(g);
+    wheel(g, 6);
+  });
+
+  /** The upper row: the cabin, which is roof and glass. */
+  const roof = (g: Phaser.GameObjects.Graphics): void => {
+    g.fillStyle(palette.carBody, 1);
+    g.fillRect(0, 0, TILE, 3);
+  };
+
+  bakeTexture(scene, key('car-windscreen'), TILE, TILE, (g) => {
+    roof(g);
+    g.fillStyle(palette.carBody, 1);
+    g.fillRect(0, 0, 4, TILE);
+
+    // Raked forward, so the cabin reads as the front of a car rather than a box.
+    g.fillStyle(palette.carGlass, 1);
+    g.fillTriangle(4, 3, TILE, 3, TILE, TILE - 2);
+
+    g.fillStyle(palette.carBody, 1);
+    g.fillRect(0, TILE - 2, TILE, 2);
+  });
+
+  bakeTexture(scene, key('car-roof'), TILE, TILE, (g) => {
+    roof(g);
+    g.fillStyle(palette.carGlass, 1);
+    g.fillRect(0, 3, TILE, TILE - 5);
+
+    g.fillStyle(palette.carBody, 1);
+    g.fillRect(7, 3, 2, TILE - 5);
+    g.fillRect(0, TILE - 2, TILE, 2);
+  });
+
+  bakeTexture(scene, key('car-rear-window'), TILE, TILE, (g) => {
+    roof(g);
+    g.fillStyle(palette.carBody, 1);
+    g.fillRect(TILE - 4, 0, 4, TILE);
+
+    g.fillStyle(palette.carGlass, 1);
+    g.fillTriangle(0, 3, TILE - 4, 3, 0, TILE - 2);
+
+    g.fillStyle(palette.carBody, 1);
+    g.fillRect(0, TILE - 2, TILE, 2);
+  });
 
   // --- lava ---------------------------------------------------------------
   bakeTexture(scene, key('lava'), TILE, TILE, (g) => {

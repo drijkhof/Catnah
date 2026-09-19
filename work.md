@@ -119,11 +119,19 @@ through and leaves you standing on the crown.
 
 ### Climbing trunks
 
-Trunks are **not solid** — walk straight through one at ground level and nothing
-happens. Climbing also passes through the branches growing out of the trunk, in
-both directions. Standing inside one, press up and the cat takes hold instead of
-jumping, the way standing at the foot of a ladder does. Fall onto one in mid-air
-and it catches you: that is the automatic grip, with no button to hold.
+**A tree cannot be climbed.** Lianas, ropes, drainpipes and chains can; a tree
+trunk is a tree. The trunks are still drawn, still walked straight through and
+their crowns are still something to stand on — the way *up* a tree is its
+branches, which is why every branch in the forest grows out of one. The great
+tree is a zigzag of branches four tiles apart, and the nest at the top is a jump
+from the last of them.
+
+Everything else here is **not solid** — walk straight through a liana at ground
+level and nothing happens. Climbing also passes through the branches growing out
+of a column, in both directions. Standing inside one, press up and the cat takes
+hold instead of jumping, the way standing at the foot of a ladder does. Fall onto
+one in mid-air and it catches you: that is the automatic grip, with no button to
+hold.
 
 Once attached, the cat stays put with nothing pressed. Up climbs, down descends,
 and it stops at the top rather than climbing off into the air. Reaching out
@@ -275,12 +283,31 @@ nest at the top with a crow living in it. Two pools, one shaft of boulders, one
 sneaking bough, three hedgehogs, one piranha.
 ### 2 — City
 
-Night, and properly urban. Brick flats to climb, **steel I-beam girders** lit
-along their edges, **drainpipes and lampposts** to climb, **parked cars** to
-clamber over, a canal, and a crow nesting on a rooftop. The buildings behind are
-lit window by window.
+Night, and built at the scale of the thing walking through it. The cat is 22x18
+game pixels; a block of flats here is **sixteen storeys of brick**, an awning is
+four tiles of steel and a **parked car is two tiles tall and five long**.
+Standing in the street you can see the top of nothing. 176 tiles from end to
+end, nine buildings.
 
-**Rats here, not hedgehogs** — same idea, but faster and low to the ground.
+**Roofs are sloped** — stepped, one way or the other — so the skyline is a
+skyline rather than a row of boxes.
+
+**Every drainpipe runs down a wall**, and every building has one on *both*
+sides. That is the whole route: a building stands on the pavement and blocks it,
+so the way past is pipe up the near side, over the roof, pipe down the far side.
+A pipe on one side only would be a wall to anyone arriving from the other. The
+only columns standing on their own are the **lampposts**, and they are short and
+have a lamp on top instead of a gutter hopper.
+
+Between the buildings are **awnings** to jump between, **parked cars** to
+clamber on, rats on the pavement and a **canal** eleven tiles wide with four
+piranhas in it. There is no way across the canal at street level and nothing
+survives swimming it — two awnings span it with a five-tile gap in the middle,
+and that gap is the jump.
+
+Berries are on the roofs. So is the **spare heart**, in a crow's nest on the
+tallest building in the city.
+
 ### 3 — Swamp
 
 By far the longest level — 248 tiles, three times any other — and all of it is

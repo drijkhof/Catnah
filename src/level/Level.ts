@@ -53,6 +53,16 @@ export interface LevelDefinition {
    * through them. A city girder is a girder.
    */
   solidPlatforms?: boolean;
+  /**
+   * Whether the `T` columns here can be climbed.
+   *
+   * True everywhere but the forest. A liana, a rope, a drainpipe and a chain
+   * are things you go up; a tree trunk is a tree. Turning it off leaves the
+   * trunks drawn and walk-through exactly as they were, and their crowns still
+   * something to stand on -- it takes away only the climb, so the way up a tree
+   * is its branches.
+   */
+  climbableColumns?: boolean;
   rows: string[];
 }
 
@@ -110,6 +120,14 @@ export interface ClimbZone extends Point {
   width: number;
   height: number;
   isTop: boolean;
+  /**
+   * Whether the column is bolted to something.
+   *
+   * A column with a wall beside it is a drainpipe running down a building; one
+   * standing on its own in the open is a lamppost. They are drawn differently
+   * at the top, and nothing else about them differs.
+   */
+  againstWall: boolean;
 }
 
 export interface ParsedLevel {
@@ -118,6 +136,8 @@ export interface ParsedLevel {
   solids: Solid[];
   climbZones: ClimbZone[];
   waterZones: WaterZone[];
+  /** Whether the columns above can be climbed, or are only scenery to stand on. */
+  columnsAreClimbable: boolean;
   /** Water, grouped into connected pools. A piranha never leaves its own. */
   pools: WaterZone[][];
   /** Lava. Shaped like water, but touching it kills. */
@@ -248,8 +268,10 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
 
         case 'T': {
           const isTop = at(column, row - 1) !== 'T';
+          const againstWall =
+            'R#B'.includes(at(column - 1, row)) || 'R#B'.includes(at(column + 1, row));
 
-          climbZones.push({ x, y, width: TILE, height: TILE, isTop });
+          climbZones.push({ x, y, width: TILE, height: TILE, isTop, againstWall });
 
           // The crown of a tree is somewhere to stand. One-way, so climbing up
           // the inside of the trunk still passes through it.
@@ -298,7 +320,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           break;
 
         case 'A':
-          block(x, y, carTexture(at(column - 1, row), at(column + 1, row)), column, row);
+          block(x, y, carTexture(at, column, row), column, row);
           break;
 
         case 's':
@@ -367,6 +389,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     theme: definition.theme,
     solids,
     climbZones,
+    columnsAreClimbable: definition.climbableColumns ?? true,
     waterZones,
     pools,
     crocodiles,
@@ -619,17 +642,50 @@ function exposedFaces(
   };
 }
 
-/** Picks which part of a car a tile is, so a run of them reads as one vehicle. */
-function carTexture(left: string, right: string): string {
-  if (left !== 'A') {
-    return 'car-left';
+/**
+ * Picks which part of a car a tile is, so a block of them reads as one vehicle.
+ *
+ * A car is written as two rows: a long lower one and a shorter upper one over
+ * the middle of it, which is a bonnet, a cabin and a boot.
+ *
+ *     .AAA.
+ *     AAAAA
+ *
+ * The tile works out where it sits from its neighbours alone, so a car can be
+ * any length and still come out with one nose, one tail and a cabin between
+ * them.
+ */
+function carTexture(
+  at: (column: number, row: number) => string,
+  column: number,
+  row: number,
+): string {
+  const leftEnd = at(column - 1, row) !== 'A';
+  const rightEnd = at(column + 1, row) !== 'A';
+
+  // Something below means this is the cabin rather than the body.
+  if (at(column, row + 1) === 'A') {
+    if (leftEnd) {
+      return 'car-windscreen';
+    }
+
+    if (rightEnd) {
+      return 'car-rear-window';
+    }
+
+    return 'car-roof';
   }
 
-  if (right !== 'A') {
-    return 'car-right';
+  if (leftEnd) {
+    return 'car-nose';
   }
 
-  return 'car-mid';
+  if (rightEnd) {
+    return 'car-tail';
+  }
+
+  // Under the cabin is a door; the rest is the sill between wheel and cabin.
+  return at(column, row - 1) === 'A' ? 'car-door' : 'car-sill';
 }
 
 /** Picks the end-cap so a platform is rounded off rather than sawn through. */

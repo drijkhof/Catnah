@@ -114,7 +114,10 @@ export class GameScene extends Phaser.Scene {
       this,
       this.level.spawn.x,
       this.level.spawn.y,
-      climbZones,
+      // A level whose columns are only scenery still draws them and still lets
+      // the cat walk through them; it just hands the player nothing to hold on
+      // to. That is the whole of "you cannot climb a tree".
+      this.level.columnsAreClimbable ? climbZones : [],
       waterZones,
     );
 
@@ -555,7 +558,13 @@ export class GameScene extends Phaser.Scene {
   private buildTrunks(): Phaser.Geom.Rectangle[] {
     return this.level.climbZones.map((zone) => {
       this.add
-        .image(zone.x, zone.y, this.tile(zone.isTop ? 'trunk-top' : 'trunk'))
+        .image(
+          zone.x,
+          zone.y,
+          this.tile(
+            zone.isTop ? (zone.againstWall ? 'trunk-head' : 'trunk-top') : 'trunk',
+          ),
+        )
         .setOrigin(0, 0)
         // Behind the cat, so a climbing cat is seen against its trunk.
         .setDepth(-3);
