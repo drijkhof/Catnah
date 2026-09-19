@@ -106,6 +106,25 @@ export const CAT = {
    * frame of falling away from the wall.
    */
   wallJumpLockMs: 100,
+
+  /** Speed of climbing a trunk, px/sec. The same going up and coming down. */
+  climbSpeed: 95,
+
+  /**
+   * How firmly the cat is drawn to the middle of a trunk while climbing, as a
+   * velocity per pixel of offset. Enough to centre it without a visible snap.
+   */
+  climbCentringPull: 7,
+
+  /**
+   * How long after stepping off a trunk the cat cannot catch it again, ms.
+   *
+   * Letting go leaves the cat falling while still overlapping the trunk, and
+   * catching a trunk while falling is exactly what the automatic grip does --
+   * so without this pause, stepping off re-grabs on the very next frame and the
+   * cat can never leave.
+   */
+  climbCooldownMs: 260,
 } as const;
 
 /**
@@ -144,6 +163,12 @@ export const COLORS = {
   // Branches, which double as the platforms.
   branch: 0x7d5837,
   branchDark: 0x5c3f27,
+
+  // Standing trunks, darker than a fallen branch so a climbable trunk reads as
+  // a different thing from a platform.
+  trunk: 0x6a4527,
+  trunkDark: 0x4a2f1a,
+  trunkLight: 0x8a5f39,
   leaf: 0x5fa049,
   leafLight: 0x7cc25e,
 

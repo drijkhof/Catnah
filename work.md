@@ -3,8 +3,8 @@
 What the game *is*. Future wishes live in [`backlog.md`](backlog.md); how the
 code is built lives in [`CLAUDE.md`](CLAUDE.md).
 
-Status: **level 1 playable** — you can run, jump, sneak, wall jump and collect
-berries. There is no win state, no enemies and no way to die except falling.
+Status: **level 1 playable** — you can run, jump, sneak, wall jump, climb
+trunks and collect berries. There is no win state, no enemies and no way to die except falling.
 
 ---
 
@@ -24,7 +24,7 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | --- | --- | --- |
 | sluipen | `sneak` | moving low, flat and slow |
 | tak | `branch` | the platforms |
-| boomstam | `bough` / `trunk` | fallen log; standing tree trunk |
+| boomstam | `bough` / `trunk` | fallen log; climbable standing trunk |
 | bes | `berry` | the collectible |
 | struik | `bush` | scenery |
 | egel | `hedgehog` | enemy — see backlog |
@@ -50,8 +50,9 @@ one-tile gap something you can only get through by sneaking.
 | Jump | `↑`, `Space` or `W` | button, bottom right |
 | Sneak | `↓` or `S` | button, left of jump |
 
-There is no separate wall-jump button: in mid-air against a wall, the jump
-button wall jumps.
+There is no separate button for wall jumping or climbing. The jump button means
+"up" and the sneak button means "down"; what they do depends on where the cat
+is.
 
 - **Gravity is always on.** Falling speed is capped at 600 px/s so long drops
   stay readable.
@@ -62,6 +63,20 @@ button wall jumps.
   on contact (jump buffer).
 - **Sneaking is blocked from standing up** when there is no headroom, so you
   cannot pop up through a log you are sneaking under, nor jump out from under it.
+
+### Climbing trunks
+
+Trunks are **not solid** — walk straight through one at ground level and nothing
+happens. Standing inside one, press up and the cat takes hold instead of
+jumping, the way standing at the foot of a ladder does. Fall onto one in mid-air
+and it catches you: that is the automatic grip, with no button to hold.
+
+Once attached, the cat stays put with nothing pressed. Up climbs, down descends,
+and it stops at the top rather than climbing off into the air. Reaching out
+left or right lets go.
+
+Each trunk in level 1 ends two tiles above the branch beside it, so letting go
+at the top drops the cat onto that branch.
 
 ### Wall jumping
 
@@ -90,6 +105,9 @@ light falling through the trees.
 - **Forest floor** — earth with grass on top, with one gap to jump.
 - **A fallen bough** lying a tile above the floor. Sneak under it, or jump on
   top and cross over. It is a choice, not a wall.
+- **Two trunks** to climb. A short one early on, beside the first branch, and a
+  tall one near the end running from the floor all the way to the high branch —
+  a route that skips the whole climb.
 - **Boulders**, grey stone against all the green. A small one early on, two
   tiles tall, as a step. And a tower seven tiles tall — higher than any single
   jump — whose face has to be wall jumped. Two berries sit on top, and from

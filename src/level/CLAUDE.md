@@ -12,6 +12,7 @@ Level data and the parser that turns it into world coordinates.
 | `=` | branch — what the platforms are in level 1 |
 | `B` | fallen bough, a full-height solid for low overhangs |
 | `R` | boulder — solid rock, and what wall jumps are taken from |
+| `T` | tree trunk — climbable, and deliberately *not* solid |
 | `o` | berry |
 | `P` | cat spawn (exactly one) |
 | `.` | empty |
@@ -50,6 +51,19 @@ floor for the same reason.
 
 Phaser's own tilemaps do this internally when they calculate faces; a static
 group of individual sprites does not, so it is done here.
+
+## Designing for climbing
+
+**Keep the columns either side of a trunk clear for its whole length.** The cat
+is 22px wide against a 16px tile, so it overhangs a trunk by about 3px on each
+side. A branch merely *next to* a trunk is enough to catch the cat's shoulder
+and stop the climb dead, several tiles below the top, which reads as broken
+climbing rather than as a level mistake.
+
+**End a trunk two tiles above the branch it serves.** Letting go at the top
+needs enough fall time for the cat to drift sideways over the branch before it
+drops past the level of it. One tile is not enough; the cat clips the branch's
+edge instead of landing on it.
 
 ## Designing for wall jumps
 

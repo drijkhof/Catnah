@@ -11,7 +11,7 @@ When a ticket is built, set it to `done` and move what it added into `work.md`.
 | --- | --- | --- | --- |
 | [1](#1--hazards-and-dying) | Hazards and dying | `todo` | — |
 | [2](#2--boulders) | Boulders | `done` | — |
-| [3](#3--tree-trunks) | Tree trunks | `todo` | — |
+| [3](#3--tree-trunks) | Tree trunks | `done` | — |
 | [4](#4--water) | Water | `todo` | — |
 | [5](#5--piranhas) | Piranhas | `todo` | 1, 4 |
 | [6](#6--hedgehogs) | Hedgehogs | `todo` | 1 |
@@ -70,23 +70,22 @@ say the word and they become their own ticket.
 
 ## 3 — Tree trunks
 
-`todo`
+`done`
 
-Standing tree trunks as part of the level, not just as backdrop. Trees already
-exist in the scenery behind the level; these are ones the cat can actually meet.
+Standing trunks the cat can meet, tile character `T`.
 
-Wanted partly for their own sake and partly because ticket 7 wants something to
-jump off.
+The original acceptance said a trunk would be *solid*. That was overtaken:
+trunks are climbable and **deliberately not solid** — you walk straight through
+one at ground level, and climb it by pressing up while inside it. Holding on is
+automatic once attached, with no button held down; reaching out sideways lets
+go.
 
-**Acceptance**
+Level 1 has two, each ending two tiles above the branch beside it so that
+letting go at the top drops the cat onto that branch.
 
-- A trunk is solid and blocks movement.
-- Hedgehogs turn around at one (ticket 6).
-
-**Open questions**
-
-- Can the cat climb or cling to a trunk, or only bump into it?
-- Full tile column, or narrower than a tile?
+**Knock-on for ticket 6** — a trunk can no longer serve as the thing a hedgehog
+turns around at, since a hedgehog would walk through it just as the cat does.
+That ticket needs a different obstacle, and boulders are the obvious candidate.
 
 ---
 
@@ -138,7 +137,9 @@ Hedgehogs patrol back and forth. Touching one kills the cat.
 
 - Walks back and forth along its platform.
 - **Does not walk off the edge** — turns around at a drop.
-- **Turns around at an obstacle**, for example a tree trunk (ticket 3).
+- **Turns around at an obstacle.** Note that tree trunks turned out to be
+  walk-through rather than solid (ticket 3), so they cannot serve as one —
+  boulders are the obvious candidate instead.
 - Contact kills the cat from any direction.
 
 **Open questions**

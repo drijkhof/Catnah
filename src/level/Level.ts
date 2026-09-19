@@ -11,6 +11,7 @@ export const LEVEL_WIDTH_IN_TILES = 80;
  *   `=`  branch, which is what the platforms are here
  *   `B`  fallen bough, a full-height solid used for low overhangs
  *   `R`  boulder — solid rock, and the surface wall jumps are taken from
+ *   `T`  tree trunk — climbable, and deliberately *not* solid
  *   `o`  berry
  *   `P`  cat spawn (exactly one)
  *   `.`  empty
@@ -28,6 +29,17 @@ export const LEVEL_WIDTH_IN_TILES = 80;
  * still be jumped onto and crossed over the top, which keeps it a choice rather
  * than a wall.
  *
+ * Two trunks, each ending two tiles *above* the branch beside it. That gap is
+ * deliberate: letting go at the top has to leave enough fall time for the cat
+ * to drift sideways over the branch before it drops past the level of it. The short one at column 13
+ * introduces the idea; the tall one at column 73 runs from the floor to the
+ * high branch, as a route that skips the whole climb.
+ *
+ * The columns either side of a trunk are kept clear for its whole length. The
+ * cat is 22px wide against a 16px tile, so it overhangs its trunk by about 3px
+ * on each side, and a branch merely *next to* a trunk is enough to catch its
+ * shoulder and stop the climb dead.
+ *
  * Two boulders. The small one at columns 14-15 is two tiles tall and met early,
  * to introduce rock as something solid and climbable. The tower at columns
  * 65-66 is seven tiles: its top sits 112px above the floor, and a single jump
@@ -41,20 +53,20 @@ const LEVEL_SOURCE: string[] = [
   '',
   '',
   '',
-  '',
-  '.'.repeat(69) + 'ooo',
-  '.'.repeat(68) + '=====',
-  '.'.repeat(25) + 'ooo',
-  '.'.repeat(24) + '=====' + '.'.repeat(28) + 'ooo',
-  '.'.repeat(56) + '=====',
-  '.'.repeat(17) + 'ooo' + '.'.repeat(13) + 'ooo' + '.'.repeat(29) + 'oo',
-  '.'.repeat(16) + '=====' + '.'.repeat(11) + '=====' + '.'.repeat(28) + 'RR',
-  '.'.repeat(53) + 'ooo' + '.'.repeat(9) + 'RR',
-  '.'.repeat(9) + 'ooo' + '.'.repeat(29) + 'oo' + '.'.repeat(9) + '=====' + '.'.repeat(8) + 'RR',
-  '.'.repeat(8) + '=====' + '.'.repeat(27) + '====' + '.'.repeat(21) + 'RR',
-  '.'.repeat(65) + 'RR',
-  '.'.repeat(14) + 'RR' + '.'.repeat(6) + 'BBBBBB' + '.'.repeat(37) + 'RR',
-  '...P' + '.'.repeat(10) + 'RR' + '.'.repeat(49) + 'RR' + '.'.repeat(7) + 'ooo',
+  '.'.repeat(73) + 'T',
+  '.'.repeat(69) + 'ooo' + '.' + 'T',
+  '.'.repeat(68) + '====' + '.' + 'T',
+  '.'.repeat(25) + 'ooo' + '.'.repeat(45) + 'T',
+  '.'.repeat(24) + '=====' + '.'.repeat(28) + 'ooo' + '.'.repeat(13) + 'T',
+  '.'.repeat(56) + '=====' + '.'.repeat(12) + 'T',
+  '.'.repeat(17) + 'ooo' + '.'.repeat(13) + 'ooo' + '.'.repeat(29) + 'oo' + '.'.repeat(6) + 'T',
+  '.'.repeat(16) + '=====' + '.'.repeat(11) + '=====' + '.'.repeat(28) + 'RR' + '.'.repeat(6) + 'T',
+  '.'.repeat(13) + 'T' + '.'.repeat(39) + 'ooo' + '.'.repeat(9) + 'RR' + '.'.repeat(6) + 'T',
+  '.'.repeat(9) + 'ooo' + '.' + 'T' + '.'.repeat(27) + 'oo' + '.'.repeat(9) + '=====' + '.'.repeat(8) + 'RR' + '.'.repeat(6) + 'T',
+  '.'.repeat(8) + '====' + '.' + 'T' + '.'.repeat(26) + '====' + '.'.repeat(21) + 'RR' + '.'.repeat(6) + 'T',
+  '.'.repeat(13) + 'T' + '.'.repeat(51) + 'RR' + '.'.repeat(6) + 'T',
+  '.'.repeat(13) + 'T' + '.'.repeat(3) + 'RR' + '.'.repeat(3) + 'BBBBBB' + '.'.repeat(37) + 'RR' + '.'.repeat(6) + 'T',
+  '...P' + '.'.repeat(9) + 'T' + '.'.repeat(3) + 'RR' + '.'.repeat(46) + 'RR' + '.'.repeat(6) + 'T' + 'ooo',
   '#'.repeat(46) + '.'.repeat(5) + '#'.repeat(29),
   '#'.repeat(46) + '.'.repeat(5) + '#'.repeat(29),
   '#'.repeat(46) + '.'.repeat(5) + '#'.repeat(29),
@@ -101,8 +113,20 @@ export interface Solid {
   faces: Faces;
 }
 
+/** A stretch of trunk the cat can climb. Not collision -- purely a zone. */
+export interface ClimbZone {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  /** The topmost tile of a trunk, which gets the leafy cap. */
+  isTop: boolean;
+}
+
 export interface ParsedLevel {
   solids: Solid[];
+  /** Trunks, which are climbed rather than stood on. */
+  climbZones: ClimbZone[];
   /** Centre of each berry, in world pixels. */
   berries: Point[];
   /**
@@ -129,6 +153,7 @@ export function parseLevel(source: string[] = LEVEL_SOURCE): ParsedLevel {
     rows[row]?.[column] ?? '.';
 
   const solids: Solid[] = [];
+  const climbZones: ClimbZone[] = [];
   const berries: Point[] = [];
   let spawn: Point | null = null;
 
@@ -149,6 +174,16 @@ export function parseLevel(source: string[] = LEVEL_SOURCE): ParsedLevel {
             textureKey: at(column, row - 1) === '#' ? 'ground-fill' : 'ground-top',
             isBranch: false,
             faces: exposedFaces(at, column, row),
+          });
+          break;
+
+        case 'T':
+          climbZones.push({
+            x,
+            y,
+            width: TILE,
+            height: TILE,
+            isTop: at(column, row - 1) !== 'T',
           });
           break;
 
@@ -212,6 +247,7 @@ export function parseLevel(source: string[] = LEVEL_SOURCE): ParsedLevel {
 
   return {
     solids,
+    climbZones,
     berries,
     spawn,
     groundLine: GROUND_ROW * TILE,

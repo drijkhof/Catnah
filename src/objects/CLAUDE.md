@@ -31,7 +31,7 @@ from one that feels slippery and unfair. Do not simplify them away:
 - **Jump buffering** — a jump pressed shortly *before* landing fires on contact.
 - **Jump cut** — releasing early shortens the hop, giving variable height.
   Measured: ~86px held, ~41px tapped.
-- **Sneaking** and **wall jumping**, below.
+- **Sneaking**, **wall jumping** and **climbing**, below.
 
 All of it is tuned by the `CAT` block in `src/config.ts`. Tune there; do not
 hardcode numbers in the entity.
@@ -58,6 +58,34 @@ jumping, which is what stops a player escaping upward through the log.
 
 A queued jump beats a held sneak, so a player holding the button is never stuck —
 under a low overhang it is the missing headroom, not the input, that stops them.
+
+## Climbing trunks
+
+Climbing **replaces** ordinary movement rather than adding to it — no gravity,
+no jumping, no wall logic — so `updateClimb` runs first in `step` and
+short-circuits everything else when it returns true.
+
+Trunks carry no physics body at all. They are meant to be walked through, so
+`findTrunk` does its own rectangle test against zones handed in by the scene,
+rather than going through Arcade. That also keeps it free of ordering problems:
+an overlap callback would not have run yet at the point `step` needs the answer.
+
+There is no grab button and no release button:
+
+- **Falling onto a trunk catches it.** That is the automatic grip.
+- **From the floor, up grabs instead of jumping**, the way standing at the foot
+  of a ladder does.
+- **Reaching out sideways lets go.**
+
+`climbCooldownTimer` is not optional. Letting go leaves the cat falling while
+still inside the trunk, and falling into a trunk is exactly what the automatic
+grip catches — so without the pause, stepping off re-grabs on the next frame and
+the cat can never leave.
+
+The climb stops at `trunkTops` rather than running off the end into thin air,
+which would drop the cat straight back down past the trunk it just climbed. A
+few pixels of overlap are kept at the top (`CLIMB_TOP_MARGIN`), because a cat
+whose body cleared the trunk entirely would have let go of it.
 
 ## Wall jumping
 

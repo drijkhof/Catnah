@@ -26,6 +26,7 @@ export function generateForestTextures(scene: Phaser.Scene): void {
   generateGrassTuft(scene);
   generateGroundTiles(scene);
   generateRockTiles(scene);
+  generateTrunkTiles(scene);
   generateBranchTiles(scene);
   generateBerry(scene);
 }
@@ -180,6 +181,42 @@ function generateGroundTiles(scene: Phaser.Scene): void {
     g.fillRect(3, 2, 3, 2);
     g.fillRect(10, 6, 4, 2);
     g.fillRect(5, 11, 3, 2);
+  });
+}
+
+/** Width of the drawn trunk within its tile. Narrower than the cell, so the cat
+ * visibly passes in front of it rather than through a solid-looking block. */
+const TRUNK_WIDTH = 12;
+
+function generateTrunkTiles(scene: Phaser.Scene): void {
+  const inset = (TILE - TRUNK_WIDTH) / 2;
+
+  const drawBark = (g: Phaser.GameObjects.Graphics): void => {
+    g.fillStyle(COLORS.trunk, 1);
+    g.fillRect(inset, 0, TRUNK_WIDTH, TILE);
+
+    // Vertical grain, which is what makes a trunk read as climbable rather
+    // than as a post.
+    g.fillStyle(COLORS.trunkDark, 1);
+    g.fillRect(inset + 1, 0, 1, TILE);
+    g.fillRect(inset + 7, 0, 2, TILE);
+
+    g.fillStyle(COLORS.trunkLight, 1);
+    g.fillRect(inset + 4, 0, 1, TILE);
+    g.fillRect(inset + 10, 0, 1, TILE);
+  };
+
+  bakeTexture(scene, 'trunk', TILE, TILE, drawBark);
+
+  bakeTexture(scene, 'trunk-top', TILE, TILE, (g) => {
+    drawBark(g);
+
+    // A little foliage where the trunk ends, so it does not look sawn off.
+    g.fillStyle(COLORS.leaf, 1);
+    g.fillCircle(3, 3, 4);
+    g.fillCircle(13, 4, 4);
+    g.fillStyle(COLORS.leafLight, 1);
+    g.fillCircle(8, 1, 3);
   });
 }
 

@@ -37,9 +37,15 @@ export class GameScene extends Phaser.Scene {
     new Backdrop(this, this.level.widthInPixels, this.level.groundLine);
 
     const solids = this.buildSolids();
+    const climbZones = this.buildTrunks();
     this.berries = this.buildBerries();
 
-    this.player = new Player(this, this.level.spawn.x, this.level.spawn.y);
+    this.player = new Player(
+      this,
+      this.level.spawn.x,
+      this.level.spawn.y,
+      climbZones,
+    );
 
     this.physics.add.collider(this.player, solids);
     this.physics.add.overlap(this.player, this.berries, (_cat, berry) => {
@@ -174,6 +180,24 @@ export class GameScene extends Phaser.Scene {
     }
 
     return solids;
+  }
+
+  /**
+   * Draws the trunks and returns the rectangles the cat can climb.
+   *
+   * Trunks carry no physics body at all: they are meant to be walked past and
+   * through, and only the cat's own climbing code cares where they are.
+   */
+  private buildTrunks(): Phaser.Geom.Rectangle[] {
+    return this.level.climbZones.map((zone) => {
+      this.add
+        .image(zone.x, zone.y, zone.isTop ? 'trunk-top' : 'trunk')
+        .setOrigin(0, 0)
+        // Behind the cat, so a climbing cat is seen against its trunk.
+        .setDepth(-3);
+
+      return new Phaser.Geom.Rectangle(zone.x, zone.y, zone.width, zone.height);
+    });
   }
 
   private buildBerries(): Phaser.Physics.Arcade.StaticGroup {

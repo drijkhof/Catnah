@@ -2,6 +2,9 @@ import Phaser from 'phaser';
 import { CAT } from '../config';
 import type { Controls } from '../input/Controls';
 
+/** How far the cat's paws stay below the very top of a trunk, in pixels. */
+const CLIMB_TOP_MARGIN = 5;
+
 /**
  * The cat.
  *
@@ -29,14 +32,37 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   private isSneaking = false;
 
+  private isClimbing = false;
+
+  /** Time remaining, in ms, during which a trunk cannot be caught again. */
+  private climbCooldownTimer = 0;
+
+  /** Trunks this cat can climb, in world space. */
+  private readonly climbZones: Phaser.Geom.Rectangle[];
+
+  /** Top of each trunk, keyed by its column's world x, so a climb can stop. */
+  private readonly trunkTops = new Map<number, number>();
+
   /**
    * Time remaining, in ms, during which horizontal input is ignored because the
    * cat was just shoved off a wall.
    */
   private wallJumpLockTimer = 0;
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    climbZones: Phaser.Geom.Rectangle[] = [],
+  ) {
     super(scene, x, y, 'cat');
+
+    this.climbZones = climbZones;
+
+    for (const zone of climbZones) {
+      const known = this.trunkTops.get(zone.x);
+      this.trunkTops.set(zone.x, known === undefined ? zone.y : Math.min(known, zone.y));
+    }
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
@@ -53,6 +79,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     return this.isSneaking;
   }
 
+  /** True while the cat is holding on to a trunk. */
+  get climbing(): boolean {
+    return this.isClimbing;
+  }
+
   /**
    * Advances the cat by one frame.
    *
@@ -64,9 +95,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   step(controls: Controls, delta: number): void {
     const dt = delta / 1000;
     const onGround = this.body.blocked.down || this.body.touching.down;
-    const wall = this.findWall(onGround);
 
     this.tickTimers(delta, onGround, controls);
+
+    // Climbing replaces ordinary movement outright -- no gravity, no jumping,
+    // no wall logic -- so it is resolved first and short-circuits the rest.
+    if (this.updateClimb(controls, onGround)) {
+      return;
+    }
+
+    const wall = this.findWall(onGround);
 
     // A queued jump beats a held sneak, so a player holding the button is
     // never stuck. Under a low overhang there is no headroom to stand, which is
@@ -84,6 +122,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   /** Puts the cat back at a given spot, upright and still. */
   respawnAt(x: number, y: number): void {
+    this.releaseTrunk();
+    this.climbCooldownTimer = 0;
     this.resolvePose(false);
     this.setVelocity(0, 0);
     this.setPosition(x, y);
@@ -91,6 +131,115 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.jumpBufferTimer = 0;
     this.wallJumpLockTimer = 0;
     this.isJumping = false;
+  }
+
+  /**
+   * Holds the cat to a trunk and moves it along.
+   *
+   * @returns true if the cat is climbing, in which case it has moved itself and
+   *   nothing else in `step` should run.
+   */
+  private updateClimb(controls: Controls, onGround: boolean): boolean {
+    const trunk = this.findTrunk();
+
+    if (this.isClimbing) {
+      // Reaching out sideways is how you let go; there is no release button,
+      // for the same reason there is no grab button.
+      if (!trunk || controls.left || controls.right) {
+        this.releaseTrunk();
+        return false;
+      }
+    } else if (!trunk || !this.wantsToGrab(controls, onGround)) {
+      return false;
+    } else {
+      this.grabTrunk();
+    }
+
+    const activeTrunk = trunk as Phaser.Geom.Rectangle;
+    const direction = (controls.sneak ? 1 : 0) - (controls.jumpHeld ? 1 : 0);
+
+    // Climbing down onto the floor simply stands the cat up.
+    if (onGround && direction >= 0) {
+      this.releaseTrunk();
+      return false;
+    }
+
+    // Stop at the top rather than climbing off the end into thin air, which
+    // would drop the cat straight back down past the trunk it just climbed.
+    // A few pixels of overlap are kept, or the cat would let go of the trunk by
+    // reaching the top of it.
+    const topY = this.trunkTops.get(activeTrunk.x) ?? activeTrunk.y;
+    const atTop = this.y <= topY + CLIMB_TOP_MARGIN;
+
+    this.setVelocityY(direction < 0 && atTop ? 0 : direction * CAT.climbSpeed);
+    // Drawn to the middle of the trunk rather than snapped, so grabbing one
+    // off-centre does not look like a teleport.
+    this.setVelocityX((activeTrunk.centerX - this.x) * CAT.climbCentringPull);
+
+    return true;
+  }
+
+  /**
+   * Whether the cat takes hold of a trunk it is overlapping.
+   *
+   * Falling onto one catches it -- that is the automatic grip, with no button
+   * to hold. From the floor, reaching up starts the climb instead of jumping,
+   * the way standing at the foot of a ladder does.
+   */
+  private wantsToGrab(controls: Controls, onGround: boolean): boolean {
+    if (this.climbCooldownTimer > 0) {
+      return false;
+    }
+
+    if (!onGround && this.body.velocity.y > 0) {
+      return true;
+    }
+
+    return controls.jumpJustPressed;
+  }
+
+  private grabTrunk(): void {
+    this.isClimbing = true;
+    this.body.setAllowGravity(false);
+    this.setVelocity(0, 0);
+
+    // A cat cannot climb flattened out.
+    if (this.isSneaking) {
+      this.applyPose(false);
+    }
+
+    this.isJumping = false;
+    this.wallJumpLockTimer = 0;
+    this.coyoteTimer = 0;
+    this.jumpBufferTimer = 0;
+  }
+
+  private releaseTrunk(): void {
+    if (!this.isClimbing) {
+      return;
+    }
+
+    this.isClimbing = false;
+    this.body.setAllowGravity(true);
+    this.climbCooldownTimer = CAT.climbCooldownMs;
+  }
+
+  /** The trunk the cat's body is currently over, if any. */
+  private findTrunk(): Phaser.Geom.Rectangle | null {
+    const body = this.body;
+
+    for (const zone of this.climbZones) {
+      if (
+        body.right > zone.x &&
+        body.x < zone.right &&
+        body.bottom > zone.y &&
+        body.y < zone.bottom
+      ) {
+        return zone;
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -124,6 +273,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       : Math.max(0, this.jumpBufferTimer - delta);
 
     this.wallJumpLockTimer = Math.max(0, this.wallJumpLockTimer - delta);
+    this.climbCooldownTimer = Math.max(0, this.climbCooldownTimer - delta);
 
     if (onGround && this.body.velocity.y >= 0) {
       this.isJumping = false;
