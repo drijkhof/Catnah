@@ -275,21 +275,20 @@ shoulders show above the straw.
 
 | Level | Tiles |
 | --- | --- |
-| Forest | 446 |
-| City | 450 |
+| Forest | 90 |
+| City | 176 |
 | Swamp | 248 |
 | Canopy | 78 |
 | Cave | 240 wide, 64 deep |
 | Volcano | 104 |
 
-Every one of them is **written out** in its file, row by row, and every one was
-laid out by hand. A stretched level is not a longer level: the swamp, the canopy
-and the volcano were each pulled out to five times their length by repeating a
-pattern, and all three came back shorter, because what they lost was the
-reason to walk through them.
+Every level is **written out** in its file, row by row.
 
-The forest and the city are long *and* hand-designed — fifteen pieces and twelve
-pieces, no two the same.
+They were all pulled out to five times their length once, by repeating a
+pattern, and every one of them came back. A stretched level is not a longer
+level: what they lost was the reason to walk through them. The cave is the one
+exception, and it was never stretched — it is long because it was designed long,
+as a descent.
 
 ## The six levels
 
@@ -314,44 +313,27 @@ game.
 
 ### 1 — Forest
 
-446 tiles, and **fifteen pieces, no two of them the same**. A long level made of
-one shape repeated is a short level you have to walk through several times,
-which is exactly what the first long draft of this was.
-
-In order: a flat start with one branch to teach the hop; a tree worth climbing;
-stepping stones rising out of a pond; a fallen bough with a single tile under
-it, so only a sneaking cat gets through; **two towers with a shaft between them
-and higher ground beyond**, which cannot be passed without a wall jump; a chasm
-with one branch over the middle; a ledge with three hedgehogs pacing it; **a
-stretch with no ground at all**, crossed on four branches at rising heights; a
-deep pool with two piranhas and a dry route overhead; **the great tree**, with
-the crow's nest at the top and the spare heart in it; a descent on branches
-stepping down over a pit; two wall-jump shafts back to back, the second higher;
-one long jump broken by a single pillar; a thicket of short trees with their
-branches interleaved; and the way out.
+90 tiles. Every branch grows from a trunk here, and the parser holds the level
+to it. Trees to climb by their branches, boulders to wall-jump between, a pool
+with a piranha in it, hedgehogs on the floor, and near the end **the great
+tree** — with the crow's nest at the top of it and the spare heart in the nest.
 
 ### 2 — City
 
-450 tiles, at night, and **houses as well as flats**. A city made only of tower
-blocks is one building repeated: the terraces here are plastered walls under
-pitched pantile roofs with chimneys on them, and the flats behind are brick,
-twenty-one storeys and flat on top. One wall tile in nine has an arched window
-in it, in courses, the way a house does.
+176 tiles, at night, and built at the scale of the thing walking through it: a
+block of flats is sixteen storeys of brick, an awning is four tiles of steel and
+a parked car is two tiles tall and five long.
 
-**The alleys are the way up.** A building stands on the pavement and blocks it,
-and the gaps between them are three tiles wide — which is a wall-jump shaft, the
-same one the forest teaches. Awnings and balconies step up the faces of the tall
-ones, a few houses have a passage cut through at street level, and there are
-four drainpipes in the whole city for the climbs too tall for anything else.
+A building stands on the pavement and blocks it, so each one is either **gone
+through** — an arcade at street level — or **gone over**, and the four that are
+gone over have one drainpipe, on the side you arrive at. Coming down the far
+side needs nothing: falling is free. The only columns standing on their own are
+the **lampposts**.
 
-Twelve pieces, no two the same: a street with a stoop and a low house; a terrace
-of three with alleys between them; a flat with balconies alternating up its
-face; **the canal**, crossed on three awnings because nothing swims here; two
-flats with an alley that has no way through at street level; houses with
-passages cut through them; a zigzag of balconies; **the tallest building in the
-city**, with the crow's nest and the spare heart on top; a rank of parked cars
-to hop along; a long terrace of roofs at four different heights; one last alley,
-taller and narrower; and the way out.
+Between the buildings are awnings to jump between, parked cars to clamber on,
+rats on the pavement and a **canal** eleven tiles wide. Nothing swims in this
+city — two awnings span it with five tiles of nothing between them. The spare
+heart is in a crow's nest on the tallest building.
 
 ### 3 — Swamp
 
