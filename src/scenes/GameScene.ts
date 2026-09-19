@@ -254,7 +254,7 @@ export class GameScene extends Phaser.Scene {
       crow.step(cat, delta);
     }
     for (const crocodile of this.crocodiles) {
-      crocodile.step(delta);
+      crocodile.step(delta, cat, this.player.swimming);
     }
     for (const spider of this.spiders) {
       spider.step(delta, cat);

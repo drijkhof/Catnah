@@ -316,6 +316,14 @@ export const CROCODILE = {
   /** How long it stays under before surfacing again, ms. */
   submergedMs: 1600,
 
+  /**
+   * How close a swimming cat has to be before it opens its mouth, px.
+   *
+   * Wide enough that falling in opens every crocodile within sight of you
+   * rather than only the nearest one, which is most of the effect.
+   */
+  noticeRange: 220,
+
   /** How far it bobs while afloat, px, and how long one bob takes, ms. */
   bobHeight: 1.5,
   bobPeriodMs: 2600,

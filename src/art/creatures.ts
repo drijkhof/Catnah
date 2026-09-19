@@ -202,14 +202,26 @@ function generateCrow(scene: Phaser.Scene): void {
  * afloat looks like and it is also exactly what the cat lands on. The physics
  * body is only the back (see `Crocodile`), so the snout is scenery.
  */
+/**
+ * A crocodile, in two states: mouth shut, and mouth open.
+ *
+ * Shut is what it looks like lying in the water being a platform. Open is what
+ * it looks like when there is a cat in the water, and it is the only warning
+ * the swamp gives -- so it is the loudest thing on the sprite.
+ *
+ * Everything but the head is shared, because everything but the head is the
+ * same animal either way.
+ */
 function generateCrocodile(scene: Phaser.Scene): void {
   const { width, height } = CROCODILE_SIZE;
 
-  bakeTexture(scene, 'crocodile', width, height, (g) => {
-    // The waterline falls at y=9 once the crocodile is placed (see `Crocodile`),
-    // so nearly all of it is above water. That is deliberate: a crocodile with
-    // only its scutes showing is a correct crocodile and an unreadable platform,
-    // and this one has to be something the player can aim a jump at.
+  /**
+   * The waterline falls at y=9 once the crocodile is placed (see `Crocodile`),
+   * so nearly all of it is above water. That is deliberate: a crocodile with
+   * only its scutes showing is a correct crocodile and an unreadable platform,
+   * and this one has to be something the player can aim a jump at.
+   */
+  const body = (g: Phaser.GameObjects.Graphics): void => {
     g.fillStyle(COLORS.crocBack, 1);
 
     // Tail, tapering away at the blunt end.
@@ -232,10 +244,40 @@ function generateCrocodile(scene: Phaser.Scene): void {
     }
     g.fillRect(26, 0, 6, 2);
 
-    // --- the open mouth --------------------------------------------------
-    // Drawn column by column: the upper jaw lifts away and the lower drops, so
-    // the gape widens towards the front. It is the whole reason a crocodile is
-    // dangerous here, so it is the loudest thing on the sprite.
+    // One eye, the near one, small enough to read as an eye rather than a lamp.
+    g.fillStyle(COLORS.dangerEye, 1);
+    g.fillRect(27, 0, 2, 2);
+
+    g.fillStyle(0x1d2313, 1);
+    g.fillRect(28, 1, 1, 1);
+  };
+
+  bakeTexture(scene, 'crocodile', width, height, (g) => {
+    body(g);
+
+    // Shut: a long flat snout with the jaw line closed and the teeth still
+    // showing along it, which is what a crocodile's mouth does at rest.
+    g.fillStyle(COLORS.crocBack, 1);
+    g.fillRect(31, 2, 10, 6);
+    g.fillRect(38, 3, 6, 4);
+
+    g.fillStyle(COLORS.crocJaw, 1);
+    g.fillRect(31, 6, 13, 1);
+
+    g.fillStyle(0xffffff, 1);
+    for (let x = 33; x < 43; x += 2) {
+      g.fillRect(x, 7, 1, 1);
+    }
+
+    g.fillStyle(0x1d2313, 1);
+    g.fillRect(42, 4, 1, 1);
+  });
+
+  bakeTexture(scene, 'crocodile-open', width, height, (g) => {
+    body(g);
+
+    // Open, drawn column by column: the upper jaw lifts away and the lower
+    // drops, so the gape widens towards the front.
     for (let i = 0; i < 13; i += 1) {
       const x = 31 + i;
       const upper = 3 - Math.floor(i / 4);
@@ -260,13 +302,6 @@ function generateCrocodile(scene: Phaser.Scene): void {
         g.fillRect(x, lower - 1, 1, 1);
       }
     }
-
-    // One eye, the near one, small enough to read as an eye rather than a lamp.
-    g.fillStyle(COLORS.dangerEye, 1);
-    g.fillRect(27, 0, 2, 2);
-
-    g.fillStyle(0x1d2313, 1);
-    g.fillRect(28, 1, 1, 1);
   });
 }
 

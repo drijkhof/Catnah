@@ -32,8 +32,9 @@ const FLOAT_LIFT = 7;
  * it has had enough. That is what turns a stretch of water from a swim into a
  * crossing: you get from one to the next by not stopping.
  *
- * It is not dangerous in itself. The danger is the water it lies in, which in
- * the swamp has piranhas in it.
+ * **Its mouth is shut until there is a cat in the water.** Lying there with its
+ * jaws open the whole time makes it scenery; opening them the moment you fall
+ * in makes it the reason not to. It is the only warning the swamp gives.
  *
  * **Its body is only the back**, and stops short of the head. The jaws are wide
  * open, so walking into one from the bank does not stop the cat dead against a
@@ -122,10 +123,23 @@ export class Crocodile extends Phaser.Physics.Arcade.Sprite {
     this.timer = CROCODILE.sinkDelayMs;
   }
 
-  /** Advances it by one frame. Called from the scene, like everything else. */
-  step(delta: number): void {
+  /**
+   * Advances it by one frame. Called from the scene, like everything else.
+   *
+   * @param cat Where the cat is, in world space.
+   * @param catIsSwimming Whether the cat is in water -- any water. A crocodile
+   *   has no way of knowing which pool that is, and does not need one: what it
+   *   reacts to is a cat in the water near it.
+   */
+  step(delta: number, cat: Phaser.Math.Vector2, catIsSwimming: boolean): void {
     const dt = delta / 1000;
     this.bobClock += delta;
+
+    this.setTexture(
+      catIsSwimming && Math.abs(cat.x - this.x) < CROCODILE.noticeRange
+        ? 'crocodile-open'
+        : 'crocodile',
+    );
 
     switch (this.phase) {
       case 'afloat':

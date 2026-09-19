@@ -143,8 +143,12 @@ is meant to land on.
   standing on a back that dipped under would count as being in the water, switch
   to swimming and sink off its own platform. It also has to read as a platform
   at this size, and a correct crocodile — scutes and eyes only — does not.
-- **The back stops short of the head.** The mouth is drawn wide open, and being
-  able to stand in it would undo what the drawing is saying.
+- **The mouth is shut until there is a cat in the water**, and then every
+  crocodile within `noticeRange` opens it. Jaws open the whole time is scenery;
+  jaws that open the moment you fall in are a reason not to. It is two textures
+  and one line in `step`, and it is most of what the swamp has to say.
+- **The back stops short of the head**, because being able to stand in an open
+  mouth would undo what the drawing is saying.
 - **`jaws` is a separate, larger rectangle**, tested from `GameScene.update`
   only while the cat is swimming. Landing on the back is safe; being in the
   water beside one is fatal, floating or sunk. The submerged ones still bite,
