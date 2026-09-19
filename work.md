@@ -292,18 +292,19 @@ end, nine buildings.
 **Roofs are sloped** — stepped, one way or the other — so the skyline is a
 skyline rather than a row of boxes.
 
-**Every drainpipe runs down a wall**, and every building has one on *both*
-sides. That is the whole route: a building stands on the pavement and blocks it,
-so the way past is pipe up the near side, over the roof, pipe down the far side.
-A pipe on one side only would be a wall to anyone arriving from the other. The
-only columns standing on their own are the **lampposts**, and they are short and
-have a lamp on top instead of a gutter hopper.
+A building stands on the pavement and blocks it, so each one is either **gone
+through** — an arcade at street level — or **gone over**. The four that are gone
+over have **one drainpipe**, on the side you arrive at; coming down the far side
+needs nothing, because falling is free. Four pipes in the whole city, and every
+one of them bolted to a wall. The only columns standing on their own are the
+**lampposts**, and they are short and have a lamp on top instead of a gutter
+hopper.
 
 Between the buildings are **awnings** to jump between, **parked cars** to
-clamber on, rats on the pavement and a **canal** eleven tiles wide with four
-piranhas in it. There is no way across the canal at street level and nothing
-survives swimming it — two awnings span it with a five-tile gap in the middle,
-and that gap is the jump.
+clamber on, rats on the pavement, and a **canal** eleven tiles wide. Nothing
+swims in this city — the canal is water and no more than water. Two awnings span
+it with five tiles of nothing between them: swim it the slow way, or make that
+jump.
 
 Berries are on the roofs. So is the **spare heart**, in a crow's nest on the
 tallest building in the city.

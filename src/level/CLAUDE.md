@@ -199,11 +199,17 @@ city from buildings placed at absolute coordinates. `tower()` hands back its own
 roof line so that anything sitting on a building goes on the actual roof rather
 than at a row someone counted by hand.
 
-**Every city building gets a drainpipe on both sides**, placed by `tower()`
-itself. A building stands on the pavement and blocks it, so the way past one is
-over it -- and a pipe on one side only is a wall to whoever arrives from the
-other. A column with a wall beside it is drawn with a gutter hopper on top
-(`trunk-head`); one standing on its own gets a lamp, and is a lamppost.
+A city building is either **gone through** -- `arcade()` cuts two rows out of it
+at street level -- or **gone over**, with one drainpipe on the side you arrive
+at. Coming down the far side needs nothing, which is why it is one pipe per
+climb and not two. A column with a wall beside it is drawn with a gutter hopper
+on top (`trunk-head`); one standing on its own gets a lamp, and is a lamppost.
+
+**Awnings are not a staircase.** `solidPlatforms` is on in the city, so a girder
+is solid on every face: an awning is something you come at from the side, and a
+stack of them up a wall is a ceiling. Measured -- a full jump carries the cat
+86px sideways by the time it falls back to where it took off, so it flies clean
+over a three-tile awning it jumped at from underneath.
 
 The cave is not built up from a floor; it starts as solid rock and tunnels are
 cut out of it. That is what gives it an uneven floor and a roof over every

@@ -146,12 +146,13 @@ function build(): string[] {
 
   // 5 -- The fork. The hole down is in the middle and in plain sight; the whole
   // right-hand side is a low tunnel that goes nowhere, and at the back of it is
-  // a spare heart in a nest. It is the longest dead end in the game and it has
-  // spiders over it the whole way.
+  // a spare heart in a nest. It is the longest dead end in the game.
+  //
+  // **No spiders in this tunnel.** The walk in is long, the roof is low and
+  // there is nowhere to dodge, so a spider dropping in it is not a threat to
+  // read but a toll to pay. What guards the heart is the length of the detour.
   hollow(grid, 4, 2, 21);
   carve(grid, 23, top(4) + 4, 23, 4);
-  put(grid, 30, top(4) + 4, 's');
-  put(grid, 38, top(4) + 4, 's');
   berries(grid, 33, floor(4) - 1, 3);
   put(grid, 44, floor(4) - 1, '+');
   dropThrough(grid, 4, 20);
