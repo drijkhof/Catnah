@@ -13,7 +13,13 @@ export { BUTTON_SIZE } from './ui';
 export { BUILDING_SIZE, CONE_SIZE, DEAD_TREE_SIZE, MOON_SIZE, STALACTITE_SIZE, STALAGMITE_SIZE } from './backdrops';
 export { BRANCH_LEAF_DROP, BRANCH_THICKNESS, generateTileset, tileKey } from './tiles';
 export type { TilePalette } from './tiles';
-export { BOSS_SIZE, CROW_SIZE, GROUND_ENEMY_SIZES, PIRANHA_SIZE } from './creatures';
+export {
+  BOSS_SIZE,
+  CROCODILE_SIZE,
+  CROW_SIZE,
+  GROUND_ENEMY_SIZES,
+  PIRANHA_SIZE,
+} from './creatures';
 
 /**
  * Bakes every placeholder texture the game uses. Called once from BootScene,

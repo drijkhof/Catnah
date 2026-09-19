@@ -3,6 +3,7 @@ import { GAME_WIDTH, LIVES, TILE } from '../config';
 import { Controls } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
+import { Crocodile } from '../objects/Crocodile';
 import { Crow } from '../objects/Crow';
 import { GroundEnemy } from '../objects/GroundEnemy';
 import { Piranha } from '../objects/Piranha';
@@ -53,6 +54,7 @@ export class GameScene extends Phaser.Scene {
   private walkers: GroundEnemy[] = [];
   private piranhas: Piranha[] = [];
   private crows: Crow[] = [];
+  private crocodiles: Crocodile[] = [];
   private boss?: Boss;
   private lavaRects: Phaser.Geom.Rectangle[] = [];
 
@@ -77,6 +79,7 @@ export class GameScene extends Phaser.Scene {
   create(): void {
     this.level = parseLevel(LEVELS[this.levelIndex]);
     this.collected = 0;
+    this.crocodiles = [];
     this.lifeIcons = [];
     this.dying = false;
     this.leaving = false;
@@ -244,9 +247,16 @@ export class GameScene extends Phaser.Scene {
     for (const crow of this.crows) {
       crow.step(cat, delta);
     }
+    for (const crocodile of this.crocodiles) {
+      crocodile.step(delta);
+    }
     this.boss?.step(delta, cat);
 
     if (!this.dying && this.touchingLava()) {
+      this.kill();
+    }
+
+    if (!this.dying && this.player.swimming && this.inReachOfACrocodile()) {
       this.kill();
     }
 
@@ -328,6 +338,21 @@ export class GameScene extends Phaser.Scene {
       return new Piranha(this, at.x, at.y, pool, index * 700);
     });
     this.crows = this.level.crows.map((at) => new Crow(this, at.x, at.y));
+    this.crocodiles = this.level.crocodiles.map(
+      (at) => new Crocodile(this, at.x, at.y),
+    );
+
+    for (const crocodile of this.crocodiles) {
+      // One-way, exactly like a branch: the cat lands on the back coming down
+      // and passes it going up. Landing is also what sets it sinking, which is
+      // why the callback does the telling rather than a separate overlap.
+      this.physics.add.collider(
+        this.player,
+        crocodile,
+        () => crocodile.steppedOn(),
+        () => landsOnBranch(this.player, crocodile),
+      );
+    }
     this.boss = this.level.boss
       ? new Boss(this, this.level.boss.x, this.level.boss.y)
       : undefined;
@@ -369,6 +394,28 @@ export class GameScene extends Phaser.Scene {
     for (const creature of everything) {
       this.physics.add.overlap(this.player, creature, () => this.kill());
     }
+  }
+
+  /**
+   * Is the cat in the water within reach of a crocodile?
+   *
+   * Only asked while swimming. Standing on a back is the safe way past one;
+   * being in the water beside it is how the swamp collects its toll, and it is
+   * what stops a missed jump from being free.
+   */
+  private inReachOfACrocodile(): boolean {
+    const body = this.player.body;
+
+    return this.crocodiles.some((crocodile) => {
+      const jaws = crocodile.jaws;
+
+      return (
+        body.right > jaws.x &&
+        body.x < jaws.right &&
+        body.bottom > jaws.y &&
+        body.y < jaws.bottom
+      );
+    });
   }
 
   /** Is any part of the cat in the lava? */

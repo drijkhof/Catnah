@@ -321,3 +321,40 @@ the arena each time it commits survives six drops over thirty seconds untouched.
 
 > **Still open:** there is no sense of progress in the fight and no reward for
 > surviving it — you simply walk out. A boss usually wants one or the other.
+
+## Crocodiles, and the swamp rebuilt around them
+
+**A crocodile is harmless from above and fatal from the water.** That rule was
+not given and it is the one everything else hangs off: the back is a floor, the
+water beside it is not. It also means a sinking crocodile eventually kills the
+cat standing on it, which is what turns "keep moving" from advice into a rule.
+
+> **Still open:** the submerged ones bite too. It makes a missed jump expensive
+> — you land in the water on top of the thing that just went under — and it may
+> be one punishment too many.
+
+**Fourteen crocodiles, twenty piranhas, thirteen lianas, 248 tiles.** The level
+was allowed to grow five times longer and grew to a bit over three. Eight
+crossings felt like the point at which the alternation stops teaching and starts
+repeating; two more of each would have been more of the same.
+
+**Gaps run 5 to 7 tiles.** Measured: a jump from a standstill carries 119px and
+one with a run-up about 130px, and a crocodile's back is 38px wide. A 7-tile gap
+(112px) is a real jump from a back you have no room to run along, which is the
+intent — but it is close to the ceiling of what the cat can do, and the last two
+crossings are all 7s.
+
+**The lianas hang from nothing.** Asked for: only the bottom of a liana should
+be usable, so the cat can never climb to a roof, and no roof should ever be
+visible. Implemented as a five-tile liana hanging low over the water with
+nothing above it at all, rather than a long rope with a dead upper half.
+
+> **Still open:** a rope that visibly continues up out of the frame would
+> explain what it is hanging from without putting a ceiling in the level. That
+> needs a decorative column that is drawn but not climbable, which does not
+> exist yet.
+
+**The crossings were measured, not assumed.** Confirmed in the browser: the cat
+gets over the first crocodile water and the first liana water — bank, liana,
+liana, far bank — and dies in the water beside a crocodile but not in open water
+that has none.

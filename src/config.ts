@@ -255,6 +255,39 @@ export const PIRANHA = {
 } as const;
 
 /**
+ * The crocodiles in the swamp.
+ *
+ * A crocodile is a platform with a temper: it floats still enough to land on
+ * and then goes under, so the water it lies in is crossed by moving rather than
+ * by standing. The whole difficulty of the swamp is in these numbers.
+ */
+export const CROCODILE = {
+  /**
+   * How long it takes the weight to register, ms.
+   *
+   * The pause is the whole move: land, read the next one, go. Sinking on
+   * contact would make a crossing a reaction test instead of a rhythm.
+   */
+  sinkDelayMs: 520,
+
+  /** How far under it goes, px. Deep enough that its back is no longer a floor. */
+  sinkDepth: 26,
+
+  /** How fast it goes down, px/sec. */
+  sinkSpeed: 52,
+
+  /** How fast it comes back up, px/sec. Slower than it sinks: it is in no hurry. */
+  riseSpeed: 30,
+
+  /** How long it stays under before surfacing again, ms. */
+  submergedMs: 1600,
+
+  /** How far it bobs while afloat, px, and how long one bob takes, ms. */
+  bobHeight: 1.5,
+  bobPeriodMs: 2600,
+} as const;
+
+/**
  * The boss: the evil lord beetle at the end of the volcano.
  *
  * It has no health and cannot be beaten, because nothing in this game can. It
@@ -405,6 +438,13 @@ export const COLORS = {
 
   piranhaBody: 0x4c6b58,
   piranhaBelly: 0xc2705a,
+
+  // Warmer and lighter than the swamp water it lies in. The first version was
+  // a dark green on dark green and read as a stick.
+  crocBack: 0x7a7f3c,
+  crocRidge: 0x4a4f22,
+  crocBelly: 0xa8ad63,
+  crocJaw: 0x5d612b,
 
   crowBody: 0x1e1f26,
   crowSheen: 0x3b3f4d,

@@ -281,12 +281,29 @@ lit window by window.
 **Rats here, not hedgehogs** — same idea, but faster and low to the ground.
 ### 4 — Swamp
 
-Standing water almost everywhere, under an overcast sky going brown at the
-horizon. Dead trees hung with moss, reeds along the waterline, and mist drifting
-across in two bands. The platforms are logs lying across the water, and a **liana hangs in the gap
-between each pair of them**, running from the height of the upper log down to
-the lower one. So a liana is the way across rather than something dangling
-overhead: drop onto it, climb, and jump off onto the next log.
+By far the longest level — 248 tiles, three times any other — and all of it is
+one question: how do you get over the water? Overcast sky going brown at the
+horizon, dead trees hung with moss, reeds along the waterline, mist drifting
+across in two bands.
+
+**Eight crossings, alternating**, with a strip of bank between each pair. The
+two kinds never mix; a stretch of water has one danger, not two.
+
+- **Crocodile water.** Crocodiles lie in it and nothing else does. Their backs
+  are a floor, so the way over is to hop from one to the next — but they are 5
+  to 7 tiles apart, which is most of a jump, and none of them stays up. Land on
+  one and it takes half a second to notice, then it goes under and stays under
+  for a second and a half before surfacing again. **A crocodile eats a cat that
+  is in the water beside it**, floating or sunk, so falling short is not free.
+- **Piranha water.** No crocodiles, and far too many fish to swim past —
+  four to six in every stretch. **Lianas hang over it**, and they are the whole
+  route: jump off the bank, catch one in mid-air, leap to the next, and land on
+  the far side. Nothing at water level gets you across.
+
+The lianas here are five tiles long, hang low over the water and **hang from
+nothing**. That is on purpose: all you can do with one is cross, there is no
+climbing up out of the level on them, and the swamp has sky overhead rather than
+a roof.
 ### 5 — Canopy
 
 Built around one move: **jumping off a liana onto a platform out of its reach**.
@@ -331,6 +348,10 @@ far end of the arena.
   ground: never on platforms, never on boulders, never in water. They are slow,
   and cannot be defeated — touching one is fatal from any direction.
 - **Rats** are the city's version: the same behaviour, nearly twice as quick.
+- **Crocodiles** lie still at the surface of the swamp's water and are the only
+  thing in the game you are *meant* to stand on. Land on the back and it sinks
+  under you shortly afterwards, then comes back up. They are harmless from
+  above and fatal from the water, sunk or floating.
 - **Piranhas** patrol the pool they live in, lurking below the surface and
   leaping straight out every 2.2 seconds, always to the same rhythm so it can be
   learnt. One will chase a cat that swims **into its own pool**, and never

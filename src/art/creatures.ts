@@ -8,6 +8,9 @@ export const GROUND_ENEMY_SIZES = {
   rat: { width: 19, height: 9 },
 };
 export const PIRANHA_SIZE = { width: 17, height: 10 };
+
+/** Wide and flat, because what it is for is being landed on. */
+export const CROCODILE_SIZE = { width: 44, height: 16 };
 export const CROW_SIZE = { width: 20, height: 15 };
 
 /** The boss. Far bigger than anything else, which is most of the threat. */
@@ -17,6 +20,7 @@ export function generateCreatureTextures(scene: Phaser.Scene): void {
   generateHedgehog(scene);
   generateRat(scene);
   generatePiranha(scene);
+  generateCrocodile(scene);
   generateCrow(scene);
   generateBoss(scene);
 }
@@ -183,5 +187,65 @@ function generateCrow(scene: Phaser.Scene): void {
 
     g.fillStyle(COLORS.crowBeak, 1);
     g.fillTriangle(19, 5, 19, 8, width, 6);
+  });
+}
+
+/**
+ * A crocodile, side-on and facing right, lying at the surface.
+ *
+ * Drawn so the top few pixels read as a back and a pair of eyes above the
+ * waterline and the rest as the bulk under it, because that is what a crocodile
+ * afloat looks like and it is also exactly what the cat lands on. The physics
+ * body is only the back (see `Crocodile`), so the snout is scenery.
+ */
+function generateCrocodile(scene: Phaser.Scene): void {
+  const { width, height } = CROCODILE_SIZE;
+
+  bakeTexture(scene, 'crocodile', width, height, (g) => {
+    // The waterline falls at y=9 once the crocodile is placed (see `Crocodile`),
+    // so nearly all of it is above water. That is deliberate: a crocodile with
+    // only its scutes showing is a correct crocodile and an unreadable platform,
+    // and this one has to be something the player can aim a jump at.
+    g.fillStyle(COLORS.crocBack, 1);
+
+    // Tail, tapering away at the blunt end.
+    g.fillTriangle(0, 5, 0, 12, 9, 9);
+
+    // Back, and a head a touch taller than it.
+    g.fillRect(5, 2, 28, 8);
+    g.fillRect(29, 1, 9, 8);
+
+    // Snout, narrower than the head and held flat.
+    g.fillRect(36, 4, 8, 4);
+
+    // A lit top edge along the whole back. This one line is most of what makes
+    // the silhouette carry against green water.
+    g.fillStyle(COLORS.crocBelly, 1);
+    g.fillRect(6, 2, 27, 1);
+    g.fillRect(8, 10, 22, 2);
+
+    // Scutes down the spine, and the brow the eyes sit on.
+    g.fillStyle(COLORS.crocRidge, 1);
+    for (let x = 7; x < 29; x += 5) {
+      g.fillTriangle(x, 2, x + 4, 2, x + 2, 0);
+    }
+    g.fillRect(30, 0, 7, 2);
+
+    // Jawline, with teeth along it.
+    g.fillStyle(COLORS.crocJaw, 1);
+    g.fillRect(29, 8, 15, 1);
+
+    g.fillStyle(0xffffff, 1);
+    for (let x = 37; x < 44; x += 2) {
+      g.fillRect(x, 8, 1, 2);
+    }
+
+    // One eye, the near one, small enough to read as an eye rather than a lamp.
+    g.fillStyle(COLORS.dangerEye, 1);
+    g.fillRect(32, 0, 2, 2);
+
+    g.fillStyle(0x1d2313, 1);
+    g.fillRect(33, 1, 1, 1);
+    g.fillRect(42, 5, 1, 1);
   });
 }

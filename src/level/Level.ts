@@ -21,6 +21,8 @@ import type { GroundEnemyKind } from '../config';
  *   `A`  parked car, solid and climbable
  *   `f`  piranha — water *with* a piranha in it, so placing one never
  *        punches a hole in the pool it is meant to be swimming in
+ *   `C`  crocodile — likewise water, with a crocodile lying at the surface of
+ *        it. A stepping stone that sinks once it has been stepped on
  *   `+`  extra life — a nest tile with a spare heart in it. Never required,
  *        and always guarded.
  *   `c`  crow, which circles the nest it is placed at
@@ -122,6 +124,8 @@ export interface ParsedLevel {
   walkers: Walker[];
   /** Where each piranha lurks, and which pool it belongs to. */
   piranhas: Piranha[];
+  /** Crocodiles, by the point on the water surface their backs rest at. */
+  crocodiles: Point[];
   crows: Point[];
   /** Where the boss holds its ground, if the level has one. */
   boss: Point | null;
@@ -156,6 +160,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const lavaZones: WaterZone[] = [];
   const walkers: Walker[] = [];
   const piranhaSpots: Point[] = [];
+  const crocodiles: Point[] = [];
   const crows: Point[] = [];
   const nests: Point[] = [];
   const berries: Point[] = [];
@@ -261,16 +266,21 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
 
         case 'w':
         case 'f':
+        case 'C':
           waterZones.push({
             x,
             y,
             width: TILE,
             height: TILE,
-            isSurface: !'wf'.includes(at(column, row - 1)),
+            isSurface: !'wfC'.includes(at(column, row - 1)),
           });
 
           if (tiles[column] === 'f') {
             piranhaSpots.push({ x: x + TILE / 2, y });
+          }
+
+          if (tiles[column] === 'C') {
+            crocodiles.push({ x: x + TILE / 2, y });
           }
           break;
 
@@ -349,6 +359,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     climbZones,
     waterZones,
     pools,
+    crocodiles,
     lavaZones,
     walkers,
     piranhas,

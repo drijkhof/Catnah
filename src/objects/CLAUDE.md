@@ -110,6 +110,27 @@ of the pool rather than of the nearest tile.
 Water is harmless by design — the original wish was that not every pool has a
 piranha in it, which only means anything if a pool without one is safe.
 
+## Crocodiles
+
+A crocodile is a platform with a temper, and the only thing in the game the cat
+is meant to land on.
+
+- **Its body is only the back**, so the snout is scenery and walking into one
+  from a bank does not stop the cat dead against a nose.
+- **The collider is one-way**, exactly like a branch, and the callback that
+  lets the cat land is also what tells the crocodile it has been stepped on.
+- **It rides well clear of the waterline** (`FLOAT_LIFT`). Not for looks: a cat
+  standing on a back that dipped under would count as being in the water, switch
+  to swimming and sink off its own platform. It also has to read as a platform
+  at this size, and a correct crocodile — scutes and eyes only — does not.
+- **`jaws` is a separate, larger rectangle**, tested from `GameScene.update`
+  only while the cat is swimming. Landing on the back is safe; being in the
+  water beside one is fatal, floating or sunk. The submerged ones still bite,
+  which is what makes dawdling on a sinking back cost something.
+- It moves by position rather than velocity and calls
+  `body.updateFromGameObject()` afterwards, because its whole behaviour is about
+  being in an exact place: level with the water, or a fixed depth under it.
+
 ## Climbing trunks
 
 Climbing **replaces** ordinary movement rather than adding to it — no gravity,
