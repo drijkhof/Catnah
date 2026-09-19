@@ -2,7 +2,7 @@ import { TILE } from '../config';
 import { BRANCH_THICKNESS } from '../art';
 
 /** Level width in tiles. Every row is padded to this length when parsed. */
-export const LEVEL_WIDTH_IN_TILES = 80;
+export const LEVEL_WIDTH_IN_TILES = 90;
 
 /**
  * Level 1, a sunlit forest. One string per row of tiles.
@@ -13,6 +13,10 @@ export const LEVEL_WIDTH_IN_TILES = 80;
  *   `R`  boulder — solid rock, and the surface wall jumps are taken from
  *   `T`  tree trunk — climbable, and deliberately *not* solid
  *   `w`  water — swimmable, not solid, and not dangerous on its own
+ *   `N`  nest, decoration at the top of the great tree
+ *   `h`  hedgehog, pacing whatever it is standing on
+ *   `f`  piranha, waiting in the pool it is placed in
+ *   `c`  crow, which circles the nest it is placed at
  *   `o`  berry
  *   `P`  cat spawn (exactly one)
  *   `.`  empty
@@ -53,25 +57,36 @@ const LEVEL_SOURCE: string[] = [
   '',
   '',
   '',
-  '.'.repeat(60) + 'oo' + '...' + 'oo',
-  '.'.repeat(60) + 'RR' + '...' + 'RR' + '.'.repeat(6) + 'T',
-  '.'.repeat(60) + 'RR' + '...' + 'RR' + '..' + 'ooo' + '.' + 'T',
-  '.'.repeat(60) + 'RR' + '...' + 'RR' + '..' + '='.repeat(4) + 'T',
-  '.'.repeat(30) + 'T' + '.'.repeat(29) + 'RR' + '...' + 'RR' + '.'.repeat(6) + 'T',
-  '.'.repeat(30) + 'T' + 'ooo' + '.'.repeat(26) + 'RR' + '...' + 'RR' + '.'.repeat(6) + 'T',
-  '.'.repeat(30) + 'T' + '='.repeat(5) + '.'.repeat(24) + 'RR' + '...' + 'RR' + '.'.repeat(6) + 'T',
-  '.'.repeat(10) + 'T' + '.'.repeat(15) + 'ooo' + '.' + 'T' + '.'.repeat(13) + 'T' + '.'.repeat(15) + 'RR' + '...' + 'RR' + '.'.repeat(6) + 'T' + 'ooo',
-  '.'.repeat(10) + 'T' + 'ooo' + '.'.repeat(12) + '='.repeat(4) + 'T' + '.'.repeat(13) + 'T' + 'ooo' + '.'.repeat(12) + 'RR' + '...' + 'RR' + '.'.repeat(6) + 'T' + '='.repeat(5),
-  '.'.repeat(10) + 'T' + '='.repeat(5) + '.'.repeat(14) + 'T' + '.'.repeat(13) + 'T' + '='.repeat(4) + '.'.repeat(11) + 'RR' + '...' + 'RR' + '.'.repeat(6) + 'T',
-  '.'.repeat(6) + 'ooo' + '.' + 'T' + '.'.repeat(19) + 'T' + '.'.repeat(9) + 'ooo' + '.' + 'T' + '.'.repeat(15) + 'RR' + '...' + 'RR' + '.'.repeat(6) + 'T',
-  '.'.repeat(6) + '='.repeat(4) + 'T' + '.'.repeat(19) + 'T' + '.'.repeat(9) + '='.repeat(4) + 'T' + '.'.repeat(8) + 'ooo' + '.'.repeat(4) + 'RR' + '...' + 'RR' + '.'.repeat(6) + 'T',
-  '.'.repeat(10) + 'T' + '.'.repeat(5) + 'ooo' + '.'.repeat(11) + 'T' + '.'.repeat(4) + 'ooo' + '.'.repeat(6) + 'T' + '.'.repeat(7) + 'R'.repeat(6) + '..' + 'RR' + '...' + 'RR' + '.'.repeat(6) + 'T',
-  '.'.repeat(10) + 'T' + '.'.repeat(4) + 'R'.repeat(6) + '.' + 'B'.repeat(6) + '..' + 'T' + '...' + 'R'.repeat(6) + '.'.repeat(4) + 'T' + '.'.repeat(7) + 'R'.repeat(6) + '.'.repeat(7) + 'RR' + '.'.repeat(6) + 'T',
-  '...' + 'P' + '.'.repeat(6) + 'T' + '.'.repeat(4) + 'R'.repeat(6) + '.'.repeat(9) + 'T' + '...' + 'R'.repeat(6) + '.'.repeat(4) + 'T' + '.'.repeat(7) + 'R'.repeat(6) + '.'.repeat(7) + 'RR' + '.'.repeat(6) + 'T',
-  '#'.repeat(5) + 'w'.repeat(5) + '#'.repeat(36) + '.'.repeat(5) + '#'.repeat(17) + 'w'.repeat(5) + '#'.repeat(7),
-  '#'.repeat(5) + 'w'.repeat(5) + '#'.repeat(36) + '.'.repeat(5) + '#'.repeat(17) + 'w'.repeat(5) + '#'.repeat(7),
-  '#'.repeat(5) + 'w'.repeat(5) + '#'.repeat(36) + '.'.repeat(5) + '#'.repeat(17) + 'w'.repeat(5) + '#'.repeat(7),
-  '#'.repeat(46) + '.'.repeat(5) + '#'.repeat(29),
+  '.'.repeat(58) + 'c',
+  '.'.repeat(57) + 'NNN',
+  '.'.repeat(58) + 'T',
+  '.'.repeat(58) + 'T',
+  '.'.repeat(58) + 'T',
+  '.'.repeat(54) + 'ooo' + '.' + 'T',
+  '.'.repeat(54) + '='.repeat(4) + 'T',
+  '.'.repeat(58) + 'T',
+  '.'.repeat(58) + 'T',
+  '.'.repeat(58) + 'T' + 'ooo',
+  '.'.repeat(58) + 'T' + '='.repeat(5),
+  '.'.repeat(58) + 'T',
+  '.'.repeat(58) + 'T',
+  '.'.repeat(54) + 'ooo' + '.' + 'T' + '.'.repeat(6) + 'oo' + '...' + 'oo',
+  '.'.repeat(54) + '='.repeat(4) + 'T' + '.'.repeat(6) + 'RR' + '...' + 'RR',
+  '.'.repeat(30) + 'T' + '.'.repeat(27) + 'T' + '.'.repeat(6) + 'RR' + '...' + 'RR' + '.'.repeat(11) + 'ooo',
+  '.'.repeat(30) + 'T' + 'oo' + 'h' + '.'.repeat(24) + 'T' + '.'.repeat(6) + 'RR' + '...' + 'RR' + '.'.repeat(10) + 'T' + '='.repeat(5),
+  '.'.repeat(30) + 'T' + '='.repeat(5) + '.'.repeat(22) + 'T' + 'ooo' + '...' + 'RR' + '...' + 'RR' + '.'.repeat(10) + 'T',
+  '.'.repeat(10) + 'T' + '.'.repeat(15) + 'ooo' + '.' + 'T' + '.'.repeat(13) + 'T' + '.'.repeat(13) + 'T' + '='.repeat(5) + '.' + 'RR' + '...' + 'RR' + '.'.repeat(10) + 'T',
+  '.'.repeat(10) + 'T' + 'ooo' + '.'.repeat(12) + '='.repeat(4) + 'T' + '.'.repeat(13) + 'T' + 'ooo' + '.'.repeat(10) + 'T' + '.'.repeat(6) + 'RR' + '...' + 'RR' + '.'.repeat(6) + 'ooo' + '.' + 'T',
+  '.'.repeat(10) + 'T' + '='.repeat(5) + '.'.repeat(14) + 'T' + '.'.repeat(13) + 'T' + '='.repeat(4) + '.'.repeat(9) + 'T' + '.'.repeat(6) + 'RR' + '...' + 'RR' + '.'.repeat(6) + '='.repeat(4) + 'T',
+  '.'.repeat(6) + 'ooo' + '.' + 'T' + '.'.repeat(19) + 'T' + '.'.repeat(9) + 'ooo' + '.' + 'T' + '.'.repeat(9) + 'ooo' + '.' + 'T' + '.'.repeat(6) + 'RR' + '...' + 'RR' + '.'.repeat(10) + 'T',
+  '.'.repeat(6) + '='.repeat(4) + 'T' + '.'.repeat(19) + 'T' + '.'.repeat(9) + '='.repeat(4) + 'T' + '.'.repeat(8) + 'oo' + '===' + 'T' + '.'.repeat(6) + 'RR' + '...' + 'RR' + '.'.repeat(10) + 'T',
+  '.'.repeat(10) + 'T' + '.'.repeat(7) + 'o' + 'h' + 'o' + '.'.repeat(9) + 'T' + '.'.repeat(7) + 'ooo' + '...' + 'T' + '.'.repeat(7) + 'R'.repeat(6) + 'T' + '.'.repeat(6) + 'RR' + '...' + 'RR' + '.'.repeat(10) + 'T',
+  '.'.repeat(10) + 'T' + '.'.repeat(6) + 'R'.repeat(6) + '.' + 'B'.repeat(6) + 'T' + '.'.repeat(6) + 'R'.repeat(6) + '.' + 'T' + '.'.repeat(7) + 'R'.repeat(6) + 'T' + '.'.repeat(11) + 'RR' + '.'.repeat(10) + 'T',
+  '...' + 'P' + '.'.repeat(6) + 'T' + '.'.repeat(6) + 'R'.repeat(6) + '.'.repeat(7) + 'T' + '.'.repeat(6) + 'R'.repeat(6) + '.' + 'T' + '.'.repeat(7) + 'R'.repeat(6) + 'T' + '.'.repeat(4) + 'h' + '.'.repeat(6) + 'RR' + '.'.repeat(10) + 'T',
+  '#'.repeat(5) + 'w'.repeat(5) + '#'.repeat(36) + '.'.repeat(5) + '#'.repeat(22) + 'ww' + 'f' + 'ww' + '#'.repeat(12),
+  '#'.repeat(5) + 'w'.repeat(5) + '#'.repeat(36) + '.'.repeat(5) + '#'.repeat(22) + 'w'.repeat(5) + '#'.repeat(12),
+  '#'.repeat(5) + 'w'.repeat(5) + '#'.repeat(36) + '.'.repeat(5) + '#'.repeat(22) + 'w'.repeat(5) + '#'.repeat(12),
+  '#'.repeat(46) + '.'.repeat(5) + '#'.repeat(39),
 ];
 
 /**
@@ -80,7 +95,7 @@ const LEVEL_SOURCE: string[] = [
  * sneaking overhang is also made of earth and would otherwise be mistaken for
  * ground level.
  */
-export const GROUND_ROW = 19;
+export const GROUND_ROW = 30;
 
 /** A position in world (pixel) space. */
 export interface Point {
@@ -140,6 +155,14 @@ export interface ParsedLevel {
   climbZones: ClimbZone[];
   /** Pools, which are swum through. */
   waterZones: WaterZone[];
+  /** Where each hedgehog starts, at its feet. */
+  hedgehogs: Point[];
+  /** Where each piranha lurks, given as the water surface above it. */
+  piranhas: Point[];
+  /** Nests a crow circles, at their centre. */
+  crows: Point[];
+  /** Nest tiles, which are decoration only. */
+  nests: Point[];
   /** Centre of each berry, in world pixels. */
   berries: Point[];
   /**
@@ -168,6 +191,10 @@ export function parseLevel(source: string[] = LEVEL_SOURCE): ParsedLevel {
   const solids: Solid[] = [];
   const climbZones: ClimbZone[] = [];
   const waterZones: WaterZone[] = [];
+  const hedgehogs: Point[] = [];
+  const piranhas: Point[] = [];
+  const crows: Point[] = [];
+  const nests: Point[] = [];
   const berries: Point[] = [];
   let spawn: Point | null = null;
 
@@ -255,6 +282,23 @@ export function parseLevel(source: string[] = LEVEL_SOURCE): ParsedLevel {
           });
           break;
 
+        case 'h':
+          // Placed on the tile it stands on, so its feet land on the surface.
+          hedgehogs.push({ x: x + TILE / 2, y: y + TILE });
+          break;
+
+        case 'f':
+          piranhas.push({ x: x + TILE / 2, y });
+          break;
+
+        case 'c':
+          crows.push({ x: x + TILE / 2, y: y + TILE / 2 });
+          break;
+
+        case 'N':
+          nests.push({ x, y });
+          break;
+
         case 'o':
           berries.push({ x: x + TILE / 2, y: y + TILE / 2 });
           break;
@@ -274,11 +318,16 @@ export function parseLevel(source: string[] = LEVEL_SOURCE): ParsedLevel {
   }
 
   assertBranchesGrowFromTrunks(rows);
+  assertCreaturesHaveRoom(rows);
 
   return {
     solids,
     climbZones,
     waterZones,
+    hedgehogs,
+    piranhas,
+    crows,
+    nests,
     berries,
     spawn,
     groundLine: GROUND_ROW * TILE,
@@ -326,6 +375,35 @@ function assertBranchesGrowFromTrunks(rows: string[]): void {
     throw new Error(
       `Every branch must grow from a trunk. Unattached: ${orphans.join('; ')}.`,
     );
+  }
+}
+
+/**
+ * Refuses a level where a creature has been placed inside solid ground.
+ *
+ * Writing an `h` over a boulder tile leaves a hole in the boulder and a
+ * hedgehog wedged in it, jittering on the spot. The symptom looks like broken
+ * patrol logic rather than a misplaced character, so it is worth catching here.
+ */
+function assertCreaturesHaveRoom(rows: string[]): void {
+  const wedged: string[] = [];
+
+  rows.forEach((tiles, row) => {
+    for (let column = 0; column < LEVEL_WIDTH_IN_TILES; column += 1) {
+      if (!'hfc'.includes(tiles[column])) {
+        continue;
+      }
+
+      // A creature needs the tile it stands in, and the one it fills, clear.
+      const above = rows[row - 1]?.[column] ?? '.';
+      if (FULL_CELL.has(above)) {
+        wedged.push(`${tiles[column]} at row ${row}, column ${column}`);
+      }
+    }
+  });
+
+  if (wedged.length > 0) {
+    throw new Error(`Creatures need clear space: ${wedged.join('; ')}.`);
   }
 }
 

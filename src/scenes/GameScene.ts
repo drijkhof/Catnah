@@ -2,9 +2,29 @@ import Phaser from 'phaser';
 import { TILE } from '../config';
 import { Controls } from '../input/Controls';
 import { Player } from '../objects/Player';
+import { Crow } from '../objects/Crow';
+import { Hedgehog } from '../objects/Hedgehog';
+import { Piranha } from '../objects/Piranha';
 import { Backdrop } from '../world/Backdrop';
 import { parseLevel, type ParsedLevel } from '../level/Level';
 import { SNAPSHOT_KEY, type GameSnapshot } from '../dev/hot';
+
+/**
+ * Whether something falling should be stopped by a branch this frame.
+ *
+ * Branches are one-way: you pass up through them and land on them coming down.
+ * Testing the previous position rather than the current one is what stops
+ * something halfway up through a branch being snapped back on top of it.
+ */
+function landsOnBranch(
+  mover: Phaser.Physics.Arcade.Sprite,
+  branch: Phaser.Physics.Arcade.Sprite,
+): boolean {
+  const body = mover.body as Phaser.Physics.Arcade.Body;
+  const wood = branch.body as Phaser.Physics.Arcade.StaticBody;
+
+  return body.velocity.y >= 0 && body.prev.y + body.height <= wood.y + 1;
+}
 
 /** How far below the level the cat may fall before respawning, in pixels. */
 const FALL_OUT_MARGIN = 80;
@@ -16,6 +36,12 @@ export class GameScene extends Phaser.Scene {
   private scoreText!: Phaser.GameObjects.Text;
   private berries!: Phaser.Physics.Arcade.StaticGroup;
   private collected = 0;
+  private hedgehogs: Hedgehog[] = [];
+  private piranhas: Piranha[] = [];
+  private crows: Crow[] = [];
+
+  /** True from the moment the cat is killed until it is back on its feet. */
+  private dying = false;
 
   constructor() {
     super('Game');
@@ -66,8 +92,13 @@ export class GameScene extends Phaser.Scene {
       this.level.widthInPixels,
       this.level.heightInPixels,
     );
-    this.cameras.main.startFollow(this.player, true, 0.12, 0.12);
-    this.cameras.main.setDeadzone(120, 60);
+    // The level is taller than the viewport, so the view has somewhere to go
+    // when the cat climbs. A narrow vertical deadzone keeps it in frame on the
+    // way up the great tree without the view bobbing on every small hop.
+    this.cameras.main.startFollow(this.player, true, 0.12, 0.14);
+    this.cameras.main.setDeadzone(140, 44);
+
+    this.buildCreatures(blocks, branches);
 
     this.controls = new Controls(this);
     this.buildHud();
@@ -152,12 +183,95 @@ export class GameScene extends Phaser.Scene {
     // Input is sampled first so that edge-triggered reads (jump-just-pressed)
     // are consistent for everything that runs this frame.
     this.controls.update();
-    this.player.step(this.controls, delta);
 
-    if (this.player.y > this.level.heightInPixels + FALL_OUT_MARGIN) {
-      this.player.respawnAt(this.level.spawn.x, this.level.spawn.y);
-      this.cameras.main.flash(180, 0, 0, 0);
+    if (!this.dying) {
+      this.player.step(this.controls, delta);
     }
+
+    const cat = new Phaser.Math.Vector2(this.player.x, this.player.y);
+    for (const hedgehog of this.hedgehogs) {
+      hedgehog.step();
+    }
+    for (const piranha of this.piranhas) {
+      piranha.step(delta);
+    }
+    for (const crow of this.crows) {
+      crow.step(cat, delta);
+    }
+
+    if (!this.dying && this.player.y > this.level.heightInPixels + FALL_OUT_MARGIN) {
+      this.kill();
+    }
+  }
+
+  /**
+   * Builds everything that can kill the cat, and wires it to do so.
+   *
+   * Hedgehogs walk on the world, so they collide with it. Piranhas and crows
+   * fly their own paths and only ever touch the cat.
+   */
+  private buildCreatures(
+    blocks: Phaser.Physics.Arcade.StaticGroup,
+    branches: Phaser.Physics.Arcade.StaticGroup,
+  ): void {
+    this.hedgehogs = this.level.hedgehogs.map(
+      (at) => new Hedgehog(this, at.x, at.y),
+    );
+    this.piranhas = this.level.piranhas.map(
+      (at, index) => new Piranha(this, at.x, at.y, index * 700),
+    );
+    this.crows = this.level.crows.map((at) => new Crow(this, at.x, at.y));
+
+    for (const nest of this.level.nests) {
+      this.add.image(nest.x, nest.y, 'nest').setOrigin(0, 0).setDepth(-2);
+    }
+
+    this.physics.add.collider(this.hedgehogs, blocks);
+    // Branches are one-way for anything that walks on them, not just the cat --
+    // a hedgehog put on a branch falls straight through without this.
+    this.physics.add.collider(
+      this.hedgehogs,
+      branches,
+      undefined,
+      (hog, branch) =>
+        landsOnBranch(
+          hog as Phaser.Physics.Arcade.Sprite,
+          branch as Phaser.Physics.Arcade.Sprite,
+        ),
+    );
+
+    for (const creature of [...this.hedgehogs, ...this.piranhas, ...this.crows]) {
+      this.physics.add.overlap(this.player, creature, () => this.kill());
+    }
+  }
+
+  /**
+   * Kills the cat and puts it back at the start.
+   *
+   * There is a pause before the respawn on purpose: a death that teleports you
+   * instantly reads as a glitch rather than as something you did wrong, and
+   * leaves no moment to see what hit you.
+   */
+  private kill(): void {
+    if (this.dying) {
+      return;
+    }
+
+    this.dying = true;
+    this.player.setVelocity(0, 0);
+    this.player.body.setAllowGravity(false);
+    this.player.setTint(0xff6b6b);
+
+    this.cameras.main.shake(180, 0.008);
+    this.cameras.main.flash(200, 90, 0, 0);
+
+    this.time.delayedCall(650, () => {
+      this.player.clearTint();
+      this.player.body.setAllowGravity(true);
+      this.player.respawnAt(this.level.spawn.x, this.level.spawn.y);
+      this.cameras.main.centerOn(this.player.x, this.player.y);
+      this.dying = false;
+    });
   }
 
   /**
@@ -177,6 +291,11 @@ export class GameScene extends Phaser.Scene {
         .create(solid.x, solid.y, solid.textureKey)
         .setOrigin(0, 0)
         .refreshBody() as Phaser.Physics.Arcade.Sprite;
+
+      // Probes look for solid ground by asking the physics world what is
+      // nearby, and berries are static bodies too. Without this flag a hedgehog
+      // turns round at a berry and the cat can wall jump off one.
+      tile.setData('solid', true);
 
       // Sides buried inside a mass of rock or earth are switched off, so the
       // cat cannot snag on the seam between two tiles. See `exposedFaces`.
@@ -213,13 +332,7 @@ export class GameScene extends Phaser.Scene {
       return false;
     }
 
-    const cat = this.player.body;
-    const wood = branch.body as Phaser.Physics.Arcade.StaticBody;
-
-    // Only land on a branch the cat was already clear of last frame. Testing
-    // the previous position rather than the current one is what stops a cat
-    // that is halfway up through a branch being snapped back on top of it.
-    return cat.velocity.y >= 0 && cat.prev.y + cat.height <= wood.y + 1;
+    return landsOnBranch(this.player, branch);
   }
 
   /**

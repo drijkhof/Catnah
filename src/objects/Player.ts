@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { CAT } from '../config';
 import type { Controls } from '../input/Controls';
+import { isSolidTile } from './solid';
 
 /** How far the cat's paws stay below the very top of a trunk, in pixels. */
 const CLIMB_TOP_MARGIN = 5;
@@ -379,7 +380,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       true,
     ) as Phaser.Physics.Arcade.StaticBody[];
 
-    return found.some((body) => body.checkCollision[face]);
+    return found.some((body) => isSolidTile(body) && body.checkCollision[face]);
   }
 
   private tickTimers(delta: number, onGround: boolean, wall: number): void {

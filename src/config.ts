@@ -134,6 +134,39 @@ export const CAT = {
   climbCooldownMs: 260,
 } as const;
 
+/** The hedgehog, which paces a platform and never leaves it. */
+export const HEDGEHOG = {
+  speed: 42,
+  /** How far ahead it looks for a wall or for the end of the floor, px. */
+  probe: 3,
+} as const;
+
+/** The piranha, which lurks in a pool and leaps out of it. */
+export const PIRANHA = {
+  /** How far below the surface it waits, px. Deep enough to be a surprise. */
+  lurkDepth: 14,
+  /** Upward velocity of a leap, px/sec. */
+  leapVelocity: -330,
+  /** Time between leaps, ms. Fixed, so the rhythm can be learnt. */
+  intervalMs: 2200,
+} as const;
+
+/** The crow, which circles its nest and comes at the cat. */
+export const CROW = {
+  /** Radius of its patrol circle around the nest, px. */
+  circleRadius: 70,
+  /** Angular speed of that circle, radians/sec. */
+  circleSpeed: 1.5,
+  /** How close the cat has to come before it attacks, px. */
+  attackRange: 150,
+  /** How far the cat has to get before it gives up, px. Wider, to stop flicker. */
+  releaseRange: 230,
+  /** Speed of an attack run, px/sec. */
+  attackSpeed: 180,
+  /** How quickly the velocity turns towards where it is heading, per second. */
+  turnRate: 2.6,
+} as const;
+
 /**
  * Level 1: a sunlit forest.
  *
@@ -195,6 +228,21 @@ export const COLORS = {
   water: 0x3f86b8,
   waterDeep: 0x2f6a95,
   waterFoam: 0xbfe3f5,
+
+  // Anything that can kill the cat shares one eye colour, so danger reads the
+  // same however different the creature is.
+  dangerEye: 0xe23b2f,
+
+  hedgehogBody: 0x8a6a4a,
+  hedgehogSpine: 0x4a3524,
+  hedgehogFace: 0xc9a582,
+
+  piranhaBody: 0x4c6b58,
+  piranhaBelly: 0xc2705a,
+
+  crowBody: 0x1e1f26,
+  crowSheen: 0x3b3f4d,
+  crowBeak: 0xc8a13c,
 
   berry: 0xe0463d,
   berryLight: 0xff8175,

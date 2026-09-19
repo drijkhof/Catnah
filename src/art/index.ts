@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { generateCatTextures } from './cat';
+import { generateCreatureTextures } from './creatures';
 import { generateForestTextures } from './forest';
 import { generateUiTextures } from './ui';
 
@@ -13,6 +14,7 @@ export {
   TUFT_SIZE,
 } from './forest';
 export { BUTTON_SIZE } from './ui';
+export { CROW_SIZE, HEDGEHOG_SIZE, PIRANHA_SIZE } from './creatures';
 
 /**
  * Bakes every placeholder texture the game uses. Called once from BootScene,
@@ -21,5 +23,6 @@ export { BUTTON_SIZE } from './ui';
 export function generatePlaceholderArt(scene: Phaser.Scene): void {
   generateCatTextures(scene);
   generateForestTextures(scene);
+  generateCreatureTextures(scene);
   generateUiTextures(scene);
 }

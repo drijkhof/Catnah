@@ -28,6 +28,7 @@ export function generateForestTextures(scene: Phaser.Scene): void {
   generateRockTiles(scene);
   generateTrunkTiles(scene);
   generateBranchTiles(scene);
+  generateNestTile(scene);
   generateWaterTiles(scene);
   generateBerry(scene);
 }
@@ -318,6 +319,22 @@ function generateBranchTiles(scene: Phaser.Scene): void {
 
     g.fillStyle(COLORS.leafLight, 1);
     g.fillCircle(8, 1, 3);
+  });
+}
+
+function generateNestTile(scene: Phaser.Scene): void {
+  bakeTexture(scene, 'nest', TILE, TILE, (g) => {
+    g.fillStyle(COLORS.branchDark, 1);
+    g.fillRect(0, 6, TILE, 8);
+
+    g.fillStyle(COLORS.branch, 1);
+    for (let i = 0; i < 5; i += 1) {
+      g.fillRect(i * 3, 7 + (i % 2), TILE - i * 3, 1);
+    }
+
+    g.fillStyle(COLORS.leaf, 1);
+    g.fillRect(2, 5, 3, 1);
+    g.fillRect(10, 4, 4, 1);
   });
 }
 
