@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { TILE } from '../config';
+import { GAME_WIDTH, LIVES, TILE } from '../config';
 import { Controls } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -45,6 +45,10 @@ export class GameScene extends Phaser.Scene {
   /** True once the level's star has been picked up. Needed to leave. */
   private hasStar = false;
 
+  /** Tries left on this level. Running out starts it over. */
+  private lives = LIVES;
+  private lifeIcons: Phaser.GameObjects.Image[] = [];
+
   /** Which level is being played, as an index into LEVELS. */
   private levelIndex = 0;
 
@@ -74,6 +78,8 @@ export class GameScene extends Phaser.Scene {
     this.level = parseLevel(LEVELS[this.levelIndex]);
     this.collected = 0;
     this.hasStar = false;
+    this.lives = LIVES;
+    this.lifeIcons = [];
     this.dying = false;
     this.leaving = false;
 
@@ -439,7 +445,16 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.shake(180, 0.008);
     this.cameras.main.flash(200, 90, 0, 0);
 
+    this.lives -= 1;
+    this.refreshLives();
+
     this.time.delayedCall(650, () => {
+      if (this.lives <= 0) {
+        // Out of tries: the level starts over, berries and all.
+        this.scene.start('Game', { levelIndex: this.levelIndex });
+        return;
+      }
+
       this.player.clearTint();
       this.player.body.setAllowGravity(true);
       this.player.respawnAt(this.level.spawn.x, this.level.spawn.y);
@@ -669,6 +684,17 @@ export class GameScene extends Phaser.Scene {
       installLevelSkip(this, levelName, this.levelIndex, LEVELS.length);
     }
 
+    // Lives, on the right so they never collide with the berry count.
+    for (let i = 0; i < LIVES; i += 1) {
+      this.lifeIcons.push(
+        this.add
+          .image(GAME_WIDTH - TILE - i * 15, TILE, 'life')
+          .setScrollFactor(0)
+          .setDepth(1000),
+      );
+    }
+    this.refreshLives();
+
     if (this.level.star) {
       // Shown dim until it is found, so it reads as something still to get.
       this.starIcon = this.add
@@ -689,6 +715,16 @@ export class GameScene extends Phaser.Scene {
       // Scroll factor 0 pins the HUD to the viewport instead of the world.
       .setScrollFactor(0)
       .setDepth(1000);
+  }
+
+  /** Dims the hearts that have been spent, rather than removing them. */
+  private refreshLives(): void {
+    this.lifeIcons.forEach((icon, index) => {
+      const spent = index >= this.lives;
+
+      icon.setAlpha(spent ? 0.22 : 1);
+      icon.setScale(spent ? 0.85 : 1);
+    });
   }
 
   private formatScore(): string {

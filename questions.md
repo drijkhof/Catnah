@@ -10,17 +10,23 @@ Change any of these and I will rebuild around it; none is baked in deep.
 
 ## Dying
 
-**Infinite retries, no lives.** Dying puts the cat back at the start of the
-level after a short pause. A life counter punishes a young player for
-experimenting, which is most of the fun of a platformer.
+**Three lives**, shown as hearts. Each death spends one; losing all three
+restarts the level.
+
+**They are per level, not for the whole game.** Running out sends you back to
+the start of the level you are on and never to an earlier one. Losing an hour to
+a bad jump is not a lesson, it is a reason to stop playing.
+
+> **Still open:** should lives carry between levels, so the run has stakes
+> across the whole game? That is the usual arrangement, and it is also the one
+> that can cost a long session.
 
 **No checkpoints.** The levels are a couple of minutes long, so a death costs
 the walk back rather than real progress. If they grow, this is the first thing
 that will need revisiting.
 
-**Berries stay collected through a death.** So dying never undoes work. It also
-means you cannot lose a berry you have already reached — say if you would rather
-death reset the level properly.
+**Berries stay collected through a death**, so dying never undoes work — but
+running out of lives does reset them, since the level itself starts over.
 
 > **Still open:** should the berry count carry between levels, or is each level
 > scored on its own? It resets at the moment, and there is no total.

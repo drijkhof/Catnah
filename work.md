@@ -170,8 +170,14 @@ light falling through the trees.
 
 Anything dangerous kills the cat on contact, and so does falling out of the
 world. There is a short pause — a flash and a shake — and then the cat is back
-at the start of the level. Retries are unlimited, and **berries you have already
-collected stay collected**.
+at the start of the level.
+
+You get **three lives**, shown as hearts in the top right. Each death dims one,
+and **berries you have already collected stay collected** between them. Lose all
+three and the level starts over from scratch, hearts and berries both.
+
+The three are per level, not for the whole game: running out never sends you
+back to an earlier one.
 
 ## The three levels
 

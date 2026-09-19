@@ -157,6 +157,15 @@ export const CAT = {
   climbCooldownMs: 260,
 } as const;
 
+/**
+ * How many tries a level gives you.
+ *
+ * Counted per level rather than across the whole game: running out sends you
+ * back to the start of the level you are on, never to an earlier one. Losing an
+ * hour to a bad jump is not a lesson, it is a reason to stop playing.
+ */
+export const LIVES = 3;
+
 /** Things that pace the floor. */
 export type GroundEnemyKind = 'hedgehog' | 'rat';
 
