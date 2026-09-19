@@ -186,6 +186,10 @@ spare one worth the detour.
 Every level has one **spare heart sitting in a nest**, tucked into the scenery
 somewhere off the direct route. None of them is needed to finish a level.
 
+The cat sits **in** a nest, not on top of one: the floor of a nest is partway
+down it, and the near rim is drawn over the cat's legs, so only its head and
+shoulders show above the straw.
+
 - Below three hearts, it fills a spent one back in.
 - At three or more, it simply adds another — the row grows, and you can carry
   four, five, as many as you find.

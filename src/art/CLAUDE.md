@@ -54,3 +54,13 @@ is invisible and what shows is the canvas clear colour behind it.
 This hid itself for a long time: the clear colour was a perfectly reasonable
 sky blue, so the forest looked fine and nobody looked twice. It only surfaced
 when the cave's sky was supposed to be nearly black and came out blue.
+
+## A nest is drawn in two halves
+
+`nest` goes behind the cat and `nest-front` over it, with the ledge it stands on
+set partway down the tile (`NEST_SIT_DEPTH` in the level parser). That is what
+puts the cat *in* a nest rather than on top of one — sitting on top looks like
+standing on a hat.
+
+Anything sitting in a nest with it, a star or a spare heart, is drawn in front
+of the near rim, or it would be buried in the straw.

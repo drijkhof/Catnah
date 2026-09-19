@@ -172,6 +172,14 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
    * A thin one-way ledge, used for the tops of trees and for nests. Invisible
    * in itself -- whatever drew the tile is what you see.
    */
+  /**
+   * How far down its tile a nest's floor sits, in pixels.
+   *
+   * The cat sits *in* a nest, not on top of one, so the ledge is partway down
+   * and the near rim is drawn over its legs.
+   */
+  const NEST_SIT_DEPTH = 9;
+
   const platform = (x: number, y: number, textureKey: string): Solid => ({
     x,
     y,
@@ -292,7 +300,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
 
         case 'N':
           nests.push({ x, y });
-          solids.push(platform(x, y, 'nest-ledge'));
+          solids.push(platform(x, y + NEST_SIT_DEPTH, 'nest-ledge'));
           break;
 
         case 'o':
@@ -302,13 +310,13 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
         case 'S':
           star = { x: x + TILE / 2, y: y + TILE / 2 };
           nests.push({ x, y });
-          solids.push(platform(x, y, 'nest-ledge'));
+          solids.push(platform(x, y + NEST_SIT_DEPTH, 'nest-ledge'));
           break;
 
         case '+':
           extraLives.push({ x: x + TILE / 2, y: y + TILE / 2 });
           nests.push({ x, y });
-          solids.push(platform(x, y, 'nest-ledge'));
+          solids.push(platform(x, y + NEST_SIT_DEPTH, 'nest-ledge'));
           break;
 
         case 'P':

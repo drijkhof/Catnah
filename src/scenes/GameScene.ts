@@ -274,8 +274,8 @@ export class GameScene extends Phaser.Scene {
     }
 
     const star = this.physics.add
-      .staticImage(at.x, at.y, 'star')
-      .setDepth(5);
+      .staticImage(at.x, at.y - 3, 'star')
+      .setDepth(7);
 
     this.tweens.add({
       targets: star,
@@ -385,7 +385,13 @@ export class GameScene extends Phaser.Scene {
       : undefined;
 
     for (const nest of this.level.nests) {
+      // Two halves with the cat between them, which is what puts it *in* the
+      // nest rather than on top of it.
       this.add.image(nest.x, nest.y, this.tile('nest')).setOrigin(0, 0).setDepth(-2);
+      this.add
+        .image(nest.x, nest.y, this.tile('nest-front'))
+        .setOrigin(0, 0)
+        .setDepth(6);
     }
 
     this.physics.add.collider(this.walkers, blocks);
@@ -753,7 +759,8 @@ export class GameScene extends Phaser.Scene {
    */
   private buildExtraLives(): void {
     for (const at of this.level.extraLives) {
-      const heart = this.physics.add.staticImage(at.x, at.y, 'life').setDepth(5);
+      // In front of the nest's near rim, so it is not buried in the straw.
+      const heart = this.physics.add.staticImage(at.x, at.y - 3, 'life').setDepth(7);
 
       this.tweens.add({
         targets: heart,

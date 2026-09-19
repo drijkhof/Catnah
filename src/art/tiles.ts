@@ -320,27 +320,49 @@ export function generateTileset(
     g.fillRect(11, 0, 3, 1);
   });
 
-  // A nest is somewhere to stand, so it is drawn as a bowl of woven straw
-  // rather than as a bar: a dipped rim, and stems crossing every which way.
+  /**
+   * A nest is drawn in two halves so the cat can sit *inside* it.
+   *
+   * The back half goes behind the cat and the near rim in front of it, with the
+   * ledge it stands on set partway down the tile. Sitting on top of a nest
+   * looks like standing on a hat; sitting in one looks like a nest.
+   */
   bakeTexture(scene, key('nest'), TILE, TILE, (g) => {
+    // Back half: the far rim and the hollow, all behind the cat.
     g.fillStyle(palette.nestShadow, 1);
-    g.fillRect(0, 4, TILE, TILE - 4);
+    g.fillRect(0, 3, TILE, TILE - 3);
 
     g.fillStyle(palette.nestStraw, 1);
-    g.fillRect(0, 2, 4, 4);
-    g.fillRect(TILE - 4, 2, 4, 4);
-    g.fillRect(0, 6, TILE, 4);
+    g.fillRect(0, 1, 5, 5);
+    g.fillRect(TILE - 5, 1, 5, 5);
+    g.fillRect(0, 4, TILE, 3);
 
-    // Loose stems, angled so the weave does not read as stripes.
     g.fillStyle(palette.nestStrawLight, 1);
-    g.fillRect(1, 5, 5, 1);
-    g.fillRect(9, 4, 6, 1);
-    g.fillRect(3, 9, 7, 1);
-    g.fillRect(8, 11, 6, 1);
-    g.fillRect(2, 12, 4, 1);
+    g.fillRect(1, 3, 5, 1);
+    g.fillRect(10, 2, 5, 1);
+
+    // The hollow itself, darker, so there is visibly something to sit in.
+    g.fillStyle(palette.nestShadow, 1);
+    g.fillRect(4, 4, 8, 4);
+  });
+
+  bakeTexture(scene, key('nest-front'), TILE, TILE, (g) => {
+    // Near rim: woven straw across the lower half, drawn over the cat.
+    g.fillStyle(palette.nestShadow, 1);
+    g.fillRect(0, 8, TILE, TILE - 8);
+
+    g.fillStyle(palette.nestStraw, 1);
+    g.fillRect(0, 9, TILE, 5);
+    g.fillRect(1, 8, TILE - 2, 2);
+
+    g.fillStyle(palette.nestStrawLight, 1);
+    g.fillRect(2, 9, 6, 1);
+    g.fillRect(9, 11, 5, 1);
+    g.fillRect(4, 13, 7, 1);
 
     g.fillStyle(palette.nestShadow, 1);
-    g.fillRect(5, 3, 6, 2);
+    g.fillRect(6, 10, 4, 1);
+    g.fillRect(2, 12, 3, 1);
   });
 
   // --- water -------------------------------------------------------------
