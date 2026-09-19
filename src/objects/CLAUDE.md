@@ -105,6 +105,13 @@ There is no grab button and no release button:
   of a ladder does.
 - **Reaching out sideways lets go.**
 
+**Letting go hands back a coyote window**, and that is not a nicety either.
+Without it only a jump pressed on the *exact* frame worked: pressing a direction
+first -- which is what hands actually do -- dropped the cat off the rope, and
+the jump that followed had nothing to push off. It read as being stuck to the
+thing. The window is wider than the ledge one, because a ledge is something you
+see coming and a rope is not.
+
 `climbCooldownTimer` is not optional. Letting go leaves the cat falling while
 still inside the trunk, and falling into a trunk is exactly what the automatic
 grip catches — so without the pause, stepping off re-grabs on the next frame and

@@ -258,16 +258,24 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const trunk = this.findTrunk();
 
     if (this.isClimbing) {
-      // Jumping off is now possible, because jump is its own button. Handing
-      // back the coyote window lets the ordinary jump fire this same frame.
+      // Jumping off is possible because jump is its own button.
       if (controls.jumpJustPressed) {
         this.releaseTrunk();
-        this.coyoteTimer = CAT.coyoteTimeMs;
         return false;
       }
 
-      // Reaching out sideways is the other way to let go.
-      if (!trunk || controls.left || controls.right) {
+      // Reaching out sideways is the other way to let go, and it carries a
+      // little push so the cat steps off rather than sliding down the rope it
+      // was holding.
+      const sideways = (controls.right ? 1 : 0) - (controls.left ? 1 : 0);
+
+      if (sideways !== 0) {
+        this.releaseTrunk();
+        this.setVelocityX(sideways * CAT.speed * 0.6);
+        return false;
+      }
+
+      if (!trunk) {
         this.releaseTrunk();
         return false;
       }
@@ -337,6 +345,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.coyoteTimer = 0;
   }
 
+  /**
+   * Lets go of a column.
+   *
+   * Letting go hands back the coyote window, so a jump pressed just afterwards
+   * still fires. Without it, only a jump pressed on the *exact* frame worked:
+   * pressing a direction first -- which is what hands actually do -- dropped
+   * the cat off the rope, and the jump that followed had nothing to push off.
+   * It read as being stuck to the thing.
+   */
   private releaseTrunk(): void {
     if (!this.isClimbing) {
       return;
@@ -345,6 +362,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.isClimbing = false;
     this.body.setAllowGravity(true);
     this.climbCooldownTimer = CAT.climbCooldownMs;
+    this.coyoteTimer = CAT.climbReleaseCoyoteMs;
   }
 
   /** The trunk the cat's body is currently over, if any. */

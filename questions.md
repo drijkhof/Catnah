@@ -221,3 +221,17 @@ after it.
 > **Still open:** as the *first* level it is also the hardest opening the game
 > could have — it demands climbing and a committed jump before it has taught
 > either. It might want an easier first stretch in front of it.
+
+
+## Jumping straight up a rope
+
+Holding climb and jumping repeatedly **re-grabs the rope** and gains height
+faster than climbing does. Measured: 153px from one jump instead of 86.
+
+Left as it is, because it only happens while climb is held and it is a
+reasonable reading of what the player is asking for. But it is the one place
+where the cat still sticks to a rope, so worth knowing about.
+
+> **Still open:** should a jump off a rope refuse to re-grab until the player
+> lets go of climb? It would stop that, at the cost of not grabbing a rope you
+> walk into while already holding climb.

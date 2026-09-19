@@ -124,6 +124,16 @@ export const CAT = {
   /** Upward velocity of one swimming stroke, px/sec. */
   swimStrokeVelocity: -280,
 
+  /**
+   * Grace window after letting go of a column, ms.
+   *
+   * Longer than the ledge coyote time on purpose. Stepping off a ledge is
+   * something you see coming; letting go of a rope is not, and there is no edge
+   * to read. A short window here is what made jumping off one feel like being
+   * stuck to it.
+   */
+  climbReleaseCoyoteMs: 160,
+
   /** Speed of climbing a trunk, px/sec. The same going up and coming down. */
   climbSpeed: 95,
 
