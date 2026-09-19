@@ -145,12 +145,17 @@ export const CAT = {
   climbCooldownMs: 260,
 } as const;
 
-/** The hedgehog, which paces a platform and never leaves it. */
-export const HEDGEHOG = {
-  speed: 42,
-  /** How far ahead it looks for a wall or for the end of the floor, px. */
-  probe: 3,
-} as const;
+/** Things that pace the floor. */
+export type GroundEnemyKind = 'hedgehog' | 'rat';
+
+/**
+ * A hedgehog ambles; a rat scurries. That is the whole difference, besides
+ * what they look like.
+ */
+export const GROUND_ENEMIES: Record<GroundEnemyKind, { speed: number }> = {
+  hedgehog: { speed: 42 },
+  rat: { speed: 78 },
+};
 
 /** The piranha, which patrols its pool, chases, and leaps out of it. */
 export const PIRANHA = {
@@ -257,6 +262,10 @@ export const COLORS = {
   // Anything that can kill the cat shares one eye colour, so danger reads the
   // same however different the creature is.
   dangerEye: 0xe23b2f,
+
+  ratBody: 0x5f5a55,
+  ratBelly: 0x8a837c,
+  ratTail: 0xc09a94,
 
   hedgehogBody: 0x8a6a4a,
   hedgehogSpine: 0x4a3524,

@@ -1,6 +1,7 @@
 import { TILE } from '../config';
 import { BRANCH_THICKNESS } from '../art';
 import type { ThemeName } from './themes';
+import type { GroundEnemyKind } from '../config';
 
 /**
  * One level, as a grid of characters.
@@ -15,7 +16,9 @@ import type { ThemeName } from './themes';
  *   `o`  berry
  *   `P`  cat spawn (exactly one)
  *   `E`  the way out, to the next level
- *   `h`  hedgehog, pacing whatever it is standing on
+ *   `h`  hedgehog, pacing the floor it stands on
+ *   `r`  rat, the same but faster — the city's version
+ *   `A`  parked car, solid and climbable
  *   `f`  piranha — water *with* a piranha in it, so placing one never
  *        punches a hole in the pool it is meant to be swimming in
  *   `S`  star — a nest tile *with* the star in it, so placing one never
@@ -73,6 +76,11 @@ export interface Solid {
   faces: Faces;
 }
 
+/** A creature that paces the floor, and which kind it is. */
+export interface Walker extends Point {
+  kind: GroundEnemyKind;
+}
+
 /** A position in world (pixel) space. */
 export interface Point {
   x: number;
@@ -99,7 +107,8 @@ export interface ParsedLevel {
   solids: Solid[];
   climbZones: ClimbZone[];
   waterZones: WaterZone[];
-  hedgehogs: Point[];
+  /** Creatures that pace the floor: hedgehogs, and rats in the city. */
+  walkers: Walker[];
   piranhas: Point[];
   crows: Point[];
   nests: Point[];
@@ -130,7 +139,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const solids: Solid[] = [];
   const climbZones: ClimbZone[] = [];
   const waterZones: WaterZone[] = [];
-  const hedgehogs: Point[] = [];
+  const walkers: Walker[] = [];
   const piranhas: Point[] = [];
   const crows: Point[] = [];
   const nests: Point[] = [];
@@ -232,7 +241,15 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           break;
 
         case 'h':
-          hedgehogs.push({ x: x + TILE / 2, y: y + TILE });
+          walkers.push({ x: x + TILE / 2, y: y + TILE, kind: 'hedgehog' });
+          break;
+
+        case 'r':
+          walkers.push({ x: x + TILE / 2, y: y + TILE, kind: 'rat' });
+          break;
+
+        case 'A':
+          block(x, y, carTexture(at(column - 1, row), at(column + 1, row)), column, row);
           break;
 
         case 'c':
@@ -276,7 +293,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     assertBranchesGrowFromTrunks(rows, width, definition.name);
   }
   assertCreaturesHaveRoom(rows, width, definition.name);
-  assertHedgehogsStandOnGround(rows, width, definition.name);
+  assertWalkersStandOnGround(rows, width, definition.name);
 
   return {
     name: definition.name,
@@ -284,7 +301,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     solids,
     climbZones,
     waterZones,
-    hedgehogs,
+    walkers,
     piranhas,
     crows,
     nests,
@@ -347,7 +364,7 @@ function assertCreaturesHaveRoom(rows: string[], width: number, name: string): v
 
   rows.forEach((tiles, row) => {
     for (let column = 0; column < width; column += 1) {
-      if (!'hfc'.includes(tiles[column])) {
+      if (!'hrfc'.includes(tiles[column])) {
         continue;
       }
 
@@ -363,18 +380,18 @@ function assertCreaturesHaveRoom(rows: string[], width: number, name: string): v
 }
 
 /**
- * Refuses a level with a hedgehog anywhere but on the floor.
+ * Refuses a level with a hedgehog or rat anywhere but on the floor.
  *
- * Hedgehogs belong on the ground: not on platforms, not on top of boulders, and
+ * They belong on the ground: not on platforms, not on top of boulders, and
  * not under water. That is a rule about the world, and it is far easier to hold
  * to here than to notice by looking at a grid.
  */
-function assertHedgehogsStandOnGround(rows: string[], width: number, name: string): void {
+function assertWalkersStandOnGround(rows: string[], width: number, name: string): void {
   const misplaced: string[] = [];
 
   rows.forEach((tiles, row) => {
     for (let column = 0; column < width; column += 1) {
-      if (tiles[column] !== 'h') {
+      if (!'hr'.includes(tiles[column])) {
         continue;
       }
 
@@ -386,7 +403,7 @@ function assertHedgehogsStandOnGround(rows: string[], width: number, name: strin
 
   if (misplaced.length > 0) {
     throw new Error(
-      `Hedgehogs in "${name}" must stand on plain floor: ${misplaced.join('; ')}.`,
+      `Floor creatures in "${name}" must stand on plain floor: ${misplaced.join('; ')}.`,
     );
   }
 }
@@ -426,6 +443,19 @@ function exposedFaces(
     left: !covered(at(column - 1, row), true),
     right: !covered(at(column + 1, row), true),
   };
+}
+
+/** Picks which part of a car a tile is, so a run of them reads as one vehicle. */
+function carTexture(left: string, right: string): string {
+  if (left !== 'A') {
+    return 'car-left';
+  }
+
+  if (right !== 'A') {
+    return 'car-right';
+  }
+
+  return 'car-mid';
 }
 
 /** Picks the end-cap so a platform is rounded off rather than sawn through. */

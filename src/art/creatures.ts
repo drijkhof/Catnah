@@ -3,18 +3,55 @@ import { COLORS } from '../config';
 import { bakeTexture } from './canvas';
 
 /** Body sizes, so gameplay code and the drawings cannot drift apart. */
-export const HEDGEHOG_SIZE = { width: 20, height: 13 };
+export const GROUND_ENEMY_SIZES = {
+  hedgehog: { width: 20, height: 13 },
+  rat: { width: 19, height: 9 },
+};
 export const PIRANHA_SIZE = { width: 17, height: 10 };
 export const CROW_SIZE = { width: 20, height: 15 };
 
 export function generateCreatureTextures(scene: Phaser.Scene): void {
   generateHedgehog(scene);
+  generateRat(scene);
   generatePiranha(scene);
   generateCrow(scene);
 }
 
+function generateRat(scene: Phaser.Scene): void {
+  const { width, height } = GROUND_ENEMY_SIZES.rat;
+
+  bakeTexture(scene, 'rat', width, height, (g) => {
+    // Long, low and tapered, with a bare tail -- the silhouette does the work
+    // of telling it apart from a hedgehog at this size.
+    g.fillStyle(COLORS.ratTail, 1);
+    g.fillRect(0, 4, 6, 1);
+    g.fillRect(1, 3, 3, 1);
+
+    g.fillStyle(COLORS.ratBody, 1);
+    g.fillRect(4, 3, width - 7, height - 5);
+    g.fillRect(width - 6, 2, 6, 5);
+
+    g.fillStyle(COLORS.ratBelly, 1);
+    g.fillRect(6, height - 4, width - 11, 2);
+
+    // Ear, eye, nose.
+    g.fillStyle(COLORS.ratBody, 1);
+    g.fillCircle(width - 7, 2, 2.5);
+
+    g.fillStyle(0x1d1a18, 1);
+    g.fillRect(width - 4, 3, 1, 1);
+
+    g.fillStyle(COLORS.ratTail, 1);
+    g.fillRect(width - 1, 4, 1, 1);
+
+    g.fillStyle(COLORS.ratTail, 1);
+    g.fillRect(7, height - 2, 2, 2);
+    g.fillRect(13, height - 2, 2, 2);
+  });
+}
+
 function generateHedgehog(scene: Phaser.Scene): void {
-  const { width, height } = HEDGEHOG_SIZE;
+  const { width, height } = GROUND_ENEMY_SIZES.hedgehog;
 
   bakeTexture(scene, 'hedgehog', width, height, (g) => {
     // Spines first, so the body sits in front of their roots.

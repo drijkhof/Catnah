@@ -3,6 +3,7 @@ import type { ThemeName } from '../level/themes';
 import { Backdrop } from './Backdrop';
 import { CaveBackdrop } from './CaveBackdrop';
 import { CityBackdrop } from './CityBackdrop';
+import { SwampBackdrop } from './SwampBackdrop';
 
 /**
  * Builds the scenery for a place.
@@ -19,6 +20,9 @@ export function createBackdrop(
   switch (theme) {
     case 'cave':
       new CaveBackdrop(scene, levelWidth, groundLine);
+      break;
+    case 'swamp':
+      new SwampBackdrop(scene, levelWidth, groundLine);
       break;
     case 'city':
       new CityBackdrop(scene, levelWidth, groundLine);

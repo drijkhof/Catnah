@@ -27,19 +27,18 @@ death reset the level properly.
 
 ## Hedgehogs
 
-**Cannot be defeated.** No jumping on them, no way past — contact kills from any
-direction, including from above. Jumping on enemies is the single most expected
-platformer verb, so this is the decision I am least sure of.
+**Cannot be defeated — confirmed.** No jumping on them, no way past; contact
+kills from any direction.
 
-**Sneaking does not hide the cat.** I kept the same answer for the crow, so the
-rule is at least consistent: sneaking is about fitting through gaps, not about
-stealth.
+**Sneaking does not affect the environment — confirmed.** It is about fitting
+through gaps, not about stealth.
+
+**They keep to plain floor**, and the parser refuses a level that puts one on a
+platform, on a boulder or in water. **Rats replace them in the city**: same
+behaviour, nearly twice the speed.
 
 **Much slower than the cat** — 42 px/s against 190. They are obstacles to time,
 not chases.
-
-> **Still open:** should jumping on a hedgehog squash it? And should sneaking be
-> stealth as well as a way through low gaps? Those two answers belong together.
 
 ## Piranhas
 
@@ -69,7 +68,12 @@ possible to dodge.
 > **Still open:** should the nest hold something — an egg, a berry hoard, the
 > level's real prize?
 
-**The top of the great tree is currently a death trap.** Measured: the cat can
+**The top of the great tree was a death trap, and is not any more.** Being able
+to stand on a crown and in a nest is what fixed it: the cat now has a floor to
+dodge on instead of hanging off a trunk at 95px/s. Measured: climbing the last
+stretch takes the star and gets away; dawdling from further down still loses.
+
+**The old note, kept because the shape of the problem is still worth knowing:** Measured: the cat can
 climb the whole 384px trunk, and the crow catches it at the very top every time.
 There is nothing up there to reach and no way to survive arriving, so at the
 moment the tree is something to admire rather than to climb.
@@ -91,20 +95,25 @@ mechanic is a much bigger job and would change how the level must be designed.
 **It reuses the forest's creatures.** Hedgehogs underground are a stretch, and
 there is no cave-specific creature at all.
 
-> **Still open:** the two above are the weakest parts of the cave. Limited
-> vision would give it an identity; bats, or something blind and crawling, would
-> give it inhabitants.
+**It is now caving rather than merely dark**: ropes bolted to the roof to climb,
+bedded rock shelves, stalagmites as well as stalactites.
+
+> **Still open:** it still has no creature of its own, and it still borrows
+> hedgehogs. Bats, or something blind and crawling, would fix that. You have
+> said the cave gets thought through later, so this is parked.
 
 ## The city
 
 **Night, with both streets and rooftops.** Branches became steel girders,
 trunks became drainpipes, the pool became a canal, and the buildings are brick.
 
-**No people, traffic or dogs.** It reuses hedgehogs and a crow, which is the
-same weakness the cave has.
+**Rats live here**, not hedgehogs. It still borrows the crow.
 
-> **Still open:** what actually lives in a city level? Traffic as a moving hazard
-> is the obvious one, and it would need a mechanic none of the others have.
+**Parked cars, lampposts and drainpipes** are all climbable or standable, so the
+street furniture is part of the level rather than scenery.
+
+> **Still open:** moving traffic. Everything in the city stands still, and a car
+> that actually drives would be a hazard unlike any other in the game.
 
 ## Level structure
 
@@ -150,3 +159,24 @@ bakes to a fully transparent texture, so every sky in the game was invisible and
 what you were seeing was the canvas clear colour behind it. The forest sky now
 actually appears, which means level 1 looks slightly different from every
 screenshot before today.
+
+
+---
+
+## The swamp
+
+**Built as level 2**, between the forest and the cave, because a swamp sits next
+to a forest and the two read well in sequence.
+
+**Nothing grew where it stands**, so its logs are not attached to anything — the
+forest's "every branch grows from a trunk" rule is off here, as it is in the
+cave and the city.
+
+**No star**, so its door always opens. Only the forest and the city have one.
+
+> **Still open:** should every level need a star? Two out of four having one is
+> a bit arbitrary, and a level with no required goal is just a corridor.
+
+> **Still open:** the lianas hang from the top of the screen with nothing
+> holding them up, because there is no ceiling to anchor them to. It works, but
+> a canopy to hang them from would look less like they start in mid-air.

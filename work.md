@@ -67,6 +67,16 @@ is.
 - **Sneaking is blocked from standing up** when there is no headroom, so you
   cannot pop up through a log you are sneaking under, nor jump out from under it.
 
+### Standing on things
+
+The **crown of any climbable column** is a ledge — climb a tree and you end up
+standing on top of it. So is a **nest**, which is drawn as a bowl of woven straw
+because it is somewhere to be rather than something to look at. In the city,
+**parked cars** are solid and can be clambered onto.
+
+Both ledges are one-way, so climbing up the inside of a trunk still passes
+through and leaves you standing on the crown.
+
 ### Climbing trunks
 
 Trunks are **not solid** — walk straight through one at ground level and nothing
@@ -166,6 +176,10 @@ Each one starts on the left and ends at a **glowing door** on the right, which
 takes you to the next. The city leads back to the forest. Berries are optional
 everywhere.
 
+Where a level has a **star**, the door will not open without it. The forest's is
+in the crow's nest at the top of the great tree; the city's is on a rooftop. The
+swamp and the cave have none, so their doors always open.
+
 ### 1 — Forest
 
 Sunlit, with the sun up and shafts of light through the trees. Four ordinary
@@ -173,23 +187,35 @@ trees plus **the great tree**, which runs the full height of the level and has a
 nest at the top with a crow living in it. Two pools, one shaft of boulders, one
 sneaking bough, three hedgehogs, one piranha.
 
-### 2 — Cave
+### 2 — Swamp
 
-Underground: a rock roof with stalactites, glowing crystals along the floor,
-hanging vines to climb instead of trunks, stone shelves instead of branches, and
-a cold pool with something in it.
+Standing water almost everywhere, under an overcast sky going brown at the
+horizon. Dead trees hung with moss, reeds along the waterline, and mist drifting
+across in two bands. **Lianas** hang from above to climb instead of trunks, and
+the platforms are logs lying across the water. Three pools, three piranhas.
 
-### 3 — City
+### 3 — Cave
 
-Night. Brick buildings to climb, steel girders lit along their edges as
-platforms, drainpipes to climb, a canal, and a crow nesting on a rooftop. The
-buildings behind are lit window by window.
+Caving, not just darkness: **ropes bolted to the roof** to climb, bedded rock
+shelves to stand on, stalactites above and stalagmites below, glowing crystals
+along the floor, and a cold pool with something in it.
+
+### 4 — City
+
+Night, and properly urban. Brick flats to climb, **steel I-beam girders** lit
+along their edges, **drainpipes and lampposts** to climb, **parked cars** to
+clamber over, a canal, and a crow nesting on a rooftop. The buildings behind are
+lit window by window.
+
+**Rats here, not hedgehogs** — same idea, but faster and low to the ground.
 
 ## The creatures
 
-- **Hedgehogs** pace whatever they are standing on, turning at anything solid
-  and at the edge of the floor, so they never fall off. They are slow. They
-  cannot be defeated — touching one is fatal from any direction.
+- **Hedgehogs** pace the floor, turning at anything solid, at the edge of a
+  drop, and at the edge of the level, so they never fall off. They keep to plain
+  ground: never on platforms, never on boulders, never in water. They are slow,
+  and cannot be defeated — touching one is fatal from any direction.
+- **Rats** are the city's version: the same behaviour, nearly twice as quick.
 - **Piranhas** lurk below the surface of a pool and leap out every 2.2 seconds,
   always to the same rhythm so it can be learnt. Only one pool per level has one.
 - **The crow** circles its nest until the cat comes near it, then breaks off and

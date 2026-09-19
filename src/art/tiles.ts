@@ -15,7 +15,15 @@ export const BRANCH_LEAF_DROP = 11;
  * lets a cave and a city reuse the whole tile format -- a girder and a branch
  * are the same one-way platform underneath. Character comes from the backdrop.
  */
+/** What a climbable column is made of, in this place. */
+export type ColumnStyle = 'trunk' | 'liana' | 'rope' | 'pipe';
+
+/** What a one-way platform is made of. */
+export type PlatformStyle = 'branch' | 'shelf' | 'girder';
+
 export interface TilePalette {
+  columnStyle: ColumnStyle;
+  platformStyle: PlatformStyle;
   grass: number;
   grassDark: number;
   dirt: number;
@@ -36,6 +44,9 @@ export interface TilePalette {
   nestStraw: number;
   nestStrawLight: number;
   nestShadow: number;
+  carBody: number;
+  carGlass: number;
+  carTrim: number;
 }
 
 /** Namespaced so three themes can be in memory at once. */
@@ -115,23 +126,91 @@ export function generateTileset(
 
   // --- climbable columns -------------------------------------------------
   const inset = (TILE - TRUNK_WIDTH) / 2;
+
+  /**
+   * Columns differ in shape, not just colour. A drainpipe is not a tree with
+   * different paint on it, and this is most of what makes a place feel like
+   * itself once you are standing in it.
+   */
   const drawColumn = (g: Phaser.GameObjects.Graphics): void => {
-    g.fillStyle(palette.trunk, 1);
-    g.fillRect(inset, 0, TRUNK_WIDTH, TILE);
+    switch (palette.columnStyle) {
+      case 'liana': {
+        // A thin, wandering stem with leaves along it.
+        g.fillStyle(palette.trunk, 1);
+        g.fillRect(6, 0, 4, TILE);
+        g.fillStyle(palette.trunkDark, 1);
+        g.fillRect(7, 0, 1, TILE);
+        g.fillStyle(palette.leaf, 1);
+        g.fillEllipse(3, 4, 6, 4);
+        g.fillEllipse(13, 11, 6, 4);
+        g.fillStyle(palette.leafLight, 1);
+        g.fillEllipse(12, 10, 3, 2);
+        break;
+      }
 
-    g.fillStyle(palette.trunkDark, 1);
-    g.fillRect(inset + 1, 0, 1, TILE);
-    g.fillRect(inset + 7, 0, 2, TILE);
+      case 'rope': {
+        // A caver's rope: two twisted strands and a knot every so often.
+        g.fillStyle(palette.trunkDark, 1);
+        g.fillRect(6, 0, 5, TILE);
+        g.fillStyle(palette.trunk, 1);
+        for (let y = 0; y < TILE; y += 4) {
+          g.fillRect(6, y, 5, 2);
+          g.fillRect(7, y + 2, 3, 1);
+        }
+        g.fillStyle(palette.trunkLight, 1);
+        g.fillRect(7, 6, 3, 2);
+        break;
+      }
 
-    g.fillStyle(palette.trunkLight, 1);
-    g.fillRect(inset + 4, 0, 1, TILE);
-    g.fillRect(inset + 10, 0, 1, TILE);
+      case 'pipe': {
+        // A drainpipe, with a bracket bolted to the wall.
+        g.fillStyle(palette.trunkDark, 1);
+        g.fillRect(inset, 0, TRUNK_WIDTH, TILE);
+        g.fillStyle(palette.trunk, 1);
+        g.fillRect(inset + 1, 0, TRUNK_WIDTH - 3, TILE);
+        g.fillStyle(palette.trunkLight, 1);
+        g.fillRect(inset + 3, 0, 2, TILE);
+        g.fillStyle(palette.trunkDark, 1);
+        g.fillRect(inset - 2, 5, TRUNK_WIDTH + 4, 3);
+        break;
+      }
+
+      default: {
+        g.fillStyle(palette.trunk, 1);
+        g.fillRect(inset, 0, TRUNK_WIDTH, TILE);
+        g.fillStyle(palette.trunkDark, 1);
+        g.fillRect(inset + 1, 0, 1, TILE);
+        g.fillRect(inset + 7, 0, 2, TILE);
+        g.fillStyle(palette.trunkLight, 1);
+        g.fillRect(inset + 4, 0, 1, TILE);
+        g.fillRect(inset + 10, 0, 1, TILE);
+      }
+    }
   };
 
   bakeTexture(scene, key('trunk'), TILE, TILE, drawColumn);
 
   bakeTexture(scene, key('trunk-top'), TILE, TILE, (g) => {
     drawColumn(g);
+
+    if (palette.columnStyle === 'pipe') {
+      // A lamp head, rather than foliage.
+      g.fillStyle(palette.branchDark, 1);
+      g.fillRect(2, 0, 12, 5);
+      g.fillStyle(palette.leafLight, 1);
+      g.fillRect(4, 4, 8, 3);
+      return;
+    }
+
+    if (palette.columnStyle === 'rope') {
+      // An anchor bolted into the roof.
+      g.fillStyle(palette.rockDark, 1);
+      g.fillRect(3, 0, 10, 5);
+      g.fillStyle(palette.rockLight, 1);
+      g.fillRect(6, 1, 4, 2);
+      return;
+    }
+
     g.fillStyle(palette.leaf, 1);
     g.fillCircle(3, 3, 4);
     g.fillCircle(13, 4, 4);
@@ -146,6 +225,26 @@ export function generateTileset(
 
     g.fillStyle(palette.branch, 1);
     g.fillRect(0, 0, TILE, BRANCH_THICKNESS - 3);
+
+    if (palette.platformStyle === 'girder') {
+      // An I-beam: a web between two flanges, and a rivet.
+      g.fillStyle(palette.branchDark, 1);
+      g.fillRect(0, 3, TILE, 2);
+      g.fillStyle(palette.leafLight, 1);
+      g.fillRect(3, 1, 2, 1);
+      g.fillRect(11, 1, 2, 1);
+      return;
+    }
+
+    if (palette.platformStyle === 'shelf') {
+      // Layered rock, bedded flat.
+      g.fillStyle(palette.rockLight, 1);
+      g.fillRect(0, 0, TILE, 1);
+      g.fillStyle(palette.rockDark, 1);
+      g.fillRect(2, 4, 7, 1);
+      g.fillRect(10, 5, 5, 1);
+      return;
+    }
 
     g.fillStyle(palette.branchDark, 1);
     g.fillRect(4, 2, 3, 1);
@@ -243,6 +342,41 @@ export function generateTileset(
     g.fillRect(3, 2, 4, 1);
     g.fillRect(11, 2, 3, 1);
   });
+
+  // --- parked cars -------------------------------------------------------
+  const drawCar = (g: Phaser.GameObjects.Graphics, part: 'left' | 'mid' | 'right'): void => {
+    g.fillStyle(palette.carBody, 1);
+    g.fillRect(0, 4, TILE, TILE - 6);
+
+    if (part !== 'mid') {
+      g.fillStyle(palette.carBody, 1);
+      g.fillRect(part === 'left' ? 2 : 0, 2, TILE - 2, 3);
+    }
+
+    // Cabin glass, only across the middle of the car.
+    if (part !== 'right') {
+      g.fillStyle(palette.carGlass, 1);
+      g.fillRect(part === 'left' ? 6 : 0, 3, TILE - 6, 4);
+    }
+
+    g.fillStyle(palette.carTrim, 1);
+    g.fillRect(0, TILE - 4, TILE, 2);
+
+    // Wheels sit under the ends.
+    if (part !== 'mid') {
+      g.fillStyle(0x15161a, 1);
+      g.fillCircle(part === 'left' ? 5 : 11, TILE - 2, 3);
+    }
+
+    if (part === 'right') {
+      g.fillStyle(palette.leafLight, 1);
+      g.fillRect(TILE - 3, 6, 3, 3);
+    }
+  };
+
+  for (const part of ['left', 'mid', 'right'] as const) {
+    bakeTexture(scene, key(`car-${part}`), TILE, TILE, (g) => drawCar(g, part));
+  }
 
   // --- the way out -------------------------------------------------------
   bakeTexture(scene, key('exit'), TILE, TILE * 2, (g) => {

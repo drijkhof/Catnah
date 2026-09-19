@@ -3,7 +3,7 @@ import { TILE } from '../config';
 import { Controls } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Crow } from '../objects/Crow';
-import { Hedgehog } from '../objects/Hedgehog';
+import { GroundEnemy } from '../objects/GroundEnemy';
 import { Piranha } from '../objects/Piranha';
 import { createBackdrop } from '../world';
 import { parseLevel, type ParsedLevel } from '../level/Level';
@@ -48,7 +48,7 @@ export class GameScene extends Phaser.Scene {
 
   /** True while the level is being left, so the exit cannot fire twice. */
   private leaving = false;
-  private hedgehogs: Hedgehog[] = [];
+  private walkers: GroundEnemy[] = [];
   private piranhas: Piranha[] = [];
   private crows: Crow[] = [];
   private waterRects: Phaser.Geom.Rectangle[] = [];
@@ -227,8 +227,8 @@ export class GameScene extends Phaser.Scene {
     }
 
     const cat = new Phaser.Math.Vector2(this.player.x, this.player.y);
-    for (const hedgehog of this.hedgehogs) {
-      hedgehog.step();
+    for (const walker of this.walkers) {
+      walker.step();
     }
     for (const piranha of this.piranhas) {
       piranha.step(delta, cat, this.player.swimming);
@@ -348,8 +348,8 @@ export class GameScene extends Phaser.Scene {
   ): void {
     this.buildStar();
 
-    this.hedgehogs = this.level.hedgehogs.map(
-      (at) => new Hedgehog(this, at.x, at.y),
+    this.walkers = this.level.walkers.map(
+      (at) => new GroundEnemy(this, at.x, at.y, at.kind),
     );
     this.piranhas = this.level.piranhas.map(
       (at, index) => new Piranha(this, at.x, at.y, this.waterRects, index * 700),
@@ -360,21 +360,21 @@ export class GameScene extends Phaser.Scene {
       this.add.image(nest.x, nest.y, this.tile('nest')).setOrigin(0, 0).setDepth(-2);
     }
 
-    this.physics.add.collider(this.hedgehogs, blocks);
+    this.physics.add.collider(this.walkers, blocks);
     // Branches are one-way for anything that walks on them, not just the cat --
     // a hedgehog put on a branch falls straight through without this.
     this.physics.add.collider(
-      this.hedgehogs,
+      this.walkers,
       branches,
       undefined,
-      (hog, branch) =>
+      (walker, branch) =>
         landsOnBranch(
-          hog as Phaser.Physics.Arcade.Sprite,
+          walker as Phaser.Physics.Arcade.Sprite,
           branch as Phaser.Physics.Arcade.Sprite,
         ),
     );
 
-    for (const creature of [...this.hedgehogs, ...this.piranhas, ...this.crows]) {
+    for (const creature of [...this.walkers, ...this.piranhas, ...this.crows]) {
       this.physics.add.overlap(this.player, creature, () => this.kill());
     }
   }

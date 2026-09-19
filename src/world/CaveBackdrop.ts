@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../config';
-import { STALACTITE_SIZE, createRandom } from '../art';
+import { STALACTITE_SIZE, STALAGMITE_SIZE, createRandom } from '../art';
 
 /**
  * The cave behind the level: a dark wall, stalactites hanging from the roof,
@@ -37,6 +37,21 @@ export class CaveBackdrop {
           .setScrollFactor(factor)
           .setDepth(depth);
       }
+    }
+
+    // Stalagmites growing up off the floor, to match the roof.
+    for (let x = 0; x < levelWidth; x += 120) {
+      if (random() < 0.35) {
+        continue;
+      }
+
+      const scale = 0.7 + random() * 0.7;
+
+      scene.add
+        .image(x + (random() - 0.5) * 80, groundLine + 3, random() < 0.5 ? 'stalagmite-a' : 'stalagmite-b')
+        .setOrigin(0.5, 1)
+        .setDisplaySize(STALAGMITE_SIZE.width * scale, STALAGMITE_SIZE.height * scale)
+        .setDepth(-12);
     }
 
     // Crystals sit on the floor the cat walks on, so they scroll with it.

@@ -1,17 +1,19 @@
 import type { TilePalette } from '../art/tiles';
 
-/** The three places the game visits. */
-export type ThemeName = 'forest' | 'cave' | 'city';
+/** The places the game visits. */
+export type ThemeName = 'forest' | 'swamp' | 'cave' | 'city';
 
 /**
- * Palettes, one per place.
+ * One palette per place.
  *
- * The tiles are the same shapes everywhere -- a girder and a branch are the
- * same one-way platform underneath -- so a level's character comes from its
- * colours and, far more, from its backdrop.
+ * Colour alone was not enough: a drainpipe is not a tree with different paint
+ * on it. `columnStyle` and `platformStyle` change the *shapes* too, which is
+ * most of what makes a place feel like itself once you are standing in it.
  */
 export const THEMES: Record<ThemeName, TilePalette> = {
   forest: {
+    columnStyle: 'trunk',
+    platformStyle: 'branch',
     grass: 0x6fb257,
     grassDark: 0x4f8c3f,
     dirt: 0x6b4f35,
@@ -32,10 +34,46 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     nestStraw: 0xc9a75a,
     nestStrawLight: 0xe6cd8a,
     nestShadow: 0x6b5227,
+    carBody: 0x9a4a3f,
+    carGlass: 0x7fa8c4,
+    carTrim: 0x3a3a40,
   },
 
-  // Underground: wet stone, moss instead of grass, and a cold pool.
+  // Standing water, mud and rot. The greens are sicklier than the forest's and
+  // the water is the murkiest thing on screen rather than the clearest.
+  swamp: {
+    columnStyle: 'liana',
+    platformStyle: 'branch',
+    grass: 0x6f7a3c,
+    grassDark: 0x4e5528,
+    dirt: 0x4b4230,
+    dirtDark: 0x352f21,
+    rock: 0x6b6a56,
+    rockDark: 0x4b4a3b,
+    rockLight: 0x8b8a72,
+    branch: 0x5f5233,
+    branchDark: 0x413823,
+    leaf: 0x6f8f3f,
+    leafLight: 0x93b357,
+    trunk: 0x5d7233,
+    trunkDark: 0x3e4d22,
+    trunkLight: 0x7f9a4a,
+    water: 0x4a6b3c,
+    waterDeep: 0x2f472a,
+    waterFoam: 0x8fae6a,
+    nestStraw: 0xa89a5a,
+    nestStrawLight: 0xc9bd80,
+    nestShadow: 0x5b5230,
+    carBody: 0x6b5a45,
+    carGlass: 0x7f9a86,
+    carTrim: 0x35322a,
+  },
+
+  // Underground, and caved rather than merely dark: ropes bolted to the roof,
+  // bedded rock shelves, wet stone.
   cave: {
+    columnStyle: 'rope',
+    platformStyle: 'shelf',
     grass: 0x5d7a63,
     grassDark: 0x415a48,
     dirt: 0x4a4349,
@@ -47,31 +85,36 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     branchDark: 0x4a4352,
     leaf: 0x4f7f7a,
     leafLight: 0x6fa8a0,
-    trunk: 0x4f6b4a,          // hanging vines
-    trunkDark: 0x36492f,
-    trunkLight: 0x6d8f63,
+    trunk: 0xb9a37a,
+    trunkDark: 0x7d6c4d,
+    trunkLight: 0xd8c79c,
     water: 0x2e5f82,
     waterDeep: 0x1d3f59,
     waterFoam: 0x8fc4dd,
     nestStraw: 0x8a8470,
     nestStrawLight: 0xb0a98f,
     nestShadow: 0x4a4438,
+    carBody: 0x6b6472,
+    carGlass: 0x8b84a0,
+    carTrim: 0x3a3542,
   },
 
-  // Night city: concrete, brick, steel girders, and a canal under lamplight.
+  // Night city: brick, concrete, steel girders, drainpipes and lamplight.
   city: {
-    grass: 0x7d8a92,          // kerbstone
+    columnStyle: 'pipe',
+    platformStyle: 'girder',
+    grass: 0x7d8a92,
     grassDark: 0x5a656c,
     dirt: 0x494f55,
     dirtDark: 0x33383d,
-    rock: 0x7a5c53,           // brickwork
+    rock: 0x7a5c53,
     rockDark: 0x573f39,
     rockLight: 0x9c776a,
-    branch: 0x9aa3ab,         // steel
+    branch: 0x9aa3ab,
     branchDark: 0x6d757c,
-    leaf: 0xd8a33c,           // lamplight along an edge
+    leaf: 0xd8a33c,
     leafLight: 0xf3c76a,
-    trunk: 0x6e767d,          // drainpipe
+    trunk: 0x6e767d,
     trunkDark: 0x4d545a,
     trunkLight: 0x939ca3,
     water: 0x2f4d63,
@@ -80,5 +123,8 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     nestStraw: 0x9a8f78,
     nestStrawLight: 0xc0b394,
     nestShadow: 0x4e4638,
+    carBody: 0x9a4a3f,
+    carGlass: 0x7fa8c4,
+    carTrim: 0x3a3a40,
   },
 };
