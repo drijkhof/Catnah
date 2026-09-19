@@ -62,6 +62,13 @@ under it *A Hannah Milatovic Rijkhof Game*. Any key starts it; on a phone, a tap
 Losing your last heart brings you back here rather than straight into the
 forest, so a run visibly ends before the next one begins.
 
+**Starting the game goes fullscreen**, and asks for landscape while it is
+there. It has to happen on the keypress or the tap itself — a browser only
+grants fullscreen from a real gesture — which is why it is the *first* thing
+`begin()` does, before the fade. On Android Chrome it is the difference between
+a game and a game with the address bar over it. If any of it is refused, the
+game starts anyway.
+
 ## The screen
 
 The game is drawn at a fixed size and scaled to fill whatever it lands on, so it

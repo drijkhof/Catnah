@@ -222,11 +222,45 @@ export class TitleScene extends Phaser.Scene {
     this.input.once('pointerdown', () => this.begin());
   }
 
+  /**
+   * Goes fullscreen, and asks for landscape while it is there.
+   *
+   * **This has to happen inside the input handler.** A browser only grants
+   * fullscreen from a genuine user gesture, so it cannot wait for the camera
+   * fade to finish -- by then the gesture is over and the request is refused
+   * without a word.
+   *
+   * On Android Chrome this is the difference between a game and a game with
+   * the address bar over it. Everything here is best-effort: a desktop browser
+   * may simply not allow the orientation lock, and nothing about the game
+   * depends on any of it working.
+   */
+  private goFullscreen(): void {
+    if (!this.scale.fullscreen.available || this.scale.isFullscreen) {
+      return;
+    }
+
+    try {
+      this.scale.startFullscreen();
+
+      const orientation = screen.orientation as ScreenOrientation & {
+        lock?: (to: string) => Promise<void>;
+      };
+
+      // Refused on desktop and on anything that will not rotate. Caught and
+      // dropped: it is a nicety, not a requirement.
+      void orientation.lock?.('landscape').catch(() => undefined);
+    } catch {
+      // Fullscreen refused. The game plays perfectly well in a tab.
+    }
+  }
+
   private begin(): void {
     if (this.starting) {
       return;
     }
 
+    this.goFullscreen();
     this.starting = true;
     this.cameras.main.fade(300, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => {
