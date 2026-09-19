@@ -73,10 +73,18 @@ export class GameScene extends Phaser.Scene {
     const solids = this.physics.add.staticGroup();
 
     for (const solid of this.level.solids) {
-      solids
+      const tile = solids
         .create(solid.x, solid.y, solid.textureKey)
         .setOrigin(0, 0)
-        .refreshBody();
+        .refreshBody() as Phaser.Physics.Arcade.Sprite;
+
+      // Sides buried inside a mass of rock or earth are switched off, so the
+      // cat cannot snag on the seam between two tiles. See `exposedFaces`.
+      const body = tile.body as Phaser.Physics.Arcade.StaticBody;
+      body.checkCollision.up = solid.faces.up;
+      body.checkCollision.down = solid.faces.down;
+      body.checkCollision.left = solid.faces.left;
+      body.checkCollision.right = solid.faces.right;
 
       // Leaves hang below a branch as decoration only. They are not part of the
       // collision box, so the cat lands on the wood rather than on foliage.

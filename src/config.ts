@@ -72,6 +72,40 @@ export const CAT = {
    * fires the instant the cat touches ground.
    */
   jumpBufferMs: 120,
+
+  /**
+   * Fall speed while pressing against a wall in mid-air, px/sec.
+   *
+   * Far slower than a free fall (600). Without this the cat drops past a rock
+   * face too fast to react, and wall jumping becomes a reflex test rather than
+   * a move.
+   */
+  wallSlideSpeed: 95,
+
+  /**
+   * Sideways shove away from the wall on a wall jump, px/sec.
+   *
+   * Tuned against the cost of coming back. Every push has to be paid for by
+   * steering back into the wall, and that return costs height; at 250 it cost
+   * more height than a wall jump gained, so a lone wall could not be climbed at
+   * all -- the cat got exactly one jump and sank. At 150 a cycle nets upward.
+   */
+  wallJumpPushX: 150,
+
+  /** Upward velocity on a wall jump, px/sec. A little weaker than off the ground. */
+  wallJumpVelocityY: -470,
+
+  /**
+   * How long horizontal input is ignored after a wall jump, ms.
+   *
+   * Without it, a player holding "towards the wall" -- which is exactly what
+   * they were holding to cling to it -- cancels their own shove and slides
+   * straight back down the same face.
+   *
+   * Kept short for the same reason the push is gentle: every locked frame is a
+   * frame of falling away from the wall.
+   */
+  wallJumpLockMs: 100,
 } as const;
 
 /**
@@ -118,6 +152,12 @@ export const COLORS = {
   catDark: 0xb96a2c,
   catLight: 0xf8e4cb,
   catNose: 0xd4645f,
+
+  // Boulders: cool grey against all the warm brown and green, so a climbable
+  // rock face never reads as part of a tree.
+  rock: 0x8b9199,
+  rockDark: 0x666c74,
+  rockLight: 0xacb2ba,
 
   berry: 0xe0463d,
   berryLight: 0xff8175,

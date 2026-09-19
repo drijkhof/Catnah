@@ -10,14 +10,16 @@ When a ticket is built, set it to `done` and move what it added into `work.md`.
 | # | Title | Status | Depends on |
 | --- | --- | --- | --- |
 | [1](#1--hazards-and-dying) | Hazards and dying | `todo` | — |
-| [2](#2--boulders) | Boulders | `todo` | — |
+| [2](#2--boulders) | Boulders | `done` | — |
 | [3](#3--tree-trunks) | Tree trunks | `todo` | — |
 | [4](#4--water) | Water | `todo` | — |
 | [5](#5--piranhas) | Piranhas | `todo` | 1, 4 |
 | [6](#6--hedgehogs) | Hedgehogs | `todo` | 1 |
-| [7](#7--double-jump-off-a-wall-or-trunk) | Double jump off a wall or trunk | `todo` | 3 |
+| [7](#7--double-jump-off-a-wall-or-trunk) | Double jump off a wall or trunk | `done` | — |
 | [8](#8--the-view-follows-the-cat-upward) | The view follows the cat upward | `todo` | — |
 | [9](#9--the-great-tree-its-nest-and-the-crow) | The great tree, its nest and the crow | `todo` | 1, 8 |
+| [10](#10--cave-level) | Cave level | `todo` | — |
+| [11](#11--city-level) | City level | `todo` | — |
 
 ---
 
@@ -51,18 +53,18 @@ version of this ticket is to reuse exactly that for contact deaths too.
 
 ## 2 — Boulders
 
-`todo`
+`done`
 
-Rocks in the forest.
+Rocks in the forest. Built as **solid and climbable**: tile character `R`, cool
+grey against the warm forest so a rock face never reads as part of a tree.
 
-**Open questions**
+Level 1 has two. A small one two tiles tall, met early, to introduce rock as
+something solid. A tower seven tiles tall whose face has to be wall jumped
+(ticket 7), with berries on top as the reward.
 
-- Scenery you walk past, solid things you climb on, or both?
-- Can they be pushed, or do they roll and crush?
-
-**Notes** — as static solids these are cheap: a new tile character in
-`src/level/Level.ts` plus a texture in `src/art/forest.ts`. Anything that moves
-is a much bigger ticket and should be split off.
+**Left unbuilt on purpose**: boulders do not move. Pushing, rolling and crushing
+were the other half of the original question and are a much larger job —
+say the word and they become their own ticket.
 
 ---
 
@@ -154,32 +156,28 @@ and fits the existing arcade physics.
 
 ## 7 — Double jump off a wall or trunk
 
-`todo` · needs [3](#3--tree-trunks)
+`done`
 
-A second jump in mid-air, off a wall or a tree trunk.
+Built as a **wall jump** — settled by "maak boulders en wall jumps", which
+answered the open question this ticket was waiting on. Boulders supplied the
+walls, so the dependency on tree trunks (ticket 3) fell away; trunks will work
+as walls for free once they exist.
 
-**Open question, needs deciding first** — "double jump (via muur of boomstam)"
-reads two ways:
+- In mid-air against a wall, jump fires again and shoves the cat up and away.
+- Each wall jump needs a fresh press, so holding the button cannot climb a face.
+- Pressing into a wall while falling turns it into a **wall slide** at 95 px/s
+  instead of a 600 px/s drop. Not in the original ticket, added because without
+  it there is no time to react to a wall and the move is unusable.
 
-1. **Wall jump**: the second jump only works while touching a wall or trunk, and
-   pushes the cat away from it. Climbing a gap between two trunks becomes a
-   skill.
-2. **Free double jump**, with walls and trunks simply being where you would
-   usually use it.
+**What the tuning cost**, worth keeping: the first attempt pushed 250 px/s away
+for 150ms, and a lone wall turned out to be *unclimbable* — steering back cost
+more height than a wall jump gained, so the cat took one jump and sank. Settled
+at 150 px/s for 100ms, where a cycle nets upward. The tower now takes three wall
+jumps in 0.6s.
 
-These play very differently and the level is designed around whichever we pick.
-Ticket written assuming **wall jump**, since "via" suggests jumping *off*
-something.
-
-**Acceptance (assuming wall jump)**
-
-- While airborne and touching a wall or trunk, jump fires again.
-- The jump pushes the cat away from the surface, not just upward.
-- It resets on landing, so a wall cannot be climbed indefinitely by one press.
-
-**Notes** — `Player` already has the structure for this: `body.blocked.left` and
-`blocked.right` say which surface is being touched, and the coyote-time and
-jump-buffer timers are the pattern a wall-jump grace window would follow.
+The level also had to change: a branch overhanging the tower caught the cat's
+head. A climbing face needs clear air across the **whole swing**, about 25px out
+from the wall, not just the column directly above it.
 
 ---
 
@@ -278,3 +276,45 @@ a simple seek-and-turn is enough; gravity should be off for this body.
 
 This is the first enemy that needs to know where the cat *is*, rather than just
 walking a fixed path, so it is a step up from ticket 6 in every respect.
+
+---
+
+## 10 — Cave level
+
+`todo`
+
+A cave level. No detail agreed yet — this is a placeholder so the idea is not
+lost, not a spec.
+
+**Open questions**
+
+- Does it connect to the forest, as somewhere you descend into, or is it a
+  separate level you reach some other way?
+- Is darkness a mechanic — a limited view around the cat — or is it simply lit
+  differently to the forest?
+- What is in it? Water and piranhas (tickets 4, 5) would sit naturally
+  underground, as would boulders.
+- What does the cat want down there?
+
+**Notes** — the tile format already handles rock, and most of what a cave needs
+is solids with a different palette, so the geometry is close to free. The work
+is the lighting and whatever mechanic makes it feel unlike the forest.
+
+---
+
+## 11 — City level
+
+`todo`
+
+A city level. As with the cave, a placeholder rather than a spec.
+
+**Open questions**
+
+- What kind of city — rooftops, streets, both?
+- What replaces branches as the thing you climb and stand on?
+- Are there people, traffic, dogs? Which of them are dangerous?
+- Day or night?
+
+**Notes** — this is the first level that would not reuse the forest's art at
+all, so it is the one that most needs deciding what it looks like before any of
+it is built.

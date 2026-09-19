@@ -31,7 +31,7 @@ from one that feels slippery and unfair. Do not simplify them away:
 - **Jump buffering** — a jump pressed shortly *before* landing fires on contact.
 - **Jump cut** — releasing early shortens the hop, giving variable height.
   Measured: ~86px held, ~41px tapped.
-- **Sneaking**, below.
+- **Sneaking** and **wall jumping**, below.
 
 All of it is tuned by the `CAT` block in `src/config.ts`. Tune there; do not
 hardcode numbers in the entity.
@@ -58,6 +58,32 @@ jumping, which is what stops a player escaping upward through the log.
 
 A queued jump beats a held sneak, so a player holding the button is never stuck —
 under a low overhang it is the missing headroom, not the input, that stops them.
+
+## Wall jumping
+
+`findWall` reports which side a wall is on, and only in mid-air — standing on
+the floor beside a rock is not clinging to it. From there:
+
+- **Wall slide** caps the fall at `wallSlideSpeed` while the player presses
+  *into* the wall. Pressing in is required rather than merely touching, so
+  brushing a rock in mid-air does not silently brake the cat.
+- **Wall jump** fires from the same jump buffer a ground jump uses, so each one
+  needs a fresh press and a held button cannot climb a face on its own.
+- `wallJumpLockTimer` ignores horizontal input briefly afterwards, and
+  `applyHorizontal` and `updateFacing` both bail out while it runs.
+
+**Jumping is resolved before movement** in `step`, so the shove a wall jump
+gives is the velocity the frame ends with rather than something input overwrites
+on the same frame.
+
+### The push and the lock are a pair, and both cost height
+
+Every pixel of push has to be paid back by steering into the wall again, and
+that return takes time the cat spends falling. Tuned too high, a lone wall
+becomes *unclimbable*: the first attempt used 250 px/s for 150ms and a cycle lost
+more height than a wall jump gained, so the cat took exactly one jump and sank.
+150 px/s for 100ms nets upward. Change either number and re-measure a climb —
+the failure is silent and looks like a level problem, not a tuning one.
 
 ## Body access
 

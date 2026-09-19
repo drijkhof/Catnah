@@ -25,6 +25,7 @@ export function generateForestTextures(scene: Phaser.Scene): void {
   generateBush(scene);
   generateGrassTuft(scene);
   generateGroundTiles(scene);
+  generateRockTiles(scene);
   generateBranchTiles(scene);
   generateBerry(scene);
 }
@@ -179,6 +180,43 @@ function generateGroundTiles(scene: Phaser.Scene): void {
     g.fillRect(3, 2, 3, 2);
     g.fillRect(10, 6, 4, 2);
     g.fillRect(5, 11, 3, 2);
+  });
+}
+
+function generateRockTiles(scene: Phaser.Scene): void {
+  // Same top/fill split as the ground: a stack of boulders should read as one
+  // mass of rock, not as a pile of identical bricks.
+  bakeTexture(scene, 'rock-top', TILE, TILE, (g) => {
+    g.fillStyle(COLORS.rock, 1);
+    g.fillRect(0, 0, TILE, TILE);
+
+    g.fillStyle(COLORS.rockLight, 1);
+    g.fillRect(0, 0, TILE, 3);
+    g.fillRect(2, 3, 5, 1);
+
+    // A little moss where the light lands, to tie the rock to the forest.
+    g.fillStyle(COLORS.leaf, 1);
+    g.fillRect(9, 0, 5, 2);
+    g.fillRect(1, 1, 3, 1);
+
+    g.fillStyle(COLORS.rockDark, 1);
+    g.fillRect(4, 7, 4, 2);
+    g.fillRect(11, 10, 3, 2);
+  });
+
+  bakeTexture(scene, 'rock-fill', TILE, TILE, (g) => {
+    g.fillStyle(COLORS.rock, 1);
+    g.fillRect(0, 0, TILE, TILE);
+
+    // Vertical striations, so a wall face reads as climbable rock in motion
+    // rather than as flat grey.
+    g.fillStyle(COLORS.rockDark, 1);
+    g.fillRect(3, 1, 1, 6);
+    g.fillRect(12, 4, 1, 7);
+    g.fillRect(7, 9, 3, 2);
+
+    g.fillStyle(COLORS.rockLight, 1);
+    g.fillRect(9, 2, 1, 5);
   });
 }
 

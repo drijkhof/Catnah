@@ -29,6 +29,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   private isSneaking = false;
 
+  /**
+   * Time remaining, in ms, during which horizontal input is ignored because the
+   * cat was just shoved off a wall.
+   */
+  private wallJumpLockTimer = 0;
+
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'cat');
 
@@ -58,6 +64,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   step(controls: Controls, delta: number): void {
     const dt = delta / 1000;
     const onGround = this.body.blocked.down || this.body.touching.down;
+    const wall = this.findWall(onGround);
 
     this.tickTimers(delta, onGround, controls);
 
@@ -67,8 +74,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const wantsJump = this.coyoteTimer > 0 && this.jumpBufferTimer > 0;
     this.resolvePose(controls.sneak && onGround && !wantsJump);
 
+    // Jumping resolves before movement, so that the shove a wall jump gives is
+    // the velocity the frame ends with rather than something input overwrites.
+    this.applyJump(controls, wantsJump && !this.isSneaking, wall);
     this.applyHorizontal(controls, dt, onGround);
-    this.applyJump(controls, wantsJump && !this.isSneaking);
+    this.applyWallSlide(controls, wall, onGround);
     this.updateFacing(controls);
   }
 
@@ -79,7 +89,29 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.setPosition(x, y);
     this.coyoteTimer = 0;
     this.jumpBufferTimer = 0;
+    this.wallJumpLockTimer = 0;
     this.isJumping = false;
+  }
+
+  /**
+   * Which side a wall is on: 1 for a wall to the right, -1 to the left, 0 for
+   * none. Only meaningful in mid-air -- standing on the floor beside a rock is
+   * not clinging to it.
+   */
+  private findWall(onGround: boolean): number {
+    if (onGround) {
+      return 0;
+    }
+
+    if (this.body.blocked.right || this.body.touching.right) {
+      return 1;
+    }
+
+    if (this.body.blocked.left || this.body.touching.left) {
+      return -1;
+    }
+
+    return 0;
   }
 
   private tickTimers(delta: number, onGround: boolean, controls: Controls): void {
@@ -90,6 +122,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.jumpBufferTimer = controls.jumpJustPressed
       ? CAT.jumpBufferMs
       : Math.max(0, this.jumpBufferTimer - delta);
+
+    this.wallJumpLockTimer = Math.max(0, this.wallJumpLockTimer - delta);
 
     if (onGround && this.body.velocity.y >= 0) {
       this.isJumping = false;
@@ -142,6 +176,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   private applyHorizontal(controls: Controls, dt: number, onGround: boolean): void {
+    // Straight after a wall jump the player is still holding the direction that
+    // had them clinging to the wall. Honouring it would cancel the shove and
+    // drop them back down the same face, so input waits a moment.
+    if (this.wallJumpLockTimer > 0) {
+      return;
+    }
+
     const direction = (controls.right ? 1 : 0) - (controls.left ? 1 : 0);
     const topSpeed = this.isSneaking
       ? CAT.speed * CAT.sneakSpeedMultiplier
@@ -171,7 +212,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     );
   }
 
-  private applyJump(controls: Controls, canJump: boolean): void {
+  private applyJump(controls: Controls, canJump: boolean, wall: number): void {
+    // A wall jump needs a fresh press, held in the same buffer a ground jump
+    // uses, so holding the button cannot climb a face on its own.
+    if (!canJump && wall !== 0 && this.jumpBufferTimer > 0 && !this.isSneaking) {
+      this.applyWallJump(wall);
+      return;
+    }
+
     if (canJump) {
       this.setVelocityY(CAT.jumpVelocity);
       this.isJumping = true;
@@ -189,7 +237,49 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
+  /**
+   * Launches the cat up and away from a wall.
+   *
+   * @param wall 1 if the wall is on the right, -1 if on the left.
+   */
+  private applyWallJump(wall: number): void {
+    this.setVelocity(-wall * CAT.wallJumpPushX, CAT.wallJumpVelocityY);
+
+    this.wallJumpLockTimer = CAT.wallJumpLockMs;
+    this.isJumping = true;
+
+    // Spent, for the same reason a ground jump spends them: one press, one jump.
+    this.coyoteTimer = 0;
+    this.jumpBufferTimer = 0;
+
+    // Face the way it is travelling, not the wall it just left.
+    this.setFlipX(wall > 0);
+  }
+
+  /**
+   * Slows a fall to a scrape while the cat presses into a wall.
+   *
+   * Pressing towards the wall is required rather than merely touching it, so
+   * brushing past a rock in mid-air does not silently brake the cat.
+   */
+  private applyWallSlide(controls: Controls, wall: number, onGround: boolean): void {
+    if (onGround || wall === 0 || this.wallJumpLockTimer > 0) {
+      return;
+    }
+
+    const pressingIn = wall > 0 ? controls.right : controls.left;
+
+    if (pressingIn && this.body.velocity.y > CAT.wallSlideSpeed) {
+      this.setVelocityY(CAT.wallSlideSpeed);
+    }
+  }
+
   private updateFacing(controls: Controls): void {
+    // Keep facing away from the wall for the length of the shove.
+    if (this.wallJumpLockTimer > 0) {
+      return;
+    }
+
     if (controls.left && !controls.right) {
       this.setFlipX(true);
     } else if (controls.right && !controls.left) {

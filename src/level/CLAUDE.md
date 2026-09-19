@@ -11,6 +11,7 @@ Level data and the parser that turns it into world coordinates.
 | `#` | forest floor / earth |
 | `=` | branch — what the platforms are in level 1 |
 | `B` | fallen bough, a full-height solid for low overhangs |
+| `R` | boulder — solid rock, and what wall jumps are taken from |
 | `o` | berry |
 | `P` | cat spawn (exactly one) |
 | `.` | empty |
@@ -32,6 +33,30 @@ Branch end-caps and the grass line are chosen from neighbouring tiles: a branch
 is rounded off where it ends, and earth only grows grass where it is actually
 exposed to the sky. That last rule is what stops a stack of ground tiles reading
 as stripes.
+
+## Buried sides are switched off
+
+`exposedFaces` works out which sides of a tile anything could ever touch, and
+`GameScene` switches the rest off with `body.checkCollision`.
+
+This is not tidiness. Each tile is its own rectangle with four solid sides,
+including the ones buried inside a mass of rock where nothing can reach. When
+the cat presses against a wall, its overlap with that wall is a fraction of a
+pixel — and so is its overlap with the tile above once its head crosses a seam.
+Arcade separates on whichever axis overlaps least, so it could pick the vertical
+one and report a *ceiling*, killing a jump against a flat wall. Turning off the
+buried sides removes the choice. It fixes snagging while running along a flat
+floor for the same reason.
+
+Phaser's own tilemaps do this internally when they calculate faces; a static
+group of individual sprites does not, so it is done here.
+
+## Designing for wall jumps
+
+A climbing face needs clear air across the **whole swing**, roughly 25px out
+from the wall, not merely the column directly above it. A branch overhanging the
+tower by two tiles was enough to catch the cat's head and cap the climb — and it
+looked like a broken wall jump rather than a level problem.
 
 ## The sneaking passage
 

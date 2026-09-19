@@ -10,6 +10,7 @@ export const LEVEL_WIDTH_IN_TILES = 80;
  *   `#`  forest floor / earth
  *   `=`  branch, which is what the platforms are here
  *   `B`  fallen bough, a full-height solid used for low overhangs
+ *   `R`  boulder — solid rock, and the surface wall jumps are taken from
  *   `o`  berry
  *   `P`  cat spawn (exactly one)
  *   `.`  empty
@@ -26,6 +27,13 @@ export const LEVEL_WIDTH_IN_TILES = 80;
  * taller than that, so the only way through at ground level is sneaking. It can
  * still be jumped onto and crossed over the top, which keeps it a choice rather
  * than a wall.
+ *
+ * Two boulders. The small one at columns 14-15 is two tiles tall and met early,
+ * to introduce rock as something solid and climbable. The tower at columns
+ * 65-66 is seven tiles: its top sits 112px above the floor, and a single jump
+ * only clears 86px, so the face has to be wall jumped. The reward is the berries
+ * on top and a short hop across to the high branch that otherwise takes the
+ * long way round.
  */
 const LEVEL_SOURCE: string[] = [
   '',
@@ -37,16 +45,16 @@ const LEVEL_SOURCE: string[] = [
   '.'.repeat(69) + 'ooo',
   '.'.repeat(68) + '=====',
   '.'.repeat(25) + 'ooo',
-  '.'.repeat(24) + '=====' + '.'.repeat(32) + 'ooo',
-  '.'.repeat(60) + '=====',
-  '.'.repeat(17) + 'ooo' + '.'.repeat(13) + 'ooo',
-  '.'.repeat(16) + '=====' + '.'.repeat(11) + '=====',
-  '.'.repeat(53) + 'ooo',
-  '.'.repeat(9) + 'ooo' + '.'.repeat(29) + 'oo' + '.'.repeat(9) + '=====',
-  '.'.repeat(8) + '=====' + '.'.repeat(27) + '====',
-  '',
-  '.'.repeat(22) + 'BBBBBB',
-  '...P' + '.'.repeat(71) + 'ooo',
+  '.'.repeat(24) + '=====' + '.'.repeat(28) + 'ooo',
+  '.'.repeat(56) + '=====',
+  '.'.repeat(17) + 'ooo' + '.'.repeat(13) + 'ooo' + '.'.repeat(29) + 'oo',
+  '.'.repeat(16) + '=====' + '.'.repeat(11) + '=====' + '.'.repeat(28) + 'RR',
+  '.'.repeat(53) + 'ooo' + '.'.repeat(9) + 'RR',
+  '.'.repeat(9) + 'ooo' + '.'.repeat(29) + 'oo' + '.'.repeat(9) + '=====' + '.'.repeat(8) + 'RR',
+  '.'.repeat(8) + '=====' + '.'.repeat(27) + '====' + '.'.repeat(21) + 'RR',
+  '.'.repeat(65) + 'RR',
+  '.'.repeat(14) + 'RR' + '.'.repeat(6) + 'BBBBBB' + '.'.repeat(37) + 'RR',
+  '...P' + '.'.repeat(10) + 'RR' + '.'.repeat(49) + 'RR' + '.'.repeat(7) + 'ooo',
   '#'.repeat(46) + '.'.repeat(5) + '#'.repeat(29),
   '#'.repeat(46) + '.'.repeat(5) + '#'.repeat(29),
   '#'.repeat(46) + '.'.repeat(5) + '#'.repeat(29),
@@ -67,6 +75,14 @@ export interface Point {
   y: number;
 }
 
+/** Which sides of a solid can actually be collided with. */
+export interface Faces {
+  up: boolean;
+  down: boolean;
+  left: boolean;
+  right: boolean;
+}
+
 /** One piece of collision, already resolved to a texture and a rectangle. */
 export interface Solid {
   /** Top-left corner, in world pixels. */
@@ -77,6 +93,12 @@ export interface Solid {
   textureKey: string;
   /** Branches get decorative leaves hung underneath; earth does not. */
   isBranch: boolean;
+  /**
+   * Sides facing into a neighbouring solid are switched off. Nothing can ever
+   * be there to hit them, and leaving them on makes the cat snag on the seams
+   * between tiles -- see `exposedFaces`.
+   */
+  faces: Faces;
 }
 
 export interface ParsedLevel {
@@ -126,6 +148,21 @@ export function parseLevel(source: string[] = LEVEL_SOURCE): ParsedLevel {
             // is what stops a stack of tiles reading as stripes.
             textureKey: at(column, row - 1) === '#' ? 'ground-fill' : 'ground-top',
             isBranch: false,
+            faces: exposedFaces(at, column, row),
+          });
+          break;
+
+        case 'R':
+          solids.push({
+            x,
+            y,
+            width: TILE,
+            height: TILE,
+            // Same top/fill rule as the earth: rock only weathers where it is
+            // actually exposed, so a stack reads as one mass.
+            textureKey: at(column, row - 1) === 'R' ? 'rock-fill' : 'rock-top',
+            isBranch: false,
+            faces: exposedFaces(at, column, row),
           });
           break;
 
@@ -137,6 +174,7 @@ export function parseLevel(source: string[] = LEVEL_SOURCE): ParsedLevel {
             height: TILE,
             textureKey: 'bough',
             isBranch: false,
+            faces: exposedFaces(at, column, row),
           });
           break;
 
@@ -150,6 +188,7 @@ export function parseLevel(source: string[] = LEVEL_SOURCE): ParsedLevel {
             height: BRANCH_THICKNESS,
             textureKey: branchTexture(at(column - 1, row), at(column + 1, row)),
             isBranch: true,
+            faces: exposedFaces(at, column, row),
           });
           break;
 
@@ -178,6 +217,50 @@ export function parseLevel(source: string[] = LEVEL_SOURCE): ParsedLevel {
     groundLine: GROUND_ROW * TILE,
     widthInPixels: LEVEL_WIDTH_IN_TILES * TILE,
     heightInPixels: rows.length * TILE,
+  };
+}
+
+/** Solids that fill their whole cell, as opposed to a branch's thin bar of wood. */
+const FULL_CELL = new Set(['#', 'B', 'R']);
+
+/**
+ * Works out which sides of a tile anything could ever touch.
+ *
+ * Each tile is its own rectangle, and by default all four of its sides are
+ * solid -- including the ones buried inside a mass of rock or earth, where
+ * nothing can reach. Those buried sides are not harmless: when the cat presses
+ * against a wall, the overlap with the tile it is touching is a fraction of a
+ * pixel, and so is the overlap with the tile above once its head crosses a
+ * seam. Arcade separates on whichever axis overlaps least, so it can pick the
+ * vertical one and report the cat as having hit a ceiling -- killing a jump
+ * against a flat wall. Switching the buried sides off removes the choice.
+ *
+ * This is the same thing Phaser's own tilemaps do when they calculate faces.
+ */
+function exposedFaces(
+  at: (column: number, row: number) => string,
+  column: number,
+  row: number,
+): Faces {
+  const self = at(column, row);
+
+  /** Does `neighbour` completely cover the side of `self` that faces it? */
+  const covered = (neighbour: string, horizontal: boolean): boolean => {
+    if (FULL_CELL.has(neighbour)) {
+      return true;
+    }
+
+    // A branch is only the top half of its cell, so it covers the side of
+    // another branch beside it, but leaves the lower half of a full tile's
+    // side reachable.
+    return neighbour === '=' && self === '=' && horizontal;
+  };
+
+  return {
+    up: !covered(at(column, row - 1), false),
+    down: !covered(at(column, row + 1), false),
+    left: !covered(at(column - 1, row), true),
+    right: !covered(at(column + 1, row), true),
   };
 }
 

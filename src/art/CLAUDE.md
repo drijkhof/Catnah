@@ -6,7 +6,7 @@ binary assets and runs straight after clone.
 - `canvas.ts` — `bakeTexture` (draw once, register under a key) and
   `createRandom` (seeded scatter).
 - `cat.ts` — the cat, standing and sneaking.
-- `forest.ts` — sky, sun, trees, bushes, grass, ground, branches, berries.
+- `forest.ts` — sky, sun, trees, bushes, grass, ground, rock, branches, berries.
 - `ui.ts` — the touch-button glyphs.
 - `index.ts` — `generatePlaceholderArt`, called once by `BootScene`.
 
