@@ -4,13 +4,50 @@
  */
 
 /**
+ * The screen is a phone rather than a laptop.
+ *
+ * The *smaller* of the two viewport dimensions, so the answer does not change
+ * when the phone is turned. A phone in landscape is around 390 tall; the
+ * narrowest laptop is far above 500.
+ *
+ * This is the one place in the game allowed to ask about the screen. It is read
+ * once, at load, to pick a resolution -- gameplay code works in game pixels and
+ * never asks again. See CLAUDE.md.
+ */
+function isPhoneSized(): boolean {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  // `?phone` forces it, so the phone view can be looked at on a laptop without
+  // reaching for a phone. Harmless in the built game: it changes nothing but
+  // how much of the level fits on the screen.
+  if (window.location.search.includes('phone')) {
+    return true;
+  }
+
+  return Math.min(window.innerWidth, window.innerHeight) < 500;
+}
+
+/**
  * The game is rendered at a fixed logical resolution and then scaled to fill
  * whatever screen it lands on (see `Phaser.Scale.FIT` in main.ts). Gameplay
- * therefore behaves identically on a laptop and a phone -- only the number of
- * physical pixels per game pixel changes.
+ * therefore behaves identically everywhere -- only the number of physical
+ * pixels per game pixel changes.
+ *
+ * A phone gets a **smaller** logical resolution, not a bigger one. `FIT` scales
+ * whatever it is given up to the screen, so fewer game pixels means each one is
+ * drawn larger: the cat and the level are bigger, and you see less of the level
+ * at once. At 640x360 on a phone in landscape a 16px tile lands in about 17
+ * physical pixels, which is a postage stamp; at 448x252 it is nearer 25.
+ *
+ * Both stay 16:9, so nothing about the letterboxing changes, and both are whole
+ * multiples of the 16px tile across.
  */
-export const GAME_WIDTH = 640;
-export const GAME_HEIGHT = 360;
+const RESOLUTION = isPhoneSized() ? { width: 448, height: 252 } : { width: 640, height: 360 };
+
+export const GAME_WIDTH = RESOLUTION.width;
+export const GAME_HEIGHT = RESOLUTION.height;
 
 /** Size of one level grid cell, in game pixels. */
 export const TILE = 16;

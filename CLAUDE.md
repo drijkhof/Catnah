@@ -90,10 +90,18 @@ public/assets/  Static art and audio. See assets/CLAUDE.md
 
 ## Conventions that matter here
 
-**Fixed logical resolution.** The game always renders at 640x360 game pixels
+**Fixed logical resolution.** The game renders at a fixed number of game pixels
 (`GAME_WIDTH`/`GAME_HEIGHT`) and Phaser's `Scale.FIT` letterboxes that to the
 real viewport. So gameplay code works in game pixels and never reads
 `window.innerWidth`, and one build serves every screen size. Keep it that way.
+
+There are two of those resolutions: **640x360 on a laptop, 448x252 on a phone**.
+`config.ts` picks one at load, from the smaller of the two viewport dimensions,
+and that is the only place in the game allowed to ask about the screen. A phone
+gets *fewer* game pixels on purpose — `FIT` scales whatever it is given up to
+the screen, so fewer of them means each is drawn bigger. At 640x360 a 16px tile
+lands in about 17 physical pixels on a phone, which is a postage stamp. Add
+`?phone` to the URL to see that view on a laptop.
 
 **Tunables live in `config.ts`.** Jump heights, speeds and colours do not belong
 inline in a scene. If you find yourself typing a number twice, it goes there.

@@ -42,6 +42,17 @@ Ginger, so it stays readable against all that green. Two poses:
 Standing is deliberately taller than one 16px tile, which is what makes a
 one-tile gap something you can only get through by sneaking.
 
+## The screen
+
+The game is drawn at a fixed size and scaled to fill whatever it lands on, so it
+plays identically everywhere. There are two of those sizes: a laptop gets
+640x360 game pixels, a **phone gets 448x252** — fewer pixels, each drawn bigger,
+so the cat and the level are about 1.4x the size and you see less of the level
+at once. At the laptop size a phone screen makes a tile about the size of a
+grain of rice.
+
+Add `?phone` to the URL to see the phone view on a laptop.
+
 ## Moving
 
 | Action | Keyboard | Touch |
