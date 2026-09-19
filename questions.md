@@ -203,3 +203,21 @@ alternative is a dedicated grab button, which is a button more to hold.
 
 > **Still open:** is `Space` the right jump key, or should jump be `↑` and climb
 > get its own key? Any split works; this one puts climbing where a ladder is.
+
+
+## The canopy level
+
+**Added as a new first level**, ahead of the forest, and nothing else moved.
+
+**It is a single idea rather than a place**: liana, jump, platform, repeated
+four times with a hedgehog on the floor. There is no water, no star and no
+second route. That suits teaching the move but makes it thinner than the levels
+after it.
+
+> **Still open:** it uses the forest's backdrop with a jungle palette, because a
+> canopy is a forest seen from underneath. If it should look distinct, it needs
+> scenery of its own.
+
+> **Still open:** as the *first* level it is also the hardest opening the game
+> could have — it demands climbing and a committed jump before it has taught
+> either. It might want an easier first stretch in front of it.

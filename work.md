@@ -100,11 +100,11 @@ drops the cat onto it.
 Water is **not dangerous**. Some pools have nothing in them at all, so falling
 in is a change of pace rather than a punishment.
 
-In water the cat sinks gently at 70 px/s instead of dropping at 600, moves at
-about half speed, and climbs by **stroking**: every press of jump is one stroke,
-with no ground needed and no limit on how many. Swim up to the surface and out
-over the bank, or sink to the bottom and walk along it. Sneaking is not possible
-while swimming.
+The cat is **neutrally buoyant**: it holds its depth with nothing pressed, and
+**climb and sneak take it up and down**. Horizontally it moves at about half
+speed. Jump still works as a stroke, strong enough to break the surface. Water
+is somewhere to move about in rather than something to struggle out of, which is
+why it is not dangerous.
 
 ### Wall jumping
 
@@ -183,14 +183,24 @@ Where a level has a **star**, the door will not open without it. The forest's is
 in the crow's nest at the top of the great tree; the city's is on a rooftop. The
 swamp and the cave have none, so their doors always open.
 
-### 1 — Forest
+### 1 — Canopy
+
+Built around one move: **jumping off a liana onto a platform out of its reach**.
+The lianas hang from the roof rather than standing on the floor, and every
+platform is far too high to be reached from the ground — the best jump from
+down there falls 138px short — so there is no way through that does not involve
+letting go in mid-air.
+
+It is also the level that could not exist while jump and climb shared a button.
+
+### 2 — Forest
 
 Sunlit, with the sun up and shafts of light through the trees. Four ordinary
 trees plus **the great tree**, which runs the full height of the level and has a
 nest at the top with a crow living in it. Two pools, one shaft of boulders, one
 sneaking bough, three hedgehogs, one piranha.
 
-### 2 — Swamp
+### 3 — Swamp
 
 Standing water almost everywhere, under an overcast sky going brown at the
 horizon. Dead trees hung with moss, reeds along the waterline, and mist drifting
@@ -199,7 +209,7 @@ between each pair of them**, running from the height of the upper log down to
 the lower one. So a liana is the way across rather than something dangling
 overhead: drop onto it, climb, and jump off onto the next log.
 
-### 3 — Cave
+### 4 — Cave
 
 Caving, not a corridor. The level is **solid rock with tunnels cut out of it**,
 so the floor is never level and every passage has a roof. It branches, and
@@ -213,7 +223,7 @@ is berries, not the way on.
 
 A flooded chamber low down has something living in it.
 
-### 4 — City
+### 5 — City
 
 Night, and properly urban. Brick flats to climb, **steel I-beam girders** lit
 along their edges, **drainpipes and lampposts** to climb, **parked cars** to

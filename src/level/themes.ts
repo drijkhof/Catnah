@@ -1,7 +1,7 @@
 import type { TilePalette } from '../art/tiles';
 
 /** The places the game visits. */
-export type ThemeName = 'forest' | 'swamp' | 'cave' | 'city';
+export type ThemeName = 'jungle' | 'forest' | 'swamp' | 'cave' | 'city';
 
 /**
  * One palette per place.
@@ -11,6 +11,36 @@ export type ThemeName = 'forest' | 'swamp' | 'cave' | 'city';
  * most of what makes a place feel like itself once you are standing in it.
  */
 export const THEMES: Record<ThemeName, TilePalette> = {
+  // Under a canopy: everything hangs. Greener and fresher than the swamp, which
+  // is the other place with lianas.
+  jungle: {
+    columnStyle: 'liana',
+    platformStyle: 'branch',
+    grass: 0x63a84a,
+    grassDark: 0x467f33,
+    dirt: 0x5c4a30,
+    dirtDark: 0x453724,
+    rock: 0x7e8a6d,
+    rockDark: 0x5c6650,
+    rockLight: 0x9fab8c,
+    branch: 0x7a5a33,
+    branchDark: 0x574023,
+    leaf: 0x4f9a3a,
+    leafLight: 0x74c455,
+    trunk: 0x4f8a35,
+    trunkDark: 0x356322,
+    trunkLight: 0x77b356,
+    water: 0x3f86b8,
+    waterDeep: 0x2f6a95,
+    waterFoam: 0xbfe3f5,
+    nestStraw: 0xc9a75a,
+    nestStrawLight: 0xe6cd8a,
+    nestShadow: 0x6b5227,
+    carBody: 0x9a4a3f,
+    carGlass: 0x7fa8c4,
+    carTrim: 0x3a3a40,
+  },
+
   forest: {
     columnStyle: 'trunk',
     platformStyle: 'branch',

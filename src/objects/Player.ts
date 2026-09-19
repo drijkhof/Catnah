@@ -127,7 +127,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.tickTimers(delta, onGround, wall);
 
+    const wasInWater = this.inWater;
     this.inWater = this.overlapsAny(this.waterZones);
+
+    if (wasInWater && !this.inWater) {
+      // Out of the water: weight comes back.
+      this.body.setAllowGravity(true);
+    }
 
     // Water replaces ordinary movement the way climbing does. A pool has no
     // walls to kick off and no trunks in it, so nothing below needs to run.
@@ -166,6 +172,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   /** Puts the cat back at a given spot, upright and still. */
   respawnAt(x: number, y: number): void {
     this.inWater = false;
+    this.body.setAllowGravity(true);
     this.releaseTrunk();
     this.climbCooldownTimer = 0;
     this.resolvePose(false);
@@ -180,10 +187,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   /**
    * Moves the cat through water.
    *
-   * Water is not a hazard -- some pools have nothing in them at all -- so this
-   * is a change of pace rather than a punishment. The cat sinks gently, moves
-   * at about half speed, and climbs by stroking: each press of jump is one
-   * stroke, with no ground needed and no limit on how many.
+   * The cat is neutrally buoyant: it holds its depth with nothing pressed, and
+   * climb and sneak take it up and down. Horizontally it moves at about half
+   * speed. Jump still works, as a stroke strong enough to break the surface and
+   * carry it out onto a bank.
+   *
+   * Water is a place to move about in rather than something to struggle out of,
+   * which is the point of it not being dangerous.
    */
   private swim(controls: Controls, dt: number, onGround: boolean): void {
     // A cat cannot swim flattened out.
@@ -208,11 +218,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.setVelocityX(this.body.velocity.x * 0.86);
     }
 
+    // Gravity is off entirely in water, so depth is held rather than fought.
+    this.body.setAllowGravity(false);
+
     if (controls.jumpJustPressed) {
       this.setVelocityY(CAT.swimStrokeVelocity);
-    } else if (this.body.velocity.y > CAT.swimSinkSpeed) {
-      // Buoyancy only ever slows a sink; it never lifts the cat on its own.
-      this.setVelocityY(CAT.swimSinkSpeed);
+    } else {
+      const vertical = (controls.sneak ? 1 : 0) - (controls.up ? 1 : 0);
+      this.setVelocityY(vertical * CAT.swimVerticalSpeed);
     }
 
     if (onGround) {

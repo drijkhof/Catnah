@@ -110,14 +110,13 @@ export const CAT = {
   wallCoyoteMs: 130,
 
   /**
-   * How fast the cat sinks once it is in water, px/sec.
+   * How fast the cat swims up or down, px/sec.
    *
-   * Water is not dangerous -- some pools simply have nothing in them -- so
-   * falling in is meant to be a change of pace rather than a punishment. A cat
-   * that dropped at the usual 600 would be pinned to the bottom before it could
-   * do anything about it.
+   * A swimming cat is neutrally buoyant: it holds its depth with nothing
+   * pressed, and climb and sneak move it up and down. Water is a place to move
+   * about in rather than something to struggle out of.
    */
-  swimSinkSpeed: 70,
+  swimVerticalSpeed: 95,
 
   /** Horizontal speed in water, as a fraction of `speed`. */
   swimSpeedMultiplier: 0.55,
