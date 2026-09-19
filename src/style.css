@@ -1,0 +1,40 @@
+:root {
+  --letterbox: #0d1117;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--letterbox);
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Kill the 300ms tap delay and the pull-to-refresh / rubber-band scroll that
+     otherwise interrupt dragging on a touch screen. */
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  overscroll-behavior: none;
+}
+
+#game {
+  line-height: 0;
+}
+
+#game canvas {
+  /* Keep low-res pixel art crisp when the canvas is scaled up. */
+  image-rendering: pixelated;
+  display: block;
+}
