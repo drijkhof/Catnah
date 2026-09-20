@@ -4,6 +4,7 @@ import { Controls } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
 import { Crocodile } from '../objects/Crocodile';
+import { LavaLake } from '../objects/LavaLake';
 import { Crow } from '../objects/Crow';
 import { GroundEnemy } from '../objects/GroundEnemy';
 import { Piranha } from '../objects/Piranha';
@@ -65,6 +66,7 @@ export class GameScene extends Phaser.Scene {
   private spiders: Spider[] = [];
   private boss?: Boss;
   private lavaRects: Phaser.Geom.Rectangle[] = [];
+  private lava?: LavaLake;
 
   /** True from the moment the cat is killed until it is back on its feet. */
   private dying = false;
@@ -269,6 +271,7 @@ export class GameScene extends Phaser.Scene {
     for (const spider of this.spiders) {
       spider.step(delta, cat);
     }
+    this.lava?.step(delta);
     this.boss?.step(delta, cat);
 
     if (!this.dying && this.touchingLava()) {
@@ -647,40 +650,23 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
-   * Draws the lava and returns the rectangles that kill.
+   * Builds the lava and returns the rectangles that kill.
    *
    * Shaped exactly like water, and deliberately not solid: the danger is in
-   * touching it, not in being stopped by it. It is drawn over the cat, so
-   * falling in is visibly falling *in*.
+   * touching it, not in being stopped by it. Everything it *does* -- the boil,
+   * the heat over it, the gobbets it throws -- belongs to `LavaLake`.
    */
   private buildLava(): Phaser.Geom.Rectangle[] {
-    return this.level.lavaZones.map((zone) => {
-      this.add
-        .image(zone.x, zone.y, this.tile('lava'))
-        .setOrigin(0, 0)
-        .setDepth(-8);
+    if (this.level.lavaZones.length === 0) {
+      this.lava = undefined;
+      return [];
+    }
 
-      const tile = this.add
-        .image(zone.x, zone.y, this.tile(zone.isSurface ? 'lava-surface' : 'lava'))
-        .setOrigin(0, 0)
-        .setAlpha(0.9)
-        .setDepth(20);
+    this.lava = new LavaLake(this, this.level.theme, this.level.lavaZones);
 
-      if (zone.isSurface) {
-        this.tweens.add({
-          targets: tile,
-          y: zone.y + 1.5,
-          alpha: { from: 0.78, to: 1 },
-          duration: 1100,
-          yoyo: true,
-          repeat: -1,
-          ease: 'Sine.easeInOut',
-          delay: (zone.x / TILE) * 70,
-        });
-      }
-
-      return new Phaser.Geom.Rectangle(zone.x, zone.y, zone.width, zone.height);
-    });
+    return this.level.lavaZones.map(
+      (zone) => new Phaser.Geom.Rectangle(zone.x, zone.y, zone.width, zone.height),
+    );
   }
 
   private buildCharms(): Phaser.Physics.Arcade.StaticGroup {

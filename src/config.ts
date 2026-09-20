@@ -242,6 +242,37 @@ export const CHARMS_PER_LIFE = 100;
  */
 export const MAX_CHARMS_PER_LEVEL = 60;
 
+/**
+ * The lava lake, which is alive.
+ *
+ * It boils, it throws heat, and every so often a gobbet of it jumps out and
+ * falls back. None of it is a new way to die -- touching lava already kills --
+ * it is there so the lake reads as molten rather than as an orange floor.
+ */
+export const LAVA = {
+  /** How long one frame of the boil lasts, ms. Four frames make a cycle. */
+  boilFrameMs: 180,
+
+  /** How high the heat haze stands over the surface, px. */
+  hazeHeight: 26,
+
+  /** How long one breath of the haze takes, ms. */
+  hazeBreathMs: 1600,
+
+  /** Average time between gobbets, ms, across the whole lake. */
+  spitEveryMs: 620,
+
+  /** How hard one is thrown, px/sec. Randomised between the two. */
+  spitSpeedMin: 170,
+  spitSpeedMax: 330,
+
+  /** How far sideways it drifts while it is up, px/sec. */
+  spitDrift: 40,
+
+  /** How long one lives before it is gone, ms. */
+  spitLifeMs: 1400,
+} as const;
+
 /** Things that pace the floor. */
 export type GroundEnemyKind = 'hedgehog' | 'rat';
 
@@ -313,7 +344,7 @@ export const SPIDER = {
    * so it walks slower relative to its size, reaches further and takes an age
    * to haul itself back up. There is no beating it, only timing it.
    */
-  giantScale: 10,
+  giantScale: 5,
 
   /** How much of its normal speed a giant one walks and climbs at. */
   giantSlowness: 0.45,

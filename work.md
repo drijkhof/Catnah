@@ -412,7 +412,12 @@ gaps where there is nothing living left to climb, bolted to rings in the roof of
 nothing.
 
 Lava is shaped exactly like water and behaves nothing like it: not solid, and
-**fatal to touch**. Cones on the skyline have lava running down them, and embers
+**fatal to touch**. It is also alive: the surface **boils**, cycling through
+four frames with every tile out of step with its neighbours so the lake churns
+rather than blinking as one; **heat stands over it** in a haze that breathes;
+and every half-second or so a **gobbet jumps out** of a random tile, arcs, and
+falls back in. None of that is a new way to die — touching lava already kills.
+It is there so the lake looks like something that would. Cones on the skyline have lava running down them, and embers
 drift up through the whole level.
 
 The level ends at the **volcano itself**: a cone of rock with a crater notch at

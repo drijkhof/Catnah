@@ -110,6 +110,20 @@ of the pool rather than of the nearest tile.
 Water is harmless by design — the original wish was that not every pool has a
 piranha in it, which only means anything if a pool without one is safe.
 
+## The lava lake
+
+`LavaLake` owns everything the lava *does*; `GameScene` keeps only the
+rectangles that kill. Three things, none of which is a new hazard:
+
+- **The boil.** Four baked frames per theme, and each tile is given a phase from
+  its own grid position. A shared clock makes the whole lake blink at once,
+  which reads as a lighting bug rather than as boiling.
+- **The heat.** One additive rectangle per surface tile, breathing on a tween,
+  with a delay taken from the tile's column so the haze ripples along the lake.
+- **The gobbets.** Plain images moved by hand rather than physics bodies: there
+  are a lot of them, nothing may ever collide with one, and a body nothing
+  touches is a body the physics step walks over for no reason.
+
 ## Spiders
 
 The mirror of a `GroundEnemy`: it walks a ceiling rather than a floor, and

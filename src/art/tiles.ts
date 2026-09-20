@@ -683,18 +683,46 @@ export function generateTileset(
     g.fillRect(9, 9, 5, 2);
   });
 
-  bakeTexture(scene, key('lava-surface'), TILE, TILE, (g) => {
-    g.fillStyle(palette.lava, 1);
-    g.fillRect(0, 0, TILE, TILE);
+  /**
+   * The surface, in four frames that cycle.
+   *
+   * Lava that sits still is a floor painted orange. What makes it read as
+   * molten is that the crust keeps breaking: each frame moves the bright
+   * patches and the dark skin about, and the scene runs the tiles out of step
+   * with each other so the whole lake churns rather than pulsing as one.
+   */
+  const BOIL_FRAMES = 4;
 
-    // A bright crust along the top, so the line not to touch is unmistakable.
+  for (let frame = 0; frame < BOIL_FRAMES; frame += 1) {
+    bakeTexture(scene, key(`lava-surface-${frame}`), TILE, TILE, (g) => {
+      g.fillStyle(palette.lava, 1);
+      g.fillRect(0, 0, TILE, TILE);
+
+      // The bright crust along the top, so the line not to touch is
+      // unmistakable. It boils unevenly: the lit run shifts each frame.
+      g.fillStyle(palette.lavaBright, 1);
+      g.fillRect(0, 0, TILE, 3);
+      g.fillRect((frame * 5) % TILE, 3, 5, 1);
+      g.fillRect((frame * 7 + 9) % TILE, 3, 3, 1);
+
+      // Bubbles rising through it, each frame a little further up and a little
+      // bigger, so a tile left running looks like it is coming to the boil.
+      g.fillStyle(palette.lavaBright, 0.9);
+      g.fillCircle(4 + frame, 11 - frame * 2, 1 + frame * 0.4);
+      g.fillCircle(12 - frame, 13 - frame, 1 + frame * 0.3);
+
+      // And the dark skin between them.
+      g.fillStyle(palette.lavaDeep, 1);
+      g.fillRect((frame * 3 + 4) % (TILE - 5), 8, 5, 1);
+    });
+  }
+
+  /** A gobbet of lava, for the ones that jump out. */
+  bakeTexture(scene, key('lava-blob'), 6, 6, (g) => {
     g.fillStyle(palette.lavaBright, 1);
-    g.fillRect(0, 0, TILE, 3);
-    g.fillRect(2, 3, 5, 1);
-    g.fillRect(10, 3, 4, 1);
-
-    g.fillStyle(palette.lavaDeep, 1);
-    g.fillRect(4, 8, 5, 1);
+    g.fillCircle(3, 3, 3);
+    g.fillStyle(palette.lava, 1);
+    g.fillCircle(3.6, 3.6, 2);
   });
 
   // --- the way out -------------------------------------------------------
