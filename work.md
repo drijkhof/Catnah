@@ -470,10 +470,13 @@ are image files. A **speaker button** sits in the bottom left corner, and `M`
 does the same thing; the setting is remembered between visits.
 
 **Every place has a bed**: one continuous layer under everything, filtered noise
-with a slow swell on it. Wind in the forest, the jungle and the swamp; **rain in
-the city**; a low rumble in the volcano; and in the cave a hush, which is the
-sound of a big room with nobody in it. Over the top, sparsely and never on a
-beat: **birds** in the forest and the jungle, **drips** in the cave.
+with a slow swell on it. Wind in the forest, the jungle and the swamp; a low
+rumble in the volcano; and in the cave a hush, which is the sound of a big room
+with nobody in it. Over the top, sparsely and never on a beat: **birds** in the
+forest and the jungle, **drips** in the cave.
+
+**The city is raindrops**, not a hiss — many of them a second, each landing at
+its own pitch, over a wash so quiet you would not notice it alone.
 
 - **The cat** blips going up, and a wall jump is sharper than a plain jump.
 - **The crow** caws once, as it breaks off its circle to come at you. Calling

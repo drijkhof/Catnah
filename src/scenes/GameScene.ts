@@ -507,10 +507,15 @@ export class GameScene extends Phaser.Scene {
 
     // Birds in anything with leaves in it, water in anything underground. Every
     // gap is different: birds on a fixed beat are a smoke alarm.
-    const sparse: Partial<Record<string, { voice: 'chirp' | 'drip'; min: number; max: number }>> = {
+    const sparse: Partial<
+      Record<string, { voice: 'chirp' | 'drip' | 'patter'; min: number; max: number }>
+    > = {
       forest: { voice: 'chirp', min: 1800, max: 5200 },
       jungle: { voice: 'chirp', min: 1200, max: 3800 },
       cave: { voice: 'drip', min: 2200, max: 6000 },
+      // Rain is drops, not a hiss. Often enough to be rain, never regular
+      // enough to be a rhythm.
+      city: { voice: 'patter', min: 70, max: 300 },
     };
 
     const sound_ = sparse[theme];

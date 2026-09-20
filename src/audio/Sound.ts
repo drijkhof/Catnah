@@ -26,7 +26,8 @@ export type Voice =
   | 'gameOver'
   | 'ratLeap'
   | 'chirp'
-  | 'drip';
+  | 'drip'
+  | 'patter';
 
 /**
  * The bed a level sits on: one continuous, almost-inaudible layer.
@@ -181,6 +182,12 @@ class SoundBoard {
 
       case 'drip':
         this.blip(at, 1400, 420, 0.13, 'sine', 0.16);
+        break;
+
+      case 'patter':
+        // One raindrop landing. Pitched all over the place on purpose: drops
+        // hit slate, brick, a car roof and a puddle, and they do not agree.
+        this.blip(at, 900 + Math.random() * 1800, 300 + Math.random() * 400, 0.045, 'sine', 0.035);
         break;
 
       case 'caw':
@@ -377,8 +384,11 @@ class SoundBoard {
     const shape = {
       // Mid, wandering: leaves in it.
       wind: { type: 'bandpass' as BiquadFilterType, hz: 620, q: 0.7, level: 0.085, breath: 0.09 },
-      // High and even: water on stone, and no pitch to speak of.
-      rain: { type: 'highpass' as BiquadFilterType, hz: 1900, q: 0.4, level: 0.075, breath: 0.22 },
+      // **Not a hiss.** Broadband noise through a highpass is the sound of
+      // sweeping a floor, and at any level you can hear it, it is the loudest
+      // thing in the city. What is left is a very soft low wash for the rain to
+      // land in; the rain itself is the drops scheduled over the top.
+      rain: { type: 'lowpass' as BiquadFilterType, hz: 480, q: 0.5, level: 0.018, breath: 0.05 },
       // Under everything, felt more than heard.
       rumble: { type: 'lowpass' as BiquadFilterType, hz: 150, q: 0.9, level: 0.16, breath: 0.13 },
       // Almost nothing: the sound of a big room with nobody in it.

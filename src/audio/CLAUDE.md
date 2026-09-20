@@ -48,6 +48,14 @@ Four kinds -- `wind`, `rain`, `rumble`, `hush` -- picked in `GameScene` off the
 the bed you already have does nothing, so two swamp levels do not restart the
 wind between them.
 
+**A bed is never broadband.** The city's rain was white noise through a highpass
+at 1900Hz, which is not the sound of rain, it is the sound of sweeping a floor --
+and at any level you could hear it at all, it was the loudest thing in the city.
+Rain is *drops*: the bed is now a very soft low wash for them to land in, and
+the rain itself is `patter`, scheduled five to fourteen times a second with the
+pitch thrown all over the place, because drops hit slate, brick, a car roof and
+a puddle and they do not agree.
+
 **The sparse noises on top are scheduled by the scene**, not here. Birds and
 drips are a decision about a level's pacing, and the audio has no business
 holding timers. Every gap is randomised: birds on a fixed beat are a smoke
