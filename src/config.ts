@@ -417,8 +417,59 @@ export const BOSS = {
    * survived a full minute.
    */
   sweepRadius: 210,
-  /** Speed of that sweep, px/sec. */
-  sweepSpeed: 110,
+  /**
+   * Speed of holding station, px/sec.
+   *
+   * Above the cat's 190 on purpose. Below it, a cat that simply ran at the door
+   * overtook the beetle and was through in two seconds -- it has to be able to
+   * stay in front of you.
+   */
+  sweepSpeed: 215,
+
+  /**
+   * How far in front of the cat it plants itself, px.
+   *
+   * In front meaning *towards the way out*. It does not patrol a beat and hope
+   * you walk under it -- it stands between you and the door, so getting past is
+   * something you have to do rather than something that happens.
+   */
+  guardOffset: 74,
+
+  /**
+   * How much of the cat's own speed it allows for when taking station, seconds.
+   *
+   * Without it the beetle aims at where the cat *is*, which for a cat running
+   * at the door is always behind where the cat will be -- it trailed sixty
+   * pixels back the whole way and never blocked anything.
+   */
+  guardLeadSeconds: 0.55,
+
+  /**
+   * How fast it hauls itself back up after a dive, px/sec.
+   *
+   * Slow, and that is the whole fight: while it is down and climbing it is not
+   * blocking the way. Bait the drop, then go past it.
+   */
+  riseSpeed: 150,
+
+  /**
+   * How far above the arena floor it holds station, px, measured to the bottom
+   * of its body.
+   *
+   * Fourteen: a standing cat is 18 tall and does not fit, a sneaking one is 9
+   * and does. So it is literally in the way, and the way past it at floor level
+   * is on your belly -- which is exactly what the game has been teaching since
+   * the fallen bough in level one.
+   */
+  guardClearance: 14,
+
+  /**
+   * How hard it corrects sideways on the way down, px/sec.
+   *
+   * Enough that stepping aside at the last instant does not work, little enough
+   * that moving early does. It is trying to land *on* you.
+   */
+  diveTrack: 60,
 
   /**
    * How hard the sweep leans towards the cat, per second.
@@ -427,7 +478,7 @@ export const BOSS = {
    * fixed beat, so standing at one end of the lair meant it dived where you
    * were not. It now drifts over you and you have to keep moving.
    */
-  stalkRate: 2.2,
+  stalkRate: 7,
 
   /** How long it hovers between dives, ms, the first time. */
   restMs: 1500,

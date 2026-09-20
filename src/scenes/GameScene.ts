@@ -383,9 +383,7 @@ export class GameScene extends Phaser.Scene {
         () => landsOnBranch(this.player, crocodile),
       );
     }
-    this.boss = this.level.boss
-      ? new Boss(this, this.level.boss.x, this.level.boss.y)
-      : undefined;
+    this.boss = this.level.boss ? this.buildBoss(this.level.boss) : undefined;
 
     for (const nest of this.level.nests) {
       // Two halves with the cat between them, which is what puts it *in* the
@@ -447,6 +445,28 @@ export class GameScene extends Phaser.Scene {
         body.y < jaws.bottom
       );
     });
+  }
+
+  /**
+   * The beetle, told two things about the room it is in.
+   *
+   * **Which way the way out is**, because it keeps itself between the cat and
+   * that, and **where the floor is**, because it holds station just above it --
+   * close enough that a standing cat does not fit under and a sneaking one
+   * does. Both are read off the level rather than tuned by hand, so moving the
+   * arena does not silently leave the beetle hovering in the wrong place.
+   */
+  private buildBoss(at: { x: number; y: number }): Boss {
+    // `groundLine` rather than a search for the nearest solid underneath: the
+    // beetle is placed low in its arena, so half the floor is *above* it and a
+    // search finds the second row down and hangs the beetle in the ground.
+    return new Boss(
+      this,
+      at.x,
+      at.y,
+      this.level.exit?.x ?? at.x + 1,
+      this.level.groundLine,
+    );
   }
 
   /** Is any part of the cat in the lava? */

@@ -5,10 +5,21 @@ import { BOSS_SIZE } from '../art';
 /**
  * The evil lord beetle, guarding the end of the volcano.
  *
- * It **stalks**: it sweeps above its lair, leaning towards wherever the cat is,
- * lines up over it, and drops. There is no health bar and no way to beat it,
- * because nothing in this game can be beaten -- it is read, waited out and
- * slipped past, which is the skill the five levels before it teach.
+ * It **stands in the way**. Not a patrol that might happen to be overhead: it
+ * plants itself between the cat and the way out and shadows it there, lines up,
+ * and drops -- correcting sideways on the way down, because it is trying to
+ * land on you.
+ *
+ * It holds station **low**, with fourteen pixels of daylight under it: a
+ * standing cat is 18 tall and does not fit, a sneaking one is 9 and does. So
+ * getting past it on the floor means going under it on your belly, which is
+ * what the game has been teaching since the fallen bough in level one -- and
+ * while you are under there, it drops.
+ *
+ * There is no health bar and no way to beat it, because nothing in this game
+ * can be beaten. What there is, is a **window**: while it is down and hauling
+ * itself back up, the gap under it is wide open. Bait the drop, then go. That
+ * is the whole fight.
  *
  * It is also **on a clock**. Every dive shortens the next rest, down to a
  * floor, so standing in the arena learning the pattern works for a while and
@@ -39,14 +50,50 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
   /** How long it is willing to wait between dives right now, ms. */
   private restMs: number = BOSS.restMs;
 
+  /** Which way the way out is from the lair: 1 for right, -1 for left. */
+  private readonly wayOut: number;
+
+  /** Where the door is. It will not give ground past this. */
+  private readonly exitX: number;
+
+  /** The height it holds station at: low, with a sneaking gap underneath. */
+  private readonly guardY: number;
+
+  /**
+   * How far either side of the lair it will go, px.
+   *
+   * Reaches the door. Fenced at a fixed radius it simply stopped short of the
+   * exit and a cat that ran at the door went round the outside of it, which is
+   * the opposite of standing in the way.
+   */
+  private readonly reach: number;
+
   /** Where the cat was last frame, so the beetle can work out where it is going. */
   private lastCatX: number | null = null;
 
   /** The cat's own speed, smoothed, px/sec. What the aim is led by. */
   private catSpeed = 0;
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
+  /**
+   * @param exitX Where the way out is. The beetle keeps itself between the cat
+   *   and that, which is what makes it something to get past.
+   */
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    exitX = x + 1,
+    floorY = y + BOSS.diveDepth,
+  ) {
     super(scene, x, y, 'boss');
+
+    this.wayOut = Math.sign(exitX - x) || 1;
+    this.exitX = exitX;
+    this.reach = Math.max(BOSS.sweepRadius, Math.abs(exitX - x) + 48);
+
+    // Measured to the bottom of the body, which sits below the sprite's middle
+    // by half its height less the offset.
+    this.guardY = floorY - BOSS.guardClearance - (BOSS_SIZE.height / 2 - 4);
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
@@ -69,7 +116,7 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
 
     switch (this.phase) {
       case 'drop':
-        this.drop();
+        this.drop(delta, cat);
         break;
 
       case 'aim':
@@ -77,12 +124,12 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
         break;
 
       default: {
-        this.sweep(delta, cat);
+        this.guard(delta, cat);
 
         // It only bothers with a cat it could plausibly reach. One on the far
         // side of the level is not its problem, and going after it dragged the
         // boss out of its own lair and across the rest of the volcano.
-        const withinReach = Math.abs(cat.x - this.lair.x) < BOSS.sweepRadius * 1.6;
+        const withinReach = Math.abs(cat.x - this.lair.x) < this.reach + 120;
 
         if (withinReach !== this.engaged) {
           this.engaged = withinReach;
@@ -103,8 +150,8 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
           // than the sweep.
           this.aimX = Phaser.Math.Clamp(
             cat.x + this.catSpeed * BOSS.leadSeconds,
-            this.lair.x - BOSS.sweepRadius,
-            this.lair.x + BOSS.sweepRadius,
+            this.lair.x - this.reach,
+            this.lair.x + this.reach,
           );
         }
       }
@@ -140,8 +187,8 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
    * pixels out of its arena.
    */
   private keepToItsLair(): void {
-    const left = this.lair.x - BOSS.sweepRadius;
-    const right = this.lair.x + BOSS.sweepRadius;
+    const left = this.lair.x - this.reach;
+    const right = this.lair.x + this.reach;
 
     if (this.x < left) {
       this.setX(left);
@@ -155,23 +202,32 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Back and forth above the lair, leaning towards the cat.
+   * Holds station between the cat and the way out.
    *
-   * The lean is the difference between a patrol and a stalk. On a fixed beat
-   * there was a safe end of the arena: stand there and the dive happened
-   * somewhere else. Now it comes to you, and standing still is the one thing
-   * that does not work.
+   * Not a beat it walks whatever you do. It picks a spot `guardOffset` past the
+   * cat on the exit side and shadows it there, so walking towards the door
+   * means walking into it. With nobody in the arena it drifts back to the
+   * middle of its lair.
    */
-  private sweep(delta: number, cat: Phaser.Math.Vector2): void {
-    if (Math.abs(this.x - this.lair.x) > BOSS.sweepRadius) {
-      this.direction = this.x > this.lair.x ? -1 : 1;
-    } else if (this.engaged) {
-      const towards = Math.sign(cat.x - this.x);
+  private guard(delta: number, cat: Phaser.Math.Vector2): void {
+    // Where the cat is *going*, plus a body's length past it on the exit side --
+    // but **never past the door**. Backing off for ever meant a cat that simply
+    // ran was escorted to the exit by a beetle politely keeping its distance.
+    // It gives ground until its back is to the door, and then it stands there.
+    const ahead =
+      cat.x + this.catSpeed * BOSS.guardLeadSeconds + this.wayOut * BOSS.guardOffset;
+    const lastStand = this.exitX - this.wayOut * BOSS.guardOffset;
+    const station = this.engaged
+      ? this.wayOut > 0
+        ? Math.min(ahead, lastStand)
+        : Math.max(ahead, lastStand)
+      : this.lair.x;
 
-      if (towards !== 0) {
-        this.direction = towards;
-      }
-    }
+    const gap =
+      Phaser.Math.Clamp(station, this.lair.x - this.reach, this.lair.x + this.reach) -
+      this.x;
+
+    this.direction = Math.sign(gap) || this.direction;
 
     const turn = Phaser.Math.Clamp(
       ((this.engaged ? BOSS.stalkRate : BOSS.turnRate) * delta) / 1000,
@@ -179,11 +235,17 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
       1,
     );
 
-    this.setVelocityX(
-      Phaser.Math.Linear(this.body.velocity.x, this.direction * BOSS.sweepSpeed, turn),
-    );
-    // Drift back to its own height rather than snapping to it.
-    this.setVelocityY((this.lair.y - this.y) * 2);
+    // Eases off as it arrives, so it settles into its station rather than
+    // oscillating across it.
+    const wanted = Phaser.Math.Clamp(gap * 4, -BOSS.sweepSpeed, BOSS.sweepSpeed);
+
+    this.setVelocityX(Phaser.Math.Linear(this.body.velocity.x, wanted, turn));
+
+    // Down to its guarding height when there is someone in the arena, back up
+    // to its lair when there is not. Drifted rather than snapped.
+    const height = this.engaged ? this.guardY : this.lair.y;
+
+    this.setVelocityY((height - this.y) * 2);
   }
 
   /**
@@ -206,12 +268,31 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  /** Straight down, then straight back up. It does not follow on the way. */
-  private drop(): void {
-    if (this.y >= this.lair.y + BOSS.diveDepth) {
+  /**
+   * Down, correcting towards the cat as it comes, then slowly back up.
+   *
+   * The correction is small: stepping aside at the last instant does not work,
+   * moving early does. A dive that tracked perfectly would be a coin toss, and
+   * one that did not track at all was dodged by taking a single step.
+   *
+   * The climb back is the slow part on purpose. While it is down there it is
+   * not between you and the door, and that is the only way past it.
+   */
+  private drop(delta: number, cat: Phaser.Math.Vector2): void {
+    const towards = Math.sign(cat.x - this.x);
+
+    this.setVelocityX(
+      Phaser.Math.Linear(
+        this.body.velocity.x,
+        towards * BOSS.diveTrack,
+        Phaser.Math.Clamp((4 * delta) / 1000, 0, 1),
+      ),
+    );
+
+    if (this.y >= this.guardY + BOSS.diveDepth * 0.4) {
       this.phase = 'sweep';
       this.timer = 0;
-      this.setVelocityY(-BOSS.diveSpeed * 0.7);
+      this.setVelocityY(-BOSS.riseSpeed);
     }
   }
 }

@@ -110,6 +110,30 @@ of the pool rather than of the nearest tile.
 Water is harmless by design — the original wish was that not every pool has a
 piranha in it, which only means anything if a pool without one is safe.
 
+## The beetle stands in the way
+
+It is not a patrol that might happen to be overhead. `guard()` puts it between
+the cat and the door and keeps it there, and three details are what make that
+work -- each of them found by watching a bot walk straight past the version
+before it:
+
+- **It leads.** Aiming at where the cat *is* means always being behind where the
+  cat will be; it trailed sixty pixels back the whole way and blocked nothing.
+- **It is faster than the cat.** 215 against 190. Below that, a cat that simply
+  ran at the door overtook it.
+- **It will not give ground past the door.** Backing off for ever meant a cat
+  that ran was escorted to the exit by a beetle politely keeping its distance.
+  It retreats until its back is to the exit, and then it stands.
+
+`guardY` puts it low -- fourteen pixels of clearance, measured to the bottom of
+the body. A standing cat is 18 and does not fit; a sneaking one is 9 and does.
+The floor comes from `groundLine` rather than a search for the nearest solid
+underneath, because the beetle is placed low in its arena and half the floor is
+*above* it: a search finds the second row down and hangs the beetle in the
+ground.
+
+The climb back after a dive is the slow part on purpose. That is the window.
+
 ## The lava lake
 
 `LavaLake` owns everything the lava *does*; `GameScene` keeps only the

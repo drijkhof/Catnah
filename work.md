@@ -428,32 +428,29 @@ Nothing walks the lava fields — no hedgehogs down here. The only living thing
 in this level is what waits at the end of it.
 
 Inside waits the **evil lord beetle**, a ladybird with the sweetness taken out,
-three times the cat in every direction. It **stalks**: it sweeps above the floor
-leaning towards wherever you are, slides until it is **directly overhead** —
-aimed at where you are *going*, not where you stand — and drops straight down.
+three times the cat in every direction. It does not patrol and hope you walk
+under it. It **stands in the way**:
 
-- Its sweep covers **the whole arena**. There is no corner it cannot reach.
-- It **aims ahead of you**, so running away in a straight line is what gets you
-  hit. You have to turn, stop or break the other way.
-- It **gets angrier**. Every dive shortens the next wait, from 1.5 seconds down
-  to 0.6, so working out the pattern is possible for a while and then stops
-  being possible. Leaving the arena and coming back cools it off.
+- It keeps itself **between you and the door**, aiming at where you are going
+  rather than where you are, and it will not give ground past the door — it
+  backs up until its back is to the exit and then holds there. Measured: it is
+  in front of the cat all but a few frames of the fight, and simply running at
+  the door kills you in under two seconds.
+- It holds station **low**, with about fifteen pixels of daylight under it. A
+  standing cat is eighteen and does not fit; a sneaking one is nine and does.
+- It **drops on you**, correcting sideways as it comes, so stepping aside at the
+  last instant does not work and moving early does.
+- It **gets angrier**: every dive shortens the next wait from a second and a
+  half towards six tenths. Walking out of the arena cools it off.
 
-Measured: standing still in the arena kills you in **2.7 seconds**. It cannot be
-beaten, only got past, and the way out is at the far end of the arena.
+Standing still kills you in about three seconds. The way past is the **window**:
+while it is down and hauling itself back up, the gap under it opens from fifteen
+pixels to more than a hundred — measured — and that is when you go. Under it on
+your belly, or over the top: a jump reaches 90px and the top of it sits 64px up,
+so both work if the timing does.
 
-## What you collect
-
-**Little hearts.** They are smaller, pinker and brighter than the hearts in the
-top right, because those are lives and these are what *buys* one.
-
-- **A hundred of them is a life**, and the count runs across the whole game
-  rather than resetting each level. The number in the corner is how far you are
-  from the next one, so it starts again at zero every time one is cashed in.
-- **No level holds more than sixty**, well under a hundred on purpose. A life
-  is therefore always at least two levels of collecting — a reward for playing
-  well over a stretch of the game, not for combing one room.
-- They are optional everywhere.
+It cannot be beaten, only got past, and the way out is at the far end of the
+arena.
 
 ## The creatures
 
