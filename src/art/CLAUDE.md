@@ -75,9 +75,14 @@ sixteen pixels; something straddling four tiles is what breaks it.
 
 The back one is **overdone on purpose**. One clump per tile is a row of shrubs;
 two or three overlapping, each four tiles wide and scaled up to nearly twice
-that, are one canopy with a tree standing in front of it. It goes behind the
-branches as well as behind the trunk, or the wood is only ever seen against
-leaves where it meets the trunk.
+that, are one canopy with a tree standing in front of it.
+
+Every clump is positioned **from a branch or from the crown**, never from the
+trunk. That is where a real tree carries its leaves; clumps planted down a trunk
+give you a hedge with a tree in it. Plenty still ends up behind the trunk
+anyway, because a clump is four tiles wide and the branches grow out of the
+trunk — the difference is leaves that spill over the wood rather than leaves
+that follow it to the ground.
 
 The back one is drawn from a **darkened** palette leaf rather than from a
 `leafDark` of its own. It is the shadowed inside of a canopy, and deriving it

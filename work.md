@@ -519,10 +519,12 @@ measured in. What makes them *look* like a grid is that every edge falls on the
 same sixteen pixels, so the leaves are the one thing that ignores it: clumps
 wider than a tile, dropped at offsets nothing else agrees with.
 
-They come in two layers. **Behind**, a full canopy — deliberately overdone, and
-behind the branches as much as behind the trunk, so a tree is a mass of dark
-leaves with wood standing in front of it rather than a pole with shelves on it.
-And **in
+They come in two layers. **Behind**, a full canopy — deliberately overdone, so a
+tree is a mass of dark leaves with wood standing in front of it rather than a
+pole with shelves on it. Every clump of it is placed from a **branch** or from
+the crown, never from the trunk, because that is where a tree actually carries
+its leaves: the canopy sits on the branches and the bare trunk runs up into it
+from the ground. And **in
 front of you**, growing up off the branches: walk into one and you are hidden to
 the shoulders, with your ears and your tail still out. It hides nothing that
 matters — the hearts are drawn in front of the leaves, and the creatures that

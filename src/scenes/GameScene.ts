@@ -734,7 +734,7 @@ export class GameScene extends Phaser.Scene {
     // crown puts a tree behind something that is deliberately not a tree.
     const wooded = palette.columnStyle === 'trunk';
 
-    if (!leafy && !wooded) {
+    if (!leafy) {
       return;
     }
 
@@ -754,34 +754,34 @@ export class GameScene extends Phaser.Scene {
         .setDepth(-6);
     };
 
-    // The far canopy goes behind *everything* a tree is made of -- the trunk
-    // and the branches both -- and it is deliberately overdone. One clump per
-    // tile reads as a row of shrubs; two or three overlapping, each four tiles
-    // wide and up to nearly twice that scaled, read as one mass of leaves with
-    // a tree in front of it.
-    if (wooded) {
-      for (const zone of this.level.climbZones) {
-        crown(zone.x + TILE / 2, zone.y + TILE / 2, TILE * 1.5);
-
-        // Thicker towards the crown, the way a real tree is.
-        if (zone.isTop || random() < 0.55) {
-          crown(zone.x + TILE / 2, zone.y + TILE / 2, TILE * 2.5);
-        }
-      }
-    }
-
-    if (!leafy) {
-      return;
-    }
-
+    // **Leaves grow where wood grows.** Every clump is positioned from a branch
+    // or from the crown at the top of a trunk, never from the trunk itself --
+    // that is where a real tree carries its leaves, and a column of clumps
+    // planted down a trunk is a hedge with a tree in it.
+    //
+    // Plenty still ends up *behind* the trunk, because a clump is four tiles
+    // wide and the branches grow out of the trunk. That is the difference
+    // between leaves that spill over the wood and leaves that follow it down.
     for (const solid of this.level.solids) {
       if (!this.sprouts(solid, wooded)) {
         continue;
       }
 
-      // Behind the branch and a little above it, so the wood is drawn against
-      // leaves along its whole length rather than only where it meets a trunk.
+      const isCrown = solid.textureKey === 'trunk-top-ledge';
+
+      // Deliberately overdone. One clump per branch tile reads as a row of
+      // shrubs; two or three overlapping, each four tiles wide and up to nearly
+      // twice that scaled, read as one mass of leaves with a tree in front of
+      // it. Thickest at the crown, the way a real tree is.
       crown(solid.x + TILE / 2, solid.y - 2, TILE * 1.5);
+
+      if (isCrown || random() < 0.6) {
+        crown(solid.x + TILE / 2, solid.y - 8, TILE * 2.5);
+      }
+
+      if (isCrown) {
+        crown(solid.x + TILE / 2, solid.y - 18, TILE * 2);
+      }
     }
 
     for (const solid of this.level.solids) {
