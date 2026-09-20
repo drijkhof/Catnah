@@ -5,6 +5,7 @@ import { TitleScene } from './scenes/TitleScene';
 import { GameOverScene } from './scenes/GameOverScene';
 import { GameScene } from './scenes/GameScene';
 import { captureFrom, SNAPSHOT_KEY, type GameSnapshot } from './dev/hot';
+import { sound } from './audio/Sound';
 
 function createGame(carried?: GameSnapshot): Phaser.Game {
   return new Phaser.Game({
@@ -86,6 +87,40 @@ if (import.meta.hot) {
     document.getElementById('game')?.replaceChildren();
   });
 }
+
+/**
+ * Nothing happens while the game is not being looked at.
+ *
+ * The browser stops handing out frames when a tab is hidden or an app is
+ * switched away from, so the *game* stops on its own. An `AudioContext` does
+ * not: without this, walking away leaves the wind, the rain and the beetle
+ * playing out of a phone in somebody's pocket.
+ *
+ * Both events are listened for, and they are not the same thing. `hidden` is
+ * the tab going away or the phone being locked; `blur` is another window taking
+ * focus while this one is still on screen. A desktop player alt-tabbing gets
+ * only the second, and on that one the browser goes on handing out frames, so
+ * the game really does need stopping by hand.
+ *
+ * It is `game.pause()`, not `game.loop.pause()`. The second one sounds like the
+ * one you want and is not: it only writes down what time it was, so the loop
+ * runs on exactly as before. `pause()` sets the flag that `step` returns on, so
+ * scenes, physics, tweens and timers all stand still together.
+ */
+function hush(): void {
+  sound.suspend();
+  game.pause();
+}
+
+function listen(): void {
+  sound.wake();
+  game.resume();
+}
+
+game.events.on(Phaser.Core.Events.HIDDEN, hush);
+game.events.on(Phaser.Core.Events.BLUR, hush);
+game.events.on(Phaser.Core.Events.VISIBLE, listen);
+game.events.on(Phaser.Core.Events.FOCUS, listen);
 
 /**
  * Installable, and offline-capable, and still updating.

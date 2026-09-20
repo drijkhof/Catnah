@@ -110,6 +110,27 @@ class SoundBoard {
     void this.ctx.resume();
   }
 
+  /**
+   * Stops the audio dead while the game is not being looked at.
+   *
+   * Switching apps stops the game loop -- the browser stops handing out frames
+   * -- but it does not stop an `AudioContext`. Without this, walking away from
+   * the game leaves the wind, the rain and the beetle playing out of a phone
+   * in somebody's pocket.
+   *
+   * Suspending rather than muting, so nothing is being computed either.
+   */
+  suspend(): void {
+    void this.ctx?.suspend();
+  }
+
+  /** Back again. Does nothing if the audio was never started. */
+  wake(): void {
+    if (this.ctx) {
+      void this.ctx.resume();
+    }
+  }
+
   /** Flips the mute, remembers it, and hands back the new state. */
   toggle(): boolean {
     this.quiet = !this.quiet;

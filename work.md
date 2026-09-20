@@ -493,6 +493,12 @@ its own pitch, over a wash so quiet you would not notice it alone.
   ending.
 - Collecting a little heart chimes; losing one does not.
 
+**Switch away and everything stops.** Take a call, answer a message, put the
+phone in your pocket, and the game freezes exactly where it stood and goes
+silent. Come back and it carries on from there. It matters most on a phone,
+where the screen going away does not stop the sound on its own -- that is how
+you end up with wind and a growling beetle coming out of your pocket.
+
 ## Weather
 
 **It rains in the city**, over the whole screen, and nothing interacts with it.
@@ -500,7 +506,7 @@ Rain is between you and the game rather than somewhere in the level, so it is
 pinned to the viewport and every drop wraps around the screen. Faster drops are
 drawn longer and a little brighter, which is all the depth it needs.
 
-## The creatures## The creatures
+## The creatures
 
 - **Hedgehogs** pace the floor, turning at anything solid, at the edge of a
   drop, and at the edge of the level, so they never fall off. They keep to plain

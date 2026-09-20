@@ -76,3 +76,18 @@ a rat pinned against a wall was still ticking away at nothing.
 One voice breaks the quiet rule on purpose. `ratLeap` is the loudest thing in
 the game by some way, because everything else is meant to sit *under* the game
 and that one is meant to come out of it.
+
+## Walking away has to stop it
+
+`suspend()` and `wake()` are called from `main.ts` on `blur` and `hidden`. The
+browser takes the *frames* away by itself, so the game stops without being
+asked; an `AudioContext` keeps going regardless, which on a phone means a bed of
+wind playing out of a pocket.
+
+The context is only ever suspended, never closed. A closed one cannot be
+reopened without another user gesture, and coming back to a game that is silent
+until you tap the speaker would be worse than the noise.
+
+Note that `game.loop.pause()` is **not** how you stop the game — it only records
+what time it was, and the loop runs on. `game.pause()` is the one that sets the
+flag `step` returns on.
