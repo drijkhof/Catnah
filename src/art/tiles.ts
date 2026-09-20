@@ -416,6 +416,57 @@ export function generateTileset(
     },
   );
 
+  /**
+   * Thorns: the one hazard that is neither alive nor a liquid.
+   *
+   * What they are made of follows the place, the same way a column does. Reeds
+   * where there are leaves, stalagmites where there is rock, a spiked railing
+   * where there are girders -- one shape, three materials, and in every case
+   * something you would not put a paw on.
+   *
+   * They are drawn as four spikes of different heights. Even spikes read as a
+   * comb, and a comb reads as decoration.
+   */
+  bakeTexture(scene, key('thorns'), TILE, TILE, (g) => {
+    const spikes = [
+      { x: 1, width: 4, height: 11 },
+      { x: 5, width: 3, height: 15 },
+      { x: 8, width: 4, height: 9 },
+      { x: 12, width: 3, height: 13 },
+    ];
+
+    // Dark body, pale point. A hazard has to read at a glance and from across
+    // a bank, and the thing that does that is the silhouette, not the colour --
+    // reeds drawn in the same green as the grass they stand in are scenery.
+    const body =
+      palette.platformStyle === 'shelf'
+        ? palette.rockDark
+        : palette.platformStyle === 'girder'
+          ? palette.trunkDark
+          : shade(palette.leaf, 58);
+    const tip =
+      palette.platformStyle === 'shelf'
+        ? palette.rockLight
+        : palette.platformStyle === 'girder'
+          ? palette.rockLight
+          : palette.leafLight;
+
+    for (const spike of spikes) {
+      const top = TILE - spike.height;
+
+      g.fillStyle(body, 1);
+      g.fillTriangle(
+        spike.x, TILE,
+        spike.x + spike.width, TILE,
+        spike.x + spike.width / 2, top,
+      );
+
+      // A lit point, so the top of each one is the part the eye lands on.
+      g.fillStyle(tip, 1);
+      g.fillRect(spike.x + spike.width / 2 - 1, top, 2, 3);
+    }
+  });
+
   bakeTexture(scene, key('bough'), TILE, TILE, (g) => {
     g.fillStyle(palette.branchDark, 1);
     g.fillRect(0, 0, TILE, TILE);

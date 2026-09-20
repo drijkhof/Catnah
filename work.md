@@ -367,9 +367,22 @@ two kinds never mix; a stretch of water has one danger, not two.
   route: jump off the bank, catch one in mid-air, leap to the next, and land on
   the far side. Nothing at water level gets you across.
 
-**Nothing walks the banks.** The banks are where you stand still and work out
-the next crossing; a hedgehog wandering into that is an interruption rather than
-a danger. Everything dangerous in this level is in the water.
+**The banks cost something too.** Nothing walks them — a hedgehog trundling into
+a crossing is an interruption rather than a danger — but a swamp of nothing but
+crocodiles and piranhas is one idea eight times over, so the dry ground is no
+longer a rest. None of what is on it is another set of teeth:
+
+- **Thorns**, in patches of two, on four of the banks. You jump them, which
+  means landing off a crossing and setting up another jump straight away.
+- **Low boughs** over two banks. A standing cat is 18 pixels and the gap under
+  one is 16, so you go under it sneaking or over it jumping — and one of them
+  has that bank's hearts beneath it.
+- **A boulder block** at the lip of the fifth bank, two tiles high and not to be
+  walked round. The crossing after it is taken from the top of it, two tiles
+  higher than every other crossing in the level.
+- **Crows**, over two of the liana crossings. A bird coming at you while you
+  hang over piranhas is the most dangerous thing here, and the only one that
+  comes looking for you.
 
 The lianas here are five tiles long, hang low over the water and **hang from
 nothing**. That is on purpose: all you can do with one is cross, there is no
@@ -526,6 +539,14 @@ of them sprouts.
 Rain is between you and the game rather than somewhere in the level, so it is
 pinned to the viewport and every drop wraps around the screen. Faster drops are
 drawn longer and a little brighter, which is all the depth it needs.
+
+## Thorns
+
+Reeds, stalagmites, a spiked railing — one shape in three materials, dark with a
+pale point, and the only thing in the game that kills you without being alive or
+being a liquid. What kills is smaller than the tile it stands in: the spikes are
+nine to fifteen pixels of sixteen and the rest is air, so clearing the points is
+clearing them, and brushing the edge of the tile on the way past is not a death.
 
 ## The creatures
 

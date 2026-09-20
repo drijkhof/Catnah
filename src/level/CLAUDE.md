@@ -31,6 +31,7 @@ its platforms must attach to a column. Everything else is derived.
 | `h` | hedgehog, `r` rat — walkers, only ever on plain `#` floor |
 | `f` | piranha — water *with* a fish in it |
 | `c` | crow |
+| `^` | thorns — deadly to touch, and needs something solid directly under it |
 | `s` | spider — walks the ceiling above it, so it needs rock directly above |
 | `X` | the evil lord beetle |
 | `P` | cat spawn (exactly one) |
@@ -252,3 +253,6 @@ broken. Each of these cost a debugging session before it existed:
 - **The spawn has footing.** A `P` one row too low replaces a floor tile and
   leaves the cat sealed under the surface, where it falls out of the world and
   respawns into the same hole, forever.
+- **Thorns stand on something.** A patch hanging in mid-air over a crossing is
+  an invisible wall you die on, and nudging a row sideways by one is all it
+  takes to write one.

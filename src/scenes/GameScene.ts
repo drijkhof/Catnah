@@ -11,7 +11,7 @@ import { GroundEnemy } from '../objects/GroundEnemy';
 import { Piranha } from '../objects/Piranha';
 import { Spider } from '../objects/Spider';
 import { createBackdrop } from '../world';
-import { parseLevel, type ParsedLevel } from '../level/Level';
+import { parseLevel, type ParsedLevel, type Solid } from '../level/Level';
 import { LEVELS } from '../level/levels';
 import { createRandom, tileKey } from '../art';
 import { THEMES } from '../level/themes';
@@ -68,7 +68,13 @@ export class GameScene extends Phaser.Scene {
   private crocodiles: Crocodile[] = [];
   private spiders: Spider[] = [];
   private boss?: Boss;
-  private lavaRects: Phaser.Geom.Rectangle[] = [];
+  /**
+   * Everything that kills on contact and is not a creature: lava, and thorns.
+   *
+   * One list rather than two, because the cat's side of it is identical -- a
+   * rectangle it must not be inside. What each of them *is* lives elsewhere.
+   */
+  private deadlyRects: Phaser.Geom.Rectangle[] = [];
   private lava?: LavaLake;
   private rain?: Rain;
 
@@ -125,7 +131,7 @@ export class GameScene extends Phaser.Scene {
     const climbZones = this.buildTrunks();
     this.buildFoliage();
     const waterZones = this.buildWater();
-    this.lavaRects = this.buildLava();
+    this.deadlyRects = [...this.buildLava(), ...this.buildThorns()];
     this.charms = this.buildCharms();
 
     this.player = new Player(
@@ -283,7 +289,7 @@ export class GameScene extends Phaser.Scene {
     this.rain?.step(delta);
     this.boss?.step(delta, cat);
 
-    if (!this.dying && this.touchingLava()) {
+    if (!this.dying && this.touchingSomethingDeadly()) {
       this.kill();
     }
 
@@ -532,11 +538,11 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  /** Is any part of the cat in the lava? */
-  private touchingLava(): boolean {
+  /** Is any part of the cat in the lava, or on the thorns? */
+  private touchingSomethingDeadly(): boolean {
     const body = this.player.body;
 
-    return this.lavaRects.some(
+    return this.deadlyRects.some(
       (zone) =>
         body.right > zone.x &&
         body.x < zone.right &&
@@ -724,7 +730,9 @@ export class GameScene extends Phaser.Scene {
   private buildFoliage(): void {
     const palette = THEMES[this.level.theme];
     const leafy = palette.platformStyle === 'branch';
-    const wooded = palette.columnStyle === 'trunk' || palette.columnStyle === 'liana';
+    // Trunks only. A liana is a vine hanging from nothing, and giving one a
+    // crown puts a tree behind something that is deliberately not a tree.
+    const wooded = palette.columnStyle === 'trunk';
 
     if (!leafy && !wooded) {
       return;
@@ -767,7 +775,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     for (const solid of this.level.solids) {
-      if (!solid.isBranch) {
+      if (!this.sprouts(solid, wooded)) {
         continue;
       }
 
@@ -777,7 +785,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     for (const solid of this.level.solids) {
-      if (!solid.isBranch || random() > 0.38) {
+      if (!this.sprouts(solid, wooded) || random() > 0.38) {
         continue;
       }
 
@@ -799,6 +807,21 @@ export class GameScene extends Phaser.Scene {
         .setFlipX(random() < 0.5)
         .setDepth(5);
     }
+  }
+
+  /**
+   * Whether this platform is something leaves grow on.
+   *
+   * Branches, yes. The ledge at the top of a climbable column only if that
+   * column is a *tree* -- the swamp's lianas hang from nothing on purpose, and
+   * a canopy over each one puts a roof on a level that is meant to have sky.
+   */
+  private sprouts(solid: Solid, wooded: boolean): boolean {
+    if (!solid.isBranch) {
+      return false;
+    }
+
+    return solid.textureKey !== 'trunk-top-ledge' || wooded;
   }
 
   /** Whether a charm sits on or just above this tile. */
@@ -864,6 +887,30 @@ export class GameScene extends Phaser.Scene {
     return this.level.lavaZones.map(
       (zone) => new Phaser.Geom.Rectangle(zone.x, zone.y, zone.width, zone.height),
     );
+  }
+
+  /**
+   * Draws the thorns and returns the rectangles that kill.
+   *
+   * The rectangle is **smaller than the tile**, and by a lot at the top: the
+   * spikes are 9 to 15 pixels of a 16-pixel tile and the rest is air. A cat
+   * that clears the points has cleared them, and brushing the very edge of the
+   * tile going past is not a death.
+   *
+   * No physics body. Thorns are not something you land on -- there is nothing
+   * to land on -- so the only thing they do is be somewhere you must not be.
+   */
+  private buildThorns(): Phaser.Geom.Rectangle[] {
+    return this.level.thorns.map((thorn) => {
+      this.add
+        .image(thorn.x, thorn.y, this.tile('thorns'))
+        .setOrigin(0, 0)
+        // In front of the ground they grow out of, behind the cat, so a cat
+        // dying on them is seen falling into them.
+        .setDepth(-1);
+
+      return new Phaser.Geom.Rectangle(thorn.x + 2, thorn.y + 5, TILE - 4, TILE - 5);
+    });
   }
 
   private buildCharms(): Phaser.Physics.Arcade.StaticGroup {

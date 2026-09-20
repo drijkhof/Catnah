@@ -26,6 +26,9 @@ import type { GroundEnemyKind } from '../config';
  *   `+`  extra life — a nest tile with a spare heart in it. Never required,
  *        and always guarded.
  *   `c`  crow, which circles the nest it is placed at
+ *   `^`  thorns -- reeds, stalagmites, a spiked railing. Deadly to touch, and
+ *        the only hazard that is neither alive nor a liquid. Needs something
+ *        solid directly under it
  *   `s`  spider, which walks the ceiling above the tile it is placed on and
  *        drops on a thread. Needs solid rock directly above it
  *   `S`  the same, ten times the size. One of them, guarding the cave's heart
@@ -167,6 +170,8 @@ export interface ParsedLevel {
   boss: Point | null;
   nests: Point[];
   charms: Point[];
+  /** Thorn tiles. Deadly, and scenery otherwise -- nothing stands on them. */
+  thorns: Point[];
   /** Spare hearts sitting in nests. Always optional. */
   extraLives: Point[];
   /** Where the cat starts, and returns to after dying. */
@@ -201,6 +206,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const spiders: Spider[] = [];
   const nests: Point[] = [];
   const charms: Point[] = [];
+  const thorns: Point[] = [];
   let spawn: Point | null = null;
   let boss: Point | null = null;
   const extraLives: Point[] = [];
@@ -351,6 +357,10 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           crows.push({ x: x + TILE / 2, y: y + TILE / 2 });
           break;
 
+        case '^':
+          thorns.push({ x, y });
+          break;
+
         case 'X':
           boss = { x: x + TILE / 2, y: y + TILE / 2 };
           break;
@@ -395,6 +405,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   assertWalkersStandOnGround(rows, width, definition.name);
   assertSpidersHangFromRock(rows, width, definition.name);
   assertCharmBudget(charms, definition.name);
+  assertThornsStandOnGround(rows, width, definition.name);
   assertSpawnHasFooting(rows, width, definition.name, spawn);
 
   const pools = groupIntoPools(waterZones);
@@ -429,6 +440,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     boss,
     nests,
     charms,
+    thorns,
     extraLives,
     spawn,
     exit,
@@ -557,6 +569,29 @@ function assertCharmBudget(charms: Point[], name: string): void {
     throw new Error(
       `${name} has ${charms.length} little hearts in it; the most a level may hold is ${MAX_CHARMS_PER_LEVEL}.`,
     );
+  }
+}
+
+/**
+ * Thorns grow out of something. A patch hanging in mid-air over a crossing is
+ * an invisible wall you die on, and it is far too easy to write one by nudging
+ * a row sideways.
+ */
+function assertThornsStandOnGround(rows: string[], width: number, name: string): void {
+  for (let row = 0; row < rows.length; row += 1) {
+    for (let column = 0; column < width; column += 1) {
+      if ((rows[row]?.[column] ?? '.') !== '^') {
+        continue;
+      }
+
+      const below = rows[row + 1]?.[column] ?? '.';
+
+      if (!'#RBMA='.includes(below)) {
+        throw new Error(
+          `${name}: the thorns at ${column},${row} stand on nothing (found '${below}').`,
+        );
+      }
+    }
   }
 }
 

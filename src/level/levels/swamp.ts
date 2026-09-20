@@ -18,8 +18,22 @@ import type { LevelDefinition } from '../Level';
  *   than anything can swim past. **Lianas hang over it** and they are the whole
  *   route: jump off the bank, catch one in mid-air, leap on.
  *
- * **Nothing walks the banks.** The banks are where you stand still and work out
- * the next crossing; everything dangerous in this level is in the water.
+ * **Nothing walks the banks** -- but they are no longer a rest. A swamp of
+ * nothing but crocodiles and piranhas is one idea eight times over, so the dry
+ * ground now costs something too, and none of it is another set of teeth:
+ *
+ * - **Thorns**, in patches of two, in the middle of four banks. Deadly, and the
+ *   only hazard in the game that is neither alive nor a liquid. You jump them,
+ *   which means landing off a crossing and immediately setting up another jump.
+ * - **Low overhangs** on two banks. A standing cat is 18 pixels and the gap is
+ *   16, so the only way past is to sneak -- and one of them has the bank's
+ *   hearts under it.
+ * - **A boulder block** at the lip of the fifth bank, two tiles high. It cannot
+ *   be walked round, so the crossing after it is taken from the top of it, and
+ *   from two tiles higher than every other crossing in the level.
+ * - **Crows**, over two of the liana crossings. A bird that comes at you while
+ *   you are hanging over piranhas is the most dangerous thing here, and it is
+ *   the only one that comes looking.
  *
  * The lianas are five tiles long, hang low over the water and **hang from
  * nothing**. All you can do with one is cross, and the swamp has sky overhead
@@ -51,16 +65,16 @@ const ROWS: string[] = [
   '',
   '',
   '',
+  '.............................................c.........................................................................................................................c',
   '',
   '',
-  '',
   '........................................T....T....T.............................................T.....T.....T...T................................................T.....T.....T.................................................T.....T....T',
   '........................................T....T....T.............................................T.....T.....T...T................................................T.....T.....T.................................................T.....T....T',
   '........................................T....T....T.............................................T.....T.....T...T................................................T.....T.....T.................................................T.....T....T',
   '........................................T....T....T.............................................T.....T.....T...T................................................T.....T.....T.................................................T.....T....T',
   '........................................T....T....T.............................................T.....T.....T...T................................................T.....T.....T.................................................T.....T....T',
-  '..P',
-  '.RRR.oo..................................................oo...........................................................ooo............................................................oo.........................................................oo..E',
+  '..P.......................................................BB.............................................................RR...........................................................BB',
+  '.RRR.oo........................^^........................oo...........................^^..............................oooRR............................^^............................oo.............................^^..........................oo..E',
   '############wwwCwwwwCwwwwCww########wwwwwwwwwwwwwwwwww########wwwCwwwwwCwwwwwCwwwwCw#######wwwwwwwwwwwwwwwwwwwwwwww########wwwwCwwwwwCwwwwwwCwwwwwCww#######wwwwwwwwwwwwwwwwwwwwww########wwwwCwwwwwwCwwwwwwCwwwww########wwwwwwwwwwwwwwwwwwww##########',
   '############wwwwwwwwwwwwwwww########wwfwwwfwwwfwwwfwww########wwwwwwwwwwwwwwwwwwwwww#######wwfwwwfwwwfwwwfwwwfwwwfw########wwwwwwwwwwwwwwwwwwwwwwwwww#######wwfwwwfwwwfwwwfwwwfwww########wwwwwwwwwwwwwwwwwwwwwwww########wwfwwwfwwwfwwwfwwwfw##########',
   '############wwwwwwwwwwwwwwww########wwwwwwwwwwwwwwwwww########wwwwwwwwwwwwwwwwwwwwww#######wwwwwwwwwwwwwwwwwwwwwwww########wwwwwwwwwwwwwwwwwwwwwwwwww#######wwwwwwwwwwwwwwwwwwwwww########wwwwwwwwwwwwwwwwwwwwwwww########wwwwwwwwwwwwwwwwwwww##########',
