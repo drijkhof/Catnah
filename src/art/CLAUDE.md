@@ -64,3 +64,26 @@ standing on a hat.
 
 A spare heart sitting in the nest with it is drawn in front of the near rim, or
 it would be buried in the straw.
+
+## Two leaf masses that ignore the grid
+
+`foliage-back` and `foliage-near` are the only scenery deliberately sized so no
+tile boundary lines up with them: 64 and 28 pixels wide against a 16px grid.
+That is the whole trick. The shapes inside a tile can be as round as you like
+and the level still reads as blocks, because every edge falls on the same
+sixteen pixels; something straddling four tiles is what breaks it.
+
+The back one is **overdone on purpose**. One clump per tile is a row of shrubs;
+two or three overlapping, each four tiles wide and scaled up to nearly twice
+that, are one canopy with a tree standing in front of it. It goes behind the
+branches as well as behind the trunk, or the wood is only ever seen against
+leaves where it meets the trunk.
+
+The back one is drawn from a **darkened** palette leaf rather than from a
+`leafDark` of its own. It is the shadowed inside of a canopy, and deriving it
+means six themes cannot drift apart by hand.
+
+`foliage-near` is 13 pixels tall against a standing cat's 18, and that number is
+the design: a cat behind one is hidden to the shoulders with its ears and tail
+still showing. Taller and you lose the cat; shorter and there is nothing to hide
+behind. `GameScene.buildFoliage` places both.

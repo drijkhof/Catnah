@@ -499,6 +499,27 @@ silent. Come back and it carries on from there. It matters most on a phone,
 where the screen going away does not stop the sound on its own -- that is how
 you end up with wind and a growling beetle coming out of your pocket.
 
+## Leaves in front of you and behind you
+
+The levels are built on a grid and always will be — that is what the jumps are
+measured in. What makes them *look* like a grid is that every edge falls on the
+same sixteen pixels, so the leaves are the one thing that ignores it: clumps
+wider than a tile, dropped at offsets nothing else agrees with.
+
+They come in two layers. **Behind**, a full canopy — deliberately overdone, and
+behind the branches as much as behind the trunk, so a tree is a mass of dark
+leaves with wood standing in front of it rather than a pole with shelves on it.
+And **in
+front of you**, growing up off the branches: walk into one and you are hidden to
+the shoulders, with your ears and your tail still out. It hides nothing that
+matters — the hearts are drawn in front of the leaves, and the creatures that
+walk the floor are behind them — but a cat sitting in the foliage looks like a
+cat in a tree rather than a cat on a shelf.
+
+For now only where a place actually has leaves: the forest, the jungle and the
+swamp. A cave shelf and a city girder are the same tile underneath and neither
+of them sprouts.
+
 ## Weather
 
 **It rains in the city**, over the whole screen, and nothing interacts with it.

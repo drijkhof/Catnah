@@ -13,7 +13,8 @@ import { Spider } from '../objects/Spider';
 import { createBackdrop } from '../world';
 import { parseLevel, type ParsedLevel } from '../level/Level';
 import { LEVELS } from '../level/levels';
-import { tileKey } from '../art';
+import { createRandom, tileKey } from '../art';
+import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { sound, type Ambience } from '../audio/Sound';
 import { SNAPSHOT_KEY, type GameSnapshot } from '../dev/hot';
@@ -122,6 +123,7 @@ export class GameScene extends Phaser.Scene {
 
     const { blocks, branches } = this.buildSolids();
     const climbZones = this.buildTrunks();
+    this.buildFoliage();
     const waterZones = this.buildWater();
     this.lavaRects = this.buildLava();
     this.charms = this.buildCharms();
@@ -692,6 +694,118 @@ export class GameScene extends Phaser.Scene {
 
       return new Phaser.Geom.Rectangle(zone.x, zone.y, zone.width, zone.height);
     });
+  }
+
+  /**
+   * The leaves that are not on the grid.
+   *
+   * Everything else in a level is a 16px tile in a 16px slot, and that is what
+   * makes it read as blocky however round the shapes inside it are. This is the
+   * one layer that ignores the grid: clumps 34 and 28 pixels wide, dropped at
+   * offsets no tile boundary agrees with, in **front of and behind** the things
+   * they grow on.
+   *
+   * - **Behind** (`-6`, under the trunks at `-3`): a trunk is seen against
+   *   leaves rather than against bare sky, which is what gives a tree a depth
+   *   it cannot get from one column of tiles.
+   * - **In front** (`5`, over the cat at `0`): a cat on a branch can get
+   *   *behind* the foliage. The clump is 13 pixels and a standing cat is 18, so
+   *   you are hidden to the shoulders and your ears and tail still show. You
+   *   always know where you are; you are simply harder to see.
+   *
+   * Nothing here has a body, nothing collides, and nothing is hidden by it that
+   * matters: the near clumps go only on branches, and the creatures that walk
+   * the floor sit at `-1`, well behind. Charms are at `7`, in front of it, so a
+   * heart in the leaves is still a heart you can see.
+   *
+   * Only where the place actually has leaves. A cave shelf and a city girder
+   * use the same tiles underneath, and neither of them sprouts.
+   */
+  private buildFoliage(): void {
+    const palette = THEMES[this.level.theme];
+    const leafy = palette.platformStyle === 'branch';
+    const wooded = palette.columnStyle === 'trunk' || palette.columnStyle === 'liana';
+
+    if (!leafy && !wooded) {
+      return;
+    }
+
+    // One seeded stream for the whole pass, consumed in parse order, so the
+    // forest is arranged identically on every device and across every reload.
+    const random = createRandom(9173);
+
+    /** One clump of the far canopy, centred wherever it is asked for. */
+    const crown = (x: number, y: number, spread: number): void => {
+      this.add
+        .image(
+          x + (random() - 0.5) * spread,
+          y + (random() - 0.5) * spread,
+          this.tile('foliage-back'),
+        )
+        .setScale(1 + random() * 0.8)
+        .setDepth(-6);
+    };
+
+    // The far canopy goes behind *everything* a tree is made of -- the trunk
+    // and the branches both -- and it is deliberately overdone. One clump per
+    // tile reads as a row of shrubs; two or three overlapping, each four tiles
+    // wide and up to nearly twice that scaled, read as one mass of leaves with
+    // a tree in front of it.
+    if (wooded) {
+      for (const zone of this.level.climbZones) {
+        crown(zone.x + TILE / 2, zone.y + TILE / 2, TILE * 1.5);
+
+        // Thicker towards the crown, the way a real tree is.
+        if (zone.isTop || random() < 0.55) {
+          crown(zone.x + TILE / 2, zone.y + TILE / 2, TILE * 2.5);
+        }
+      }
+    }
+
+    if (!leafy) {
+      return;
+    }
+
+    for (const solid of this.level.solids) {
+      if (!solid.isBranch) {
+        continue;
+      }
+
+      // Behind the branch and a little above it, so the wood is drawn against
+      // leaves along its whole length rather than only where it meets a trunk.
+      crown(solid.x + TILE / 2, solid.y - 2, TILE * 1.5);
+    }
+
+    for (const solid of this.level.solids) {
+      if (!solid.isBranch || random() > 0.38) {
+        continue;
+      }
+
+      // Never in front of a charm: a heart you cannot see is a heart you walk
+      // past, and this layer is scenery, not a puzzle.
+      if (this.charmNear(solid.x, solid.y)) {
+        continue;
+      }
+
+      this.add
+        .image(
+          solid.x + TILE / 2 + (random() - 0.5) * 10,
+          // Growing up off the wood, with its feet a little below the surface
+          // so it is planted in the branch rather than balanced on it.
+          solid.y + 3,
+          this.tile('foliage-near'),
+        )
+        .setOrigin(0.5, 1)
+        .setFlipX(random() < 0.5)
+        .setDepth(5);
+    }
+  }
+
+  /** Whether a charm sits on or just above this tile. */
+  private charmNear(x: number, y: number): boolean {
+    return this.level.charms.some(
+      (charm) => Math.abs(charm.x - (x + TILE / 2)) < TILE && charm.y > y - TILE * 2 && charm.y <= y,
+    );
   }
 
   /**

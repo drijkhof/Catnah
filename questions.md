@@ -454,3 +454,13 @@ headlight, a tail light, a number plate and a shadow on the road.
 
 > **Still open:** every car in the game is the same car. A second body colour
 > per level, or per car, would cost one number.
+
+## Hiding in the leaves is only a picture
+
+The foliage in front of the branches hides the cat from *you*, not from anything
+in the game. A crow still dives at a cat standing in a clump of leaves.
+
+Made it that way because the alternative is a stealth mechanic, and there is
+nothing in the game that hunts by sight -- a crow circles a nest, a rat runs
+from you. Turning cover into a rule would need all of that rewritten. Say the
+word if hiding should actually work.

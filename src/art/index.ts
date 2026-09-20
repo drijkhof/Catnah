@@ -11,7 +11,14 @@ export { bakeTexture, createRandom } from './canvas';
 export { BUSH_SIZE, SUN_SIZE, TREE_SIZES, TUFT_SIZE } from './forest';
 export { BUTTON_SIZE } from './ui';
 export { BUILDING_SIZE, CONE_SIZE, DEAD_TREE_SIZE, MOON_SIZE, STALACTITE_SIZE, STALAGMITE_SIZE } from './backdrops';
-export { BRANCH_LEAF_DROP, BRANCH_THICKNESS, generateTileset, tileKey } from './tiles';
+export {
+  BRANCH_LEAF_DROP,
+  BRANCH_THICKNESS,
+  FOLIAGE_BACK_SIZE,
+  FOLIAGE_NEAR_SIZE,
+  generateTileset,
+  tileKey,
+} from './tiles';
 export type { TilePalette } from './tiles';
 export {
   BOSS_SIZE,

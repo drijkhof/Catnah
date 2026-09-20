@@ -9,6 +9,25 @@ export const BRANCH_THICKNESS = 8;
 export const BRANCH_LEAF_DROP = 11;
 
 /**
+ * The two decorative leaf masses, neither of which collides with anything.
+ *
+ * `foliage-back` goes *behind* everything -- four tiles wide, so a handful of
+ * them make one full crown rather than a row of shrubs, and a trunk and its
+ * branches are seen against leaves rather than against the sky. `foliage-near`
+ * goes in *front* of the cat, and
+ * its height is the point of it: a standing cat is 18 pixels and this is 13, so
+ * a cat behind one is hidden to the shoulders with its ears and tail still out.
+ * Tall enough to hide in, short enough that you can always see where you are.
+ */
+export const FOLIAGE_BACK_SIZE = { width: 64, height: 54 };
+export const FOLIAGE_NEAR_SIZE = { width: 28, height: 13 };
+
+/** A darker version of a palette colour, for shading leaves against leaves. */
+function shade(colour: number, amount: number): number {
+  return Phaser.Display.Color.ValueToColor(colour).darken(amount).color;
+}
+
+/**
  * The colours a level's tiles are drawn in.
  *
  * Every level uses the same tile *shapes* and differs by palette, which is what
@@ -334,6 +353,68 @@ export function generateTileset(
     g.fillStyle(palette.leafLight, 1);
     g.fillCircle(8, 1, 3);
   });
+
+  /**
+   * The two leaf masses. Scenery only: `GameScene` places them, nothing
+   * collides with them, and they exist to break up the grid the level is
+   * actually built on.
+   *
+   * Both are drawn as overlapping circles at a size no tile boundary lines up
+   * with, which is the whole trick -- a 34px clump straddling a 16px grid is
+   * what stops the eye reading the tiles underneath.
+   */
+  bakeTexture(
+    scene,
+    key('foliage-back'),
+    FOLIAGE_BACK_SIZE.width,
+    FOLIAGE_BACK_SIZE.height,
+    (g) => {
+      const { width, height } = FOLIAGE_BACK_SIZE;
+
+      // Darker than any leaf in front of it: this is the shadowed inside of
+      // the canopy, and it has to read as *behind* rather than as more of the
+      // same green.
+      g.fillStyle(shade(palette.leaf, 40), 1);
+      g.fillCircle(width * 0.22, height * 0.54, height * 0.36);
+      g.fillCircle(width * 0.5, height * 0.46, height * 0.46);
+      g.fillCircle(width * 0.78, height * 0.56, height * 0.38);
+      g.fillCircle(width * 0.36, height * 0.72, height * 0.34);
+      g.fillCircle(width * 0.64, height * 0.74, height * 0.32);
+      g.fillCircle(width * 0.5, height * 0.24, height * 0.3);
+
+      g.fillStyle(shade(palette.leaf, 24), 1);
+      g.fillCircle(width * 0.38, height * 0.42, height * 0.26);
+      g.fillCircle(width * 0.62, height * 0.56, height * 0.24);
+      g.fillCircle(width * 0.5, height * 0.3, height * 0.18);
+    },
+  );
+
+  bakeTexture(
+    scene,
+    key('foliage-near'),
+    FOLIAGE_NEAR_SIZE.width,
+    FOLIAGE_NEAR_SIZE.height,
+    (g) => {
+      const { width, height } = FOLIAGE_NEAR_SIZE;
+
+      // Lit from the front, so it sits clearly nearer than the back clump.
+      g.fillStyle(palette.leaf, 1);
+      g.fillCircle(width * 0.22, height * 0.72, height * 0.5);
+      g.fillCircle(width * 0.5, height * 0.62, height * 0.56);
+      g.fillCircle(width * 0.78, height * 0.74, height * 0.48);
+
+      g.fillStyle(palette.leafLight, 1);
+      g.fillCircle(width * 0.36, height * 0.5, height * 0.3);
+      g.fillCircle(width * 0.68, height * 0.56, height * 0.26);
+
+      // A few blades standing proud of the mass, so the top edge is a plant
+      // and not the top of a circle.
+      g.fillStyle(palette.leaf, 1);
+      g.fillRect(width * 0.3, 0, 2, height * 0.5);
+      g.fillRect(width * 0.55, height * 0.12, 2, height * 0.4);
+      g.fillRect(width * 0.82, height * 0.2, 2, height * 0.35);
+    },
+  );
 
   bakeTexture(scene, key('bough'), TILE, TILE, (g) => {
     g.fillStyle(palette.branchDark, 1);
