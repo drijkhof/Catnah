@@ -98,18 +98,34 @@ public/assets/  Static art and audio. See assets/CLAUDE.md
 
 ## Conventions that matter here
 
-**Fixed logical resolution.** The game renders at a fixed number of game pixels
-(`GAME_WIDTH`/`GAME_HEIGHT`) and Phaser's `Scale.FIT` letterboxes that to the
-real viewport. So gameplay code works in game pixels and never reads
-`window.innerWidth`, and one build serves every screen size. Keep it that way.
+**The canvas matches the screen's shape.** The *height* is fixed — 252 game
+pixels on a phone, 360 on a laptop — and the width is whatever that screen's
+aspect ratio asks for, rounded to whole 16px tiles. `config.ts` works it out
+once at load, from the longer side over the shorter one so the answer survives
+the phone being held either way, and clamped to between 16:9 and 21:9.
 
-There are two of those resolutions: **640x360 on a laptop, 448x252 on a phone**.
-`config.ts` picks one at load, from the smaller of the two viewport dimensions,
-and that is the only place in the game allowed to ask about the screen. A phone
-gets *fewer* game pixels on purpose — `FIT` scales whatever it is given up to
-the screen, so fewer of them means each is drawn bigger. At 640x360 a 16px tile
-lands in about 17 physical pixels on a phone, which is a postage stamp. Add
-`?phone` to the URL to see that view on a laptop.
+That is what gets rid of the bars: `Scale.FIT` letterboxes whatever it is given,
+so a canvas fixed at 16:9 on a 20:9 phone leaves a stripe down each side.
+Matching the two leaves nothing to letterbox, and a wider phone simply sees a
+little more of the level. Measured: an iPhone 15 gets 544x252 against a screen
+of 2.17, a Galaxy S23 gets 560x252 against 2.22.
+
+Gameplay code still works in game pixels and never reads `window.innerWidth`;
+`config.ts` is the only place allowed to ask about the screen. A phone gets
+*fewer* game pixels than a laptop on purpose — `FIT` scales whatever it is given
+up to the screen, so fewer of them means each is drawn bigger. Add `?phone` to
+the URL to see that view on a laptop.
+
+**It installs.** There is a web manifest and a service worker, in the built game
+only — a worker in front of the dev server intercepts the module graph and
+breaks hot reloading in ways that look like the game being broken. The worker is
+**network-first for the page**, so a deploy is live the next time the game is
+opened with a connection; built assets are cache-first, which is safe because
+Vite puts a content hash in every filename, so a changed file is a different
+file and a hit can never be stale. `skipWaiting` plus a reload on `updatefound`
+stops an installed copy sitting on an old build until every tab is closed.
+
+The icons are SVG, not PNG, to keep the no-binary-assets rule.
 
 **Tunables live in `config.ts`.** Jump heights, speeds and colours do not belong
 inline in a scene. If you find yourself typing a number twice, it goes there.

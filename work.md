@@ -81,16 +81,27 @@ game starts anyway.
 
 ## The screen
 
-The game is drawn at a fixed size and scaled to fill whatever it lands on, so it
-plays identically everywhere. There are two of those sizes: a laptop gets
-640x360 game pixels, a **phone gets 448x252** — fewer pixels, each drawn bigger,
-so the cat and the level are about 1.4x the size and you see less of the level
-at once. At the laptop size a phone screen makes a tile about the size of a
-grain of rice.
+The game is drawn at a fixed size and scaled to fill whatever it lands on. The
+**height** is the fixed part — a laptop gets 360 game pixels, a phone gets 252,
+so on a phone everything is about 1.4x the size and you see less of the level at
+once. The **width** is whatever that screen's shape asks for.
+
+That is why there are no black bars: a canvas fixed at 16:9 on a phone that is
+20:9 leaves a stripe down each side, and matching the canvas to the screen
+leaves nothing to letterbox. A wider phone simply sees a little more of the
+level. It works the shape out from the longer side over the shorter one, so it
+gets the same answer whichever way the phone was being held when the page
+loaded.
 
 Add `?phone` to the URL to see the phone view on a laptop.
 
-## Moving
+**It can be installed.** On a phone, Chrome's "add to home screen" gives you
+Catnah as an app: fullscreen, landscape, its own icon, and playable with no
+connection. It still updates — the page itself is always fetched fresh when
+there is a connection, so opening the installed game after a new version is
+pushed gets the new version.
+
+## Moving## Moving
 
 | Action | Keyboard | Touch |
 | --- | --- | --- |

@@ -30,21 +30,55 @@ function isPhoneSized(): boolean {
 }
 
 /**
+ * The shape of the screen, as a landscape ratio.
+ *
+ * Taken from the longer side over the shorter one, so the answer is the same
+ * whichever way the phone happens to be held when the page loads -- a game that
+ * booted in portrait would otherwise pick a tall, narrow canvas and keep it.
+ *
+ * Clamped: 16:9 at the narrowest, because that is what every level was laid out
+ * against, and 21:9 at the widest, because past that the cat is a speck in the
+ * middle of a lot of scenery.
+ */
+function screenAspect(): number {
+  if (typeof window === 'undefined') {
+    return 16 / 9;
+  }
+
+  const long = Math.max(window.innerWidth, window.innerHeight);
+  const short = Math.min(window.innerWidth, window.innerHeight);
+
+  return Math.min(21 / 9, Math.max(16 / 9, long / Math.max(1, short)));
+}
+
+/**
  * The game is rendered at a fixed logical resolution and then scaled to fill
  * whatever screen it lands on (see `Phaser.Scale.FIT` in main.ts). Gameplay
  * therefore behaves identically everywhere -- only the number of physical
  * pixels per game pixel changes.
  *
- * A phone gets a **smaller** logical resolution, not a bigger one. `FIT` scales
- * whatever it is given up to the screen, so fewer game pixels means each one is
- * drawn larger: the cat and the level are bigger, and you see less of the level
- * at once. At 640x360 on a phone in landscape a 16px tile lands in about 17
- * physical pixels, which is a postage stamp; at 448x252 it is nearer 25.
+ * The **height** is the fixed part: 252 game pixels on a phone, 360 on a
+ * laptop. The width is then whatever the screen's own shape asks for, rounded
+ * to a whole number of 16px tiles.
  *
- * Both stay 16:9, so nothing about the letterboxing changes, and both are whole
- * multiples of the 16px tile across.
+ * That is what gets rid of the bars. `FIT` letterboxes whatever it is given, so
+ * a canvas fixed at 16:9 on a phone that is 20:9 leaves a black stripe down
+ * each side. Matching the canvas to the screen means there is nothing left to
+ * letterbox, and a wider phone simply sees a little more of the level.
+ *
+ * A phone gets a **smaller** logical resolution than a laptop, not a bigger
+ * one: `FIT` scales whatever it is given up to the screen, so fewer game pixels
+ * means each is drawn larger. At 360 tall a 16px tile lands in about 17
+ * physical pixels on a phone, which is a postage stamp; at 252 it is nearer 25.
  */
-const RESOLUTION = isPhoneSized() ? { width: 448, height: 252 } : { width: 640, height: 360 };
+function pickResolution(): { width: number; height: number } {
+  const height = isPhoneSized() ? 252 : 360;
+  const tiles = Math.round((height * screenAspect()) / 16);
+
+  return { width: tiles * 16, height };
+}
+
+const RESOLUTION = pickResolution();
 
 export const GAME_WIDTH = RESOLUTION.width;
 export const GAME_HEIGHT = RESOLUTION.height;

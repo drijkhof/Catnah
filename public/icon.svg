@@ -1,0 +1,31 @@
+<!--
+  The app icon, drawn rather than exported.
+
+  An SVG and not a PNG on purpose: this project has no binary assets, and a
+  vector icon is the only way to keep it that way. Chrome on Android accepts it;
+  an installer that insists on a raster will fall back to a screenshot of the
+  page, which is not the end of the world.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="24" fill="#1d3a5c"/>
+  <circle cx="64" cy="40" r="26" fill="#f0f7ff" opacity="0.14"/>
+  <!-- The cat, head on, from the game's own palette. -->
+  <g fill="#d98a4e">
+    <path d="M34 54 L46 30 L54 50 Z"/>
+    <path d="M94 54 L82 30 L74 50 Z"/>
+    <rect x="34" y="46" width="60" height="52" rx="22"/>
+  </g>
+  <g fill="#8a5330">
+    <path d="M40 52 L47 37 L52 50 Z"/>
+    <path d="M88 52 L81 37 L76 50 Z"/>
+  </g>
+  <g fill="#2a2118">
+    <ellipse cx="52" cy="68" rx="5" ry="7"/>
+    <ellipse cx="76" cy="68" rx="5" ry="7"/>
+  </g>
+  <path d="M64 80 L58 86 L70 86 Z" fill="#e0687a"/>
+  <g stroke="#f4e3d2" stroke-width="2" stroke-linecap="round" opacity="0.8">
+    <path d="M30 76 H16"/><path d="M30 84 H18"/>
+    <path d="M98 76 H112"/><path d="M98 84 H110"/>
+  </g>
+</svg>

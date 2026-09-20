@@ -87,6 +87,45 @@ if (import.meta.hot) {
   });
 }
 
+/**
+ * Installable, and offline-capable, and still updating.
+ *
+ * Only in the built game: a service worker in front of the dev server
+ * intercepts the module graph and breaks hot reloading in ways that look like
+ * the game being broken.
+ *
+ * The worker itself is network-first for the page, so a deploy is live the next
+ * time the game is opened with a connection. This end asks the browser to look
+ * for a new one on every load, which is what stops an installed copy sitting on
+ * an old build.
+ */
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    void navigator.serviceWorker
+      .register(`${import.meta.env.BASE_URL}sw.js`, { scope: import.meta.env.BASE_URL })
+      .then((registration) => {
+        void registration.update();
+
+        // A worker that has installed and is waiting would otherwise sit there
+        // until every tab is closed, which is the usual reason an update turns
+        // up days late.
+        registration.addEventListener('updatefound', () => {
+          const incoming = registration.installing;
+
+          incoming?.addEventListener('statechange', () => {
+            if (incoming.state === 'installed' && navigator.serviceWorker.controller) {
+              window.location.reload();
+            }
+          });
+        });
+      })
+      .catch(() => {
+        // No worker is a perfectly good state to be in: the game still plays,
+        // it just will not install or work offline.
+      });
+  });
+}
+
 if (import.meta.env.DEV) {
   // Exposed only in development, so the running game can be poked from the
   // browser console: `game.scene.getScene('Game')`.
