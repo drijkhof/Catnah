@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { GROUND_ENEMY_SIZES } from '../art';
-import { GRAZING, GROUND_ENEMIES, type GroundEnemyKind } from '../config';
+import { GRAZING, GROUND_ENEMIES, RAT, type GroundEnemyKind } from '../config';
 import { sound } from '../audio/Sound';
 import { isSolidTile } from './solid';
 
@@ -23,8 +23,11 @@ const PROBE = 3;
  * pauses about every four seconds is an animal. It is also the only thing that
  * makes a hedgehog readable -- while it is eating it is not coming towards you.
  *
- * **A rat makes a noise while it moves**, which is the difference between
- * something in the street and something behind you.
+ * **A rat is afraid of you.** It paces like anything else until the cat comes
+ * close, then turns and runs -- and when it runs out of floor or meets a wall,
+ * it stops running and leaps at you. It is the only attack in the game that
+ * comes from something trying to get away, and the only sound in the game that
+ * is meant to make you jump.
  */
 export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
   declare body: Phaser.Physics.Arcade.Body;
@@ -43,6 +46,11 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
 
   /** How far a rat has walked since its last footfall, px. */
   private stepDistance = 0;
+
+  /** How long a rat has been cornered, ms, and how long until it may leap again. */
+  private corneredFor = 0;
+
+  private leapCooldown = 0;
 
   constructor(
     scene: Phaser.Scene,
@@ -67,27 +75,98 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
     this.setDepth(-1);
   }
 
-  /** Called from the scene once a frame, after the physics of the last one. */
-  step(delta = 16.667): void {
+  /**
+   * Called from the scene once a frame, after the physics of the last one.
+   *
+   * @param cat Where the cat is. Only the rats care.
+   */
+  step(delta = 16.667, cat?: Phaser.Math.Vector2): void {
     if (!this.active) {
       return;
     }
 
-    if (this.kind === 'hedgehog' && this.graze(delta)) {
-      this.setVelocityX(0);
-      this.bite(delta);
+    if (this.kind === 'hedgehog') {
+      if (this.graze(delta)) {
+        this.setVelocityX(0);
+        this.bite(delta);
+        return;
+      }
+
+      this.pace();
       return;
     }
 
+    this.ratStep(delta, cat);
+  }
+
+  /** Turn at a wall, at an edge, or at the end of the world. Walk otherwise. */
+  private pace(speed = GROUND_ENEMIES[this.kind].speed): void {
     if (this.atLevelEdge() || this.blockedAhead() || !this.groundAhead()) {
       this.direction = -this.direction;
     }
 
-    this.setVelocityX(this.direction * GROUND_ENEMIES[this.kind].speed);
+    this.setVelocityX(this.direction * speed);
+    this.setFlipX(this.direction < 0);
+  }
+
+  /**
+   * A rat: pacing, fleeing, or cornered and about to jump.
+   *
+   * The three states are one `if`, because they are one decision -- how close
+   * is the cat, and is there anywhere left to go.
+   */
+  private ratStep(delta: number, cat?: Phaser.Math.Vector2): void {
+    this.leapCooldown = Math.max(0, this.leapCooldown - delta);
+
+    // Mid-leap: leave it alone. Every other branch here sets a velocity, and
+    // one of them ran on the frame after the jump and wiped out the sideways
+    // half of it -- the rat went straight up and straight back down.
+    if (!this.body.blocked.down && !this.body.touching.down) {
+      return;
+    }
+
+    const scared =
+      cat !== undefined &&
+      Math.abs(cat.x - this.x) < RAT.fleeRange &&
+      Math.abs(cat.y - this.y) < RAT.fleeRange;
+
+    if (!scared) {
+      this.corneredFor = 0;
+      this.pace();
+      this.scurry(delta, GROUND_ENEMIES.rat.speed);
+      return;
+    }
+
+    // Away from the cat, whatever it was doing before. The direction is set
+    // first, because the probes that decide whether there is anywhere left to
+    // go all look the way it is facing.
+    this.direction = this.x < (cat as Phaser.Math.Vector2).x ? -1 : 1;
     this.setFlipX(this.direction < 0);
 
-    if (this.kind === 'rat') {
-      this.scurry(delta);
+    const away = this.direction;
+    const stuck = this.atLevelEdge() || this.blockedAhead() || !this.groundAhead();
+
+    if (!stuck) {
+      this.corneredFor = 0;
+
+      const speed = GROUND_ENEMIES.rat.speed * RAT.fleeSpeedMultiplier;
+
+      this.setVelocityX(away * speed);
+      this.scurry(delta, speed);
+      return;
+    }
+
+    // Nowhere left to run. It holds for a moment -- long enough to read as a
+    // decision rather than a reflex -- and then it comes at you.
+    this.setVelocityX(0);
+    this.corneredFor += delta;
+
+    if (this.corneredFor >= RAT.cornerPatienceMs && this.leapCooldown === 0) {
+      this.corneredFor = 0;
+      this.leapCooldown = RAT.leapCooldownMs;
+      this.setVelocity(-away * RAT.leapSpeed, RAT.leapVelocity);
+      this.setFlipX(-away < 0);
+      sound.play('ratLeap');
     }
   }
 
@@ -132,10 +211,16 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
    * Tied to distance covered rather than to a timer, so it keeps step with the
    * thing it is coming from instead of ticking along beside it.
    */
-  private scurry(delta: number): void {
-    this.stepDistance += GROUND_ENEMIES.rat.speed * (delta / 1000);
+  private scurry(delta: number, speed: number): void {
+    // Only while it is actually moving: a rat pinned against a wall was still
+    // ticking away at nothing.
+    if (Math.abs(this.body.velocity.x) < 4) {
+      return;
+    }
 
-    if (this.stepDistance >= 9) {
+    this.stepDistance += speed * (delta / 1000);
+
+    if (this.stepDistance >= 11) {
       this.stepDistance = 0;
       sound.play('scurry');
     }

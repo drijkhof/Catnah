@@ -5,6 +5,7 @@ import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
 import { Crocodile } from '../objects/Crocodile';
 import { LavaLake } from '../objects/LavaLake';
+import { Rain } from '../objects/Rain';
 import { Crow } from '../objects/Crow';
 import { GroundEnemy } from '../objects/GroundEnemy';
 import { Piranha } from '../objects/Piranha';
@@ -14,7 +15,7 @@ import { parseLevel, type ParsedLevel } from '../level/Level';
 import { LEVELS } from '../level/levels';
 import { tileKey } from '../art';
 import { installLevelSkip } from '../dev/levelSkip';
-import { sound } from '../audio/Sound';
+import { sound, type Ambience } from '../audio/Sound';
 import { SNAPSHOT_KEY, type GameSnapshot } from '../dev/hot';
 
 /**
@@ -68,6 +69,7 @@ export class GameScene extends Phaser.Scene {
   private boss?: Boss;
   private lavaRects: Phaser.Geom.Rectangle[] = [];
   private lava?: LavaLake;
+  private rain?: Rain;
 
   /** True from the moment the cat is killed until it is back on its feet. */
   private dying = false;
@@ -96,6 +98,7 @@ export class GameScene extends Phaser.Scene {
     this.level = parseLevel(LEVELS[this.levelIndex]);
     this.crocodiles = [];
     this.spiders = [];
+    this.rain = undefined;
     this.lifeIcons = [];
     this.dying = false;
     this.leaving = false;
@@ -144,6 +147,8 @@ export class GameScene extends Phaser.Scene {
     this.physics.add.overlap(this.player, this.charms, (_cat, charm) => {
       this.collectCharm(charm as Phaser.Physics.Arcade.Sprite);
     });
+
+    this.buildWeather();
 
     this.cameras.main.setBounds(
       0,
@@ -258,7 +263,7 @@ export class GameScene extends Phaser.Scene {
 
     const cat = new Phaser.Math.Vector2(this.player.x, this.player.y);
     for (const walker of this.walkers) {
-      walker.step(delta);
+      walker.step(delta, cat);
     }
     for (const piranha of this.piranhas) {
       piranha.step(delta, cat, this.player.swimming);
@@ -273,6 +278,7 @@ export class GameScene extends Phaser.Scene {
       spider.step(delta, cat);
     }
     this.lava?.step(delta);
+    this.rain?.step(delta);
     this.boss?.step(delta, cat);
 
     if (!this.dying && this.touchingLava()) {
@@ -470,6 +476,55 @@ export class GameScene extends Phaser.Scene {
     );
   }
 
+  /**
+   * The weather and the sound of the place.
+   *
+   * Both come off the theme rather than off the level, because they are what
+   * the *place* is like: two city levels should sound and feel the same, and a
+   * second swamp should have the same wind in it.
+   *
+   * The bed is one continuous layer. The sparse noises on top -- birds, drips --
+   * are scheduled here rather than in `Sound`, because pacing them is a
+   * decision about the level and the audio has no business holding timers.
+   */
+  private buildWeather(): void {
+    const theme = this.level.theme;
+
+    if (theme === 'city') {
+      this.rain = new Rain(this);
+    }
+
+    const bed: Record<string, Ambience> = {
+      forest: 'wind',
+      jungle: 'wind',
+      swamp: 'wind',
+      city: 'rain',
+      cave: 'hush',
+      volcano: 'rumble',
+    };
+
+    sound.setAmbience(bed[theme] ?? 'none');
+
+    // Birds in anything with leaves in it, water in anything underground. Every
+    // gap is different: birds on a fixed beat are a smoke alarm.
+    const sparse: Partial<Record<string, { voice: 'chirp' | 'drip'; min: number; max: number }>> = {
+      forest: { voice: 'chirp', min: 1800, max: 5200 },
+      jungle: { voice: 'chirp', min: 1200, max: 3800 },
+      cave: { voice: 'drip', min: 2200, max: 6000 },
+    };
+
+    const sound_ = sparse[theme];
+
+    if (sound_) {
+      const again = (): void => {
+        sound.play(sound_.voice);
+        this.time.delayedCall(Phaser.Math.Between(sound_.min, sound_.max), again);
+      };
+
+      this.time.delayedCall(Phaser.Math.Between(sound_.min, sound_.max), again);
+    }
+  }
+
   /** Is any part of the cat in the lava? */
   private touchingLava(): boolean {
     const body = this.player.body;
@@ -509,6 +564,7 @@ export class GameScene extends Phaser.Scene {
 
     this.time.delayedCall(650, () => {
       if (this.lives <= 0) {
+        sound.play('gameOver');
         this.endRun();
         return;
       }

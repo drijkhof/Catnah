@@ -37,6 +37,22 @@ The setting lives in `localStorage` and every read and write is wrapped: private
 windows and blocked storage both throw, and not being able to *remember* the
 mute is not a reason to refuse to do it.
 
+## The bed under each level
+
+`setAmbience(kind)` puts one continuous layer under everything: filtered noise
+with a slow oscillator on the gain, which is what wind and rain actually are.
+The swell is what gives it a pulse without ever being a rhythm you could tap to.
+
+Four kinds -- `wind`, `rain`, `rumble`, `hush` -- picked in `GameScene` off the
+**theme**, not the level, because it is what the *place* sounds like. Asking for
+the bed you already have does nothing, so two swamp levels do not restart the
+wind between them.
+
+**The sparse noises on top are scheduled by the scene**, not here. Birds and
+drips are a decision about a level's pacing, and the audio has no business
+holding timers. Every gap is randomised: birds on a fixed beat are a smoke
+alarm.
+
 ## Adding a voice
 
 1. Add the name to `Voice`.
@@ -45,5 +61,10 @@ mute is not a reason to refuse to do it.
    scene. The crow knows when it breaks off to attack; `GameScene` does not.
 
 Tie a repeating sound to **distance covered** rather than to a timer where you
-can — the rat's footfalls are every 9px, so they keep step with the thing making
-them instead of ticking along beside it.
+can — the rat's footfalls are every 11px, so they keep step with the thing
+making them instead of ticking along beside it. And gate it on actually moving:
+a rat pinned against a wall was still ticking away at nothing.
+
+One voice breaks the quiet rule on purpose. `ratLeap` is the loudest thing in
+the game by some way, because everything else is meant to sit *under* the game
+and that one is meant to come out of it.

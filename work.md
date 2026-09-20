@@ -469,28 +469,47 @@ Quiet, and all of it made in code — there are no audio files any more than the
 are image files. A **speaker button** sits in the bottom left corner, and `M`
 does the same thing; the setting is remembered between visits.
 
+**Every place has a bed**: one continuous layer under everything, filtered noise
+with a slow swell on it. Wind in the forest, the jungle and the swamp; **rain in
+the city**; a low rumble in the volcano; and in the cave a hush, which is the
+sound of a big room with nobody in it. Over the top, sparsely and never on a
+beat: **birds** in the forest and the jungle, **drips** in the cave.
+
 - **The cat** blips going up, and a wall jump is sharper than a plain jump.
 - **The crow** caws once, as it breaks off its circle to come at you. Calling
   the whole way in would be a car alarm rather than a bird.
 - **The lava** bloops every time it throws a gobbet.
 - **The beetle** growls as it commits to a dive: two saws a few cents apart,
-  beating against each other. It is the only sound in the game allowed to last
-  longer than a moment.
-- **A rat's feet** make a dry scurry, once every nine pixels it covers — tied to
-  distance rather than to a clock, so it keeps step with the rat.
-- **A hedgehog eats.** Every few seconds, never on a fixed beat, it stops where
-  it is and nibbles for a second or two. While it is eating it is not coming
-  towards you, which is the only thing that makes a hedgehog readable — and it
-  is the first creature in the game that does anything other than pace.
+  beating against each other.
+- **A rat's feet** make a dry scurry, and only while it is actually moving.
+- **A hedgehog eats** — see below.
+- **A rat leaping at you** is the loudest thing in the game, and deliberately:
+  everything else sits under the game and that one comes out of it.
+- **Losing your last heart** is three notes falling away. It is the only sound
+  here allowed to be a tune, because it is the only moment allowed to be an
+  ending.
 - Collecting a little heart chimes; losing one does not.
 
-## The creatures
+## Weather
+
+**It rains in the city**, over the whole screen, and nothing interacts with it.
+Rain is between you and the game rather than somewhere in the level, so it is
+pinned to the viewport and every drop wraps around the screen. Faster drops are
+drawn longer and a little brighter, which is all the depth it needs.
+
+## The creatures## The creatures
 
 - **Hedgehogs** pace the floor, turning at anything solid, at the edge of a
   drop, and at the edge of the level, so they never fall off. They keep to plain
   ground: never on platforms, never on boulders, never in water. They are slow,
   and cannot be defeated — touching one is fatal from any direction.
-- **Rats** are the city's version: the same behaviour, nearly twice as quick.
+- **Rats are afraid of you.** They pace like anything else until the cat comes
+  close, then turn and **run** — half again as fast as they walk. And when a
+  running rat meets a wall or the end of its ledge, it stops, holds for a
+  quarter of a second, and **leaps at your face**. It is the only attack in the
+  game that comes from something trying to get away, and the only sound in the
+  game meant to make you jump. Measured: cornered against a wall, the leap
+  carries it fifty pixels and lands it exactly where the cat is standing.
 - **Spiders** own the cave's ceilings the way a hedgehog owns a floor. One
   walks the underside of the rock, upside down, turning wherever the rock stops,
   and drops the length of its thread on any cat that passes under it — then

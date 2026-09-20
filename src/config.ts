@@ -320,6 +320,32 @@ export const GROUND_ENEMIES: Record<GroundEnemyKind, { speed: number }> = {
 };
 
 /**
+ * A rat is afraid of you, until it cannot be.
+ *
+ * It paces like anything else until the cat is close, then turns and **runs**.
+ * Cornered -- a wall in front of it, or the end of its ledge -- it stops
+ * running and **leaps at your face**, which is the only attack in the game that
+ * comes from something trying to get away.
+ */
+export const RAT = {
+  /** How close the cat has to be before it bolts, px. */
+  fleeRange: 108,
+
+  /** How much faster it runs away than it walks. */
+  fleeSpeedMultiplier: 1.55,
+
+  /** How long it will stay cornered before it jumps, ms. */
+  cornerPatienceMs: 260,
+
+  /** The leap: up, and towards the cat. */
+  leapVelocity: -330,
+  leapSpeed: 150,
+
+  /** How long after a leap before it can do it again, ms. */
+  leapCooldownMs: 1400,
+} as const;
+
+/**
  * A hedgehog stops to eat.
  *
  * Not on a fixed beat: a creature that pauses every four seconds exactly is a

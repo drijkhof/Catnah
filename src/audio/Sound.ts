@@ -22,7 +22,20 @@ export type Voice =
   | 'scurry'
   | 'nibble'
   | 'collect'
-  | 'hurt';
+  | 'hurt'
+  | 'gameOver'
+  | 'ratLeap'
+  | 'chirp'
+  | 'drip';
+
+/**
+ * The bed a level sits on: one continuous, almost-inaudible layer.
+ *
+ * Not music, and not a loop of a recording either -- filtered noise with a slow
+ * swell on it, which is what wind and rain actually are. The swell is what makes
+ * it feel like it has a pulse without ever being a rhythm you could tap to.
+ */
+export type Ambience = 'none' | 'wind' | 'rain' | 'rumble' | 'hush';
 
 /** Where the mute setting is kept between visits. */
 const MUTE_KEY = 'catnah:muted';
@@ -39,6 +52,11 @@ class SoundBoard {
   private noise?: AudioBuffer;
 
   private quiet = SoundBoard.readMuted();
+
+  /** The level's bed, and what it currently is. */
+  private bed?: { source: AudioBufferSourceNode; gain: GainNode; lfo: OscillatorNode };
+
+  private bedKind: Ambience = 'none';
 
   private static readonly Ctor: typeof AudioContext | undefined =
     typeof window === 'undefined'
@@ -149,6 +167,22 @@ class SoundBoard {
         this.blip(at, 420, 90, 0.28, 'sawtooth', 0.5);
         break;
 
+      case 'gameOver':
+        this.gameOver(at);
+        break;
+
+      case 'ratLeap':
+        this.shriek(at);
+        break;
+
+      case 'chirp':
+        this.chirp(at);
+        break;
+
+      case 'drip':
+        this.blip(at, 1400, 420, 0.13, 'sine', 0.16);
+        break;
+
       case 'caw':
         this.caw(at);
         break;
@@ -162,7 +196,8 @@ class SoundBoard {
         break;
 
       case 'scurry':
-        this.hiss(at, 0.05, 2600, 0.16);
+        // Barely there. It was four times this and sounded like a machine.
+        this.hiss(at, 0.028, 3400, 0.04);
         break;
 
       case 'nibble':
@@ -244,6 +279,46 @@ class SoundBoard {
   }
 
   /**
+   * The end of a run: three notes falling away.
+   *
+   * A minor triad downwards, each one quieter than the last. It is the only
+   * thing in the game that is allowed to sound like a tune, because it is the
+   * only moment that is allowed to be an ending.
+   */
+  private gameOver(at: number): void {
+    const notes = [392, 311, 233];
+
+    notes.forEach((hz, i) => {
+      this.blip(at + i * 0.22, hz, hz * 0.99, 0.5, 'triangle', 0.34 - i * 0.07);
+    });
+  }
+
+  /**
+   * A rat leaping at your face.
+   *
+   * Sharp, up rather than down, and the loudest thing in the game by some way.
+   * That is the whole point of it: everything else here is meant to sit under
+   * the game, and this is meant to come out of it.
+   */
+  private shriek(at: number): void {
+    this.blip(at, 900, 2100, 0.1, 'sawtooth', 0.55);
+    this.hiss(at, 0.12, 3000, 0.4);
+    this.blip(at + 0.03, 1500, 700, 0.14, 'square', 0.25);
+  }
+
+  /** A bird, two or three notes, never quite the same twice. */
+  private chirp(at: number): void {
+    const root = 1500 + Math.random() * 900;
+    const notes = 2 + Math.floor(Math.random() * 2);
+
+    for (let i = 0; i < notes; i += 1) {
+      const step = 1 + (Math.random() * 0.5 - 0.15);
+
+      this.blip(at + i * 0.075, root * step, root * step * 1.35, 0.05, 'sine', 0.12);
+    }
+  }
+
+  /**
    * The beetle.
    *
    * Two saws a few cents apart, which beat against each other and make the
@@ -275,6 +350,88 @@ class SoundBoard {
     }
 
     filter.connect(gain).connect(this.master as GainNode);
+  }
+
+  /**
+   * Puts a level's bed underneath everything, or takes it away.
+   *
+   * One noise source through one filter, with a slow oscillator on the gain so
+   * it swells and falls. Cheap enough to leave running for ever and quiet
+   * enough that you notice it only when it stops.
+   *
+   * Changing to the same bed does nothing, so calling this on every level start
+   * is safe and does not restart the wind between two swamp levels.
+   */
+  setAmbience(kind: Ambience): void {
+    if (!this.ctx || !this.master || kind === this.bedKind) {
+      return;
+    }
+
+    this.stopAmbience();
+    this.bedKind = kind;
+
+    if (kind === 'none') {
+      return;
+    }
+
+    const shape = {
+      // Mid, wandering: leaves in it.
+      wind: { type: 'bandpass' as BiquadFilterType, hz: 620, q: 0.7, level: 0.085, breath: 0.09 },
+      // High and even: water on stone, and no pitch to speak of.
+      rain: { type: 'highpass' as BiquadFilterType, hz: 1900, q: 0.4, level: 0.075, breath: 0.22 },
+      // Under everything, felt more than heard.
+      rumble: { type: 'lowpass' as BiquadFilterType, hz: 150, q: 0.9, level: 0.16, breath: 0.13 },
+      // Almost nothing: the sound of a big room with nobody in it.
+      hush: { type: 'lowpass' as BiquadFilterType, hz: 420, q: 0.8, level: 0.05, breath: 0.05 },
+    }[kind];
+
+    const source = this.ctx.createBufferSource();
+    const filter = this.ctx.createBiquadFilter();
+    const gain = this.ctx.createGain();
+    const lfo = this.ctx.createOscillator();
+    const depth = this.ctx.createGain();
+
+    source.buffer = this.noise as AudioBuffer;
+    source.loop = true;
+
+    filter.type = shape.type;
+    filter.frequency.value = shape.hz;
+    filter.Q.value = shape.q;
+
+    // Fades in rather than starting: a bed that appears is a bed you hear.
+    gain.gain.setValueAtTime(0.0001, this.ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(shape.level, this.ctx.currentTime + 2.5);
+
+    // The swell. Slow, and different per bed, so rain patters and wind breathes.
+    lfo.type = 'sine';
+    lfo.frequency.value = kind === 'rain' ? 0.9 : 0.16;
+    depth.gain.value = shape.breath;
+    lfo.connect(depth).connect(gain.gain);
+
+    source.connect(filter).connect(gain).connect(this.master);
+    source.start();
+    lfo.start();
+
+    this.bed = { source, gain, lfo };
+  }
+
+  /** Takes the bed away, fading it rather than cutting it. */
+  stopAmbience(): void {
+    if (!this.bed || !this.ctx) {
+      this.bedKind = 'none';
+      return;
+    }
+
+    const { source, gain, lfo } = this.bed;
+    const at = this.ctx.currentTime;
+
+    gain.gain.cancelScheduledValues(at);
+    gain.gain.setTargetAtTime(0.0001, at, 0.3);
+    source.stop(at + 1.5);
+    lfo.stop(at + 1.5);
+
+    this.bed = undefined;
+    this.bedKind = 'none';
   }
 }
 
