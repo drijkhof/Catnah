@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { BOSS } from '../config';
 import { BOSS_SIZE } from '../art';
+import { sound } from '../audio/Sound';
 
 /**
  * The evil lord beetle, guarding the end of the volcano.
@@ -265,6 +266,7 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
     if (Math.abs(gap) < 4) {
       this.phase = 'drop';
       this.setVelocity(0, BOSS.diveSpeed);
+      sound.play('boss');
     }
   }
 

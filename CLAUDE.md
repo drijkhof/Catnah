@@ -88,6 +88,7 @@ src/
   main.ts       Phaser.Game config and boot. The only file that touches globals.
   config.ts     Every tunable number (sizes, physics, palette).
   style.css     Page-level CSS: letterboxing, and the mobile touch fixes.
+  audio/        Every sound, synthesised. See audio/CLAUDE.md
   scenes/       Phaser scenes. See scenes/CLAUDE.md
   objects/      Game entities. See objects/CLAUDE.md
   input/        Keyboard + touch, unified. See input/CLAUDE.md

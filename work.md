@@ -452,6 +452,27 @@ so both work if the timing does.
 It cannot be beaten, only got past, and the way out is at the far end of the
 arena.
 
+## Sound
+
+Quiet, and all of it made in code — there are no audio files any more than there
+are image files. A **speaker button** sits in the bottom left corner, and `M`
+does the same thing; the setting is remembered between visits.
+
+- **The cat** blips going up, and a wall jump is sharper than a plain jump.
+- **The crow** caws once, as it breaks off its circle to come at you. Calling
+  the whole way in would be a car alarm rather than a bird.
+- **The lava** bloops every time it throws a gobbet.
+- **The beetle** growls as it commits to a dive: two saws a few cents apart,
+  beating against each other. It is the only sound in the game allowed to last
+  longer than a moment.
+- **A rat's feet** make a dry scurry, once every nine pixels it covers — tied to
+  distance rather than to a clock, so it keeps step with the rat.
+- **A hedgehog eats.** Every few seconds, never on a fixed beat, it stops where
+  it is and nibbles for a second or two. While it is eating it is not coming
+  towards you, which is the only thing that makes a hedgehog readable — and it
+  is the first creature in the game that does anything other than pace.
+- Collecting a little heart chimes; losing one does not.
+
 ## The creatures
 
 - **Hedgehogs** pace the floor, turning at anything solid, at the edge of a

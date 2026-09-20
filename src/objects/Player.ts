@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { CAT } from '../config';
 import type { Controls } from '../input/Controls';
 import { isSolidTile } from './solid';
+import { sound } from '../audio/Sound';
 
 /**
  * How far the cat's paws stop below the very top of a climbable column.
@@ -431,6 +432,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.setVelocityY(CAT.jumpVelocity);
     this.isJumping = true;
+    sound.play('jump');
 
     // Spent: the coyote window `releaseTrunk` just handed out would otherwise
     // let the same press buy a second jump on the very next frame.
@@ -680,6 +682,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (canJump) {
       this.setVelocityY(CAT.jumpVelocity);
       this.isJumping = true;
+      sound.play('jump');
 
       // Both are spent, otherwise a single press could trigger a second jump on
       // the very next frame while the coyote window is still warm.
@@ -720,6 +723,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // nothing horizontal -- not the direction, not the speed -- so steering away
     // from the wall, or staying against it, is entirely the player's call.
     this.setVelocityY(CAT.jumpVelocity);
+    sound.play('wallJump');
 
     this.lastWallJumpSide = wall;
     // Spent, so one contact cannot be cashed in twice.

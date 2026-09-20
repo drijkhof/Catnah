@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { CHARMS_PER_LIFE, GAME_WIDTH, LIVES, TILE } from '../config';
+import { CHARMS_PER_LIFE, GAME_HEIGHT, GAME_WIDTH, LIVES, TILE } from '../config';
 import { Controls } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -14,6 +14,7 @@ import { parseLevel, type ParsedLevel } from '../level/Level';
 import { LEVELS } from '../level/levels';
 import { tileKey } from '../art';
 import { installLevelSkip } from '../dev/levelSkip';
+import { sound } from '../audio/Sound';
 import { SNAPSHOT_KEY, type GameSnapshot } from '../dev/hot';
 
 /**
@@ -257,7 +258,7 @@ export class GameScene extends Phaser.Scene {
 
     const cat = new Phaser.Math.Vector2(this.player.x, this.player.y);
     for (const walker of this.walkers) {
-      walker.step();
+      walker.step(delta);
     }
     for (const piranha of this.piranhas) {
       piranha.step(delta, cat, this.player.swimming);
@@ -499,6 +500,7 @@ export class GameScene extends Phaser.Scene {
     this.player.body.setAllowGravity(false);
     this.player.setTint(0xff6b6b);
 
+    sound.play('hurt');
     this.cameras.main.shake(180, 0.008);
     this.cameras.main.flash(200, 90, 0, 0);
 
@@ -722,6 +724,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     charm.disableBody(true, true);
+    sound.play('collect');
     this.collected += 1;
     this.scoreText.setText(this.formatScore());
 
@@ -762,6 +765,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.refreshLives();
+    this.buildMuteButton();
 
     this.scoreText = this.add
       .text(TILE + 10, TILE - 7, this.formatScore(), {
@@ -774,6 +778,34 @@ export class GameScene extends Phaser.Scene {
       // Scroll factor 0 pins the HUD to the viewport instead of the world.
       .setScrollFactor(0)
       .setDepth(1000);
+  }
+
+  /**
+   * The mute button, bottom left.
+   *
+   * Out of the way of the hearts, which grow along the top right, and out of
+   * the way of the touch controls, which are along the bottom. `M` does the
+   * same thing, because a button is no use to somebody already holding the
+   * keyboard.
+   */
+  private buildMuteButton(): void {
+    const button = this.add
+      .image(TILE, GAME_HEIGHT - TILE, sound.muted ? 'ui-sound-off' : 'ui-sound-on')
+      .setScrollFactor(0)
+      .setDepth(1000)
+      .setAlpha(0.55)
+      .setInteractive({ useHandCursor: true });
+
+    const flip = (): void => {
+      // Every press is a gesture, so it is also the moment the audio is
+      // allowed to start. Unmuting before the context exists would otherwise
+      // be silent and look broken.
+      sound.unlock();
+      button.setTexture(sound.toggle() ? 'ui-sound-off' : 'ui-sound-on');
+    };
+
+    button.on('pointerdown', flip);
+    this.input.keyboard?.on('keydown-M', flip);
   }
 
   /**

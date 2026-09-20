@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { LAVA, TILE } from '../config';
 import { tileKey } from '../art';
 import type { WaterZone } from '../level/Level';
+import { sound } from '../audio/Sound';
 
 /** How many frames the boil cycles through. Matches what `tiles.ts` bakes. */
 const BOIL_FRAMES = 4;
@@ -163,6 +164,8 @@ export class LavaLake {
     const sprite = this.scene.add
       .image(vent.x, vent.y, tileKey(this.theme, 'lava-blob'))
       .setDepth(21);
+
+    sound.play('bubble');
 
     this.spits.push({
       sprite,

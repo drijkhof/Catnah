@@ -36,6 +36,35 @@ export function generateUiTextures(scene: Phaser.Scene): void {
 
   // Sneak: an arrow down onto a floor line, to read as "get low" rather than
   // "go down", which an arrow on its own would suggest.
+  // The mute button. Small: it lives in the HUD, not under a thumb with the
+  // movement controls, so it is sized to be read rather than to be hit hard.
+  const SPEAKER = 14;
+
+  const drawSpeaker = (g: Phaser.GameObjects.Graphics): void => {
+    g.fillStyle(0xffffff, 1);
+    g.fillRect(1, 5, 3, 4);
+    g.fillTriangle(4, 7, 8, 2, 8, 12);
+  };
+
+  bakeTexture(scene, 'ui-sound-on', SPEAKER, SPEAKER, (g) => {
+    drawSpeaker(g);
+
+    // Two arcs, drawn as stepped pixels: a curve this small has to be built.
+    g.fillRect(10, 5, 1, 4);
+    g.fillRect(11, 4, 1, 6);
+    g.fillRect(12, 2, 1, 10);
+  });
+
+  bakeTexture(scene, 'ui-sound-off', SPEAKER, SPEAKER, (g) => {
+    drawSpeaker(g);
+
+    // A cross where the arcs were.
+    for (let i = 0; i < 5; i += 1) {
+      g.fillRect(10 + i, 4 + i, 1, 1);
+      g.fillRect(14 - i, 4 + i, 1, 1);
+    }
+  });
+
   bakeTexture(scene, 'ui-sneak', BUTTON_SIZE, BUTTON_SIZE, (g) => {
     drawBase(g);
     g.fillTriangle(half - 11, half - 6, half + 11, half - 6, half, half + 6);

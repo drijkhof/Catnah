@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { CROW } from '../config';
+import { sound } from '../audio/Sound';
 
 /**
  * The crow that lives in the great tree.
@@ -40,9 +41,17 @@ export class Crow extends Phaser.Physics.Arcade.Sprite {
     // Hysteresis: it commits to an attack and gives up further out than it
     // started, so a cat hovering on the edge of the range does not make it
     // flicker in and out.
+    const wasAttacking = this.attacking;
+
     this.attacking = this.attacking
       ? toCat < CROW.releaseRange
       : toCat < CROW.attackRange;
+
+    // It calls once, as it breaks off the circle. Calling the whole way in
+    // would be a car alarm rather than a bird.
+    if (this.attacking && !wasAttacking) {
+      sound.play('caw');
+    }
 
     const aim = this.attacking ? target : this.circlingPoint(dt);
     this.steerTowards(aim, dt);

@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH, LIVES, TILE } from '../config';
 import { Backdrop } from '../world/Backdrop';
 import { tileKey } from '../art';
+import { sound } from '../audio/Sound';
 
 /** Height of the strip of forest floor along the bottom, in pixels. */
 const GROUND_HEIGHT = TILE * 2;
@@ -261,6 +262,12 @@ export class TitleScene extends Phaser.Scene {
     }
 
     this.goFullscreen();
+
+    // The same gesture that grants fullscreen is the one that starts the
+    // audio. A context created any other way is stuck suspended for ever, and
+    // silently -- no error anywhere.
+    sound.unlock();
+
     this.starting = true;
     this.cameras.main.fade(300, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => {

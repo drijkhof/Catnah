@@ -285,6 +285,27 @@ export const GROUND_ENEMIES: Record<GroundEnemyKind, { speed: number }> = {
   rat: { speed: 78 },
 };
 
+/**
+ * A hedgehog stops to eat.
+ *
+ * Not on a fixed beat: a creature that pauses every four seconds exactly is a
+ * metronome, and one that pauses *about* every four seconds is an animal. The
+ * pause is also the only thing that makes a hedgehog readable -- while it is
+ * eating it is not coming towards you, and you can walk past it.
+ */
+export const GRAZING = {
+  /** Shortest and longest wait before it stops again, ms. */
+  everyMinMs: 3200,
+  everyMaxMs: 7000,
+
+  /** How long it stands there eating, ms. */
+  forMinMs: 900,
+  forMaxMs: 1800,
+
+  /** How often it takes a bite while it is down there, ms. */
+  biteEveryMs: 260,
+} as const;
+
 /** The piranha, which patrols its pool, chases, and leaps out of it. */
 export const PIRANHA = {
   /** How far below the surface it prefers to swim, px. */
