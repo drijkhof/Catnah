@@ -76,6 +76,18 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
+   * Stops dead, and stays stopped.
+   *
+   * Called by the scene instead of `step` once the cat is far enough away.
+   * Skipping `step` on its own is not enough: Arcade goes on integrating
+   * whatever velocity was last set, so something left mid-stride walks away
+   * with nothing deciding where it is going.
+   */
+  doze(): void {
+    this.setVelocityX(0);
+  }
+
+  /**
    * Called from the scene once a frame, after the physics of the last one.
    *
    * @param cat Where the cat is. Only the rats care.
@@ -166,7 +178,7 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
       this.leapCooldown = RAT.leapCooldownMs;
       this.setVelocity(-away * RAT.leapSpeed, RAT.leapVelocity);
       this.setFlipX(-away < 0);
-      sound.play('ratLeap');
+      sound.playAt('ratLeap', this.x, this.y);
     }
   }
 
@@ -201,7 +213,7 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
 
     if (this.biteTimer <= 0) {
       this.biteTimer = GRAZING.biteEveryMs;
-      sound.play('nibble');
+      sound.playAt('nibble', this.x, this.y);
     }
   }
 
@@ -222,7 +234,7 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
 
     if (this.stepDistance >= 11) {
       this.stepDistance = 0;
-      sound.play('scurry');
+      sound.playAt('scurry', this.x, this.y);
     }
   }
 

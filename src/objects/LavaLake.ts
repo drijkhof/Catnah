@@ -165,7 +165,7 @@ export class LavaLake {
       .image(vent.x, vent.y, tileKey(this.theme, 'lava-blob'))
       .setDepth(21);
 
-    sound.play('bubble');
+    sound.playAt('bubble', vent.x, vent.y);
 
     this.spits.push({
       sprite,

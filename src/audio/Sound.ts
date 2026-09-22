@@ -10,6 +10,7 @@
  * game rather than announce themselves -- the master gain is a fifth of full,
  * and no voice runs longer than half a second except the beetle.
  */
+import { EARSHOT } from '../config';
 
 /** What can be asked for. */
 export type Voice =
@@ -58,6 +59,16 @@ class SoundBoard {
   private bed?: { source: AudioBufferSourceNode; gain: GainNode; lfo: OscillatorNode };
 
   private bedKind: Ambience = 'none';
+
+  /**
+   * Where the ears are: the cat, updated by `GameScene` once a frame.
+   *
+   * Nothing here is panned or attenuated -- a voice either plays or it does
+   * not. That is enough, because everything in this game is a short one-shot,
+   * and the question being answered is whether it is close enough to be part of
+   * what you are looking at, not how far away it is.
+   */
+  private listener = { x: 0, y: 0 };
 
   private static readonly Ctor: typeof AudioContext | undefined =
     typeof window === 'undefined'
@@ -161,6 +172,34 @@ class SoundBoard {
    * checked here as well as on the gain, so a muted game is not quietly
    * building and tearing down dozens of oscillators a second for nothing.
    */
+  /** Moves the ears. Called once a frame, from wherever the cat is. */
+  setListener(x: number, y: number): void {
+    this.listener.x = x;
+    this.listener.y = y;
+  }
+
+  /**
+   * Plays a voice, but only if it is made near enough to hear.
+   *
+   * Everything that happens at a *place* in the level goes through this rather
+   * than through `play`: a rat's feet, a crow's call, a gobbet of lava. Without
+   * it a level full of rats is every rat in it at once and at full volume,
+   * however far away, because nothing in here is positional.
+   *
+   * The cat's own sounds -- jumping, landing, being hurt -- use `play`. They
+   * are made where the ears are, so there is nothing to ask.
+   */
+  playAt(voice: Voice, x: number, y: number): void {
+    if (
+      Math.abs(x - this.listener.x) > EARSHOT.x ||
+      Math.abs(y - this.listener.y) > EARSHOT.y
+    ) {
+      return;
+    }
+
+    this.play(voice);
+  }
+
   play(voice: Voice): void {
     if (!this.ctx || !this.master || this.quiet) {
       return;

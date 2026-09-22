@@ -87,6 +87,40 @@ export const GAME_HEIGHT = RESOLUTION.height;
 export const TILE = 16;
 
 /**
+ * How far from the cat a creature goes on living, in game pixels.
+ *
+ * Nothing on the far side of a 248-tile swamp should be pacing, hunting or
+ * scurrying: it costs a frame's work for something nobody can see, and -- far
+ * worse -- the sound of it carries the whole way, so a level full of rats
+ * sounds like every rat in it at once.
+ *
+ * **A screen and a half, measured from the cat.** Half a screen of that is what
+ * is actually on screen, so everything wakes a full screen before it can be
+ * seen. That is the whole point of the number: a creature caught standing still
+ * and then starting to walk is worse than one that was never running, and the
+ * only way to never see that is to wake them well outside the frame.
+ *
+ * It is stated in screens rather than pixels so a phone and a laptop get the
+ * same rule. They already see nearly the same amount of world -- 640 game
+ * pixels across on a laptop against about 544 on a phone -- so this is the same
+ * distance either way, to within a tile or two.
+ */
+export const AWAKE_RANGE = { x: GAME_WIDTH * 1.5, y: GAME_HEIGHT * 1.5 };
+
+/**
+ * How far a sound made by something in the world carries, in game pixels.
+ *
+ * Deliberately **tighter than `AWAKE_RANGE`**, and the two are not the same
+ * question. A creature has to start moving well before you could see it, or you
+ * catch it standing still; a creature has to stop being *heard* as soon as it
+ * stops being near, or a long level is a wall of noise.
+ *
+ * One screen, so something just off the edge is still audible -- which is
+ * right, because it is about to be on the edge.
+ */
+export const EARSHOT = { x: GAME_WIDTH, y: GAME_HEIGHT };
+
+/**
  * The cat.
  *
  * A cat is wider than it is tall, and gets flatter still when it sneaks, so

@@ -464,3 +464,21 @@ Made it that way because the alternative is a stealth mechanic, and there is
 nothing in the game that hunts by sight -- a crow circles a nest, a rat runs
 from you. Turning cover into a rule would need all of that rewritten. Say the
 word if hiding should actually work.
+
+## How far away a creature stops living
+
+A screen and a half for moving, one screen for being heard.
+
+Two numbers rather than one because they pull apart: wake something too late and
+you see it standing still and then start; let something be heard too far and a
+long level is a wall of noise. A screen and a half means a full screen of margin
+outside the frame, which is what makes the first of those impossible.
+
+Chose to leave the **lava and the rain running everywhere**, because they are
+the place rather than things living in it — a lake that stops boiling when you
+walk away is a lake that was never boiling. Only the *sound* of the lava is cut
+at a distance.
+
+Also chose to gate the **beetle** like everything else. It guards the end of a
+level, so you always arrive from far off and it wakes five seconds before you
+reach it. Say the word if the boss should always be awake.

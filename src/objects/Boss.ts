@@ -111,6 +111,18 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
     return this.phase === 'drop';
   }
 
+  /**
+   * Stops dead, and stays stopped.
+   *
+   * Called by the scene instead of `step` once the cat is far enough away.
+   * Skipping `step` on its own is not enough: Arcade goes on integrating
+   * whatever velocity was last set, so something left mid-stride drifts away
+   * with nothing deciding where it is going.
+   */
+  doze(): void {
+    this.setVelocity(0, 0);
+  }
+
   step(delta: number, cat: Phaser.Math.Vector2): void {
     this.timer += delta;
     this.watchTheCat(delta, cat);
@@ -266,7 +278,7 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
     if (Math.abs(gap) < 4) {
       this.phase = 'drop';
       this.setVelocity(0, BOSS.diveSpeed);
-      sound.play('boss');
+      sound.playAt('boss', this.x, this.y);
     }
   }
 

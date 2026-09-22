@@ -91,3 +91,21 @@ until you tap the speaker would be worse than the noise.
 Note that `game.loop.pause()` is **not** how you stop the game — it only records
 what time it was, and the loop runs on. `game.pause()` is the one that sets the
 flag `step` returns on.
+
+## Sounds made in the world go through `playAt`
+
+Nothing here is panned or attenuated: a voice plays or it does not. So anything
+that happens at a *place* — a rat's feet, a crow's call, a gobbet of lava —
+calls `playAt(voice, x, y)`, which drops it if it is further than `EARSHOT` from
+the listener. `GameScene` moves the listener to the cat once a frame.
+
+Without it, a long level is a wall of noise: a hundred rats spread over 176
+tiles all sound exactly as close as the one beside you.
+
+The cat's own sounds use plain `play`. They are made where the ears are, so
+there is nothing to ask.
+
+`EARSHOT` is one screen, which is deliberately **tighter** than the range at
+which creatures are woken up. The two answer different questions: something has
+to start moving well before you could see it, or you catch it standing still;
+something has to stop being heard as soon as it stops being near.

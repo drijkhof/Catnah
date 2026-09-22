@@ -29,6 +29,18 @@ export class Crow extends Phaser.Physics.Arcade.Sprite {
     this.setDepth(10);
   }
 
+  /**
+   * Stops dead, and stays stopped.
+   *
+   * Called by the scene instead of `step` once the cat is far enough away.
+   * Skipping `step` on its own is not enough: Arcade goes on integrating
+   * whatever velocity was last set, so something left mid-stride drifts away
+   * with nothing deciding where it is going.
+   */
+  doze(): void {
+    this.setVelocity(0, 0);
+  }
+
   /** True while it has broken off to come at the cat. */
   get hunting(): boolean {
     return this.attacking;
@@ -50,7 +62,7 @@ export class Crow extends Phaser.Physics.Arcade.Sprite {
     // It calls once, as it breaks off the circle. Calling the whole way in
     // would be a car alarm rather than a bird.
     if (this.attacking && !wasAttacking) {
-      sound.play('caw');
+      sound.playAt('caw', this.x, this.y);
     }
 
     const aim = this.attacking ? target : this.circlingPoint(dt);

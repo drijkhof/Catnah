@@ -58,6 +58,29 @@ export class Piranha extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
+   * Stops dead, and stays stopped.
+   *
+   * Called by the scene instead of `step` once the cat is far enough away.
+   * Skipping `step` on its own is not enough: Arcade goes on integrating
+   * whatever velocity was last set, so something left mid-stride drifts away
+   * with nothing deciding where it is going.
+   *
+   * **A leap has to be called off**, not merely stopped. Gravity is on during
+   * one, so a fish frozen in mid-air would go on falling, out of its pool and
+   * out of the level, with nothing steering it. Cancelled, it hangs over its
+   * own water until the cat comes back, and `keepInPool` drops it in on the
+   * first frame it is stepped again.
+   */
+  doze(): void {
+    this.setVelocity(0, 0);
+
+    if (this.leaping) {
+      this.leaping = false;
+      this.body.setAllowGravity(false);
+    }
+  }
+
+  /**
    * @param cat Where the cat is.
    * @param catSwimming Whether the cat is in water; it only chases if so.
    */

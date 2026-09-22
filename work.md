@@ -550,6 +550,24 @@ being a liquid. What kills is smaller than the tile it stands in: the spikes are
 nine to fifteen pixels of sixteen and the rest is air, so clearing the points is
 clearing them, and brushing the edge of the tile on the way past is not a death.
 
+## Everything sleeps until you get there
+
+Nothing in a level is doing anything until you are within a screen and a half of
+it. A rat at the far end of the city is not pacing, a crow is not circling, a
+piranha is not patrolling — and none of them is making any noise.
+
+The distance is the point of it. Half a screen of it is the screen you are
+looking at, so everything starts moving a **full screen before it can be seen**:
+you never catch something standing still and then watch it decide to walk.
+
+Being *heard* stops sooner than that, at one screen, because the two are not the
+same question. Sound here is not positional — a rat scurrying at the other end
+of a hundred-and-seventy-tile city is exactly as loud as one beside you — so
+before this, a level full of rats sounded like every rat in it at once.
+
+The weather and the lava are not creatures. They are the place, and they carry
+on whether or not anybody is looking.
+
 ## The creatures
 
 - **Hedgehogs** pace the floor, turning at anything solid, at the edge of a

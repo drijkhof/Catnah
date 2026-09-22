@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { CHARMS_PER_LIFE, GAME_HEIGHT, GAME_WIDTH, LIVES, TILE } from '../config';
+import { AWAKE_RANGE, CHARMS_PER_LIFE, GAME_HEIGHT, GAME_WIDTH, LIVES, TILE } from '../config';
 import { Controls } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -270,24 +270,61 @@ export class GameScene extends Phaser.Scene {
     }
 
     const cat = new Phaser.Math.Vector2(this.player.x, this.player.y);
+
+    // The ears are wherever the cat is, so a rat at the other end of the swamp
+    // is not heard scurrying. See `Sound.playAt`.
+    sound.setListener(cat.x, cat.y);
+
+    // Only what is near the cat runs at all. Everything else is put to sleep
+    // rather than merely skipped -- see `doze` -- and wakes a full screen
+    // before it could be seen, so nothing is ever caught standing still.
     for (const walker of this.walkers) {
-      walker.step(delta, cat);
+      if (this.awake(walker)) {
+        walker.step(delta, cat);
+      } else {
+        walker.doze();
+      }
     }
     for (const piranha of this.piranhas) {
-      piranha.step(delta, cat, this.player.swimming);
+      if (this.awake(piranha)) {
+        piranha.step(delta, cat, this.player.swimming);
+      } else {
+        piranha.doze();
+      }
     }
     for (const crow of this.crows) {
-      crow.step(cat, delta);
+      if (this.awake(crow)) {
+        crow.step(cat, delta);
+      } else {
+        crow.doze();
+      }
     }
+    // The crocodiles and the spiders move by writing their own position rather
+    // than by velocity, so not being stepped is all the stopping they need.
     for (const crocodile of this.crocodiles) {
-      crocodile.step(delta, cat, this.player.swimming);
+      if (this.awake(crocodile)) {
+        crocodile.step(delta, cat, this.player.swimming);
+      }
     }
     for (const spider of this.spiders) {
-      spider.step(delta, cat);
+      if (this.awake(spider)) {
+        spider.step(delta, cat);
+      }
     }
+
+    // Weather and lava are the place rather than things living in it: they
+    // carry on whether or not anybody is looking. What the lava does *not* do
+    // off screen is be heard -- that is handled where it spits.
     this.lava?.step(delta);
     this.rain?.step(delta);
-    this.boss?.step(delta, cat);
+
+    if (this.boss) {
+      if (this.awake(this.boss)) {
+        this.boss.step(delta, cat);
+      } else {
+        this.boss.doze();
+      }
+    }
 
     if (!this.dying && this.touchingSomethingDeadly()) {
       this.kill();
@@ -300,6 +337,21 @@ export class GameScene extends Phaser.Scene {
     if (!this.dying && this.player.y > this.level.heightInPixels + FALL_OUT_MARGIN) {
       this.kill();
     }
+  }
+
+  /**
+   * Whether something at this position is close enough to be worth running.
+   *
+   * A rectangle rather than a radius, because the screen is a rectangle and
+   * what is being asked is "could this be on it soon". The cave is four tiles
+   * wide for every one it is tall, so a circle would wake far too much of it
+   * sideways and far too little of it below.
+   */
+  private awake(thing: { x: number; y: number }): boolean {
+    return (
+      Math.abs(thing.x - this.player.x) <= AWAKE_RANGE.x &&
+      Math.abs(thing.y - this.player.y) <= AWAKE_RANGE.y
+    );
   }
 
   /** A texture name, resolved to this level's theme. */

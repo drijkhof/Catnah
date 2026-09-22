@@ -335,3 +335,35 @@ A jump happens on the press or not at all. `coyoteTimer` is the only grace left.
 Ground checks use `body.blocked.down || body.touching.down` — `blocked` is for
 world bounds and static bodies, `touching` for dynamic ones; a moving platform
 would only set the latter.
+
+## Nothing runs when nobody is near
+
+`GameScene` steps a creature only while the cat is within `AWAKE_RANGE`, and
+calls `doze()` on it otherwise. Two separate reasons, and they pull in opposite
+directions:
+
+- **Sound.** Nothing in this game is positional, so a rat scurrying at the far
+  end of a 176-tile city is heard at exactly the volume of one standing next to
+  you. A level full of rats was every rat in it at once.
+- **Seeing something start.** A creature caught standing still and *then*
+  beginning to walk is worse than one that was never moving, so the range is a
+  screen and a half — half of which is the screen itself. Everything wakes a
+  full screen before it can be seen.
+
+Because those two pull apart, they are two numbers: `AWAKE_RANGE` is generous
+and `EARSHOT`, in `Sound.playAt`, is one screen.
+
+**`doze()` is not the same as skipping `step`.** Arcade goes on integrating
+whatever velocity was last set, so anything velocity-driven left mid-stride
+walks off on its own with nothing deciding where it is going. Hence a method
+rather than a `continue`: `GroundEnemy`, `Crow`, `Piranha` and `Boss` all have
+one. The crocodiles and the spiders write their own position instead of setting
+a velocity, so for those not being stepped really is all the stopping needed.
+
+**A dozing piranha has to have its leap cancelled**, not merely stopped.
+Gravity is on during a leap, so one frozen in mid-air goes on falling — out of
+its pool and out of the level, with nothing steering it.
+
+The weather and the lava are not creatures. They are the place, and they carry
+on whether or not anybody is looking; what the lava does *not* do off screen is
+get heard, and that is handled where it spits.
