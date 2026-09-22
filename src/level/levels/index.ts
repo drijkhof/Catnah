@@ -13,4 +13,4 @@ import { VOLCANO } from './volcano';
  * descends into is the volcano -- so it has to be the thing you do immediately
  * before arriving there.
  */
-export const LEVELS: LevelDefinition[] = [FOREST, CITY, SWAMP, CANOPY, CAVE, VOLCANO];
+export const LEVELS: LevelDefinition[] = [FOREST, CANOPY, SWAMP, CAVE, VOLCANO, CITY];

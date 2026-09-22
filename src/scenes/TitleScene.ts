@@ -75,6 +75,23 @@ export class TitleScene extends Phaser.Scene {
         .setOrigin(0, 0)
         .setAlpha(0.62)
         .setDepth(6);
+
+      this.add
+        .image(x, groundY+TILE, tileKey('forest', 'water-bed'))
+        .setOrigin(0, 0)
+        .setDepth(-5);
+
+      this.add
+        .image(x, groundY+TILE, tileKey('forest', 'water'))
+        .setOrigin(0, 0)
+        .setAlpha(0.62)
+        .setDepth(6);
+
+      this.add
+        .image(x, groundY+1.5*TILE, tileKey('forest', 'ground-top'))
+        .setOrigin(0, 0)
+        .setDepth(-5);
+
     }
 
     const fish = this.add
