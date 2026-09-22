@@ -148,6 +148,22 @@ rectangles that kill. Three things, none of which is a new hazard:
   are a lot of them, nothing may ever collide with one, and a body nothing
   touches is a body the physics step walks over for no reason.
 
+## Crows
+
+Every crow used to share one starting angle and one circling speed, both
+literally zero and a constant. Two of them awake at once -- easy, in a level
+with eight -- traced the exact same circle in perfect lockstep from the moment
+they woke, because nothing about them ever differed. It reads as a fairground
+ride, not as birds.
+
+Each one now gets its own **angle, speed, radius and direction**, seeded from
+its nest position with `createRandom` -- not `Math.random`, for the same reason
+scenery scatter never is: the same eight birds on every device and every hot
+reload. All four have to vary together. A phase offset alone still leaves them
+on identical circles at identical speed, so two that happened to wake close
+together drift back into sync soon after; different speeds are what make them
+pull apart and never realign.
+
 ## Spiders
 
 The mirror of a `GroundEnemy`: it walks a ceiling rather than a floor, and

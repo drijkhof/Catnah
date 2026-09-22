@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { CROW } from '../config';
+import { createRandom } from '../art';
 import { sound } from '../audio/Sound';
 
 /**
@@ -15,7 +16,24 @@ export class Crow extends Phaser.Physics.Arcade.Sprite {
   declare body: Phaser.Physics.Arcade.Body;
 
   private readonly nest: Phaser.Math.Vector2;
-  private angle2 = 0;
+
+  /**
+   * Where on its circle it is, how fast it goes round, how wide, and which way.
+   *
+   * **All four are different for every bird.** With one starting angle and one
+   * speed, eight crows fly in perfect formation -- and a phase offset alone is
+   * not enough either, because birds evenly spaced on identical circles read as
+   * a fairground ride rather than as birds. Different speeds are what make them
+   * drift apart and never line up again.
+   */
+  private angle2: number;
+
+  private readonly turnsPerSecond: number;
+
+  private readonly radius: number;
+
+  private readonly clockwise: number;
+
   private attacking = false;
 
   constructor(scene: Phaser.Scene, nestX: number, nestY: number) {
@@ -25,6 +43,17 @@ export class Crow extends Phaser.Physics.Arcade.Sprite {
     scene.physics.add.existing(this);
 
     this.nest = new Phaser.Math.Vector2(nestX, nestY);
+
+    // Seeded from where it lives, not from `Math.random`: two players, two
+    // devices and two hot reloads all get the same eight birds, the same way
+    // every other scatter in this game does.
+    const random = createRandom(Math.round(nestX) * 73_856_093 + Math.round(nestY) * 19_349_663);
+
+    this.angle2 = random() * Math.PI * 2;
+    this.turnsPerSecond = CROW.circleSpeed * (0.7 + random() * 0.6);
+    this.radius = CROW.circleRadius * (0.8 + random() * 0.45);
+    this.clockwise = random() < 0.5 ? -1 : 1;
+
     this.body.setAllowGravity(false);
     this.setDepth(10);
   }
@@ -73,11 +102,13 @@ export class Crow extends Phaser.Physics.Arcade.Sprite {
 
   /** The point on its patrol circle it is currently heading for. */
   private circlingPoint(dt: number): Phaser.Math.Vector2 {
-    this.angle2 += CROW.circleSpeed * dt;
+    this.angle2 += this.turnsPerSecond * this.clockwise * dt;
 
     return new Phaser.Math.Vector2(
-      this.nest.x + Math.cos(this.angle2) * CROW.circleRadius,
-      this.nest.y + Math.sin(this.angle2) * CROW.circleRadius * 0.5,
+      this.nest.x + Math.cos(this.angle2) * this.radius,
+      // Flattened, so the circle reads as one seen at an angle rather than as
+      // a bird going round a hoop.
+      this.nest.y + Math.sin(this.angle2) * this.radius * 0.5,
     );
   }
 
@@ -86,7 +117,11 @@ export class Crow extends Phaser.Physics.Arcade.Sprite {
    * it, which is what gives the flight its curve.
    */
   private steerTowards(point: Phaser.Math.Vector2, dt: number): void {
-    const speed = this.attacking ? CROW.attackSpeed : CROW.circleSpeed * CROW.circleRadius;
+    // Circling speed follows its own circle, so a bird on a wide slow loop
+    // does not have to sprint to keep up with the point it is chasing.
+    const speed = this.attacking
+      ? CROW.attackSpeed
+      : this.turnsPerSecond * this.radius;
     const desired = new Phaser.Math.Vector2(point.x - this.x, point.y - this.y)
       .normalize()
       .scale(speed);
