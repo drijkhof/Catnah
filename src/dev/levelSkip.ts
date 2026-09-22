@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 
 /**
- * Ctrl-click the level name to skip forward a level, Cmd-click to go back one.
+ * Cmd-click the level name to skip forward a level, Ctrl-click to go back one.
  *
  * A development shortcut. It lives in its own module and is only ever called
  * from inside an `import.meta.env.DEV` branch, so a production build drops the
@@ -27,7 +27,7 @@ export function installLevelSkip(
 
   label.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
     const event = pointer.event as MouseEvent;
-    const step = event.ctrlKey ? 1 : event.metaKey ? -1 : 0;
+    const step = event.metaKey ? 1 : event.ctrlKey ? -1 : 0;
 
     if (step === 0) {
       return;

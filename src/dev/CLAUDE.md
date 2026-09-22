@@ -43,7 +43,7 @@ removed, and they stack up one per edit. `dispose` clears the container itself.
 
 ## The level-skip shortcut
 
-Ctrl-click the level name in the HUD to jump to the next level, Cmd-click to go
+Cmd-click the level name in the HUD to jump to the next level, Ctrl-click to go
 back one. Skipping past a level you have not finished is the point of it.
 
 **It lives in its own module on purpose.** Guarding the code with
@@ -66,3 +66,37 @@ Little hearts are remembered by their **level position**, not their index, so ad
 or removing little hearts elsewhere does not un-collect the wrong ones. Their sprites
 carry that position in `levelPosition` data, because the bob tween means a
 sprite's own `y` is no longer where the level put it.
+
+## God mode, and why this one ships
+
+`installGodMode` is the one thing in this folder that is **not** wrapped in
+`import.meta.env.DEV`. The game is played and tested on a phone, against the
+copy deployed to Pages, so a cheat that only exists on the machine it was
+written on would never be where it is needed.
+
+It is **option-click** on the level name, or **press and hold** it. The second
+is not a nicety: there is no option key on a phone, and the phone is the point.
+The long press is started on every press and thrown away the instant the finger
+lifts or leaves, so an ordinary tap — and a Cmd- or Ctrl-click on the same
+label — never trips it.
+
+While it is on, **the level name is gold**. A cheat you cannot tell is running
+is a cheat that will one day explain a bug that was never there.
+
+**It is deliberately not silent.** You still hear the hit, feel the shake and
+see the cat flush red; the only thing that does not happen is losing a life. A
+cheat that hides your mistakes hides exactly the thing you turned it on to
+judge.
+
+Two details that are easy to get wrong:
+
+- **It needs a cooldown.** The lava and thorn checks run every frame for as
+  long as the cat overlaps them, so standing in lava replayed the hurt sound
+  sixty times a second. `godCooldown` is 700ms.
+- **Falling out of the world is different.** There is no floor down there to
+  carry on standing on, so god mode puts the cat back at the spawn and charges
+  nothing for it, rather than shrugging.
+
+The flag lives in the scene registry, so it survives changing level — which
+builds a whole new `GameScene` — and dies with the tab, which is where a cheat
+should die.

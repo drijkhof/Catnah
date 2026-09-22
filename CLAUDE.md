@@ -149,6 +149,13 @@ instead of scrolling with the world, plus a high `setDepth` to stay on top.
 
 ## Debugging
 
+- **God mode**: option-click the level name, or press and hold it on a phone.
+  You still hear and feel every hit and lose nothing by it, and the level name
+  turns gold while it is on. It is in the built game too, not only in dev —
+  see `src/dev/CLAUDE.md`.
+- **Skipping a level**: Cmd-click the level name for the next one, Ctrl-click
+  for the previous. Development only.
+
 - Physics bodies and velocity vectors: set `physics.arcade.debug` to `true` in
   `src/main.ts`.
 - If `localhost:5180` shows someone else's app, see the port section above.

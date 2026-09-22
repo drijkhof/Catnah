@@ -16,6 +16,7 @@ import { LEVELS } from '../level/levels';
 import { createRandom, tileKey } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
+import { installGodMode, isGodMode } from '../dev/godMode';
 import { sound, type Ambience } from '../audio/Sound';
 import { SNAPSHOT_KEY, type GameSnapshot } from '../dev/hot';
 
@@ -52,6 +53,14 @@ export class GameScene extends Phaser.Scene {
    * is a life and no single level holds a hundred.
    */
   private collected = 0;
+
+  /**
+   * Time left before god mode will acknowledge another hit, ms.
+   *
+   * Without it, standing in lava replays the hurt sound sixty times a second,
+   * because the lava check runs every frame for as long as the cat overlaps it.
+   */
+  private godCooldown = 0;
 
   /** Tries left on this level. Running out starts it over. */
   private lives = LIVES;
@@ -326,6 +335,8 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
+    this.godCooldown = Math.max(0, this.godCooldown - delta);
+
     if (!this.dying && this.touchingSomethingDeadly()) {
       this.kill();
     }
@@ -335,7 +346,16 @@ export class GameScene extends Phaser.Scene {
     }
 
     if (!this.dying && this.player.y > this.level.heightInPixels + FALL_OUT_MARGIN) {
-      this.kill();
+      // Falling out is the one thing god mode cannot simply shrug off: there is
+      // no floor down there to carry on standing on. It puts the cat back and
+      // charges nothing for it.
+      if (isGodMode(this)) {
+        this.graze();
+        this.player.respawnAt(this.level.spawn.x, this.level.spawn.y);
+        this.cameras.main.centerOn(this.player.x, this.player.y);
+      } else {
+        this.kill();
+      }
     }
   }
 
@@ -610,8 +630,31 @@ export class GameScene extends Phaser.Scene {
    * instantly reads as a glitch rather than as something you did wrong, and
    * leaves no moment to see what hit you.
    */
+  /**
+   * A hit that does not count: the sound, the shake and the flush of red, and
+   * nothing else. Only in god mode.
+   */
+  private graze(): void {
+    if (this.godCooldown > 0) {
+      return;
+    }
+
+    this.godCooldown = 700;
+    sound.play('hurt');
+    this.cameras.main.shake(140, 0.006);
+    this.player.setTint(0xff6b6b);
+    this.time.delayedCall(220, () => this.player.clearTint());
+  }
+
   private kill(): void {
     if (this.dying) {
+      return;
+    }
+
+    // God mode hears and feels it and loses nothing. Deliberately *not* silent:
+    // a cheat that hides your mistakes hides the thing you were judging.
+    if (isGodMode(this)) {
+      this.graze();
       return;
     }
 
@@ -1037,6 +1080,11 @@ export class GameScene extends Phaser.Scene {
       // A development shortcut, in its own module so the build drops it.
       installLevelSkip(this, levelName, this.levelIndex, LEVELS.length);
     }
+
+    // This one is *not* dev-only: the game is played and tested on a phone,
+    // against the deployed copy, so a cheat that only exists on the machine it
+    // was written on would be no use. See `dev/godMode.ts`.
+    installGodMode(this, levelName);
 
     this.refreshLives();
     this.buildMuteButton();
