@@ -187,6 +187,20 @@ Assigning a stub over `scene.controls` (same getters, plain booleans) then lets
 that loop play the game without synthetic keyboard events, which Phaser does not
 reliably pick up anyway.
 
+**A paused game does not step.** `game.step` returns immediately when
+`game.isPaused` is set, and two things set it: the pause-on-blur handler in
+`main.ts` fires on `blur` and `hidden`, so a tab being driven from the console
+is *always* paused, and a run that ends starts `GameOver`, which pauses the
+`Game` scene on top of that. Both are silent -- nothing moves, nothing errors,
+and it looks exactly like the thing you were testing being broken. Start every
+console session with `game.resume()`, and check `game.isPaused` and
+`scene.scene.isPaused()` before believing a result.
+
+The second one is easy to walk into: park the cat next to something that kills
+it and a few hundred frames later the run is over and the scene is paused, so
+every measurement after that reads zero. `game.registry.set('catnah:god-mode',
+true)` avoids it entirely -- it is the same cheat the level name toggles.
+
 **Tweens do not advance under manual stepping.** `game.step` drives update,
 physics and render, but the tween manager barely moves: 16 seconds of stepping
 advanced a 7-second tween by 58ms. So anything animated by a tween -- the title
