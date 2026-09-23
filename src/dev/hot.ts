@@ -25,6 +25,12 @@ export interface GameSnapshot {
   velocityY: number;
   facingLeft: boolean;
   collectedCharms: CharmMark[];
+  /**
+   * Where dying currently sends the cat back to, if anywhere other than the
+   * level's own spawn. Optional: a snapshot taken before checkpoints existed
+   * simply has none, and doing without one is exactly what happens then.
+   */
+  activeCheckpoint?: CharmMark;
 }
 
 /** A scene that can hand its state over to the build replacing it. */

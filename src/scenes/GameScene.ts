@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { AWAKE_RANGE, CHARMS_PER_LIFE, GAME_HEIGHT, GAME_WIDTH, LIVES, TILE } from '../config';
+import { AWAKE_RANGE, CHARMS_PER_LIFE, CHECKPOINT, GAME_HEIGHT, GAME_WIDTH, LIVES, TILE } from '../config';
 import { Controls } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -61,6 +61,17 @@ export class GameScene extends Phaser.Scene {
    * because the lava check runs every frame for as long as the cat overlaps it.
    */
   private godCooldown = 0;
+
+  /**
+   * Where dying puts the cat back. The level's own spawn until a checkpoint
+   * says otherwise -- the start of a level is itself the first checkpoint.
+   */
+  private respawnPoint!: { x: number; y: number };
+
+  /** The checkpoint currently in effect, if any. Used to ignore re-touching it. */
+  private activeCheckpoint?: Phaser.Physics.Arcade.Sprite;
+
+  private checkpoints!: Phaser.Physics.Arcade.StaticGroup;
 
   /** Tries left on this level. Running out starts it over. */
   private lives = LIVES;
@@ -142,6 +153,8 @@ export class GameScene extends Phaser.Scene {
     const waterZones = this.buildWater();
     this.deadlyRects = [...this.buildLava(), ...this.buildThorns()];
     this.charms = this.buildCharms();
+    this.checkpoints = this.buildCheckpoints();
+    this.respawnPoint = { x: this.level.spawn.x, y: this.level.spawn.y };
 
     this.player = new Player(
       this,
@@ -163,6 +176,9 @@ export class GameScene extends Phaser.Scene {
     );
     this.physics.add.overlap(this.player, this.charms, (_cat, charm) => {
       this.collectCharm(charm as Phaser.Physics.Arcade.Sprite);
+    });
+    this.physics.add.overlap(this.player, this.checkpoints, (_cat, checkpoint) => {
+      this.activateCheckpoint(checkpoint as Phaser.Physics.Arcade.Sprite);
     });
 
     this.buildWeather();
@@ -210,6 +226,11 @@ export class GameScene extends Phaser.Scene {
         .getChildren()
         .filter((charm) => !(charm as Phaser.Physics.Arcade.Sprite).active)
         .map((charm) => charm.getData('levelPosition') as { x: number; y: number }),
+      // Same reasoning as the charms: by position, not by which checkpoint
+      // object this happens to be, since a level edit can reorder them.
+      activeCheckpoint: this.activeCheckpoint?.getData('levelPosition') as
+        | { x: number; y: number }
+        | undefined,
     };
   }
 
@@ -223,6 +244,18 @@ export class GameScene extends Phaser.Scene {
 
       if (match) {
         this.collectCharm(match as Phaser.Physics.Arcade.Sprite);
+      }
+    }
+
+    if (snapshot.activeCheckpoint) {
+      const mark = snapshot.activeCheckpoint;
+      const match = this.checkpoints.getChildren().find((checkpoint) => {
+        const at = checkpoint.getData('levelPosition') as { x: number; y: number };
+        return at.x === mark.x && at.y === mark.y;
+      });
+
+      if (match) {
+        this.activateCheckpoint(match as Phaser.Physics.Arcade.Sprite);
       }
     }
 
@@ -351,7 +384,7 @@ export class GameScene extends Phaser.Scene {
       // charges nothing for it.
       if (isGodMode(this)) {
         this.graze();
-        this.player.respawnAt(this.level.spawn.x, this.level.spawn.y);
+        this.player.respawnAt(this.respawnPoint.x, this.respawnPoint.y);
         this.cameras.main.centerOn(this.player.x, this.player.y);
       } else {
         this.kill();
@@ -679,7 +712,7 @@ export class GameScene extends Phaser.Scene {
 
       this.player.clearTint();
       this.player.body.setAllowGravity(true);
-      this.player.respawnAt(this.level.spawn.x, this.level.spawn.y);
+      this.player.respawnAt(this.respawnPoint.x, this.respawnPoint.y);
 
       // Everything that was coming for the cat goes back to where it lives.
       // A crocodile is not stepped while the cat is dying, so without this it
@@ -1033,6 +1066,80 @@ export class GameScene extends Phaser.Scene {
     }
 
     return charms;
+  }
+
+  /**
+   * Builds the checkpoints: a static body per `*`, carrying two star images
+   * that spin together and crossfade between gold and blue.
+   *
+   * The **physics body is the gold star**, exactly the way a charm's body is
+   * its own sprite. The blue one is a second image at the same position with
+   * no body of its own, along for the ride purely to be faded in and out over
+   * the top -- a checkpoint is one thing to touch, not two.
+   */
+  private buildCheckpoints(): Phaser.Physics.Arcade.StaticGroup {
+    const checkpoints = this.physics.add.staticGroup();
+
+    for (const at of this.level.checkpoints) {
+      const gold = checkpoints.create(at.x, at.y, 'checkpoint-gold') as Phaser.Physics.Arcade.Sprite;
+      const blue = this.add.image(at.x, at.y, 'checkpoint-blue').setAlpha(0);
+
+      // Checkpoints are matched after a hot reload the same way charms are --
+      // by where they are in the level, not by index, so an edit that adds or
+      // removes one elsewhere does not silently reactivate the wrong one.
+      gold.setData('levelPosition', { x: at.x, y: at.y });
+      gold.setData('blue', blue);
+
+      // A spin round the *vertical* axis rather than the flat, clock-hand spin
+      // an `angle` tween gives -- squashing scaleX to 0 and back out the other
+      // side is the classic 2D trick for it. The star is drawn left-right
+      // symmetric, so the mirrored half of the cycle looks identical to the
+      // first half and the motion reads as one continuous turn rather than a
+      // flip-flop. Half the duration each way, so a full there-and-back is one
+      // `spinMs` turn, matching what the constant says it is.
+      this.tweens.add({
+        targets: [gold, blue],
+        scaleX: -1,
+        duration: CHECKPOINT.spinMs / 2,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+      });
+
+      this.tweens.add({
+        targets: blue,
+        alpha: { from: 0, to: 1 },
+        duration: CHECKPOINT.colourMs,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+        // Not every star on the same beat, or a level full of them pulses
+        // like one machine rather than shimmering like several.
+        delay: Phaser.Math.Between(0, CHECKPOINT.colourMs),
+      });
+    }
+
+    return checkpoints;
+  }
+
+  /**
+   * Makes this checkpoint the one dying returns to.
+   *
+   * Idempotent on purpose: the cat can stand on one for a while, and the sound
+   * and the flash are the arrival, not a metronome. Nothing here disables the
+   * body either -- a checkpoint stays exactly what it looks like, always
+   * touchable, unlike a charm which is spent.
+   */
+  private activateCheckpoint(checkpoint: Phaser.Physics.Arcade.Sprite): void {
+    if (this.activeCheckpoint === checkpoint) {
+      return;
+    }
+
+    this.activeCheckpoint = checkpoint;
+    this.respawnPoint = { x: checkpoint.x, y: checkpoint.y };
+
+    sound.play('checkpoint');
+    this.cameras.main.flash(200, 255, 220, 140);
   }
 
   private collectCharm(charm: Phaser.Physics.Arcade.Sprite): void {

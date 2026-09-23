@@ -482,3 +482,23 @@ at a distance.
 Also chose to gate the **beetle** like everything else. It guards the end of a
 level, so you always arrive from far off and it wakes five seconds before you
 reach it. Say the word if the boss should always be awake.
+
+## Checkpoints
+
+Added `*` as the character, since `C` was already the crocodile and `c` the
+crow. A literal asterisk rather than a letter, which is unusual for this
+format, but nothing else read as clearly as "a star."
+
+Touching an checkpoint you have already passed **moves the respawn point
+backwards** if you touch an earlier one after a later one -- there was no
+guard against walking back over an old one. Decided that is correct rather
+than confusing: if you deliberately go back for a missed heart, dying there
+should not fling you all the way forward again.
+
+Checkpoints are always touchable (never disabled, unlike a charm). Still
+open: whether a level should ever want a checkpoint that expires or moves.
+Nothing in the six levels needs one.
+
+No guard requires a checkpoint to have footing under it, the same as charms --
+they can float along a jump line on purpose. If that turns out wrong in
+practice, `assertThornsStandOnGround` in `Level.ts` is the pattern to copy.

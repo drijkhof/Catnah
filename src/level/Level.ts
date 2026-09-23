@@ -29,6 +29,9 @@ import type { GroundEnemyKind } from '../config';
  *   `^`  thorns -- reeds, stalagmites, a spiked railing. Deadly to touch, and
  *        the only hazard that is neither alive nor a liquid. Needs something
  *        solid directly under it
+ *   `*`  checkpoint -- touch it and dying no longer sends you back to the
+ *        start of the level, but here. `C` was already the crocodile, so this
+ *        one is a literal asterisk rather than a letter
  *   `s`  spider, which walks the ceiling above the tile it is placed on and
  *        drops on a thread. Needs solid rock directly above it
  *   `S`  the same, ten times the size. One of them, guarding the cave's heart
@@ -172,6 +175,8 @@ export interface ParsedLevel {
   charms: Point[];
   /** Thorn tiles. Deadly, and scenery otherwise -- nothing stands on them. */
   thorns: Point[];
+  /** Checkpoints, in the order they appear in the grid. */
+  checkpoints: Point[];
   /** Spare hearts sitting in nests. Always optional. */
   extraLives: Point[];
   /** Where the cat starts, and returns to after dying. */
@@ -207,6 +212,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const nests: Point[] = [];
   const charms: Point[] = [];
   const thorns: Point[] = [];
+  const checkpoints: Point[] = [];
   let spawn: Point | null = null;
   let boss: Point | null = null;
   const extraLives: Point[] = [];
@@ -361,6 +367,10 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           thorns.push({ x, y });
           break;
 
+        case '*':
+          checkpoints.push({ x: x + TILE / 2, y: y + TILE / 2 });
+          break;
+
         case 'X':
           boss = { x: x + TILE / 2, y: y + TILE / 2 };
           break;
@@ -441,6 +451,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     nests,
     charms,
     thorns,
+    checkpoints,
     extraLives,
     spawn,
     exit,

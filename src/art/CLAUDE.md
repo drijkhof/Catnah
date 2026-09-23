@@ -65,6 +65,19 @@ standing on a hat.
 A spare heart sitting in the nest with it is drawn in front of the near rim, or
 it would be buried in the straw.
 
+## The checkpoint star is baked pale, then tinted at runtime
+
+`checkpoint-gold` and `checkpoint-blue` in `forest.ts` are the same star drawn
+in two near-white shades rather than in gold and blue outright, because
+`setTint` **multiplies** a texture's colour rather than replacing it -- a pure
+white body times a tint comes out exactly that tint, so the shading baked into
+the star (a dim body, a bright core) survives being dyed.
+
+They are still two separate textures rather than one tinted at two different
+moments, because `GameScene` shows both at once and crossfades the top one's
+alpha for the shimmer -- one texture animated by tint alone read as a slow
+strobe, not a shimmer, when this was tried first.
+
 ## Two leaf masses that ignore the grid
 
 `foliage-back` and `foliage-near` are the only scenery deliberately sized so no

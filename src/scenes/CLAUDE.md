@@ -40,6 +40,30 @@ and says more about what this is than an arrangement of static sprites would.
 Nothing in it has a physics body and it has no `update` at all -- everything is
 on a tween -- so it cannot drift out of step with the game it advertises.
 
+## Checkpoints move the respawn point, nothing else
+
+`respawnPoint` starts each level as `level.spawn`. The level's own start is
+therefore a checkpoint too, without needing to be one -- there was nothing to
+build for it.
+
+Touching a `*` calls `activateCheckpoint`, which is **idempotent**: it checks
+whether this is already the active one before doing anything, so standing on
+one does not replay the sound or the flash every frame. The body is never
+disabled the way a charm's is -- a checkpoint stays exactly what it looks like,
+always touchable, and touching an old one again after passing a newer one
+simply moves the respawn point backwards, which is the correct behaviour for
+going back to fetch something.
+
+Both places that call `player.respawnAt` -- dying, and god mode's save from
+falling out of the world -- read `this.respawnPoint`, never `this.level.spawn`
+directly. Adding a third respawn site later has to do the same.
+
+It survives a hot reload the same way collected charms do: `captureState`
+records the active checkpoint's `levelPosition`, not the sprite or an index,
+and `restoreState` looks it up by position in the new build. It is `optional`
+on `GameSnapshot` so an old snapshot without one still restores everything
+else.
+
 ## Update order is deliberate
 
 `GameScene.update` samples input first, then steps the player:

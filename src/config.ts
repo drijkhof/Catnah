@@ -651,6 +651,20 @@ export const BOSS = {
 } as const;
 
 /** The crow, which circles its nest and comes at the cat. */
+/**
+ * A checkpoint star. Touch one and dying puts you back there instead of at
+ * the level's start -- which is itself the first checkpoint, before any other
+ * is reached.
+ */
+export const CHECKPOINT = {
+  /** Point-to-point radius of the drawn star, px. */
+  size: 15,
+  /** How long one full turn takes, ms. Slow: this is a shimmer, not a blur. */
+  spinMs: 3200,
+  /** How long the blue washes over the gold and back, ms. */
+  colourMs: 1400,
+} as const;
+
 export const CROW = {
   /** Radius of its patrol circle around the nest, px. */
   circleRadius: 70,
@@ -777,6 +791,14 @@ export const COLORS = {
 
   heart: 0xe0333f,
   heartLight: 0xff8a90,
+
+  // The checkpoint star. Gold and blue rather than shades of one colour,
+  // because the whole point is a shimmer you cannot mistake for anything else
+  // in the level -- most of what is on screen is green, brown or grey.
+  checkpointGold: 0xffcf4d,
+  checkpointGoldLight: 0xfff0b0,
+  checkpointBlue: 0x4fb8ff,
+  checkpointBlueLight: 0xc3e9ff,
 
   // A little heart, brighter and pinker than the big ones in the corner so the
   // two are never confused: those are lives, these are what buys one.

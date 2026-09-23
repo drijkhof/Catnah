@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { COLORS, GAME_HEIGHT, GAME_WIDTH } from '../config';
+import { CHECKPOINT, COLORS, GAME_HEIGHT, GAME_WIDTH } from '../config';
 import { bakeTexture, createRandom, fillVerticalGradient } from './canvas';
 
 /** Footprints of the background trees, so the backdrop can place them. */
@@ -11,6 +11,7 @@ export const TREE_SIZES = {
 export const SUN_SIZE = 120;
 export const BUSH_SIZE = { width: 44, height: 26 };
 export const TUFT_SIZE = { width: 16, height: 11 };
+export const CHECKPOINT_SIZE = CHECKPOINT.size * 2;
 
 export function generateForestTextures(scene: Phaser.Scene): void {
   generateSky(scene);
@@ -20,6 +21,7 @@ export function generateForestTextures(scene: Phaser.Scene): void {
   generateGrassTuft(scene);
   generateLife(scene);
   generateCharm(scene);
+  generateCheckpoint(scene);
 }
 
 function generateSky(scene: Phaser.Scene): void {
@@ -189,5 +191,48 @@ function generateCharm(scene: Phaser.Scene): void {
     // One pixel of highlight, which is what makes it look wet.
     g.fillStyle(COLORS.charmShine, 0.9);
     g.fillRect(mid - 3, mid - 3, 1, 1);
+  });
+}
+
+/**
+ * A five-pointed star, drawn near-white so `setTint` -- which multiplies a
+ * texture's own colour rather than replacing it -- can dye it gold or blue at
+ * runtime. The two shades baked in (a dim body, a bright core) are what give
+ * the tint a bit of shape instead of coming out as one flat colour.
+ *
+ * Two textures, not one: `GameScene` shows one atop the other and crossfades
+ * between them, which is the shimmer. A single tinted star animated by
+ * colour alone was tried first and never looked like more than a slow strobe.
+ */
+function drawStar(g: Phaser.GameObjects.Graphics, cx: number, cy: number, body: number, core: number): void {
+  const outer = CHECKPOINT.size / 2 - 1;
+  const inner = outer * 0.42;
+
+  const shape: Phaser.Math.Vector2[] = [];
+
+  for (let i = 0; i < 10; i += 1) {
+    const radius = i % 2 === 0 ? outer : inner;
+    const angle = (Math.PI / 5) * i - Math.PI / 2;
+
+    shape.push(new Phaser.Math.Vector2(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius));
+  }
+
+  g.fillStyle(body, 1);
+  g.fillPoints(shape, true);
+
+  g.fillStyle(core, 1);
+  g.fillCircle(cx, cy, inner * 0.9);
+}
+
+function generateCheckpoint(scene: Phaser.Scene): void {
+  const size = CHECKPOINT_SIZE;
+  const mid = size / 2;
+
+  bakeTexture(scene, 'checkpoint-gold', size, size, (g) => {
+    drawStar(g, mid, mid, 0xd8d0b0, 0xffffff);
+  });
+
+  bakeTexture(scene, 'checkpoint-blue', size, size, (g) => {
+    drawStar(g, mid, mid, 0xc8dcec, 0xffffff);
   });
 }

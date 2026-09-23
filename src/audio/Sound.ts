@@ -28,7 +28,8 @@ export type Voice =
   | 'ratLeap'
   | 'chirp'
   | 'drip'
-  | 'patter';
+  | 'patter'
+  | 'checkpoint';
 
 /**
  * The bed a level sits on: one continuous, almost-inaudible layer.
@@ -222,6 +223,13 @@ class SoundBoard {
 
       case 'collect':
         this.blip(at, 700, 1180, 0.08, 'sine', 0.42);
+        break;
+
+      // Two rising blips rather than one: a checkpoint is a bigger deal than
+      // a little heart, and the second note is what says so.
+      case 'checkpoint':
+        this.blip(at, 700, 1180, 0.09, 'sine', 0.4);
+        this.blip(at + 0.09, 980, 1620, 0.12, 'sine', 0.42);
         break;
 
       case 'hurt':

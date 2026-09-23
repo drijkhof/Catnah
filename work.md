@@ -251,7 +251,7 @@ light falling through the trees.
 
 Anything dangerous kills the cat on contact, and so does falling out of the
 world. There is a short pause — a flash and a shake — and then the cat is back
-at the start of the level.
+at the start of the level, or at the **last checkpoint** it touched, if any.
 
 You get **three lives**, shown as red hearts in the top right. Each death dims
 one, and **little hearts you have already collected stay collected** between them.
@@ -281,6 +281,17 @@ shoulders show above the straw.
 - Below three hearts, it fills a spent one back in.
 - At three or more, it simply adds another — the row grows, and you can carry
   four, five, as many as you find.
+
+## Checkpoints
+
+A spinning star, gold and blue, flipping through both as if it were turning to
+face you. Touch one and dying no longer sends you all the way back to the
+start of the level — it sends you here instead. The start of a level already
+works this way without one; a checkpoint just moves that point further along.
+
+It stays exactly what it looks like. Touching it again later does nothing new,
+and touching an **earlier** one after passing a later one moves the point back
+— which is correct if you go back for something you missed.
 
 ## How long they are
 
