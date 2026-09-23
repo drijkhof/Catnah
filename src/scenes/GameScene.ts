@@ -1296,7 +1296,10 @@ export class GameScene extends Phaser.Scene {
    * what a spare heart looks like once you are already full.
    */
   private refreshLives(): void {
-    const wanted = Math.max(LIVES, this.lives);
+    // The row's length is the watermark, not the current count -- otherwise
+    // losing a heart shrinks the row along with it, and 4/4 taking a hit
+    // reads as a clean 3/3 instead of the 3/4 it actually is.
+    const wanted = Math.max(LIVES, this.maxLives);
 
     while (this.lifeIcons.length < wanted) {
       this.lifeIcons.push(
