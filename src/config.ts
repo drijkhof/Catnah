@@ -293,6 +293,15 @@ export const CAT = {
 export const LIVES = 3;
 
 /**
+ * The most heart slots a run can ever hold, however many spare hearts and
+ * hundred-charm bonuses it finds. Six is deliberately double the start:
+ * enough that finding every spare heart in the game (there are three) still
+ * feels like it is going somewhere, not so much that the row of hearts stops
+ * fitting the corner of the screen it lives in.
+ */
+export const MAX_LIVES = 6;
+
+/**
  * How many little hearts buy a life.
  *
  * Counted across the whole run, not per level -- no level has a hundred of

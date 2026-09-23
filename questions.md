@@ -502,3 +502,34 @@ Nothing in the six levels needs one.
 No guard requires a checkpoint to have footing under it, the same as charms --
 they can float along a jump line on purpose. If that turns out wrong in
 practice, `assertThornsStandOnGround` in `Level.ts` is the pattern to copy.
+
+## The full-heart watermark now has a ceiling
+
+`maxLives` was open-ended -- a hundred charms is a permanent extra life, so
+there was no natural stopping point. Given a hard cap: **six**, double the
+starting three. Chosen mostly for the HUD: the row of hearts lives in the
+corner of a screen that is already crowded on a phone, and six is roughly what
+still fits without shrinking them.
+
+Both the hundred-charm bonus and a spare heart are clamped to it now, sharing
+one method (`healOrGrantLife`) so they can never drift apart on the rule.
+
+## Spare hearts reset on death, little hearts do not
+
+Explicitly asked for: taking a spare heart and then dying should give it back,
+unlike a little heart, which the docs already say stays collected. The
+difference reads as intentional rather than inconsistent because a spare heart
+is always guarded by something that can kill you -- losing that fight and
+finding the heart waiting again is the point of going back for it, where a
+little heart is never guarded by anything in particular.
+
+It only resets on a real death, not on god mode's own save from falling out of
+the world -- god mode never actually dies, so there is nothing to give back.
+
+## On-screen text for what a heart bought
+
+"100 ❤️ Collection Bonus" always, for the hundred-charm bonus, regardless of
+which of the two things it bought. "Extra Life!" or "Lives Restored" for a
+spare heart, depending on which it was. The charm bonus does not distinguish
+the two out loud; only the spare heart does. Not asked which of those should
+also play a sound -- currently neither does, beyond the existing flash.

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { AWAKE_RANGE, CHARMS_PER_LIFE, CHECKPOINT, GAME_HEIGHT, GAME_WIDTH, LIVES, TILE } from '../config';
+import { AWAKE_RANGE, CHARMS_PER_LIFE, CHECKPOINT, GAME_HEIGHT, GAME_WIDTH, LIVES, MAX_LIVES, TILE } from '../config';
 import { Controls } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -78,12 +78,21 @@ export class GameScene extends Phaser.Scene {
 
   /**
    * The most lives held at once this run, so a spare heart knows what "full"
-   * means. Lives have no fixed ceiling -- a hundred charms is a permanent
-   * extra one -- so "full" cannot be a constant; it has to be a watermark
-   * that rises with the highest count actually reached.
+   * means. "Full" cannot be the constant `MAX_LIVES` either -- reaching six
+   * once and then dying twice should leave four hearts worth restoring, not
+   * three -- so it is a watermark instead, one that rises with the highest
+   * count actually reached and is itself capped at `MAX_LIVES`.
    */
   private maxLives = LIVES;
   private lifeIcons: Phaser.GameObjects.Image[] = [];
+
+  /**
+   * Spare hearts sitting in nests. Kept, rather than destroyed once taken, so
+   * dying can put them back -- unlike a little heart, which stays collected.
+   * A spare heart is guarded by something that can kill you; losing that fight
+   * and finding the heart waiting again is the point of going back for it.
+   */
+  private extraLifeHearts: Phaser.Types.Physics.Arcade.ImageWithStaticBody[] = [];
 
   /** Which level is being played, as an index into LEVELS. */
   private levelIndex = 0;
@@ -121,8 +130,8 @@ export class GameScene extends Phaser.Scene {
     // Lives cross level boundaries; a spare heart found in one is still yours
     // in the next, which is the only thing that makes finding one worth a
     // detour.
-    this.lives = data.lives ?? LIVES;
-    this.maxLives = Math.max(LIVES, this.lives, data.maxLives ?? 0);
+    this.lives = Math.min(data.lives ?? LIVES, MAX_LIVES);
+    this.maxLives = Math.min(Math.max(LIVES, this.lives, data.maxLives ?? 0), MAX_LIVES);
     this.collected = data.collected ?? 0;
   }
 
@@ -730,6 +739,7 @@ export class GameScene extends Phaser.Scene {
       for (const crocodile of this.crocodiles) {
         crocodile.settle();
       }
+      this.resetExtraLives();
       this.cameras.main.centerOn(this.player.x, this.player.y);
       this.dying = false;
     });
@@ -1163,16 +1173,39 @@ export class GameScene extends Phaser.Scene {
     this.scoreText.setText(this.formatScore());
 
     if (this.collected >= CHARMS_PER_LIFE) {
-      // A hundred of them is a life. The count starts again rather than
-      // carrying on, so the number in the corner is always how far you are
-      // from the *next* one.
+      // A hundred of them is a life -- or a refill, the same rule a spare
+      // heart follows. The count starts again rather than carrying on, so the
+      // number in the corner is always how far you are from the *next* one,
+      // whichever that turns out to buy.
       this.collected -= CHARMS_PER_LIFE;
-      this.lives += 1;
-      this.maxLives = Math.max(this.maxLives, this.lives);
+      this.healOrGrantLife();
       this.refreshLives();
       this.scoreText.setText(this.formatScore());
       this.cameras.main.flash(260, 255, 150, 180);
+      this.announceBonus(`${CHARMS_PER_LIFE} ❤️ Collection Bonus`);
     }
+  }
+
+  /**
+   * Below the most lives ever held this run, tops every spent one back up.
+   * At that watermark or above, raises it and adds one more, up to
+   * `MAX_LIVES`. Shared by the hundred-charm bonus and a spare heart in a
+   * nest -- both spend something to grant this, and both grant the same
+   * thing by the same rule: a run that has taken damage gets healed before it
+   * gets ahead.
+   *
+   * Returns which of the two happened, so a caller that says which out loud
+   * -- a spare heart does, the charm bonus does not -- knows what to say.
+   */
+  private healOrGrantLife(): 'healed' | 'granted' {
+    if (this.lives < this.maxLives) {
+      this.lives = this.maxLives;
+      return 'healed';
+    }
+
+    this.lives = Math.min(this.lives + 1, MAX_LIVES);
+    this.maxLives = this.lives;
+    return 'granted';
   }
 
   private buildHud(): void {
@@ -1285,14 +1318,23 @@ export class GameScene extends Phaser.Scene {
    *
    * Never required to finish a level. **Below the most you have ever held**
    * this run, one tops every spent heart back up in a single go; at that
-   * watermark or above, it raises the watermark and adds one more. A run that
-   * has taken damage gets its hearts back before it gets ahead; a run that
-   * has not gets ahead.
+   * watermark or above, it raises the watermark and adds one more, up to
+   * `MAX_LIVES`. A run that has taken damage gets its hearts back before it
+   * gets ahead; a run that has not gets ahead.
+   *
+   * **Taking it does not spend it for good.** It is hidden rather than
+   * destroyed, and `resetExtraLives` brings every taken one back the moment
+   * the cat dies. A spare heart is guarded by something that can kill you, so
+   * losing that fight and finding the heart waiting again is the point of
+   * going back for it -- it would otherwise be a heart you only ever get once
+   * per level, by the first route that works.
    */
   private buildExtraLives(): void {
     for (const at of this.level.extraLives) {
       // In front of the nest's near rim, so it is not buried in the straw.
       const heart = this.physics.add.staticImage(at.x, at.y - 3, 'life').setDepth(7);
+
+      this.extraLifeHearts.push(heart);
 
       this.tweens.add({
         targets: heart,
@@ -1309,22 +1351,65 @@ export class GameScene extends Phaser.Scene {
           return;
         }
 
-        heart.destroy();
+        heart.disableBody(true, true);
 
-        if (this.lives < this.maxLives) {
-          this.lives = this.maxLives;
-        } else {
-          this.lives += 1;
-          this.maxLives = this.lives;
-        }
+        const outcome = this.healOrGrantLife();
 
         this.refreshLives();
         this.cameras.main.flash(180, 255, 190, 150);
+        this.announceBonus(outcome === 'granted' ? 'Extra Life!' : 'Lives Restored');
       });
+    }
+  }
+
+  /**
+   * Brings back every spare heart the cat has already taken.
+   *
+   * Called from `kill()`'s respawn, not from god mode's own fall-out save --
+   * god mode never actually dies, so there is nothing to give back. A spare
+   * heart taken on the way to a death you did not come back from should not
+   * simply be gone.
+   */
+  private resetExtraLives(): void {
+    for (const heart of this.extraLifeHearts) {
+      if (!heart.active) {
+        heart.enableBody(false, 0, 0, true, true);
+      }
     }
   }
 
   private formatScore(): string {
     return `${this.collected}/${CHARMS_PER_LIFE}`;
+  }
+
+  /**
+   * A word across the top of the screen for a second, then gone.
+   *
+   * Same styling as god mode's own on/off note in `dev/godMode.ts` --
+   * monospace, gold on a dark stroke, a float and a fade -- but centred at the
+   * top of the screen rather than hung off the level name, because this one is
+   * not tucked away by a corner the way that toggle is.
+   */
+  private announceBonus(text: string): void {
+    const note = this.add
+      .text(GAME_WIDTH / 2, TILE * 2, text, {
+        fontFamily: 'monospace',
+        fontSize: '10px',
+        color: '#ffd34d',
+        stroke: '#1d2a18',
+        strokeThickness: 3,
+      })
+      .setOrigin(0.5, 0)
+      .setScrollFactor(0)
+      .setDepth(1000);
+
+    this.tweens.add({
+      targets: note,
+      alpha: 0,
+      y: note.y - 6,
+      delay: 900,
+      duration: 500,
+      onComplete: () => note.destroy(),
+    });
   }
 }

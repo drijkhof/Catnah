@@ -272,18 +272,23 @@ level.
 
 Each is **guarded**, which is the point of them: a spare heart is something you
 go and take off a bird, or walk a tunnel of spiders for, not something you pass
-on the way.
+on the way. **Dying gives it back.** Taking it is not spent for good — only
+holding onto it is — so losing the fight it is guarded by and coming back
+finds it waiting again rather than gone for the rest of the level.
 
 The cat sits **in** a nest, not on top of one: the floor of a nest is partway
 down it, and the near rim is drawn over the cat's legs, so only its head and
 shoulders show above the straw.
 
-Lives have no fixed ceiling — a hundred little hearts is a permanent extra
-one — so "full" is not a constant, it is the **most you have ever held this
-run**:
+A hundred little hearts is worth the same as a spare heart, and both follow
+one rule. "Full" is not a fixed number — it is the **most you have ever held
+this run**, up to a hard ceiling of **six**:
 
-- Below that, a spare heart fills every spent one back in, in one go.
-- At that watermark or above, it raises the watermark and adds one more.
+- Below that watermark, either one fills every spent heart back in, in one go
+  — **"Lives Restored"**, across the top of the screen.
+- At the watermark or above, it raises the watermark and adds one more —
+  **"Extra Life!"** A hundred little hearts always says **"100 ❤️ Collection
+  Bonus"** instead, whichever of the two it turns out to buy.
 
 ## Checkpoints
 
