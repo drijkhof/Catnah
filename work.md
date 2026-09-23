@@ -282,13 +282,19 @@ shoulders show above the straw.
 
 A hundred little hearts is worth the same as a spare heart, and both follow
 one rule. "Full" is not a fixed number — it is the **most you have ever held
-this run**, up to a hard ceiling of **six**:
+this run**, up to a hard ceiling of **seven**:
 
 - Below that watermark, either one fills every spent heart back in, in one go
-  — **"Lives Restored"**, across the top of the screen.
+  — **"Lives Restored"**, grown and dissolved in the middle of the screen.
 - At the watermark or above, it raises the watermark and adds one more —
   **"Extra Life!"** A hundred little hearts always says **"100 ❤️ Collection
   Bonus"** instead, whichever of the two it turns out to buy.
+
+Right behind either of those, or behind nothing at all when a life is simply
+lost, comes a second word doing the same grow-and-fade: your count over the
+watermark, as **"6/7"**. It is the one thing shown on every change to how many
+lives you have, gain or loss alike, so the number in the corner is never the
+only place that says so.
 
 ## Checkpoints
 

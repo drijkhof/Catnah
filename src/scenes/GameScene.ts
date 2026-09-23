@@ -721,6 +721,7 @@ export class GameScene extends Phaser.Scene {
 
     this.lives -= 1;
     this.refreshLives();
+    this.announceLives();
 
     this.time.delayedCall(650, () => {
       // A hot reload that lands while this is pending destroys the scene this
@@ -1190,6 +1191,7 @@ export class GameScene extends Phaser.Scene {
       this.scoreText.setText(this.formatScore());
       this.cameras.main.flash(260, 255, 150, 180);
       this.announceBonus(`${CHARMS_PER_LIFE} ❤️ Collection Bonus`);
+      this.announceLives(400);
     }
   }
 
@@ -1368,6 +1370,7 @@ export class GameScene extends Phaser.Scene {
         this.refreshLives();
         this.cameras.main.flash(180, 255, 190, 150);
         this.announceBonus(outcome === 'granted' ? 'Extra Life!' : 'Lives Restored');
+        this.announceLives(400);
       });
     }
   }
@@ -1398,33 +1401,73 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
-   * A word across the top of the screen for a second, then gone.
+   * A word in the middle of the screen that grows and dissolves, like a
+   * struck coin's ring spreading and fading.
    *
-   * Same styling as god mode's own on/off note in `dev/godMode.ts` --
-   * monospace, gold on a dark stroke, a float and a fade -- but centred at the
-   * top of the screen rather than hung off the level name, because this one is
-   * not tucked away by a corner the way that toggle is.
+   * Same colours as god mode's own on/off note in `dev/godMode.ts` --
+   * monospace, gold on a dark stroke -- but this one is not a fixed size that
+   * floats a few pixels; it grows from 10px to 60px as it fades out.
+   *
+   * **The growth is a bigger `fontSize` each step, not a `setScale`.** A Text
+   * object is a canvas rasterised at its own font size; scaling that up
+   * stretches the same soft, antialiased 10px glyphs into something blurrier
+   * the bigger it gets. Re-asking for a bigger size instead rasterises new,
+   * genuinely crisp glyphs at every step -- the cost of doing that every frame
+   * for one second is nothing for something this short-lived and this rare.
    */
   private announceBonus(text: string): void {
     const note = this.add
-      .text(GAME_WIDTH / 2, TILE * 2, text, {
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2, text, {
         fontFamily: 'monospace',
         fontSize: '10px',
         color: '#ffd34d',
         stroke: '#1d2a18',
-        strokeThickness: 3,
+        strokeThickness: 4,
       })
-      .setOrigin(0.5, 0)
+      .setOrigin(0.5, 0.5)
       .setScrollFactor(0)
       .setDepth(1000);
+
+    // A plain object to tween, because `fontSize` lives inside the text
+    // style rather than as a property Phaser's tweens can reach directly.
+    const grown = { size: 10 };
+
+    this.tweens.add({
+      targets: grown,
+      size: 40,
+      duration: 1000,
+      ease: 'Cubic.easeOut',
+      onUpdate: () => note.setFontSize(Math.round(grown.size)),
+    });
 
     this.tweens.add({
       targets: note,
       alpha: 0,
-      y: note.y - 6,
-      delay: 900,
-      duration: 500,
+      duration: 1000,
+      ease: 'Cubic.easeIn',
       onComplete: () => note.destroy(),
     });
+  }
+
+  /**
+   * The current count over the watermark -- "6/7" -- grown and faded the same
+   * way `announceBonus` shows what a heart bought. Shown on **every** change
+   * to the life count, gain or loss, as a second reading alongside whichever
+   * of "Extra Life!", "Lives Restored", the charm bonus, or nothing at all
+   * (a plain death has no text of its own) already said what happened.
+   *
+   * Delayed slightly when something else is about to announce at the same
+   * moment, so the two grow from the same centre one after another rather
+   * than on top of each other, which read as one garbled burst of text
+   * instead of two.
+   */
+  private announceLives(delay = 0): void {
+    const ratio = `${this.lives}/${this.maxLives}`;
+
+    if (delay > 0) {
+      this.time.delayedCall(delay, () => this.announceBonus(ratio));
+    } else {
+      this.announceBonus(ratio);
+    }
   }
 }

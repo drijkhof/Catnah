@@ -533,3 +533,23 @@ which of the two things it bought. "Extra Life!" or "Lives Restored" for a
 spare heart, depending on which it was. The charm bonus does not distinguish
 the two out loud; only the spare heart does. Not asked which of those should
 also play a sound -- currently neither does, beyond the existing flash.
+
+## The heart ceiling is seven, not six
+
+Raised from six after asking. No particular reasoning behind the exact
+number beyond "one more than double the start" — say the word if it should
+move again.
+
+## A second, generic "current/max" announcement
+
+Added on top of the three specific ones ("Extra Life!", "Lives Restored",
+the charm bonus): every change to the life count, gain or loss, now also
+grows and fades its own "X/Y" -- including a plain death, which previously
+announced nothing about the count at all. Delayed 400ms behind whichever
+specific text fires alongside it, so the two read as one after another
+rather than as a garbled overlap grown from the same centre point.
+
+The growth is a real `setFontSize` each step, not a `setScale` -- asked for
+explicitly, because a Text object is a canvas rasterised at its own font
+size, and scaling that up stretches the same soft, antialiased small glyphs
+rather than drawing new, actually crisp ones at the bigger size.
