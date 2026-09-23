@@ -721,7 +721,7 @@ export class GameScene extends Phaser.Scene {
 
     this.lives -= 1;
     this.refreshLives();
-    this.announceLives();
+    this.announce67();
 
     this.time.delayedCall(650, () => {
       // A hot reload that lands while this is pending destroys the scene this
@@ -1455,11 +1455,10 @@ export class GameScene extends Phaser.Scene {
    * say nothing, on purpose. This is a one-off notice for a specific moment,
    * not a running readout of the watermark.
    */
-  private announceLives(): void {
-    if (this.maxLives !== MAX_LIVES || this.lives !== MAX_LIVES - 1) {
-      return;
+  private announce67(): void {
+    if (this.lives == 6 && this.maxLives == 7) {
+      this.announceBonus(`6/7`);
     }
 
-    this.announceBonus(`${this.lives}/${this.maxLives}`);
   }
 }
