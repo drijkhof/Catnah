@@ -1190,7 +1190,7 @@ export class GameScene extends Phaser.Scene {
       this.refreshLives();
       this.scoreText.setText(this.formatScore());
       this.cameras.main.flash(260, 255, 150, 180);
-      this.announceBonus(`${CHARMS_PER_LIFE} ❤️ Collection Bonus`);
+      this.announceBonus(`❤️ Collection Bonus ❤️`);
     }
   }
 
@@ -1369,6 +1369,7 @@ export class GameScene extends Phaser.Scene {
         this.refreshLives();
         this.cameras.main.flash(180, 255, 190, 150);
         this.announceBonus(outcome === 'granted' ? 'Extra Life!' : 'Lives Restored');
+
       });
     }
   }
