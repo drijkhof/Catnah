@@ -723,6 +723,13 @@ export class GameScene extends Phaser.Scene {
     this.refreshLives();
 
     this.time.delayedCall(650, () => {
+      // A hot reload that lands while this is pending destroys the scene this
+      // timer belongs to; without this, the callback runs anyway against
+      // bodies that are already gone. Never reachable in the built game.
+      if (!this.sys.isActive()) {
+        return;
+      }
+
       if (this.lives <= 0) {
         sound.play('gameOver');
         this.endRun();
@@ -1372,7 +1379,12 @@ export class GameScene extends Phaser.Scene {
    */
   private resetExtraLives(): void {
     for (const heart of this.extraLifeHearts) {
-      if (!heart.active) {
+      // `heart.body` can be gone without `heart` itself being: a hot reload
+      // that lands while this exact timer is pending tears the old scene's
+      // bodies down, and `enableBody` reads straight through to
+      // `body.gameObject` with no guard of its own. Never reachable in the
+      // built game, only from editing code while a death is mid-flight.
+      if (!heart.active && heart.body) {
         heart.enableBody(false, 0, 0, true, true);
       }
     }

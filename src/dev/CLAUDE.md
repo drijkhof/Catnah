@@ -100,3 +100,18 @@ Two details that are easy to get wrong:
 The flag lives in the scene registry, so it survives changing level — which
 builds a whole new `GameScene` — and dies with the tab, which is where a cheat
 should die.
+
+## A hot reload can land on a pending death
+
+`kill()` waits 650ms (`this.time.delayedCall`) before respawning the cat, and a
+code edit saved during that window destroys the old game -- bodies and all --
+out from under the timer that is still waiting to fire. It fired anyway, and
+crashed reaching into a spare heart's body that the teardown had already taken
+away: `Cannot read properties of undefined (reading 'gameObject')`, from deep
+inside Phaser's `enableBody`.
+
+The delayed callback now checks `this.sys.isActive()` first and bails out if
+the scene it belongs to is no longer running. Not reachable in the built game
+-- `import.meta.hot` does not exist there -- only from editing code while a
+death is mid-flight, which is exactly what real playtesting during development
+does all the time.
