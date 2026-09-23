@@ -625,9 +625,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       clearance,
       false,
       true,
-    );
+    ) as Phaser.Physics.Arcade.StaticBody[];
 
-    return bodies.length === 0;
+    // The same filter `solidBeside` uses, and for the same reason: a charm, a
+    // checkpoint and an invisible ledge (a nest, a tree's crown) are all
+    // static bodies too, and none of them is a ceiling. Without it, a heart
+    // floating at head height over a branch left the cat crouched under
+    // nothing anyone could see.
+    return !bodies.some((body) => isSolidTile(body));
   }
 
   private applyHorizontal(controls: Controls, dt: number, onGround: boolean): void {

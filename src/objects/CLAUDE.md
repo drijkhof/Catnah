@@ -383,3 +383,14 @@ its pool and out of the level, with nothing steering it.
 The weather and the lava are not creatures. They are the place, and they carry
 on whether or not anybody is looking; what the lava does *not* do off screen is
 get heard, and that is handled where it spits.
+
+## `hasHeadroom` filters by `isSolidTile`, same as `solidBeside`
+
+Standing up used to check for *any* static body in the space above a crouched
+cat, and charms, checkpoints and invisible ledges (a nest, a tree's crown) are
+all static bodies too. A heart floating at head height over a branch left the
+cat stuck crouched under nothing anyone could see -- the same class of bug
+`isSolidTile` already exists to rule out for `solidBeside`, just not applied
+here. Measured: a fake charm placed exactly in the headroom rectangle blocked
+standing before the fix and does not after; a real tile in the same spot still
+blocks it correctly.
