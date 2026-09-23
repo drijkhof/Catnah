@@ -278,9 +278,12 @@ The cat sits **in** a nest, not on top of one: the floor of a nest is partway
 down it, and the near rim is drawn over the cat's legs, so only its head and
 shoulders show above the straw.
 
-- Below three hearts, it fills a spent one back in.
-- At three or more, it simply adds another — the row grows, and you can carry
-  four, five, as many as you find.
+Lives have no fixed ceiling — a hundred little hearts is a permanent extra
+one — so "full" is not a constant, it is the **most you have ever held this
+run**:
+
+- Below that, a spare heart fills every spent one back in, in one go.
+- At that watermark or above, it raises the watermark and adds one more.
 
 ## Checkpoints
 

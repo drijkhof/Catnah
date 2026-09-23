@@ -75,6 +75,14 @@ export class GameScene extends Phaser.Scene {
 
   /** Tries left on this level. Running out starts it over. */
   private lives = LIVES;
+
+  /**
+   * The most lives held at once this run, so a spare heart knows what "full"
+   * means. Lives have no fixed ceiling -- a hundred charms is a permanent
+   * extra one -- so "full" cannot be a constant; it has to be a watermark
+   * that rises with the highest count actually reached.
+   */
+  private maxLives = LIVES;
   private lifeIcons: Phaser.GameObjects.Image[] = [];
 
   /** Which level is being played, as an index into LEVELS. */
@@ -106,7 +114,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   /** Phaser hands this whatever `scene.start` was given. */
-  init(data: { levelIndex?: number; lives?: number; collected?: number }): void {
+  init(data: { levelIndex?: number; lives?: number; maxLives?: number; collected?: number }): void {
     const carried = this.registry.get(SNAPSHOT_KEY) as GameSnapshot | undefined;
 
     this.levelIndex = data.levelIndex ?? carried?.levelIndex ?? 0;
@@ -114,6 +122,7 @@ export class GameScene extends Phaser.Scene {
     // in the next, which is the only thing that makes finding one worth a
     // detour.
     this.lives = data.lives ?? LIVES;
+    this.maxLives = Math.max(LIVES, this.lives, data.maxLives ?? 0);
     this.collected = data.collected ?? 0;
   }
 
@@ -452,6 +461,7 @@ export class GameScene extends Phaser.Scene {
       this.scene.start('Game', {
         levelIndex: (this.levelIndex + 1) % LEVELS.length,
         lives: this.lives,
+        maxLives: this.maxLives,
         collected: this.collected,
       });
     });
@@ -1158,6 +1168,7 @@ export class GameScene extends Phaser.Scene {
       // from the *next* one.
       this.collected -= CHARMS_PER_LIFE;
       this.lives += 1;
+      this.maxLives = Math.max(this.maxLives, this.lives);
       this.refreshLives();
       this.scoreText.setText(this.formatScore());
       this.cameras.main.flash(260, 255, 150, 180);
@@ -1272,8 +1283,11 @@ export class GameScene extends Phaser.Scene {
   /**
    * Places the spare hearts sitting in nests.
    *
-   * Never required to finish a level. Below three they fill a spent heart back
-   * in; at three or above they simply add another.
+   * Never required to finish a level. **Below the most you have ever held**
+   * this run, one tops every spent heart back up in a single go; at that
+   * watermark or above, it raises the watermark and adds one more. A run that
+   * has taken damage gets its hearts back before it gets ahead; a run that
+   * has not gets ahead.
    */
   private buildExtraLives(): void {
     for (const at of this.level.extraLives) {
@@ -1296,7 +1310,14 @@ export class GameScene extends Phaser.Scene {
         }
 
         heart.destroy();
-        this.lives += 1;
+
+        if (this.lives < this.maxLives) {
+          this.lives = this.maxLives;
+        } else {
+          this.lives += 1;
+          this.maxLives = this.lives;
+        }
+
         this.refreshLives();
         this.cameras.main.flash(180, 255, 190, 150);
       });
