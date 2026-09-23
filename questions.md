@@ -553,3 +553,11 @@ The growth is a real `setFontSize` each step, not a `setScale` -- asked for
 explicitly, because a Text object is a canvas rasterised at its own font
 size, and scaling that up stretches the same soft, antialiased small glyphs
 rather than drawing new, actually crisp ones at the bigger size.
+
+## The lives ratio only announces exactly "6/7"
+
+Corrected twice: first from "every change" down to "not full", then from
+"not full" down to exactly one heart short of the absolute ceiling while
+at the ceiling. 2/3, 4/5 and 3/6 say nothing; only landing on precisely
+lives === MAX_LIVES - 1 with maxLives === MAX_LIVES does. A one-off notice
+for a specific moment, not a running readout.

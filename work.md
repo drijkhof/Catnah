@@ -290,11 +290,11 @@ this run**, up to a hard ceiling of **seven**:
   **"Extra Life!"** A hundred little hearts always says **"100 ❤️ Collection
   Bonus"** instead, whichever of the two it turns out to buy.
 
-Right behind either of those, or behind nothing at all when a life is simply
-lost, comes a second word doing the same grow-and-fade: your count over the
-watermark, as **"6/7"**. It is the one thing shown on every change to how many
-lives you have, gain or loss alike, so the number in the corner is never the
-only place that says so.
+One specific count says something extra, the same grow-and-fade: landing on
+**exactly "6/7"** -- one heart short of the absolute ceiling, at the
+ceiling -- says so out loud. Nothing else does; 2/3, 4/5 and 3/6 are silent.
+It is a one-off notice for that moment, not a running readout of the
+watermark.
 
 ## Checkpoints
 

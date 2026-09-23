@@ -1191,7 +1191,6 @@ export class GameScene extends Phaser.Scene {
       this.scoreText.setText(this.formatScore());
       this.cameras.main.flash(260, 255, 150, 180);
       this.announceBonus(`${CHARMS_PER_LIFE} ❤️ Collection Bonus`);
-      this.announceLives(400);
     }
   }
 
@@ -1370,7 +1369,6 @@ export class GameScene extends Phaser.Scene {
         this.refreshLives();
         this.cameras.main.flash(180, 255, 190, 150);
         this.announceBonus(outcome === 'granted' ? 'Extra Life!' : 'Lives Restored');
-        this.announceLives(400);
       });
     }
   }
@@ -1450,24 +1448,18 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
-   * The current count over the watermark -- "6/7" -- grown and faded the same
-   * way `announceBonus` shows what a heart bought. Shown on **every** change
-   * to the life count, gain or loss, as a second reading alongside whichever
-   * of "Extra Life!", "Lives Restored", the charm bonus, or nothing at all
-   * (a plain death has no text of its own) already said what happened.
+   * "6/7" -- one heart short of the absolute ceiling, at the ceiling -- grown
+   * and faded the same way `announceBonus` shows what a heart bought.
    *
-   * Delayed slightly when something else is about to announce at the same
-   * moment, so the two grow from the same centre one after another rather
-   * than on top of each other, which read as one garbled burst of text
-   * instead of two.
+   * **Only that exact count.** Not "not full" in general: 2/3, 4/5 and 3/6 all
+   * say nothing, on purpose. This is a one-off notice for a specific moment,
+   * not a running readout of the watermark.
    */
-  private announceLives(delay = 0): void {
-    const ratio = `${this.lives}/${this.maxLives}`;
-
-    if (delay > 0) {
-      this.time.delayedCall(delay, () => this.announceBonus(ratio));
-    } else {
-      this.announceBonus(ratio);
+  private announceLives(): void {
+    if (this.maxLives !== MAX_LIVES || this.lives !== MAX_LIVES - 1) {
+      return;
     }
+
+    this.announceBonus(`${this.lives}/${this.maxLives}`);
   }
 }
