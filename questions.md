@@ -662,3 +662,20 @@ simply skips whatever tile isn't `w`/`f`/`C`. Same problem `f` and `C`
 already solved by being water themselves rather than something placed on
 top of it. `W` does the same for a heart: water and a heart in one
 character, joining `waterZones` exactly like the other two.
+
+## Background trees ran out well above the ground
+
+Found by suspicion, then confirmed: `Backdrop`'s far and mid tree ranks drew
+exactly one row near `groundLine`, which was every row the forest ever
+needed. Canopy climbs several screens above ground now, and a scroll factor
+below 1 means the camera outruns a fixed-height rank -- past about one
+screen the whole thing had scrolled below the frame, leaving bare sky for
+the rest of the climb.
+
+Fixed by repeating rows all the way to the top of the level rather than by
+threading `levelHeight` through as a new parameter -- `groundLine` alone
+already says how far above the ground there is to cover. First attempt
+spaced rows too tightly and read as a solid wall of overlapping trees;
+spacing by the tree's own height, with each row up a little fainter, is what
+made it read as a receding rank instead. Forest gets one row exactly as
+before, since it never climbs far enough to need a second.

@@ -42,6 +42,18 @@ drawn in front of them, hides their bases. That is why `Backdrop` takes the
 ground line from `ParsedLevel` rather than guessing it from the tiles — the
 sneaking log is also solid and would otherwise be mistaken for ground level.
 
+**A scroll factor below 1 means the camera outruns the rank it is attached
+to.** `addTreeRank` used to draw exactly one row, at a fixed height above the
+ground, which was every row the forest ever needed — nothing there climbed
+far enough to leave it behind. A canopy of real trees can climb several
+screens above `groundLine`, and past about one screen of that the whole rank
+has scrolled below the bottom of the frame, leaving bare sky above it. It now
+stacks rows all the way to the top of the level, spaced by the tree's own
+height so they read as a receding rank rather than a solid wall, each row up
+a little fainter than the last. A short level simply gets one row, same as
+before; the fix falls out of `groundLine` alone; nothing about it is
+theme-specific.
+
 ## Adding scenery
 
 Scatter with `createRandom` from `src/art`, never `Math.random`, or the forest
