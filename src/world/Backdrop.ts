@@ -135,47 +135,28 @@ export class Backdrop {
 
     // Trees are rooted a little below the ground line so the forest floor,
     // which is drawn in front of them, hides their trunks.
-    const rootOffset = isFar ? 26 : 14;
+    const baseY = this.groundLine + (isFar ? 26 : 14);
 
-    /**
-     * How many rows of this rank it takes to reach the top of the level.
-     *
-     * A single row was all the forest ever needed -- nothing climbed far
-     * enough above the ground to outrun it. A canopy of real trees can climb
-     * several screens above `groundLine`, and a scroll factor below 1 means
-     * the camera rises faster than a distant rank does: past one screen's
-     * worth of climbing the whole rank has slid below the bottom of the
-     * frame, and everything above it is bare sky. Stacking rows all the way
-     * to the top of the level is what stops that, however tall the level is.
-     *
-     * Spaced by the tree's own height rather than anything tighter -- packed
-     * closer, overlapping silhouettes read as a solid wall instead of a
-     * receding rank of trees.
-     */
-    const rowHeight = size.height * 1.15;
-    const rows = Math.max(1, Math.ceil(this.groundLine / rowHeight));
+    for (let x = -spacing; x < this.levelWidth + spacing; x += spacing) {
+      const key = `tree-${rank}-${random() < 0.5 ? 'a' : 'b'}`;
+      const jitterX = (random() - 0.5) * spacing * 0.5;
+      const scale = 0.85 + random() * 0.3;
 
-    for (let row = 0; row < rows; row += 1) {
-      const baseY = this.groundLine + rootOffset - row * rowHeight;
-      // Each row up fades a little further into haze, the same reasoning
-      // that makes the far rank paler than the mid one to begin with: losing
-      // contrast with height is what keeps a tall stack of them reading as
-      // depth rather than as a repeating pattern.
-      const fade = Math.max(0.35, 1 - row * 0.22);
-
-      for (let x = -spacing; x < this.levelWidth + spacing; x += spacing) {
-        const key = `tree-${rank}-${random() < 0.5 ? 'a' : 'b'}`;
-        const jitterX = (random() - 0.5) * spacing * 0.5;
-        const scale = 0.85 + random() * 0.3;
-
-        this.scene.add
-          .image(x + jitterX, baseY + (random() - 0.5) * 12, key)
-          .setOrigin(0.5, 1)
-          .setDisplaySize(size.width * scale, size.height * scale)
-          .setScrollFactor(scrollFactor)
-          .setAlpha(fade)
-          .setDepth(depth);
-      }
+      this.scene.add
+        .image(x + jitterX, baseY + (random() - 0.5) * 12, key)
+        .setOrigin(0.5, 1)
+        .setDisplaySize(size.width * scale, size.height * scale)
+        // Depth parallax only sideways. A scroll factor below 1 on the
+        // vertical axis too was what actually broke tall levels: as the
+        // camera climbed, the ground itself (scroll factor 1) pulled away
+        // from these (scroll factor <1) faster than they could follow, and
+        // the trees drifted off their own roots -- more rows just multiplied
+        // that drift instead of fixing it. Locking the vertical factor to 1
+        // keeps a tree's foot exactly on `groundLine` on screen no matter how
+        // high the camera goes; only its left-right position still parallaxes
+        // to read as distance.
+        .setScrollFactor(scrollFactor, 1)
+        .setDepth(depth);
     }
   }
 

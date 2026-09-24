@@ -663,19 +663,23 @@ already solved by being water themselves rather than something placed on
 top of it. `W` does the same for a heart: water and a heart in one
 character, joining `waterZones` exactly like the other two.
 
-## Background trees ran out well above the ground
+## Background trees drifted off their own roots when climbing high
 
-Found by suspicion, then confirmed: `Backdrop`'s far and mid tree ranks drew
-exactly one row near `groundLine`, which was every row the forest ever
-needed. Canopy climbs several screens above ground now, and a scroll factor
-below 1 means the camera outruns a fixed-height rank -- past about one
-screen the whole thing had scrolled below the frame, leaving bare sky for
-the rest of the climb.
+Found by suspicion: `Backdrop`'s far and mid tree ranks looked wrong high up
+in the canopy. First diagnosis was half right -- the trees did run out
+higher up -- but the fix (repeating rows to fill the sky) was wrong and made
+it worse: told directly that it now looked like the trees were flying,
+because a *second* problem was still there underneath. A tree at scroll
+factor 0.25 or 0.5 moves less than the floor (factor 1) does for the same
+camera movement, so as the cat climbs, the ground pulls away from the tree
+faster than the tree follows -- the tree looks like it is lifting off its
+own roots. Repeating rows just multiplied that drift into a mess of
+overlapping, half-airborne trees instead of fixing it.
 
-Fixed by repeating rows all the way to the top of the level rather than by
-threading `levelHeight` through as a new parameter -- `groundLine` alone
-already says how far above the ground there is to cover. First attempt
-spaced rows too tightly and read as a solid wall of overlapping trees;
-spacing by the tree's own height, with each row up a little fainter, is what
-made it read as a receding rank instead. Forest gets one row exactly as
-before, since it never climbs far enough to need a second.
+The real fix: `setScrollFactor` takes the two axes separately, and only the
+horizontal one should ever have been below 1. Locking the vertical factor to
+1 keeps a tree's foot exactly on `groundLine` on screen regardless of camera
+height, and one row is enough again -- the "empty sky above" symptom turns
+out to be correct once the rooting is fixed, since a tree pinned to the
+ground disappears below the frame exactly when the ground does, the way a
+real distant tree would once you have climbed above it.

@@ -42,17 +42,24 @@ drawn in front of them, hides their bases. That is why `Backdrop` takes the
 ground line from `ParsedLevel` rather than guessing it from the tiles — the
 sneaking log is also solid and would otherwise be mistaken for ground level.
 
-**A scroll factor below 1 means the camera outruns the rank it is attached
-to.** `addTreeRank` used to draw exactly one row, at a fixed height above the
-ground, which was every row the forest ever needed — nothing there climbed
-far enough to leave it behind. A canopy of real trees can climb several
-screens above `groundLine`, and past about one screen of that the whole rank
-has scrolled below the bottom of the frame, leaving bare sky above it. It now
-stacks rows all the way to the top of the level, spaced by the tree's own
-height so they read as a receding rank rather than a solid wall, each row up
-a little fainter than the last. A short level simply gets one row, same as
-before; the fix falls out of `groundLine` alone; nothing about it is
-theme-specific.
+**A scroll factor below 1 on the vertical axis is what unroots a tree from the
+ground as the camera climbs.** The floor sits at scroll factor 1; a tree rank
+at 0.25 or 0.5 moves *less* than the floor does for the same camera movement,
+so as the cat climbs, the ground pulls away from the tree faster than the
+tree can follow and the gap between the two grows — the tree looks like it is
+lifting off its own roots, worse the higher the level goes. Repeating more
+rows to fill the resulting empty sky was tried first and made it worse: more
+copies of something already drifting off the ground just multiplied the
+drift into a mess of trees rising through each other.
+
+The fix is `setScrollFactor(x, 1)` rather than `setScrollFactor(x)` --
+`ScrollFactor` takes the two axes separately. Only the horizontal factor
+still parallaxes, for the left-right depth cue; the vertical one is locked to
+1, the same as the floor, so a tree's foot stays exactly on `groundLine` on
+screen no matter how high the camera goes. It also quietly fixes the empty
+sky: a tree pinned to the ground scrolls off the bottom of the frame exactly
+when the ground itself does, which is correct -- a real distant tree behind
+you would disappear the same way once you have climbed above it.
 
 ## Adding scenery
 
