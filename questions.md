@@ -580,3 +580,14 @@ Existing liana usage in canopy.ts and swamp.ts was renamed T -> l wholesale
 (129 and 29 tiles) rather than left for a future edit, since every T in
 either file was already a liana and nothing there needed to stay T. Neither
 level has an actual tree in it yet; that is free to add now.
+
+## Jungle and swamp's trunk colours were still tuned for a liana
+
+Found while checking "same style as forest": T in jungle rendered with the
+right bark *shape* but the old liana-green colours, since columnStyle
+changed to 'trunk' but the palette's trunk/trunkDark/trunkLight fields never
+did -- they were the liana's stem colour all along. Changed both themes to a
+proper wood brown (their own branch tone, so a trunk matches the branches it
+carries), which also recolours the liana's stem from green to woody brown.
+Kept that side effect rather than giving the liana its own colour fields:
+the leaf blobs along it still make it read as a liana at a glance.

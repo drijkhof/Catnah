@@ -29,9 +29,12 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     branchDark: 0x574023,
     leaf: 0x4f9a3a,
     leafLight: 0x74c455,
-    trunk: 0x4f8a35,
-    trunkDark: 0x356322,
-    trunkLight: 0x77b356,
+    // Bark, not vine: this is what a `T` looks like now that a jungle level
+    // can have real trees standing next to lianas. Sharing the branch's wood
+    // tone is what makes a trunk look like it grows the branches it carries.
+    trunk: 0x7a5a33,
+    trunkDark: 0x574023,
+    trunkLight: 0x9c7a45,
     water: 0x3f86b8,
     waterDeep: 0x2f6a95,
     waterFoam: 0xbfe3f5,
@@ -105,9 +108,10 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     branchDark: 0x413823,
     leaf: 0x6f8f3f,
     leafLight: 0x93b357,
-    trunk: 0x5d7233,
-    trunkDark: 0x3e4d22,
-    trunkLight: 0x7f9a4a,
+    // Bark, not vine -- see the jungle palette above for why.
+    trunk: 0x5f5233,
+    trunkDark: 0x413823,
+    trunkLight: 0x7f6d47,
     water: 0x4a6b3c,
     waterDeep: 0x2f472a,
     waterFoam: 0x8fae6a,

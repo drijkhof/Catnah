@@ -115,3 +115,17 @@ and `l` lianas standing side by side and each needs to look like what it is
 regardless of what the other one is doing in that same theme. Its colours
 still come from the palette, so a jungle liana and a swamp liana are not
 identical, only the same shape.
+
+## A theme's `trunk`/`trunkDark`/`trunkLight` are always bark now
+
+They used to double as the liana's stem colour in jungle and swamp, back when
+`T` was the liana there. Now that `T` is always a real tree and `l` draws its
+own liana regardless of palette, those three fields mean one thing in every
+theme: bark. Jungle and swamp share their `branch`/`branchDark` wood tone for
+this, the same way a trunk growing the branches it carries should.
+
+The liana's stem still reads from these same fields (`drawLiana` in
+`tiles.ts`), so it comes out a woody brown rather than the bright green it
+used to be. Kept rather than given the liana its own colour fields: the leaf
+blobs along it are still green and still what tells a liana apart from a bare
+trunk at a glance, and a vine with a woody stem is a real thing.
