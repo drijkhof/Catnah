@@ -29,6 +29,7 @@ its platforms must attach to a column. Everything else is derived.
 | `o` | little heart — the little fish the cat collects |
 | `N` | nest — a ledge set into the tile, so the cat sits *in* it |
 | `+` | spare heart, on its own — no nest, no ledge. Write one directly above a row of `N` for a heart sitting in a nest |
+| `W` | water with a spare heart floating in it — use this instead of `+` inside a pool, or it punches a hole in the water |
 | `A` | parked car — two rows: a long lower one, a short upper one over its middle |
 | `h` | hedgehog, `r` rat — walkers, only ever on plain `#` floor |
 | `f` | piranha — water *with* a fish in it |
@@ -323,3 +324,13 @@ broken. Each of these cost a debugging session before it existed:
 - **Thorns stand on something.** A patch hanging in mid-air over a crossing is
   an invisible wall you die on, and nudging a row sideways by one is all it
   takes to write one.
+
+## A heart directly in water is `W`, not `+` on top of `w`
+
+A grid cell holds one character. Writing `+` where a pool needed to keep
+being water -- as happened once -- punches a one-tile hole in it: the water
+zone simply skips that tile, and the parser has no way to also make it a
+`+`. `f` (a piranha) and `C` (a crocodile) solved this the same way already:
+`W` is water with a heart floating in it, one character carrying both. It
+joins `waterZones` exactly like `w`/`f`/`C` do, and every place that checks
+"is this tile water" (`'wfC'`, now `'wfCW'`) had to learn about it too.

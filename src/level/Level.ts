@@ -34,6 +34,10 @@ import type { GroundEnemyKind } from '../config';
  *        punches a hole in the pool it is meant to be swimming in
  *   `C`  crocodile — likewise water, with a crocodile lying at the surface of
  *        it. A stepping stone that sinks once it has been stepped on
+ *   `W`  water *with* a spare heart floating in it, for the same reason `f`
+ *        and `C` are water rather than a hole punched in some -- a plain `+`
+ *        over a `w` would need two characters in one tile, which the grid
+ *        cannot do
  *   `+`  spare heart, on its own — nothing else, no nest, no ledge. Sits low
  *        in its own tile, so one placed directly above a row of `N` reads as
  *        a heart sitting in the nest rather than floating above it. Never
@@ -383,12 +387,13 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
         case 'w':
         case 'f':
         case 'C':
+        case 'W':
           waterZones.push({
             x,
             y,
             width: TILE,
             height: TILE,
-            isSurface: !'wfC'.includes(at(column, row - 1)),
+            isSurface: !'wfCW'.includes(at(column, row - 1)),
           });
 
           if (tiles[column] === 'f') {
@@ -397,6 +402,12 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
 
           if (tiles[column] === 'C') {
             crocodileSpots.push({ x: x + TILE / 2, y });
+          }
+
+          // A heart floating in the water it is written into, centred the
+          // same way any `+` surrounded by water is -- see that case.
+          if (tiles[column] === 'W') {
+            extraLives.push({ x: x + TILE / 2, y: y + TILE / 2 });
           }
           break;
 
@@ -454,9 +465,9 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           // surrounded by water is not sitting in anything -- it is floating
           // in the water, so it gets the same centred position a charm does.
           const inWater =
-            'wfC'.includes(at(column - 1, row)) ||
-            'wfC'.includes(at(column + 1, row)) ||
-            'wfC'.includes(at(column, row - 1));
+            'wfCW'.includes(at(column - 1, row)) ||
+            'wfCW'.includes(at(column + 1, row)) ||
+            'wfCW'.includes(at(column, row - 1));
 
           extraLives.push({
             x: x + TILE / 2,

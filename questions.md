@@ -653,3 +653,12 @@ in the game, including the isolated cave one, drew the full nest bowl
 automatically regardless of neighbouring characters. Cave's now has an
 explicit `NNN` added beneath it to keep that look, since it is one of the
 three the game has always described as sitting in a nest.
+
+## A hole in the water: + needs to be W when it is inside a pool
+
+Found right after the water-heart offset work: a `+` written where a pool
+needed to stay water punches a one-tile hole in it, since the water zone
+simply skips whatever tile isn't `w`/`f`/`C`. Same problem `f` and `C`
+already solved by being water themselves rather than something placed on
+top of it. `W` does the same for a heart: water and a heart in one
+character, joining `waterZones` exactly like the other two.
