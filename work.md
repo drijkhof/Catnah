@@ -278,21 +278,30 @@ spare one worth the detour.
 
 ### Spare hearts
 
-There are exactly **three spare hearts in the whole game**, and they are always
-in the same three places: the crow's nest at the top of the forest's great tree,
-the rooftop nest in the city, and the back of the cave's longest dead end. The
-swamp, the canopy and the volcano have none. Nothing about them is random, and none of them is needed to finish a
-level.
+A spare heart and a nest are two separate things now, placed separately: a
+heart on its own is nothing but a heart, and a heart written directly above a
+nest is what makes it read as sitting in one. Nothing about where either goes
+is random, and none of them is needed to finish a level.
 
-Each is **guarded**, which is the point of them: a spare heart is something you
-go and take off a bird, or walk a tunnel of spiders for, not something you pass
-on the way. **Dying gives it back.** Taking it is not spent for good — only
-holding onto it is — so losing the fight it is guarded by and coming back
-finds it waiting again rather than gone for the rest of the level.
+The forest, the city and the cave each keep one in a proper nest, at the point
+that guards it: the crow's nest at the top of the forest's great tree, the
+rooftop nest in the city, and the back of the cave's longest dead end. The
+swamp and the canopy have their own now too, guarded the same way. A heart
+placed with nothing around it -- in open water, say -- is simply that: a heart,
+floating where it is, no nest implied.
+
+Each nested one is **guarded**, which is the point of it: a spare heart is
+something you go and take off a bird, or walk a tunnel of spiders for, not
+something you pass on the way. **Dying gives it back.** Taking it is not spent
+for good — only holding onto it is — so losing the fight it is guarded by and
+coming back finds it waiting again rather than gone for the rest of the level.
 
 The cat sits **in** a nest, not on top of one: the floor of a nest is partway
 down it, and the near rim is drawn over the cat's legs, so only its head and
-shoulders show above the straw.
+shoulders show above the straw. A heart sitting in one floats just above that
+rim; one with nothing below it sits lower in its own tile instead, and one
+surrounded by water sits centred in it, the way any other floating thing in
+the water does.
 
 A hundred little hearts is worth the same as a spare heart, and both follow
 one rule. "Full" is not a fixed number — it is the **most you have ever held

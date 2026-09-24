@@ -625,3 +625,31 @@ top of the tree and hand it a ledge partway up its own length. Found in
 canopy.ts once it had enough trees for the case to actually occur -- 12 of
 them, all now correctly mid-trunk. `=` now counts the same as `T` for this
 check: a branch growing out of a trunk is the trunk continuing, not ending it.
+
+## N and + split into two characters
+
+Asked for explicitly: `+` used to be both the heart and its own nest ledge in
+one tile; now `N` is only ever a ledge and `+` is only ever a heart. "A heart
+sitting in a nest" is written as the two stacked -- `+` directly above a row
+of `N` -- rather than being one combined tile.
+
+Went with the vertical stack the user's own example showed, not the
+horizontal `N+N` the six existing spare hearts already used. Converted all
+four that relied on the old auto-nest and would otherwise have shown a gap
+where the heart used to also provide a ledge (forest, city, and two in
+canopy): the heart moved up one row, the row it left became a full `NNN`.
+Left three untouched because they were never flanked by `N` in the first
+place and were always meant to be bare floating hearts by the new rule
+anyway (one each in cave... actually cave's nest was implicit -- see below --
+and two isolated ones in swamp).
+
+Also added a water case, asked for separately: a `+` surrounded by `w`/`f`/`C`
+centres in its tile instead of sitting low, since there is no rim to sit
+above when it is floating in water rather than resting near a nest.
+
+One nuance found while doing this: the *old* `case '+'` pushed a nest **and**
+its own ledge even with no `N` anywhere nearby -- every existing spare heart
+in the game, including the isolated cave one, drew the full nest bowl
+automatically regardless of neighbouring characters. Cave's now has an
+explicit `NNN` added beneath it to keep that look, since it is one of the
+three the game has always described as sitting in a nest.

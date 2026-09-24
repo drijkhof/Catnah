@@ -1383,14 +1383,14 @@ export class GameScene extends Phaser.Scene {
    */
   private buildExtraLives(): void {
     for (const at of this.level.extraLives) {
-      // In front of the nest's near rim, so it is not buried in the straw.
-      const heart = this.physics.add.staticImage(at.x, at.y - 3, 'life').setDepth(7);
+      // Already sits low in its own tile -- see the `+` case in Level.ts --
+      // so a nest written directly under it needs no correction here.
+      const heart = this.physics.add.staticImage(at.x, at.y, 'life').setDepth(7);
 
       this.extraLifeHearts.push(heart);
 
       this.tweens.add({
         targets: heart,
-        y: at.y - 3,
         scale: { from: 1, to: 1.15 },
         duration: 800,
         yoyo: true,

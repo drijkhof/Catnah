@@ -28,7 +28,7 @@ its platforms must attach to a column. Everything else is derived.
 | `L` | lava — not solid either, and fatal to touch |
 | `o` | little heart — the little fish the cat collects |
 | `N` | nest — a ledge set into the tile, so the cat sits *in* it |
-| `+` | nest with a spare heart in it |
+| `+` | spare heart, on its own — no nest, no ledge. Write one directly above a row of `N` for a heart sitting in a nest |
 | `A` | parked car — two rows: a long lower one, a short upper one over its middle |
 | `h` | hedgehog, `r` rat — walkers, only ever on plain `#` floor |
 | `f` | piranha — water *with* a fish in it |
@@ -112,6 +112,36 @@ Rendering follows the same split. A liana is baked once per theme from its own
 shape (`drawLiana` in `tiles.ts`), never from `palette.columnStyle` — a liana
 looks like a liana in every theme, the way a heart or a checkpoint star does,
 regardless of what a `T` in that same theme happens to be standing in for.
+
+## A nest and a spare heart are two characters, not one
+
+`N` is a ledge on its own; `+` is a heart on its own. Neither creates the
+other -- a `+` with nothing else around it is a bare, floating heart, and an
+`N` with nothing above it is an empty nest. "A heart sitting in a nest" is
+purely a question of what was written next to what:
+
+```
+ + 
+NNN
+```
+
+A `+` directly above a row of `N` reads as sitting in it, because of where
+the heart is placed within its own tile -- see below -- not because of
+anything the parser special-cases about the two characters together.
+
+**A spare heart's exact position depends on what is around it**, computed
+once in the `case '+'` block rather than left to `GameScene`:
+
+- Nothing special nearby: low in its own tile, close to the bottom edge.
+  Placed there so that a nest row directly beneath it catches the heart just
+  above the rim, the way the diagram above needs it to.
+- Surrounded by water (`w`, `f` or `C` on either side or above): centred in
+  its tile instead, the same as a charm -- a heart floating in water is not
+  sitting in anything, so there is no rim to sit just above.
+
+Getting this wrong is silent and easy to miss: a heart positioned for a nest
+that has none floats oddly high with nothing under it, and one centred
+where a nest was intended floats visibly above the rim rather than in it.
 
 ## Every branch grows from a trunk — in the forest
 

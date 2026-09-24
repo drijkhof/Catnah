@@ -22,7 +22,8 @@ import type { GroundEnemyKind } from '../config';
  *        tree. Same letter as `V`, upper and lower, the way `S`/`s` already
  *        pairs the giant spider with the ordinary one
  *   `w`  water — swimmable, not solid, harmless on its own
- *   `N`  nest, decoration
+ *   `N`  nest — a ledge to sit in, on its own. No heart of its own any more;
+ *        put a `+` directly above one for a spare heart sitting in it
  *   `o`  charm
  *   `P`  cat spawn (exactly one)
  *   `E`  the way out, to the next level
@@ -33,8 +34,10 @@ import type { GroundEnemyKind } from '../config';
  *        punches a hole in the pool it is meant to be swimming in
  *   `C`  crocodile — likewise water, with a crocodile lying at the surface of
  *        it. A stepping stone that sinks once it has been stepped on
- *   `+`  extra life — a nest tile with a spare heart in it. Never required,
- *        and always guarded.
+ *   `+`  spare heart, on its own — nothing else, no nest, no ledge. Sits low
+ *        in its own tile, so one placed directly above a row of `N` reads as
+ *        a heart sitting in the nest rather than floating above it. Never
+ *        required, and always guarded.
  *   `c`  crow, which circles the nest it is placed at
  *   `^`  thorns -- reeds, stalagmites, a spiked railing. Deadly to touch, and
  *        the only hazard that is neither alive nor a liquid. Needs something
@@ -199,7 +202,11 @@ export interface ParsedLevel {
   thorns: Point[];
   /** Checkpoints, in the order they appear in the grid. */
   checkpoints: Point[];
-  /** Spare hearts sitting in nests. Always optional. */
+  /**
+   * Spare hearts. Always optional, and no longer tied to a nest -- whether
+   * one reads as sitting in a nest is purely a question of whether an `N` was
+   * written directly under it.
+   */
   extraLives: Point[];
   /** Where the cat starts, and returns to after dying. */
   spawn: Point;
@@ -438,11 +445,25 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           charms.push({ x: x + TILE / 2, y: y + TILE / 2 });
           break;
 
-        case '+':
-          extraLives.push({ x: x + TILE / 2, y: y + TILE / 2 });
-          nests.push({ x, y });
-          solids.push(platform(x, y + NEST_SIT_DEPTH, 'nest-ledge'));
+        // A spare heart, and nothing else -- no nest, no ledge. Sits low in
+        // its own tile rather than centred, so one written directly above a
+        // row of `N` lands just over the nest's rim and reads as sitting in
+        // it, instead of floating in the middle of a tile of its own.
+        case '+': {
+          // Sitting low is for nestling against an `N` below it. A heart
+          // surrounded by water is not sitting in anything -- it is floating
+          // in the water, so it gets the same centred position a charm does.
+          const inWater =
+            'wfC'.includes(at(column - 1, row)) ||
+            'wfC'.includes(at(column + 1, row)) ||
+            'wfC'.includes(at(column, row - 1));
+
+          extraLives.push({
+            x: x + TILE / 2,
+            y: y + (inWater ? TILE / 2 : TILE - 4),
+          });
           break;
+        }
 
         case 'P':
           spawn = { x: x + TILE / 2, y: y + TILE };
