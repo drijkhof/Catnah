@@ -14,12 +14,13 @@ import type { GroundEnemyKind } from '../config';
  *        (`climbableColumns: false`) a real tree, which cannot be climbed at
  *        all. The way up a tree is its own branches, exactly like the
  *        forest's great tree
- *   `l`  liana — always climbable, everywhere, and drawn the same everywhere.
+ *   `V`  liana — always climbable, everywhere, and drawn the same everywhere.
  *        The one column that coexists with `T` in the same level: a liana
  *        hangs from nothing and a tree is never what it hangs from
  *   `v`  vine — the same hanging stem as a liana, with no leaves and no grip.
  *        Purely decoration: a dead or bare one, never climbable, never a
- *        tree. Nothing else changes it, no matter what `T` means here
+ *        tree. Same letter as `V`, upper and lower, the way `S`/`s` already
+ *        pairs the giant spider with the ordinary one
  *   `w`  water — swimmable, not solid, harmless on its own
  *   `N`  nest, decoration
  *   `o`  charm
@@ -163,7 +164,7 @@ export interface ParsedLevel {
   solids: Solid[];
   climbZones: ClimbZone[];
   /**
-   * Lianas: `l` tiles. A second, separate list from `climbZones` because they
+   * Lianas: `V` tiles. A second, separate list from `climbZones` because they
    * do not share its on/off switch -- a liana is always climbable, in a level
    * where `T` is a tree that is never climbable at all.
    */
@@ -333,24 +334,21 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
         }
 
         // A liana, always climbable -- see `T` for why that is not the same
-        // thing as being a tree. Its own ledge is named apart from a tree's
-        // ('liana-top-ledge', not 'trunk-top-ledge') so `buildFoliage` never
-        // mistakes the top of one for a crown to grow a canopy on.
-        case 'l': {
-          const isTop = at(column, row - 1) !== 'l';
+        // thing as being a tree. It never gets a ledge at its top the way a
+        // tree's crown does: it hangs from nothing, so there is nothing up
+        // there to stand on. `isTop` still decides which picture it is drawn
+        // with.
+        case 'V': {
+          const isTop = at(column, row - 1) !== 'V';
           const againstWall =
             'R#BM'.includes(at(column - 1, row)) || 'R#BM'.includes(at(column + 1, row));
 
           lianaZones.push({ x, y, width: TILE, height: TILE, isTop, againstWall });
-
-          if (isTop) {
-            solids.push(platform(x, y, 'liana-top-ledge'));
-          }
           break;
         }
 
         // A dead vine: the same stem as a liana, drawn with no leaves, and
-        // never climbable -- so unlike `l` it gets no ledge at its top
+        // never climbable -- so unlike `V` it gets no ledge at its top
         // either. There is nothing here to stand on or hold, only to look at.
         case 'v': {
           const isTop = at(column, row - 1) !== 'v';

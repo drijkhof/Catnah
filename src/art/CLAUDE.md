@@ -111,7 +111,7 @@ behind. `GameScene.buildFoliage` places both.
 Every other column shape (trunk, rope, pipe, chain) is one texture per theme,
 picked by that theme's `columnStyle`. The liana is not: it is baked
 unconditionally, always from its own shape, because a level can have `T` trees
-and `l` lianas standing side by side and each needs to look like what it is
+and `V` lianas standing side by side and each needs to look like what it is
 regardless of what the other one is doing in that same theme. Its colours
 still come from the palette, so a jungle liana and a swamp liana are not
 identical, only the same shape.
@@ -119,7 +119,7 @@ identical, only the same shape.
 ## A theme's `trunk`/`trunkDark`/`trunkLight` are always bark now
 
 They used to double as the liana's stem colour in jungle and swamp, back when
-`T` was the liana there. Now that `T` is always a real tree and `l` draws its
+`T` was the liana there. Now that `T` is always a real tree and `V` draws its
 own liana regardless of palette, those three fields mean one thing in every
 theme: bark. Jungle and swamp share their `branch`/`branchDark` wood tone for
 this, the same way a trunk growing the branches it carries should.
@@ -132,7 +132,7 @@ trunk at a glance, and a vine with a woody stem is a real thing.
 
 ## The dead vine shares the liana's stem, not its leaves
 
-`drawVineStem` is the part both `l` and `v` are made of; `drawLiana` adds
+`drawVineStem` is the part both `V` and `v` are made of; `drawLiana` adds
 leaves on top of it, and the dead vine's `dead-vine` texture does not. One
 function extracted once, rather than two textures drawn independently, so the
 two can never quietly drift apart in what the bare stem looks like.

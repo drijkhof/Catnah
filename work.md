@@ -159,7 +159,10 @@ from the last of them.
 level: an actual tree, unclimbable, with a liana hanging from nothing right
 next to it. A liana looks the same wherever it hangs — jungle, swamp, or
 anywhere else — the same way a little heart does, rather than taking on
-whatever a rope, drainpipe or chain would have looked like in that place.
+whatever a rope, drainpipe or chain would have looked like in that place. And
+unlike a tree, a liana is **never something to stand on**, not even at the
+very top of it — it hangs from nothing, so there is nothing up there to land
+on either.
 
 There is a third one: a **dead vine**, the same hanging stem with every leaf
 stripped off it. It is scenery only, never something to hold, there purely so

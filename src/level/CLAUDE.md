@@ -22,7 +22,7 @@ its platforms must attach to a column. Everything else is derived.
 | `R` | boulder / brick — solid rock, and what wall jumps are taken from |
 | `M` | masonry — a house rather than a flat: plaster under a pantile roof |
 | `T` | climbable column — a rope, drainpipe or chain, or (`climbableColumns: false`) a real tree, which is never climbable at all |
-| `l` | liana — always climbable everywhere, regardless of `climbableColumns`. Coexists with `T` in the same level: a tree, and the liana hanging from nothing beside it |
+| `V` | liana — always climbable everywhere, regardless of `climbableColumns`. Never a platform, even at its top: it hangs from nothing, so there is nothing up there to stand on. Coexists with `T` in the same level: a tree, and the liana beside it |
 | `v` | dead vine — the liana's stem with no leaves, never climbable, purely decoration |
 | `w` | water — swimmable, not solid, harmless on its own |
 | `L` | lava — not solid either, and fatal to touch |
@@ -88,7 +88,7 @@ stalactites and crystals, or a skyline of lit windows.
 ## Trees and lianas are two characters because they are two rules
 
 `T` follows the level: climbable everywhere except where `climbableColumns:
-false` says a tree cannot be climbed at all. `l` follows nothing — a liana is
+false` says a tree cannot be climbed at all. `V` follows nothing — a liana is
 climbable in every level it appears in, full stop.
 
 One flag cannot carry both rules at once, which is the whole reason there are
@@ -100,6 +100,13 @@ this reason, and `GameScene.create` concatenates
 `(columnsAreClimbable ? climbZones : []) ++ lianaZones` when it hands the
 Player its climbable list, rather than folding the two together earlier where
 that distinction would be lost.
+
+**A liana is never a platform, not even at its top.** A tree's crown gets a
+one-way ledge (`trunk-top-ledge`) because a branch has to hold you up somehow;
+a liana's top tile gets none, because it hangs from nothing and there is
+nothing up there to stand on. Falling onto the top tile still grabs it the
+same as any other tile of it does -- climbing and standing are different
+questions, and only the second one is "no" here.
 
 Rendering follows the same split. A liana is baked once per theme from its own
 shape (`drawLiana` in `tiles.ts`), never from `palette.columnStyle` — a liana

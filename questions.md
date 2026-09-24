@@ -603,3 +603,16 @@ Given no ledge at its top and no separate anchor picture the way a real
 liana has, since nothing about a dead vine is a place to stand or a place a
 liana's leafy anchor point would make sense on -- it is one plain stem
 texture, used for every tile of it including the top.
+
+## l renamed to V, and its top is never a platform
+
+Two follow-up corrections on the liana. First: the lowercase `l` became
+capital `V`, freeing `v` to pair with it the way `S`/`s` already pairs the
+giant spider with the ordinary one -- upper case for the climbable one,
+lower for its decoration-only twin.
+
+Second: the top tile of a liana used to get a one-way ledge, the same
+treatment a tree's crown gets. Removed -- a liana hangs from nothing, so
+there is nothing at the top of it to stand on either. Falling onto that tile
+still grabs it exactly as any other tile of it does; only standing on it,
+never climbing it, was ever the question.
