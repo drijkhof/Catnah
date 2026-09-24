@@ -24,7 +24,8 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | --- | --- | --- |
 | sluipen | `sneak` | moving low, flat and slow |
 | tak | `branch` | the platforms |
-| boomstam | `bough` / `trunk` | fallen log; climbable standing trunk |
+| boomstam | `bough` / `trunk` | fallen log; standing trunk, never climbable |
+| liaan | `liana` | always climbable, everywhere, unlike a trunk |
 | bes | `little heart` | the collectible |
 | struik | `bush` | scenery |
 | egel | `hedgehog` | enemy — paces a platform, deadly to touch |
@@ -153,6 +154,12 @@ their crowns are still something to stand on — the way *up* a tree is its
 branches, which is why every branch in the forest grows out of one. The great
 tree is a zigzag of branches four tiles apart, and the nest at the top is a jump
 from the last of them.
+
+**A liana is not a tree**, and the two can stand side by side in the same
+level: an actual tree, unclimbable, with a liana hanging from nothing right
+next to it. A liana looks the same wherever it hangs — jungle, swamp, or
+anywhere else — the same way a little heart does, rather than taking on
+whatever a rope, drainpipe or chain would have looked like in that place.
 
 Everything else here is **not solid** — walk straight through a liana at ground
 level and nothing happens. Climbing also passes through the branches growing out

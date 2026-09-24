@@ -21,7 +21,8 @@ its platforms must attach to a column. Everything else is derived.
 | `B` | fallen bough, a full-height solid for low overhangs |
 | `R` | boulder / brick — solid rock, and what wall jumps are taken from |
 | `M` | masonry — a house rather than a flat: plaster under a pantile roof |
-| `T` | tree trunk — climbable, and deliberately *not* solid |
+| `T` | climbable column — a rope, drainpipe or chain, or (`climbableColumns: false`) a real tree, which is never climbable at all |
+| `l` | liana — always climbable everywhere, regardless of `climbableColumns`. Coexists with `T` in the same level: a tree, and the liana hanging from nothing beside it |
 | `w` | water — swimmable, not solid, harmless on its own |
 | `L` | lava — not solid either, and fatal to touch |
 | `o` | little heart — the little fish the cat collects |
@@ -82,6 +83,27 @@ same climbable column. Tilesets are baked per theme under namespaced keys
 
 Character comes from the backdrop, which is where each place actually differs —
 stalactites and crystals, or a skyline of lit windows.
+
+## Trees and lianas are two characters because they are two rules
+
+`T` follows the level: climbable everywhere except where `climbableColumns:
+false` says a tree cannot be climbed at all. `l` follows nothing — a liana is
+climbable in every level it appears in, full stop.
+
+One flag cannot carry both rules at once, which is the whole reason there are
+two characters rather than one with a per-tile switch. A jungle level can
+therefore have a real tree standing next to a liana hanging from nothing
+beside it, and each behaves as what it is regardless of what the other one
+does. `ParsedLevel.lianaZones` is kept apart from `climbZones` for exactly
+this reason, and `GameScene.create` concatenates
+`(columnsAreClimbable ? climbZones : []) ++ lianaZones` when it hands the
+Player its climbable list, rather than folding the two together earlier where
+that distinction would be lost.
+
+Rendering follows the same split. A liana is baked once per theme from its own
+shape (`drawLiana` in `tiles.ts`), never from `palette.columnStyle` — a liana
+looks like a liana in every theme, the way a heart or a checkpoint star does,
+regardless of what a `T` in that same theme happens to be standing in for.
 
 ## Every branch grows from a trunk — in the forest
 

@@ -12,9 +12,11 @@ export type ThemeName = 'jungle' | 'forest' | 'swamp' | 'cave' | 'city' | 'volca
  */
 export const THEMES: Record<ThemeName, TilePalette> = {
   // Under a canopy: everything hangs. Greener and fresher than the swamp, which
-  // is the other place with lianas.
+  // is the other place with lianas -- though `l` draws the same liana
+  // everywhere now, so a place's own `columnStyle` is only ever what its `T`
+  // trees look like.
   jungle: {
-    columnStyle: 'liana',
+    columnStyle: 'trunk',
     platformStyle: 'branch',
     grass: 0x63a84a,
     grassDark: 0x467f33,
@@ -90,7 +92,7 @@ export const THEMES: Record<ThemeName, TilePalette> = {
   // Standing water, mud and rot. The greens are sicklier than the forest's and
   // the water is the murkiest thing on screen rather than the clearest.
   swamp: {
-    columnStyle: 'liana',
+    columnStyle: 'trunk',
     platformStyle: 'branch',
     grass: 0x6f7a3c,
     grassDark: 0x4e5528,

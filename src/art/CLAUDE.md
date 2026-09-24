@@ -105,3 +105,13 @@ means six themes cannot drift apart by hand.
 the design: a cat behind one is hidden to the shoulders with its ears and tail
 still showing. Taller and you lose the cat; shorter and there is nothing to hide
 behind. `GameScene.buildFoliage` places both.
+
+## The liana is baked once per theme, not switched by `columnStyle`
+
+Every other column shape (trunk, rope, pipe, chain) is one texture per theme,
+picked by that theme's `columnStyle`. The liana is not: it is baked
+unconditionally, always from its own shape, because a level can have `T` trees
+and `l` lianas standing side by side and each needs to look like what it is
+regardless of what the other one is doing in that same theme. Its colours
+still come from the palette, so a jungle liana and a swamp liana are not
+identical, only the same shape.

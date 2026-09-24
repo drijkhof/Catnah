@@ -561,3 +561,22 @@ Corrected twice: first from "every change" down to "not full", then from
 at the ceiling. 2/3, 4/5 and 3/6 say nothing; only landing on precisely
 lives === MAX_LIVES - 1 with maxLives === MAX_LIVES does. A one-off notice
 for a specific moment, not a running readout.
+
+## Splitting the liana off T into its own character (l)
+
+Asked for so a jungle level could have real, unclimbable trees (`T`) and
+climbable lianas (`l`) in the same level -- one character with one flag
+(`climbableColumns`) could not do both, so the liana got its own always-
+climbable list (`lianaZones`) instead of sharing `climbZones`.
+
+Went further than the rename alone: gave the liana its own art, baked
+unconditionally rather than switched by the theme's `columnStyle`, so it
+looks the same everywhere (like a little heart does) instead of taking on
+whatever a rope, drainpipe or chain would have looked like in that theme.
+Jungle's and swamp's `columnStyle` moved from `'liana'` to `'trunk'` as a
+result -- what `T` renders as now that it is never a liana in either place.
+
+Existing liana usage in canopy.ts and swamp.ts was renamed T -> l wholesale
+(129 and 29 tiles) rather than left for a future edit, since every T in
+either file was already a liana and nothing there needed to stay T. Neither
+level has an actual tree in it yet; that is free to add now.

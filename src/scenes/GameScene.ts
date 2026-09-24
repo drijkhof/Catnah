@@ -167,6 +167,7 @@ export class GameScene extends Phaser.Scene {
 
     const { blocks, branches } = this.buildSolids();
     const climbZones = this.buildTrunks();
+    const lianaZones = this.buildLianas();
     this.buildFoliage();
     const waterZones = this.buildWater();
     this.deadlyRects = [...this.buildLava(), ...this.buildThorns()];
@@ -178,10 +179,11 @@ export class GameScene extends Phaser.Scene {
       this,
       this.level.spawn.x,
       this.level.spawn.y,
-      // A level whose columns are only scenery still draws them and still lets
-      // the cat walk through them; it just hands the player nothing to hold on
-      // to. That is the whole of "you cannot climb a tree".
-      this.level.columnsAreClimbable ? climbZones : [],
+      // A level whose T columns are only scenery still draws them and still
+      // lets the cat walk through them; it just hands the player nothing to
+      // hold on to. That is the whole of "you cannot climb a tree". Lianas
+      // are never scenery-only, so they join the list regardless.
+      [...(this.level.columnsAreClimbable ? climbZones : []), ...lianaZones],
       waterZones,
     );
 
@@ -852,6 +854,31 @@ export class GameScene extends Phaser.Scene {
         )
         .setOrigin(0, 0)
         // Behind the cat, so a climbing cat is seen against its trunk.
+        .setDepth(-3);
+
+      return new Phaser.Geom.Rectangle(zone.x, zone.y, zone.width, zone.height);
+    });
+  }
+
+  /**
+   * Draws the lianas and returns the rectangles the cat can climb.
+   *
+   * The mirror of `buildTrunks`, kept separate rather than folded into it,
+   * because the two draw from different textures (`liana`, never `trunk`) and
+   * -- the whole reason `l` exists -- are never gated by
+   * `columnsAreClimbable`. A liana is climbable in every level it appears in.
+   */
+  private buildLianas(): Phaser.Geom.Rectangle[] {
+    return this.level.lianaZones.map((zone) => {
+      this.add
+        .image(
+          zone.x,
+          zone.y,
+          this.tile(
+            zone.isTop ? (zone.againstWall ? 'liana-head' : 'liana-top') : 'liana',
+          ),
+        )
+        .setOrigin(0, 0)
         .setDepth(-3);
 
       return new Phaser.Geom.Rectangle(zone.x, zone.y, zone.width, zone.height);

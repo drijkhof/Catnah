@@ -10,7 +10,13 @@ import type { GroundEnemyKind } from '../config';
  *   `=`  one-way platform — a branch, a stone shelf, a girder
  *   `B`  full-height solid used for low overhangs
  *   `R`  boulder / brick — solid rock, and what wall jumps are taken from
- *   `T`  climbable column — a trunk, a vine, a drainpipe
+ *   `T`  climbable column, in most places — a rope, a drainpipe, a chain, or
+ *        (`climbableColumns: false`) a real tree, which cannot be climbed at
+ *        all. The way up a tree is its own branches, exactly like the
+ *        forest's great tree
+ *   `l`  liana — always climbable, everywhere, and drawn the same everywhere.
+ *        The one column that coexists with `T` in the same level: a liana
+ *        hangs from nothing and a tree is never what it hangs from
  *   `w`  water — swimmable, not solid, harmless on its own
  *   `N`  nest, decoration
  *   `o`  charm
@@ -153,6 +159,12 @@ export interface ParsedLevel {
   theme: ThemeName;
   solids: Solid[];
   climbZones: ClimbZone[];
+  /**
+   * Lianas: `l` tiles. A second, separate list from `climbZones` because they
+   * do not share its on/off switch -- a liana is always climbable, in a level
+   * where `T` is a tree that is never climbable at all.
+   */
+  lianaZones: ClimbZone[];
   waterZones: WaterZone[];
   /** Whether the columns above can be climbed, or are only scenery to stand on. */
   columnsAreClimbable: boolean;
@@ -202,6 +214,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
 
   const solids: Solid[] = [];
   const climbZones: ClimbZone[] = [];
+  const lianaZones: ClimbZone[] = [];
   const waterZones: WaterZone[] = [];
   const lavaZones: WaterZone[] = [];
   const walkers: Walker[] = [];
@@ -305,6 +318,23 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           // the inside of the trunk still passes through it.
           if (isTop) {
             solids.push(platform(x, y, 'trunk-top-ledge'));
+          }
+          break;
+        }
+
+        // A liana, always climbable -- see `T` for why that is not the same
+        // thing as being a tree. Its own ledge is named apart from a tree's
+        // ('liana-top-ledge', not 'trunk-top-ledge') so `buildFoliage` never
+        // mistakes the top of one for a crown to grow a canopy on.
+        case 'l': {
+          const isTop = at(column, row - 1) !== 'l';
+          const againstWall =
+            'R#BM'.includes(at(column - 1, row)) || 'R#BM'.includes(at(column + 1, row));
+
+          lianaZones.push({ x, y, width: TILE, height: TILE, isTop, againstWall });
+
+          if (isTop) {
+            solids.push(platform(x, y, 'liana-top-ledge'));
           }
           break;
         }
@@ -438,6 +468,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     theme: definition.theme,
     solids,
     climbZones,
+    lianaZones,
     columnsAreClimbable: definition.climbableColumns ?? true,
     waterZones,
     pools,

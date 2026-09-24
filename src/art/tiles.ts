@@ -34,8 +34,11 @@ function shade(colour: number, amount: number): number {
  * lets a cave and a city reuse the whole tile format -- a girder and a branch
  * are the same one-way platform underneath. Character comes from the backdrop.
  */
-/** What a climbable column is made of, in this place. */
-export type ColumnStyle = 'trunk' | 'liana' | 'rope' | 'pipe' | 'chain';
+/**
+ * What a `T` column is made of, in this place. Not a liana -- `l` draws the
+ * same liana everywhere, on its own, regardless of this.
+ */
+export type ColumnStyle = 'trunk' | 'rope' | 'pipe' | 'chain';
 
 /** What a one-way platform is made of. */
 export type PlatformStyle = 'branch' | 'shelf' | 'girder';
@@ -162,20 +165,6 @@ export function generateTileset(
    */
   const drawColumn = (g: Phaser.GameObjects.Graphics): void => {
     switch (palette.columnStyle) {
-      case 'liana': {
-        // A thin, wandering stem with leaves along it.
-        g.fillStyle(palette.trunk, 1);
-        g.fillRect(6, 0, 4, TILE);
-        g.fillStyle(palette.trunkDark, 1);
-        g.fillRect(7, 0, 1, TILE);
-        g.fillStyle(palette.leaf, 1);
-        g.fillEllipse(3, 4, 6, 4);
-        g.fillEllipse(13, 11, 6, 4);
-        g.fillStyle(palette.leafLight, 1);
-        g.fillEllipse(12, 10, 3, 2);
-        break;
-      }
-
       case 'rope': {
         // A caver's rope: two twisted strands and a knot every so often.
         g.fillStyle(palette.trunkDark, 1);
@@ -298,6 +287,42 @@ export function generateTileset(
     g.fillStyle(palette.leafLight, 1);
     g.fillCircle(8, 1, 3);
   });
+
+  /**
+   * The liana. Baked unconditionally, in every theme, rather than switched on
+   * by `columnStyle` the way the trunk above is -- a liana looks like a liana
+   * wherever it hangs, in a level that may also have real, unclimbable trees
+   * standing in the same `columnStyle`. Only the palette's own leaf and trunk
+   * colours vary the look from theme to theme.
+   */
+  const drawLiana = (g: Phaser.GameObjects.Graphics): void => {
+    // A thin, wandering stem with leaves along it.
+    g.fillStyle(palette.trunk, 1);
+    g.fillRect(6, 0, 4, TILE);
+    g.fillStyle(palette.trunkDark, 1);
+    g.fillRect(7, 0, 1, TILE);
+    g.fillStyle(palette.leaf, 1);
+    g.fillEllipse(3, 4, 6, 4);
+    g.fillEllipse(13, 11, 6, 4);
+    g.fillStyle(palette.leafLight, 1);
+    g.fillEllipse(12, 10, 3, 2);
+  };
+
+  bakeTexture(scene, key('liana'), TILE, TILE, drawLiana);
+
+  // Top and anchor point are the same picture: a liana has nothing like the
+  // city's lamp or the cave's bolted ring to be instead, only ever leaves.
+  const drawLianaAnchor = (g: Phaser.GameObjects.Graphics): void => {
+    drawLiana(g);
+    g.fillStyle(palette.leaf, 1);
+    g.fillCircle(3, 3, 4);
+    g.fillCircle(13, 4, 4);
+    g.fillStyle(palette.leafLight, 1);
+    g.fillCircle(8, 1, 3);
+  };
+
+  bakeTexture(scene, key('liana-top'), TILE, TILE, drawLianaAnchor);
+  bakeTexture(scene, key('liana-head'), TILE, TILE, drawLianaAnchor);
 
   // --- one-way platforms -------------------------------------------------
   const drawWood = (g: Phaser.GameObjects.Graphics): void => {
