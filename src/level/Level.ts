@@ -319,7 +319,11 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           break;
 
         case 'T': {
-          const isTop = at(column, row - 1) !== 'T';
+          // A branch directly overhead does not end the trunk -- it is a
+          // tile a branch happens to share, not the crown. Without this, a
+          // trunk with `=` stacked right above it got treated as the top of
+          // the tree and handed a ledge partway up its own length.
+          const isTop = !'T='.includes(at(column, row - 1));
           const againstWall =
             'R#BM'.includes(at(column - 1, row)) || 'R#BM'.includes(at(column + 1, row));
 

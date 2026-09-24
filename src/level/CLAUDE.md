@@ -125,6 +125,13 @@ it here means a level cannot quietly drift out of that shape.
 It is what makes climbing worth anything: if every branch belongs to a tree,
 then anything you can jump to you can also climb to.
 
+**A branch stacked directly above a `T` does not end the trunk.** `isTop` used
+to check only for another `T` above, so a branch sharing that column read as
+"nothing above me" and the tile got treated as the crown -- a ledge partway up
+a trunk that plainly kept going, found with 12 real cases once a level had
+enough trees for one to turn up. It now also accepts `=` there: a branch
+growing out of a trunk is still the trunk continuing, not the top of it.
+
 ## Branches are one-way
 
 A branch's faces are forced to `up` only, whatever its neighbours are, and the

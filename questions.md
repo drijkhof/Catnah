@@ -616,3 +616,12 @@ treatment a tree's crown gets. Removed -- a liana hangs from nothing, so
 there is nothing at the top of it to stand on either. Falling onto that tile
 still grabs it exactly as any other tile of it does; only standing on it,
 never climbing it, was ever the question.
+
+## A branch directly above a T was misread as the crown
+
+`isTop` only checked for another `T` above, so a branch sharing that exact
+column (rather than sitting beside it) made a mid-trunk tile look like the
+top of the tree and hand it a ledge partway up its own length. Found in
+canopy.ts once it had enough trees for the case to actually occur -- 12 of
+them, all now correctly mid-trunk. `=` now counts the same as `T` for this
+check: a branch growing out of a trunk is the trunk continuing, not ending it.
