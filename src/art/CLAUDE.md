@@ -129,3 +129,10 @@ The liana's stem still reads from these same fields (`drawLiana` in
 used to be. Kept rather than given the liana its own colour fields: the leaf
 blobs along it are still green and still what tells a liana apart from a bare
 trunk at a glance, and a vine with a woody stem is a real thing.
+
+## The dead vine shares the liana's stem, not its leaves
+
+`drawVineStem` is the part both `l` and `v` are made of; `drawLiana` adds
+leaves on top of it, and the dead vine's `dead-vine` texture does not. One
+function extracted once, rather than two textures drawn independently, so the
+two can never quietly drift apart in what the bare stem looks like.

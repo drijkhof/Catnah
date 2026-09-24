@@ -591,3 +591,15 @@ proper wood brown (their own branch tone, so a trunk matches the branches it
 carries), which also recolours the liana's stem from green to woody brown.
 Kept that side effect rather than giving the liana its own colour fields:
 the leaf blobs along it still make it read as a liana at a glance.
+
+## Dead vines (v)
+
+Asked for after T and l: something that looks like a liana but is not one --
+no leaves, never climbable, purely decoration. `v` for vine, distinct from
+`l` for liana, since the two words already mean slightly different things in
+English (a liana is specifically the climbing kind).
+
+Given no ledge at its top and no separate anchor picture the way a real
+liana has, since nothing about a dead vine is a place to stand or a place a
+liana's leafy anchor point would make sense on -- it is one plain stem
+texture, used for every tile of it including the top.

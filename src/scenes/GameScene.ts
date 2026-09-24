@@ -168,6 +168,7 @@ export class GameScene extends Phaser.Scene {
     const { blocks, branches } = this.buildSolids();
     const climbZones = this.buildTrunks();
     const lianaZones = this.buildLianas();
+    this.buildDeadVines();
     this.buildFoliage();
     const waterZones = this.buildWater();
     this.deadlyRects = [...this.buildLava(), ...this.buildThorns()];
@@ -883,6 +884,19 @@ export class GameScene extends Phaser.Scene {
 
       return new Phaser.Geom.Rectangle(zone.x, zone.y, zone.width, zone.height);
     });
+  }
+
+  /**
+   * Draws the dead vines. No rectangles come back -- nothing about a `v` is
+   * ever climbable, so there is nothing here for the Player to be handed.
+   */
+  private buildDeadVines(): void {
+    for (const zone of this.level.deadVineZones) {
+      this.add
+        .image(zone.x, zone.y, this.tile('dead-vine'))
+        .setOrigin(0, 0)
+        .setDepth(-3);
+    }
   }
 
   /**

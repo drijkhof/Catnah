@@ -17,6 +17,9 @@ import type { GroundEnemyKind } from '../config';
  *   `l`  liana — always climbable, everywhere, and drawn the same everywhere.
  *        The one column that coexists with `T` in the same level: a liana
  *        hangs from nothing and a tree is never what it hangs from
+ *   `v`  vine — the same hanging stem as a liana, with no leaves and no grip.
+ *        Purely decoration: a dead or bare one, never climbable, never a
+ *        tree. Nothing else changes it, no matter what `T` means here
  *   `w`  water — swimmable, not solid, harmless on its own
  *   `N`  nest, decoration
  *   `o`  charm
@@ -165,6 +168,12 @@ export interface ParsedLevel {
    * where `T` is a tree that is never climbable at all.
    */
   lianaZones: ClimbZone[];
+  /**
+   * Vines: `v` tiles. Not in `climbZones` or `lianaZones` -- nothing ever
+   * makes one of these climbable, and nothing needs to. Purely decoration,
+   * drawn like a liana with its leaves stripped off.
+   */
+  deadVineZones: ClimbZone[];
   waterZones: WaterZone[];
   /** Whether the columns above can be climbed, or are only scenery to stand on. */
   columnsAreClimbable: boolean;
@@ -215,6 +224,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const solids: Solid[] = [];
   const climbZones: ClimbZone[] = [];
   const lianaZones: ClimbZone[] = [];
+  const deadVineZones: ClimbZone[] = [];
   const waterZones: WaterZone[] = [];
   const lavaZones: WaterZone[] = [];
   const walkers: Walker[] = [];
@@ -336,6 +346,18 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           if (isTop) {
             solids.push(platform(x, y, 'liana-top-ledge'));
           }
+          break;
+        }
+
+        // A dead vine: the same stem as a liana, drawn with no leaves, and
+        // never climbable -- so unlike `l` it gets no ledge at its top
+        // either. There is nothing here to stand on or hold, only to look at.
+        case 'v': {
+          const isTop = at(column, row - 1) !== 'v';
+          const againstWall =
+            'R#BM'.includes(at(column - 1, row)) || 'R#BM'.includes(at(column + 1, row));
+
+          deadVineZones.push({ x, y, width: TILE, height: TILE, isTop, againstWall });
           break;
         }
 
@@ -469,6 +491,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     solids,
     climbZones,
     lianaZones,
+    deadVineZones,
     columnsAreClimbable: definition.climbableColumns ?? true,
     waterZones,
     pools,

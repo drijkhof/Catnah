@@ -161,6 +161,10 @@ next to it. A liana looks the same wherever it hangs — jungle, swamp, or
 anywhere else — the same way a little heart does, rather than taking on
 whatever a rope, drainpipe or chain would have looked like in that place.
 
+There is a third one: a **dead vine**, the same hanging stem with every leaf
+stripped off it. It is scenery only, never something to hold, there purely so
+a canopy of trees and lianas is not the only two things hanging in it.
+
 Everything else here is **not solid** — walk straight through a liana at ground
 level and nothing happens. Climbing also passes through the branches growing out
 of a column, in both directions. Standing inside one, press up and the cat takes

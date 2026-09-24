@@ -23,6 +23,7 @@ its platforms must attach to a column. Everything else is derived.
 | `M` | masonry — a house rather than a flat: plaster under a pantile roof |
 | `T` | climbable column — a rope, drainpipe or chain, or (`climbableColumns: false`) a real tree, which is never climbable at all |
 | `l` | liana — always climbable everywhere, regardless of `climbableColumns`. Coexists with `T` in the same level: a tree, and the liana hanging from nothing beside it |
+| `v` | dead vine — the liana's stem with no leaves, never climbable, purely decoration |
 | `w` | water — swimmable, not solid, harmless on its own |
 | `L` | lava — not solid either, and fatal to touch |
 | `o` | little heart — the little fish the cat collects |

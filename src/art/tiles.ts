@@ -289,18 +289,23 @@ export function generateTileset(
   });
 
   /**
-   * The liana. Baked unconditionally, in every theme, rather than switched on
-   * by `columnStyle` the way the trunk above is -- a liana looks like a liana
-   * wherever it hangs, in a level that may also have real, unclimbable trees
-   * standing in the same `columnStyle`. Only the palette's own leaf and trunk
-   * colours vary the look from theme to theme.
+   * The bare stem both the liana and the dead vine grow from. Baked
+   * unconditionally, in every theme, rather than switched on by `columnStyle`
+   * the way the trunk above is -- these look the same wherever they hang, in
+   * a level that may also have real, unclimbable trees standing in the same
+   * `columnStyle`.
    */
-  const drawLiana = (g: Phaser.GameObjects.Graphics): void => {
-    // A thin, wandering stem with leaves along it.
+  const drawVineStem = (g: Phaser.GameObjects.Graphics): void => {
     g.fillStyle(palette.trunk, 1);
     g.fillRect(6, 0, 4, TILE);
     g.fillStyle(palette.trunkDark, 1);
     g.fillRect(7, 0, 1, TILE);
+  };
+
+  const drawLiana = (g: Phaser.GameObjects.Graphics): void => {
+    drawVineStem(g);
+    // Leaves along it -- this, and nothing about the stem, is what tells a
+    // liana apart from a dead vine at a glance.
     g.fillStyle(palette.leaf, 1);
     g.fillEllipse(3, 4, 6, 4);
     g.fillEllipse(13, 11, 6, 4);
@@ -323,6 +328,13 @@ export function generateTileset(
 
   bakeTexture(scene, key('liana-top'), TILE, TILE, drawLianaAnchor);
   bakeTexture(scene, key('liana-head'), TILE, TILE, drawLianaAnchor);
+
+  /**
+   * The dead vine: the same stem as a liana, and nothing else -- no leaves at
+   * the top or anywhere along it, and so no reason for a separate top/head
+   * picture either. One texture for the whole thing, decoration only.
+   */
+  bakeTexture(scene, key('dead-vine'), TILE, TILE, drawVineStem);
 
   // --- one-way platforms -------------------------------------------------
   const drawWood = (g: Phaser.GameObjects.Graphics): void => {
