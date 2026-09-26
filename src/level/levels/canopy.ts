@@ -75,7 +75,7 @@ export const CANOPY: LevelDefinition = {
   name: 'Canopy',
   theme: 'jungle',
   widthInTiles: 78,
-  groundRow: 26,
+  groundRow: 39,
   branchesNeedTrunks: false,
   // A T here is a real tree, same as the forest's -- you cannot climb it, only
   // its own branches. The lianas (`l`) are unaffected by this: they are always

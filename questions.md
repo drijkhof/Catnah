@@ -683,3 +683,22 @@ height, and one row is enough again -- the "empty sky above" symptom turns
 out to be correct once the rooting is fixed, since a tree pinned to the
 ground disappears below the frame exactly when the ground does, the way a
 real distant tree would once you have climbed above it.
+
+## Canopy's `groundLine` was itself wrong, on top of the above
+
+The scroll-factor fix above was necessary but not sufficient: told directly
+that the background was "helemaal fout" for canopy still, with the hint that
+the player spawns one tile above the ground. `groundLine` is not derived from
+the tile grid at all -- every level sets it by hand as `groundRow` (a row
+index times `TILE`), and Canopy's was `26`, the exact same number as Swamp's,
+which only makes sense as a stale copy-paste left over from before Canopy's
+grid grew to 43 rows with the floor pushed down to row 39. Row 26 sits in the
+middle of the liana section, so every rooted tree, bush and grass tuft was
+planted ~208px too high -- mid-air in the canopy rather than at the real
+floor.
+
+Fixed to `groundRow: 39`, matching how City, Cave and Swamp all set it: the
+row of the general, continuous floor, not the local boulder the spawn happens
+to sit on one row above it. The pattern worth remembering for any future
+level: `groundRow` is always spawn-row-plus-one, or plus-two when a boulder
+sits directly under the spawn tile.

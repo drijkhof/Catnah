@@ -229,10 +229,18 @@ generator without touching physics or rendering: anything that can produce a
 
 ## Ground line
 
-`GROUND_ROW` states where the forest floor's surface is, and `parseLevel`
-passes it through as `groundLine` for scenery to plant against. It is stated
-rather than derived because the sneaking bough is also solid and sits higher, so
-scanning the tiles for "the topmost solid" would find the wrong line.
+Each level states its own `groundRow`, and `parseLevel` passes it through as
+`groundLine` for scenery to plant against. It is stated rather than derived
+because the sneaking bough is also solid and sits higher, so scanning the
+tiles for "the topmost solid" would find the wrong line.
+
+Nothing checks it against the grid, so a wrong number fails silently: Canopy's
+sat at `26` -- copy-pasted from another level and never updated once Canopy's
+own grid grew taller -- and every rooted tree, bush and grass tuft planted
+itself in mid-air in the liana section instead of at the real floor, 13 rows
+down. The row to use is always the spawn row plus one, or plus two when a
+boulder sits directly under the spawn tile (`P` sits on top of it, not on the
+floor beneath).
 
 ## Falling out of the world
 
