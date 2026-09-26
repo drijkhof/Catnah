@@ -17,6 +17,19 @@ const CLIMB_TOP_MARGIN = 0;
 const WALL_PROBE = 2;
 
 /**
+ * How far past the edge of a climb zone the cat is still holding on, px.
+ *
+ * A charm sitting one tile beside a trunk or a liana is close enough to lean
+ * for without meaning to let go -- levels are full of exactly that, a little
+ * cluster of hearts flanking a column rather than sitting on it. Without any
+ * margin, `findTrunk` stops finding the column the instant the body clears
+ * its edge, and reaching for the charm reads as climbing off the end of the
+ * rope: the cat drops mid-collect, which was never what leaning over for a
+ * charm was supposed to cost.
+ */
+const CLIMB_SIDE_MARGIN = 10;
+
+/**
  * How far below the surface the cat settles before it counts as under, px.
  *
  * Level with the surface is submerged by the arithmetic and not quite by eye:
@@ -479,14 +492,20 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.refreshTexture();
   }
 
-  /** The trunk the cat's body is currently over, if any. */
+  /**
+   * The trunk the cat's body is currently over, if any.
+   *
+   * Widened sideways by `CLIMB_SIDE_MARGIN` -- see there for why -- but not
+   * vertically; reaching above or below a column is a different climb
+   * entirely, not a lean off the side of this one.
+   */
   private findTrunk(): Phaser.Geom.Rectangle | null {
     const body = this.body;
 
     for (const zone of this.climbZones) {
       if (
-        body.right > zone.x &&
-        body.x < zone.right &&
+        body.right > zone.x - CLIMB_SIDE_MARGIN &&
+        body.x < zone.right + CLIMB_SIDE_MARGIN &&
         body.bottom > zone.y &&
         body.y < zone.bottom
       ) {

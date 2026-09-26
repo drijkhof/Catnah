@@ -270,6 +270,12 @@ at `climbHorizontalSpeed` instead of letting go, which is what makes a bank of
 ropes a wall rather than a row of poles. Climbing off the end of one drops the
 cat, because `findTrunk` stops finding anything.
 
+`findTrunk` is widened by `CLIMB_SIDE_MARGIN` (10px) for exactly this reason:
+charms are routinely placed one tile beside a column rather than on it, and
+without a margin, leaning over for one moved the body past the zone's true
+edge and read as climbing off the end -- the cat dropped mid-collect. The
+margin is horizontal only, same as the zone test it widens.
+
 **Letting go hands back a coyote window**, and that is not a nicety either.
 Without it only a jump pressed on the *exact* frame worked: pressing a direction
 first -- which is what hands actually do -- dropped the cat off the rope, and

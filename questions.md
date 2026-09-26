@@ -702,3 +702,28 @@ row of the general, continuous floor, not the local boulder the spawn happens
 to sit on one row above it. The pattern worth remembering for any future
 level: `groundRow` is always spawn-row-plus-one, or plus-two when a boulder
 sits directly under the spawn tile.
+
+## Climbing down and reaching for a charm dropped the cat
+
+Reported directly: climbing down a liana and picking up a little heart makes
+the cat fall. `findTrunk` tested the body against the exact width of the
+climb zone, and charms are routinely placed one tile beside a column rather
+than on it -- reaching for one moved the body past the zone's edge, and
+`findTrunk` finding nothing is exactly what is supposed to drop a cat off the
+end of a rope. Fixed with `CLIMB_SIDE_MARGIN` (10px): `findTrunk` now looks a
+little wider than the zone itself, so leaning sideways for something within
+reach no longer reads as climbing off the end.
+
+**Left open on purpose.** Told separately that a well-timed jump pressed at
+the exact moment of touching a charm already lets the cat jump clear (works
+with both charm types), that this is wanted, and that it is probably the
+other side of the same coin as the fall -- likely the coyote window
+`releaseTrunk` hands out on a genuine release, cashed in by a jump pressed in
+that narrow gap. The margin fix removes the release in exactly the case that
+used to need saving, which should make the fall-without-a-jump case simply
+not happen any more rather than change what a well-timed jump does elsewhere
+-- but I have not reproduced the original "jump exactly on touching a charm"
+timing precisely enough in the console to confirm the margin left it intact
+for a charm placed exactly at the margin's edge. Told not to add anything
+further speculative on top of the margin fix while that is unconfirmed, so it
+ships as-is; worth an eye next time a charm sits right beside a rope.
