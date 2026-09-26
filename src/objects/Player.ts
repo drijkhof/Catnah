@@ -196,6 +196,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   respawnAt(x: number, y: number): void {
     this.inWater = false;
     this.body.setAllowGravity(true);
+    // Undoes swim()'s swimGravity offset. A respawn from a death underwater
+    // skips the ordinary water-exit check in `step` entirely, and without
+    // this the cancelling offset survives the respawn and goes on cancelling
+    // nine tenths of ordinary gravity on dry land too.
+    this.body.setGravityY(0);
     this.releaseTrunk();
     this.climbCooldownTimer = 0;
     this.resolvePose(false);

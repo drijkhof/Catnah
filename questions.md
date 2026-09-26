@@ -780,3 +780,13 @@ asking back, all in `CAT` and easy to retune:
   stops it at the water's own bed -- the fraction changed, not the shape of
   what happens once you stop pressing anything. Worth a look if a tenth turns
   out to read as too slow or too fast in an actual pool once real art is in.
+
+**Caught immediately after shipping:** dying underwater and respawning at a
+checkpoint left `swimGravity`'s offset on the body -- ordinary gravity stayed
+at a tenth of itself on dry land afterwards. Not a wrong call on the 10%
+itself, just an incomplete one: the offset is per body and additive, and
+`step` only cleared it back to zero on the ordinary route out of water (still
+alive, walking onto a bank). Dying and respawning skips `step` entirely, so it
+needed the same reset in `respawnAt` too, which it now has. The old
+zero-gravity version never had this seam, because it never had a persistent
+value to forget to clear -- `setAllowGravity(true)` alone was always enough.
