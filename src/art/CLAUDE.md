@@ -5,7 +5,8 @@ binary assets and runs straight after clone.
 
 - `canvas.ts` — `bakeTexture` (draw once, register under a key) and
   `createRandom` (seeded scatter).
-- `cat.ts` — the cat, standing and sneaking.
+- `cat.ts` — the cat: standing, sneaking, climbing, swimming, and the walk,
+  climb and swim animation cycles built from them.
 - `tiles.ts` — every level tile, drawn from a palette so three themes share one
   set of shapes. Keys are namespaced: `cave:rock-fill`.
 - `forest.ts` — the forest's own scenery: sky, sun, trees, bushes, grass. And
@@ -36,6 +37,23 @@ separate texture added as a separate, bodiless sprite.
 **Keep shapes chunky.** The cat is 22x18 game pixels. Detail finer than two or
 three pixels turns to mush once `Scale.FIT` blows the canvas up to a laptop
 screen, and `pixelArt: true` means no smoothing will hide it.
+
+## Animations are just several textures, cycled
+
+`cat.ts`'s `createCatAnimations` registers the cat's walk, climb-shuffle and
+swim cycles with `scene.anims.create`, and every frame in them is a whole
+separate baked texture (`{ key: 'cat-walk-a' }`) rather than a region of a
+spritesheet. Phaser does not mind: each baked texture is implicitly its own
+frame 0, and an `AnimationFrameConfig`'s `key` can point at any texture at
+all, so multiple independent single-frame textures cycle exactly like slices
+of a sheet would. Baking one file per pose is already how everything else
+here works, and a walk cycle is only two or three more poses, not a new way of
+drawing.
+
+Called once, right after `generateCatTextures`, since an animation is
+registered on the game the same way a texture is -- see
+`objects/CLAUDE.md`'s "Walking, climbing and swimming loop" for how `Player`
+decides when one plays.
 
 ## Palette
 

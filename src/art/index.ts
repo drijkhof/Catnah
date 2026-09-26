@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { generateCatTextures } from './cat';
+import { createCatAnimations, generateCatTextures } from './cat';
 import { generateBackdropTextures } from './backdrops';
 import { generateCreatureTextures } from './creatures';
 import { generateForestTextures } from './forest';
@@ -35,6 +35,7 @@ export {
  */
 export function generatePlaceholderArt(scene: Phaser.Scene): void {
   generateCatTextures(scene);
+  createCatAnimations(scene);
   generateForestTextures(scene);
   generateCreatureTextures(scene);
   generateBackdropTextures(scene);

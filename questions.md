@@ -750,3 +750,33 @@ over the local network (see the project's own `CLAUDE.md`) rather than the
 deployed copy -- that phone is talking to a dev build, so it gets the cheat
 too. What it no longer gets is a cheat reachable by anyone playing the live
 game, which was the actual problem with shipping it.
+
+## Cat animations, and swimming's own gravity
+
+Asked for directly: a walk loop, a climb loop, a swim loop, and something
+other than perfectly neutral buoyancy under water. Numbers I picked without
+asking back, all in `CAT` and easy to retune:
+
+- **`animFrameRate: 8`**, one number shared by all three cycles. Slower read
+  as sluggish at this pixel size; faster blurred the chunky shapes together.
+- **Walking is 4 keyframes but only 2 new textures** -- the idle standing
+  pose sits between two stride textures (`cat`, `walk-a`, `cat`, `walk-b`)
+  rather than the two strides running back to back, which is what keeps a
+  slow walk from reading as a nervous shuffle.
+- **Climbing is a 2-frame shuffle**, the existing `cat-climb` alternating with
+  one new reaching pose, and only plays while `vertical !== 0 || sideways !==
+  0` -- holding still on a rope holds the still grip, same as before.
+- **Swimming got its own pose for the first time.** There was no dedicated
+  swim texture at all before this -- a swimming cat just showed the standing
+  `cat` texture regardless of the pool. It is a brand new 2-frame paddling
+  cycle, plays unconditionally (no still frame; treading water is still
+  paddling), and is drawn at the same standing-frame size climbing uses, since
+  the body does not resize in water either.
+- **`swimGravity: 150`, a tenth of ordinary `gravity` (1500)**, was a direct
+  answer to being asked "somewhere in between, 10%?". Implemented as Arcade's
+  additive per-body gravity (`swimGravity - gravity`, cancelling nine tenths
+  of the world's) rather than replacing the buoyancy code with real physics,
+  so `applyBuoyancy` still caps the resulting sink at `sinkSpeed` and still
+  stops it at the water's own bed -- the fraction changed, not the shape of
+  what happens once you stop pressing anything. Worth a look if a tenth turns
+  out to read as too slow or too fast in an actual pool once real art is in.

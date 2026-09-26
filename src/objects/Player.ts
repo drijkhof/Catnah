@@ -30,15 +30,6 @@ const WALL_PROBE = 2;
 const CLIMB_SIDE_MARGIN = 10;
 
 /**
- * How far below the surface the cat settles before it counts as under, px.
- *
- * Level with the surface is submerged by the arithmetic and not quite by eye:
- * the surface tiles swell a pixel and a half on a slow tween, and a cat resting
- * exactly on the line pokes out of the trough.
- */
-const SUBMERGED_MARGIN = 2;
-
-/**
  * The cat.
  *
  * Movement is deliberately not a straight "set velocity from input": it adds
@@ -154,8 +145,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.inWater = this.overlapsAny(this.waterZones);
 
     if (wasInWater && !this.inWater) {
-      // Out of the water: weight comes back.
+      // Out of the water: weight comes back. `swimGravity`'s offset is per
+      // body and additive, so it has to be zeroed here or it would go on
+      // cancelling nine tenths of ordinary gravity on dry land too.
       this.body.setAllowGravity(true);
+      this.body.setGravityY(0);
     }
 
     // Water replaces ordinary movement the way climbing does. A pool has no
@@ -190,6 +184,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.applyHorizontal(controls, dt, onGround);
     this.applyWallSlide(controls, wall, onGround);
     this.updateFacing(controls);
+
+    // Sneaking has its own single pose, untouched by the walk cycle -- only
+    // set here, never overwritten while it holds.
+    if (!this.isSneaking) {
+      this.setMoving('cat-walk', 'cat', onGround && Math.abs(this.body.velocity.x) > 5);
+    }
   }
 
   /** Puts the cat back at a given spot, upright and still. */
@@ -215,10 +215,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
    * speed. A press of up is a stroke, strong enough to break the surface and
    * carry the cat out onto a bank.
    *
-   * **It sinks until it is properly under**, though. Holding depth from the
-   * moment the paws touch meant floating with the whole cat above the water,
-   * skating across the top of it. Nothing pressed now sinks the cat until its
-   * back is below the surface, and holds depth only from there.
+   * **It is not perfectly neutrally buoyant.** Holding depth exactly, forever,
+   * with nothing pressed made a pool feel like a lift shaft. `swimGravity` is
+   * a light pull, a tenth of ordinary gravity, so a cat left alone drifts
+   * slowly toward the bottom instead -- `applyBuoyancy` caps how fast at
+   * `sinkSpeed`, so it settles rather than free-falls.
    *
    * Water is a place to move about in rather than something to struggle out of,
    * which is the point of it not being dangerous.
@@ -230,7 +231,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     this.releaseTrunk();
-    this.refreshTexture();
+    this.play('cat-swim', true);
 
     const direction = (controls.right ? 1 : 0) - (controls.left ? 1 : 0);
     const topSpeed = CAT.speed * CAT.swimSpeedMultiplier;
@@ -247,8 +248,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.setVelocityX(this.body.velocity.x * 0.86);
     }
 
-    // Gravity is off entirely in water, so depth is held rather than fought.
-    this.body.setAllowGravity(false);
+    // A light pull rather than none at all -- see `swimGravity`. Body gravity
+    // is additive on top of world gravity in Arcade, so this cancels most of
+    // it and leaves only the fraction meant to act underwater.
+    this.body.setAllowGravity(true);
+    this.body.setGravityY(CAT.swimGravity - CAT.gravity);
 
     if (controls.jumpJustPressed) {
       this.setVelocityY(CAT.swimStrokeVelocity);
@@ -264,7 +268,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Settles the cat at its depth, or sinks it until it has one.
+   * Settles the cat at its depth, or sinks it a little further towards the
+   * bed if nothing is pressed.
    *
    * A stroke is allowed to carry: an upward velocity stronger than what is
    * being asked for bleeds off rather than being written over, or the burst
@@ -272,18 +277,17 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
    */
   private applyBuoyancy(controls: Controls, dt: number): void {
     const vertical = (controls.sneak ? 1 : 0) - (controls.up ? 1 : 0);
-    const surface = this.waterSurfaceY();
-    const bed = this.waterBedY();
 
-    // Nothing pressed, and still breaking the surface: sink. Only while there
-    // is water left to sink into -- a puddle shallower than the cat can never
-    // cover it, and would otherwise press it into the bed forever.
-    if (
-      vertical === 0 &&
-      this.body.y < surface + SUBMERGED_MARGIN &&
-      this.body.bottom < bed
-    ) {
-      this.setVelocityY(CAT.sinkSpeed);
+    if (vertical === 0) {
+      // `swimGravity` is doing the pulling; this only keeps it from
+      // running away into a plunge, and stops it once there is no more
+      // water left to sink into -- a puddle shallower than the cat would
+      // otherwise get pressed into the bed forever.
+      const cap = this.body.bottom < this.waterBedY() ? CAT.sinkSpeed : 0;
+
+      if (this.body.velocity.y > cap) {
+        this.setVelocityY(cap);
+      }
       return;
     }
 
@@ -295,26 +299,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     );
   }
 
-  /**
-   * The top of the water the cat is in.
-   *
-   * Taken from every water tile standing over the cat's own x, so what comes
-   * back is the surface of this pool rather than of the nearest tile. Pools are
-   * stored tile by tile, which is why it is a scan.
-   */
-  private waterSurfaceY(): number {
-    let surface = Number.POSITIVE_INFINITY;
-
-    for (const zone of this.waterZones) {
-      if (this.overlapsColumn(zone)) {
-        surface = Math.min(surface, zone.y);
-      }
-    }
-
-    return surface;
-  }
-
-  /** The bed of that same column of water. */
+  /** The bed of the column of water the cat is in. */
   private waterBedY(): number {
     let bed = Number.NEGATIVE_INFINITY;
 
@@ -392,6 +377,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.setVelocityY(vertical < 0 && atTop ? 0 : vertical * CAT.climbSpeed);
     this.setVelocityX(sideways * CAT.climbHorizontalSpeed);
+
+    this.setMoving('cat-climb-shuffle', 'cat-climb', vertical !== 0 || sideways !== 0);
 
     return true;
   }
@@ -630,6 +617,31 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     this.setTexture(this.isSneaking ? 'cat-sneak' : 'cat');
+  }
+
+  /**
+   * Plays a looping cycle while genuinely moving, and holds a single still
+   * frame the rest of the time -- called every frame from each of walking,
+   * climbing and swimming, rather than only on the moments something changes.
+   *
+   * `ignoreIfPlaying` (the `true` passed to `play`) is what makes calling
+   * this every frame safe: without it, `play` restarts its animation from
+   * frame zero on every call, and a walk cycle re-triggered sixty times a
+   * second never gets past its first frame.
+   */
+  private setMoving(animKey: string, restKey: string, moving: boolean): void {
+    if (moving) {
+      this.play(animKey, true);
+      return;
+    }
+
+    if (this.anims.isPlaying) {
+      this.anims.stop();
+    }
+
+    if (this.texture.key !== restKey) {
+      this.setTexture(restKey);
+    }
   }
 
   /** Is the space a standing cat would occupy currently clear? */

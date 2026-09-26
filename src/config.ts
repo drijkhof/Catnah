@@ -153,6 +153,9 @@ export const CAT = {
   sneakWidth: 26,
   sneakHeight: 9,
 
+  /** Frames per second for the walk, climb and swim cycles. */
+  animFrameRate: 8,
+
   /** Horizontal run speed, px/sec. */
   speed: 190,
   /** How fast the cat reaches full speed on the ground, px/sec^2. */
@@ -249,6 +252,17 @@ export const CAT = {
    * Slow on purpose: dropping into a pool should settle, not plunge.
    */
   sinkSpeed: 70,
+
+  /**
+   * Downward pull while swimming, only a fraction of ordinary gravity
+   * (1500), px/sec^2.
+   *
+   * A swimming cat is not perfectly neutrally buoyant after all: left alone
+   * it now drifts slowly toward the bottom rather than hanging at a fixed
+   * depth forever, capped at `sinkSpeed` so it settles rather than free-falls.
+   * A tenth of ordinary gravity reads as a slow sink rather than a fall.
+   */
+  swimGravity: 150,
 
   /**
    * Grace window after letting go of a column, ms.

@@ -73,6 +73,30 @@ changes nothing but the drawing. That is why `refreshTexture` is separate from
 vertically: a cat climbing *down* a rope still goes head-up, backwards, the way
 a real one does. Head-down would read as falling.
 
+### Walking, climbing and swimming loop; standing and sneaking do not
+
+`setMoving(animKey, restKey, moving)` is called every frame from all three of
+`step`, `updateClimb` and `swim` -- not only on the moments something changes,
+the way `refreshTexture` is -- and plays a looping `Phaser.Animations` cycle
+while `moving` is true, or holds a single still frame otherwise. Each frame of
+a cycle is a whole separate baked texture rather than a slice of a spritesheet
+(`{ key: 'cat-walk-a' }`, not a frame index into one image); Phaser is happy to
+animate that way, and it fits how every other texture here already gets baked
+one at a time.
+
+Passing `true` for `ignoreIfPlaying` on the `play()` call inside `setMoving` is
+not optional: without it, calling `play` again with the same key while it is
+already playing restarts the animation from frame zero, and a cycle
+re-triggered sixty times a second never gets past its first frame.
+
+Sneaking has no cycle of its own and is never touched by `setMoving` -- `step`
+only calls it `if (!this.isSneaking)`, so the single sneaking frame set by
+`applyPose` survives untouched for as long as sneaking holds.
+
+Swimming's cycle runs unconditionally rather than only while actually moving,
+unlike walking and climbing: treading water is still paddling, so there is no
+"still" swimming frame to fall back to.
+
 **Standing up is conditional.** `hasHeadroom()` tests the space a standing cat
 would occupy with `physics.overlapRect` before standing up; without it the cat
 would be shoved through the ceiling it is sneaking under. The same flag blocks
@@ -91,6 +115,16 @@ run.
 touch meant floating with the whole cat above the water, skating across the top
 of it. `applyBuoyancy` sinks at `sinkSpeed` while the cat still breaks the
 surface and nothing is pressed, and holds depth only once it is under.
+
+**It is not perfectly neutrally buoyant, either.** Holding an exact depth
+forever with nothing pressed read as a lift shaft, not a pool. `swim` gives the
+body `swimGravity` (a tenth of ordinary `gravity`, added as `swimGravity -
+gravity` since Arcade's body gravity is additive on top of the world's) instead
+of turning gravity off outright, and `applyBuoyancy` clamps how fast that pull
+is allowed to sink the cat at `sinkSpeed` -- so it drifts towards the bed rather
+than free-falling, and stops there rather than pressing into it. Leaving the
+water resets the body's gravity back to zero, or the cancelling offset would go
+on cancelling nine tenths of ordinary gravity on dry land too.
 
 `SUBMERGED_MARGIN` puts it two pixels lower than the arithmetic needs, because
 the surface tiles swell on a slow tween and a cat resting exactly on the line

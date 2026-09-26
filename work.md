@@ -195,11 +195,18 @@ in is a change of pace rather than a punishment.
 A cat in water is **in** it. Touch a pool and it sinks until its back is under
 the surface, then holds that depth — it does not skate along the top.
 
-From there it is **neutrally buoyant**: it stays at whatever depth it has with
-nothing pressed, and **up and sneak take it up and down**. Horizontally it moves
-at about half speed. A press of up is a stroke, strong enough to break the
-surface and land the cat on a bank. Water is somewhere to move about in rather
-than something to struggle out of, which is why it is not dangerous.
+From there it is **almost neutrally buoyant**: with nothing pressed it drifts
+slowly toward the bottom rather than hanging at a fixed depth forever, and
+**up and sneak take it up and down**. Horizontally it moves at about half
+speed. A press of up is a stroke, strong enough to break the surface and land
+the cat on a bank. Water is somewhere to move about in rather than something
+to struggle out of, which is why it is not dangerous.
+
+It has its own picture for it, too — paddling, head tipped up clear of the
+surface — where it used to just show the standing cat regardless of the pool
+it was in. Walking and climbing got their own looping pictures at the same
+time: legs alternating on the ground, paws shuffling up the rope, all three
+frozen back to a single still frame the moment nothing is actually moving.
 
 ### Wall jumping
 
