@@ -727,3 +727,26 @@ timing precisely enough in the console to confirm the margin left it intact
 for a charm placed exactly at the margin's edge. Told not to add anything
 further speculative on top of the margin fix while that is unconfirmed, so it
 ships as-is; worth an eye next time a charm sits right beside a rope.
+
+## God mode no longer ships
+
+It used to be the one exception to "everything in `src/dev` drops from the
+build" -- deliberately, since testing happened on a phone against the copy
+deployed to Pages, and a cheat that only exists on the machine it was written
+on is no use there. Told directly it should only work on localhost, and
+ideally not even be in what CI builds at all.
+
+Reversed: `installGodMode` is now called from behind the same
+`import.meta.env.DEV` branch as `installLevelSkip`, and dropped from the
+bundle the same way -- confirmed with a grep over `dist`, zero hits for the
+function name, the toast strings and the registry key. The two gameplay call
+sites (`kill()`, the fall-out save) keep `isGodMode` itself unwrapped, since
+class methods in this file run in every build regardless of guards, but each
+read is now `import.meta.env.DEV && isGodMode(this)` -- a literal `false` in
+production, so the flag can never read true there either way.
+
+Testing on a phone still works exactly as before, just against the dev server
+over the local network (see the project's own `CLAUDE.md`) rather than the
+deployed copy -- that phone is talking to a dev build, so it gets the cheat
+too. What it no longer gets is a cheat reachable by anyone playing the live
+game, which was the actual problem with shipping it.

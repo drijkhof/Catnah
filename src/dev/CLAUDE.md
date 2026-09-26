@@ -67,12 +67,26 @@ or removing little hearts elsewhere does not un-collect the wrong ones. Their sp
 carry that position in `levelPosition` data, because the bob tween means a
 sprite's own `y` is no longer where the level put it.
 
-## God mode, and why this one ships
+## God mode
 
-`installGodMode` is the one thing in this folder that is **not** wrapped in
-`import.meta.env.DEV`. The game is played and tested on a phone, against the
-copy deployed to Pages, so a cheat that only exists on the machine it was
-written on would never be where it is needed.
+`installGodMode` is wrapped in `import.meta.env.DEV`, same as everything else
+here, and for the same reason `installLevelSkip` is: a standalone function
+whose only call sits inside a dead branch is dropped by Rollup, checked the
+same way -- `installGodMode` appears zero times in `dist`. It used to ship on
+purpose, since the game is played and tested on a phone against the copy
+deployed to Pages -- but a cheat reachable by anyone playing the live game
+turned out to be a bigger risk than that convenience was worth. Testing on a
+phone against the dev server over the local network (see the project's own
+`CLAUDE.md`, "Previewing on a phone") still gets god mode, because that phone
+is talking to a dev build.
+
+`isGodMode` itself stays unwrapped, because the two places it is read
+(`GameScene`'s fall-out save and `kill()`) are ordinary gameplay code that
+runs in every build -- a class method guarded from the inside would still be
+in the bundle, per the level-skip note above. Both call sites guard the read
+with `import.meta.env.DEV &&` instead, so the check itself compiles away to
+`false` in production and the flag can never read true there, even though the
+three-line reader function survives.
 
 It is **option-click** on the level name, or **press and hold** it. The second
 is not a nicety: there is no option key on a phone, and the phone is the point.

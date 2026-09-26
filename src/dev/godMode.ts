@@ -9,11 +9,13 @@ import Phaser from 'phaser';
  * matters -- a cheat that makes the game *silent* about mistakes hides exactly
  * the thing you were trying to judge.
  *
- * **This one ships.** Everything else in this folder is wrapped in
- * `import.meta.env.DEV` and dropped from the build, but the game is played and
- * tested on a phone, against the deployed copy, and a cheat that only exists on
- * the machine it was written on is no use there. The gesture is obscure enough
- * that nobody finds it by accident.
+ * **Dev-only, same as everything else here.** Every call site is wrapped in
+ * `import.meta.env.DEV`, so it drops out of a production build the same way
+ * `installLevelSkip` does -- see `dev/CLAUDE.md`. It used to ship deliberately,
+ * for testing on a phone against the deployed copy, but a cheat reachable by
+ * anyone playing the live game is a bigger risk than the convenience is worth;
+ * testing on a phone against the dev server over the local network (see the
+ * project's own `CLAUDE.md`) covers the same need without shipping it.
  *
  * It lives in the registry rather than in a module variable, so it survives
  * changing level -- which builds a whole new `GameScene` -- and dies with the

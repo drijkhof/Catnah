@@ -403,7 +403,7 @@ export class GameScene extends Phaser.Scene {
       // Falling out is the one thing god mode cannot simply shrug off: there is
       // no floor down there to carry on standing on. It puts the cat back and
       // charges nothing for it.
-      if (isGodMode(this)) {
+      if (import.meta.env.DEV && isGodMode(this)) {
         this.graze();
         this.player.respawnAt(this.respawnPoint.x, this.respawnPoint.y);
         this.cameras.main.centerOn(this.player.x, this.player.y);
@@ -708,7 +708,7 @@ export class GameScene extends Phaser.Scene {
 
     // God mode hears and feels it and loses nothing. Deliberately *not* silent:
     // a cheat that hides your mistakes hides the thing you were judging.
-    if (isGodMode(this)) {
+    if (import.meta.env.DEV && isGodMode(this)) {
       this.graze();
       return;
     }
@@ -1279,12 +1279,10 @@ export class GameScene extends Phaser.Scene {
     if (import.meta.env.DEV) {
       // A development shortcut, in its own module so the build drops it.
       installLevelSkip(this, levelName, this.levelIndex, LEVELS.length);
-    }
 
-    // This one is *not* dev-only: the game is played and tested on a phone,
-    // against the deployed copy, so a cheat that only exists on the machine it
-    // was written on would be no use. See `dev/godMode.ts`.
-    installGodMode(this, levelName);
+      // A development cheat, same reasoning. See `dev/godMode.ts`.
+      installGodMode(this, levelName);
+    }
 
     this.refreshLives();
     this.buildMuteButton();
