@@ -49,6 +49,16 @@ the input reflects where the finger *is*, which is what the player expects.
 single pointer by default, so without it a player cannot hold a direction,
 sneak and jump at once.
 
+## The "right" button's hit zone is wider than its glyph
+
+Because the hit rect pushed into `this.buttons` and the `Image` drawn for a
+button are computed from the same `x`/`y`/`BUTTON_SIZE` in `createTouchUi()`,
+they can be pulled apart without touching `isButtonDown` at all: the "right"
+entry gets `BUTTON_SIZE + RIGHT_BUTTON_REACH` for its `width` while its `Image`
+still gets exactly `BUTTON_SIZE`. Forward is the direction held longest under
+a drifting thumb, so it is the one button worth a bigger target -- invisibly,
+since only the number fed to the hit-test changed.
+
 ## Adding a control
 
 1. Add the binding in the constructor and the getter in `Controls`.

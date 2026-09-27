@@ -790,3 +790,29 @@ alive, walking onto a bank). Dying and respawning skips `step` entirely, so it
 needed the same reset in `respawnAt` too, which it now has. The old
 zero-gravity version never had this seam, because it never had a persistent
 value to forget to clear -- `setAllowGravity(true)` alone was always enough.
+
+## A wider forward button, and a three-way mute
+
+Both asked for directly. Numbers and shapes I picked without asking back:
+
+- **`RIGHT_BUTTON_REACH: 24`** -- how much further right the "right" button's
+  hit zone reaches past its drawn edge. Checked against every other button on
+  the narrowest supported aspect ratio (16:9) before picking it: the widened
+  zone's right edge sits well short of "sneak"'s left edge even there, so
+  there is no aspect ratio where it can eat into a neighbouring button.
+- **The mute button moved from bottom left to top right**, just under the
+  hearts (`GAME_WIDTH - TILE, TILE * 2 + 4`) rather than sharing their row --
+  the hearts grow leftward from that exact corner, so the button needed a row
+  of its own rather than the corner itself.
+- **The middle mode is called `sfxOnly`, not `bgMuted` or similar** -- named
+  for what stays audible, not for what is cut, since that is the half of the
+  game a player reaching for this mode actually wants to keep.
+- **Its icon is one arc instead of two**, reusing the two-arc "all" icon and
+  the crossed-out "silent" one either side of it, rather than drawing a new
+  shape from scratch. Reads as "quieter," not literally as "background off,"
+  which is a placeholder simplification worth a second look once real art
+  exists for this button.
+- **`catnah:sound-mode` is a new localStorage key**, read in preference to the
+  old boolean `catnah:muted`, which is still read once as a fallback so an
+  existing silent/on preference survives rather than resetting to `all`. The
+  old key is never written again.

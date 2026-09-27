@@ -16,6 +16,17 @@ interface TouchButton {
 const BUTTON_MARGIN = 12;
 
 /**
+ * Extra hit-width given to the "right" button on its own right-hand side,
+ * beyond its drawn glyph, px.
+ *
+ * Forward is the direction held longest and hardest under a moving thumb, so
+ * it is the one worth widening. The glyph itself is untouched -- only the
+ * rectangle `isButtonDown` tests against grows, invisibly, so a thumb that
+ * has drifted a little past the visible edge still counts.
+ */
+const RIGHT_BUTTON_REACH = 24;
+
+/**
  * One input surface for both platforms.
  *
  * Gameplay code never asks "is this a phone?" -- it reads `left`, `right`, `up`,
@@ -180,7 +191,9 @@ export class Controls {
         name,
         x,
         y,
-        width: BUTTON_SIZE,
+        // See `RIGHT_BUTTON_REACH` -- only the hit rect grows, not the glyph
+        // drawn below.
+        width: name === 'right' ? BUTTON_SIZE + RIGHT_BUTTON_REACH : BUTTON_SIZE,
         height: BUTTON_SIZE,
       });
 

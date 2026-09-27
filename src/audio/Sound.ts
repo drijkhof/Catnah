@@ -40,8 +40,25 @@ export type Voice =
  */
 export type Ambience = 'none' | 'wind' | 'rain' | 'rumble' | 'hush';
 
-/** Where the mute setting is kept between visits. */
-const MUTE_KEY = 'catnah:muted';
+/**
+ * The three states the mute button cycles through, in order: nothing at all,
+ * then just the bed (wind, rain, the level's own hum) held back while every
+ * one-shot still plays, then everything.
+ */
+export type SoundMode = 'silent' | 'sfxOnly' | 'all';
+
+const NEXT_MODE: Record<SoundMode, SoundMode> = {
+  silent: 'sfxOnly',
+  sfxOnly: 'all',
+  all: 'silent',
+};
+
+/** Where the sound mode is kept between visits. */
+const MODE_KEY = 'catnah:sound-mode';
+
+/** The old boolean flag, from before there were three states. Read once, to
+ * carry an existing preference across rather than silently resetting it. */
+const LEGACY_MUTE_KEY = 'catnah:muted';
 
 /** Overall level. Low: this is background, not a soundtrack. */
 const MASTER = 0.2;
@@ -51,10 +68,16 @@ class SoundBoard {
 
   private master?: GainNode;
 
+  /** One-shot voices connect through here, silenced only in `silent`. */
+  private sfxGain?: GainNode;
+
+  /** The ambience bed connects through here, silenced in `silent` and `sfxOnly`. */
+  private bedGain?: GainNode;
+
   /** One second of white noise, reused by every voice that needs a hiss. */
   private noise?: AudioBuffer;
 
-  private quiet = SoundBoard.readMuted();
+  private soundMode = SoundBoard.readMode();
 
   /** The level's bed, and what it currently is. */
   private bed?: { source: AudioBufferSourceNode; gain: GainNode; lfo: OscillatorNode };
@@ -78,18 +101,39 @@ class SoundBoard {
         (window as unknown as { webkitAudioContext?: typeof AudioContext })
           .webkitAudioContext;
 
-  private static readMuted(): boolean {
+  private static readMode(): SoundMode {
     try {
-      return localStorage.getItem(MUTE_KEY) === '1';
+      const stored = localStorage.getItem(MODE_KEY);
+
+      if (stored === 'silent' || stored === 'sfxOnly' || stored === 'all') {
+        return stored;
+      }
+
+      // No new-style value yet -- carry an existing on/off preference across
+      // rather than resetting everyone to `all` the first time this runs.
+      return localStorage.getItem(LEGACY_MUTE_KEY) === '1' ? 'silent' : 'all';
     } catch {
       // Private windows and blocked storage both throw. Sound on is the better
       // default when we cannot tell.
-      return false;
+      return 'all';
     }
   }
 
+  private static writeMode(mode: SoundMode): void {
+    try {
+      localStorage.setItem(MODE_KEY, mode);
+    } catch {
+      // Not being able to remember it is not a reason to refuse to do it.
+    }
+  }
+
+  get mode(): SoundMode {
+    return this.soundMode;
+  }
+
+  /** True in `silent`, kept for anything that only cares whether it is fully off. */
   get muted(): boolean {
-    return this.quiet;
+    return this.soundMode === 'silent';
   }
 
   /**
@@ -107,8 +151,18 @@ class SoundBoard {
     if (!this.ctx) {
       this.ctx = new SoundBoard.Ctor();
       this.master = this.ctx.createGain();
-      this.master.gain.value = this.quiet ? 0 : MASTER;
+      this.master.gain.value = MASTER;
       this.master.connect(this.ctx.destination);
+
+      // Two sub-buses beneath the fixed overall level, so the bed and the
+      // one-shots can be silenced independently -- `sfxOnly` mutes only the
+      // first, `silent` mutes both.
+      this.sfxGain = this.ctx.createGain();
+      this.bedGain = this.ctx.createGain();
+      this.sfxGain.gain.value = this.soundMode === 'silent' ? 0 : 1;
+      this.bedGain.gain.value = this.soundMode === 'all' ? 1 : 0;
+      this.sfxGain.connect(this.master);
+      this.bedGain.connect(this.master);
 
       const frames = this.ctx.sampleRate;
       this.noise = this.ctx.createBuffer(1, frames, frames);
@@ -143,27 +197,27 @@ class SoundBoard {
     }
   }
 
-  /** Flips the mute, remembers it, and hands back the new state. */
-  toggle(): boolean {
-    this.quiet = !this.quiet;
+  /**
+   * Advances to the next sound mode -- silent, sfx only, all -- remembers it,
+   * and hands back the new state.
+   */
+  cycle(): SoundMode {
+    this.soundMode = NEXT_MODE[this.soundMode];
 
-    if (this.master && this.ctx) {
-      // Ramped rather than set: a gain that jumps to zero clicks.
-      this.master.gain.cancelScheduledValues(this.ctx.currentTime);
-      this.master.gain.setTargetAtTime(
-        this.quiet ? 0 : MASTER,
-        this.ctx.currentTime,
-        0.02,
-      );
+    if (this.ctx && this.sfxGain && this.bedGain) {
+      const at = this.ctx.currentTime;
+
+      // Ramped rather than set: a gain that jumps clicks.
+      this.sfxGain.gain.cancelScheduledValues(at);
+      this.sfxGain.gain.setTargetAtTime(this.soundMode === 'silent' ? 0 : 1, at, 0.02);
+
+      this.bedGain.gain.cancelScheduledValues(at);
+      this.bedGain.gain.setTargetAtTime(this.soundMode === 'all' ? 1 : 0, at, 0.02);
     }
 
-    try {
-      localStorage.setItem(MUTE_KEY, this.quiet ? '1' : '0');
-    } catch {
-      // Not being able to remember it is not a reason to refuse to do it.
-    }
+    SoundBoard.writeMode(this.soundMode);
 
-    return this.quiet;
+    return this.soundMode;
   }
 
   /**
@@ -202,7 +256,7 @@ class SoundBoard {
   }
 
   play(voice: Voice): void {
-    if (!this.ctx || !this.master || this.quiet) {
+    if (!this.ctx || !this.sfxGain || this.soundMode === 'silent') {
       return;
     }
 
@@ -303,7 +357,7 @@ class SoundBoard {
     gain.gain.exponentialRampToValueAtTime(level, at + 0.008);
     gain.gain.exponentialRampToValueAtTime(0.0001, at + length);
 
-    osc.connect(gain).connect(this.master as GainNode);
+    osc.connect(gain).connect(this.sfxGain as GainNode);
     osc.start(at);
     osc.stop(at + length + 0.02);
   }
@@ -325,7 +379,7 @@ class SoundBoard {
     gain.gain.exponentialRampToValueAtTime(level, at + 0.006);
     gain.gain.exponentialRampToValueAtTime(0.0001, at + length);
 
-    source.connect(filter).connect(gain).connect(this.master as GainNode);
+    source.connect(filter).connect(gain).connect(this.sfxGain as GainNode);
     source.start(at, Math.random());
     source.stop(at + length + 0.02);
   }
@@ -424,7 +478,7 @@ class SoundBoard {
       osc.stop(at + 0.6);
     }
 
-    filter.connect(gain).connect(this.master as GainNode);
+    filter.connect(gain).connect(this.sfxGain as GainNode);
   }
 
   /**
@@ -438,7 +492,7 @@ class SoundBoard {
    * is safe and does not restart the wind between two swamp levels.
    */
   setAmbience(kind: Ambience): void {
-    if (!this.ctx || !this.master || kind === this.bedKind) {
+    if (!this.ctx || !this.bedGain || kind === this.bedKind) {
       return;
     }
 
@@ -486,7 +540,7 @@ class SoundBoard {
     depth.gain.value = shape.breath;
     lfo.connect(depth).connect(gain.gain);
 
-    source.connect(filter).connect(gain).connect(this.master);
+    source.connect(filter).connect(gain).connect(this.bedGain);
     source.start();
     lfo.start();
 

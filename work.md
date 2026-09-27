@@ -110,6 +110,11 @@ pushed gets the new version.
 | **Jump / climb up / swim up** | `Space`, `↑` or `W` | button, bottom right |
 | Sneak / climb down / swim down | `↓` or `S` | button, left of jump |
 
+The **forward** button's touch target reaches a little further right than it
+looks, since that is the direction held longest under a thumb that drifts
+while running. Nothing changes on screen — only how far past the drawn edge a
+finger still counts.
+
 **Up and jump are one button.** `Space`, `↑` and `W` do exactly the same thing,
 and there are three buttons on a phone, not four. What it does depends on where
 the cat is: on the ground it jumps, on a rope it climbs, in water it swims up.
@@ -534,8 +539,12 @@ arena.
 ## Sound
 
 Quiet, and all of it made in code — there are no audio files any more than there
-are image files. A **speaker button** sits in the bottom left corner, and `M`
-does the same thing; the setting is remembered between visits.
+are image files. A **speaker button** sits top right, just under the hearts,
+and `M` does the same thing; the setting is remembered between visits.
+
+**Three taps, not two.** One press cycles silent → effects only → everything →
+silent again, so the bed (wind, rain, that hum) can be turned off on its own
+while the cat's own sounds — jumping, collecting, getting hurt — keep playing.
 
 **Every place has a bed**: one continuous layer under everything, filtered noise
 with a slow swell on it. Wind in the forest, the jungle and the swamp; a low

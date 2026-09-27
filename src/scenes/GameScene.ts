@@ -17,7 +17,7 @@ import { createRandom, tileKey } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { installGodMode, isGodMode } from '../dev/godMode';
-import { sound, type Ambience } from '../audio/Sound';
+import { sound, type Ambience, type SoundMode } from '../audio/Sound';
 import { SNAPSHOT_KEY, type GameSnapshot } from '../dev/hot';
 
 /**
@@ -39,6 +39,18 @@ function landsOnBranch(
 
 /** How far below the level the cat may fall before respawning, in pixels. */
 const FALL_OUT_MARGIN = 80;
+
+/** The mute button's icon for each sound mode. */
+function soundTexture(mode: SoundMode): string {
+  switch (mode) {
+    case 'silent':
+      return 'ui-sound-off';
+    case 'sfxOnly':
+      return 'ui-sound-quiet';
+    case 'all':
+      return 'ui-sound-on';
+  }
+}
 
 export class GameScene extends Phaser.Scene {
   private controls!: Controls;
@@ -1301,16 +1313,19 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
-   * The mute button, bottom left.
+   * The mute button, top right, just under the row of hearts.
    *
-   * Out of the way of the hearts, which grow along the top right, and out of
-   * the way of the touch controls, which are along the bottom. `M` does the
-   * same thing, because a button is no use to somebody already holding the
-   * keyboard.
+   * Out of the way of the score, which sits top left, and out of the way of
+   * the touch controls, which are along the bottom. `M` does the same thing,
+   * because a button is no use to somebody already holding the keyboard.
+   *
+   * One tap cycles all three sound modes -- silent, effects only, everything
+   * -- rather than just toggling two, so `soundTexture` has to translate the
+   * current mode into an icon instead of a plain ternary.
    */
   private buildMuteButton(): void {
     const button = this.add
-      .image(TILE, GAME_HEIGHT - TILE, sound.muted ? 'ui-sound-off' : 'ui-sound-on')
+      .image(GAME_WIDTH - TILE, TILE * 2 + 4, soundTexture(sound.mode))
       .setScrollFactor(0)
       .setDepth(1000)
       .setAlpha(0.55)
@@ -1321,7 +1336,7 @@ export class GameScene extends Phaser.Scene {
       // allowed to start. Unmuting before the context exists would otherwise
       // be silent and look broken.
       sound.unlock();
-      button.setTexture(sound.toggle() ? 'ui-sound-off' : 'ui-sound-on');
+      button.setTexture(soundTexture(sound.cycle()));
     };
 
     button.on('pointerdown', flip);

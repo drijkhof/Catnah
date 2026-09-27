@@ -27,15 +27,29 @@ The master gain is a fifth of full and no voice except the beetle's growl runs
 longer than a fifth of a second. These sit *under* the game. If you can pick one
 out while playing, it is too loud.
 
-## Muted is checked twice
+## Three sound modes, not a mute flag
 
-Once on the master gain, so anything already sounding fades out, and once at the
-top of `play`, so a muted game is not building and tearing down dozens of
-oscillators a second for nothing.
+The mute button cycles `silent -> sfxOnly -> all -> silent`, so muting is a
+`SoundMode`, not a boolean. Two gain nodes sit under the fixed-level `master`
+rather than one: `sfxGain`, which every voice (`blip`, `hiss`, `growl`)
+connects through, and `bedGain`, which only `setAmbience`'s bed connects
+through. `silent` zeroes both; `sfxOnly` zeroes only `bedGain`, so jumping,
+collecting and getting hurt still sound while the wind and rain do not; `all`
+zeroes neither.
+
+Checked twice for the same reason as before: once on `sfxGain` (or `bedGain`),
+so anything already sounding fades out, and once at the top of `play`, so a
+silenced game is not building and tearing down dozens of oscillators a second
+for nothing. `play` only checks `silent`, though -- `sfxOnly` is meant to leave
+every voice playing, so gating `play` on it as well would mute exactly the
+half of the game this mode exists to keep audible.
 
 The setting lives in `localStorage` and every read and write is wrapped: private
 windows and blocked storage both throw, and not being able to *remember* the
-mute is not a reason to refuse to do it.
+mode is not a reason to refuse to do it. `catnah:sound-mode` is read first; if
+it is not there yet, the old boolean `catnah:muted` is read once and converted
+(`'1'` -> `silent`, otherwise `all`), so an existing preference survives the
+move to three states rather than silently resetting to `all`.
 
 ## The bed under each level
 
