@@ -11,7 +11,7 @@ import { GroundEnemy } from '../objects/GroundEnemy';
 import { Piranha } from '../objects/Piranha';
 import { Spider } from '../objects/Spider';
 import { addGroundShade, createBackdrop } from '../world';
-import { parseLevel, type ParsedLevel, type Solid } from '../level/Level';
+import { parseLevel, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
 import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, bakeBoulder, bakeBranch, bakeFillet, bakeShelf, bakeTrunk, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
@@ -839,6 +839,7 @@ export class GameScene extends Phaser.Scene {
         const corners = this.cornersOf(solid);
         if (corners.tl || corners.tr || corners.bl || corners.br) {
           tile.setTexture(roundedTileKey(this, this.tile(solid.textureKey), corners, THEMES[this.level.theme]));
+          this.floodCorners(solid, corners);
         }
       }
 
@@ -881,6 +882,44 @@ export class GameScene extends Phaser.Scene {
     this.buildFillets();
 
     return { blocks, branches };
+  }
+
+  /**
+   * Water behind a rounded corner. A corner cut out of a ground tile shows
+   * whatever is behind the tile, and behind it is the backdrop -- the water
+   * is only ever drawn in water cells. So where the cell beside a rounded
+   * corner is water, the bed and the translucent water are drawn into that
+   * corner of the ground tile as well, and the cut reveals water. At the
+   * surface the water starts `WATER_DROP` down, the same as in its own cell.
+   */
+  private floodCorners(solid: Solid, corners: Corners): void {
+    const r = CORNER_RADIUS;
+    const waterBeside = (dx: number): WaterZone | undefined =>
+      this.level.waterZones.find((zone) => zone.x === solid.x + dx && zone.y === solid.y);
+
+    const flood = (cornerX: number, cornerY: number, water: WaterZone): void => {
+      const drop = water.isSurface && cornerY === 0 ? WATER_DROP : 0;
+
+      this.add
+        .image(solid.x, solid.y, this.tile('water-bed'))
+        .setOrigin(0, 0)
+        .setDepth(-8)
+        .setCrop(cornerX, cornerY + drop, r, r - drop);
+      this.add
+        .image(solid.x, solid.y, this.tile('water'))
+        .setOrigin(0, 0)
+        .setAlpha(0.62)
+        .setDepth(20)
+        .setCrop(cornerX, cornerY + drop, r, r - drop);
+    };
+
+    const left = waterBeside(-TILE);
+    const right = waterBeside(TILE);
+
+    if (left && corners.tl) flood(0, 0, left);
+    if (left && corners.bl) flood(0, TILE - r, left);
+    if (right && corners.tr) flood(TILE - r, 0, right);
+    if (right && corners.br) flood(TILE - r, TILE - r, right);
   }
 
   /** Earth: a `#` cell, whatever palette it wears. */

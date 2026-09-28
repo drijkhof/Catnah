@@ -20,7 +20,7 @@ import type { TilePalette } from './tiles';
  */
 
 /** The radius of a convex corner's rounding, px. */
-export const CORNER_RADIUS = 6;
+export const CORNER_RADIUS = 8;
 
 /**
  * The radius of a concave corner's fillet, px. Larger than the convex one:
