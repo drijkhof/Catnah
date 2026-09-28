@@ -264,7 +264,8 @@ and the two numbers that shape it live in `config.ts`.
 
 Turf stands up above the ground in a ragged fringe and droops over its
 corners. Earth has stones bedded in its lip. Rock is cobblestone with a mossy
-crown. Every ground and rock tile comes in three drawings, picked from a
+crown, and a rock is a boulder set down *on* the ground rather than part of
+it: it stays lit all through, and the grass runs on underneath. Every ground and rock tile comes in three drawings, picked from a
 tile's own place in the grid, so a run of floor never repeats in step.
 
 Behind the level, distance is done with tone: the far trees are pale and

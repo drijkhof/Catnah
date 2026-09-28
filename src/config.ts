@@ -96,8 +96,8 @@ export const TILE = 16;
  */
 export const GROUND_SHADE = {
   start: 6,
-  full: 30,
-  max: 0.9,
+  full: 44,
+  max: 0.8,
 } as const;
 
 /**

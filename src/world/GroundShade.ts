@@ -33,7 +33,7 @@ export function addGroundShade(
   const index = (column: number, row: number): number => row * columns + column;
 
   for (const solid of solids) {
-    if (!solid.isBranch && solid.width === TILE && solid.height === TILE) {
+    if (isMass(solid)) {
       full.add(index(solid.x / TILE, solid.y / TILE));
     }
   }
@@ -43,13 +43,13 @@ export function addGroundShade(
   const isAir = (column: number, row: number): boolean =>
     column >= 0 && row >= 0 && column < columns && row < rows && !full.has(index(column, row));
 
-  const CELL = 4;
+  const CELL = 2;
   const cellsPerSide = TILE / CELL;
   const reach = Math.ceil(GROUND_SHADE.full / TILE) + 1;
   const cache = new Map<string, string>();
 
   for (const solid of solids) {
-    if (solid.isBranch || solid.width !== TILE || solid.height !== TILE || isFacade(solid)) {
+    if (!isMass(solid)) {
       continue;
     }
 
@@ -89,7 +89,7 @@ export function addGroundShade(
       continue;
     }
 
-    const pattern = alphas.map((alpha) => Math.round(alpha * 32)).join(',');
+      const pattern = alphas.map((alpha) => Math.round(alpha * 64)).join(',');
     let key = cache.get(pattern);
 
     if (!key) {
@@ -113,12 +113,24 @@ export function addGroundShade(
 }
 
 /**
- * A building is a wall with a room behind it, not a mass of earth: darkening
- * its inside made a house read as a tunnel. It still counts as solid for its
- * neighbours -- the ground beside one gets no light from that side.
+ * What the darkness lives in: earth, and the walls of a cave. Not:
+ *
+ * - a branch, a bar of wood with air both sides of it;
+ * - a rock (`R`), which is a boulder lying *on* the ground, not part of it --
+ *   it stays lit all through, and the earth under it keeps its grass, as if
+ *   the rock had been set down on the lawn;
+ * - a building, a wall with a room behind it -- darkening its inside made a
+ *   house read as a tunnel.
+ *
+ * Everything that is not mass counts as air for the distance field too, so
+ * the ground beside a boulder or a house is lit from that side.
  */
-function isFacade(solid: Solid): boolean {
-  return solid.textureKey.startsWith('house-');
+function isMass(solid: Solid): boolean {
+  if (solid.isBranch || solid.width !== TILE || solid.height !== TILE) {
+    return false;
+  }
+
+  return !solid.textureKey.startsWith('rock-') && !solid.textureKey.startsWith('house-');
 }
 
 /**
