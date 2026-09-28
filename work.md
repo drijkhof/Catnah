@@ -64,6 +64,12 @@ it, a cat pacing the floor, a crow crossing overhead, a hedgehog trundling the
 other way and a piranha coming out of a puddle now and then. **Catnah**, and
 under it *A Hannah Milatovic Rijkhof Game*. Any key starts it; on a phone, a tap.
 
+Bottom right, small, sits the **version**: `v0.1.` followed by the build
+number -- on the live game the number of the deploy that built it, going up by
+one each time, so a bug report can say which build it was seen in. A build
+made on a laptop shows the commit's short hash there instead, so it can never
+be mistaken for the live one.
+
 Losing your last heart stops the game **where it stands**. The level stays on
 screen, frozen on the frame the cat died on, and all the colour drains out of
 it — and then one word in red, which is the only colour left:

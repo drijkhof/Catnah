@@ -914,3 +914,19 @@ the catch: tile plus margin each side plus the cat's own 13px body made a
 - **...taking a heart in the air gives a jump, and that stays.** It is the
   same flag, it began as a side effect, and it is wanted -- now written into
   `work.md` as a rule. Any future change to `onGround` has to keep it.
+
+## A version on the title screen
+
+Asked for: `v0.1.<build number>`, visible on the title screen. Three ways to
+get the number were tried in the space of one conversation:
+
+- **Commit count** -- rejected by the user; it also needed the deploy to
+  fetch the whole history to count it.
+- **Short commit hash** -- exact but unordered, and awkward to say aloud.
+- **GitHub Actions run number** -- chosen. `GITHUB_RUN_NUMBER` is set for
+  every workflow run, goes up by one per deploy, and reads as a build number
+  should. A laptop build has none and falls back to the short hash, so the
+  two kinds of build cannot be confused. The `0.1` is typed by hand in
+  `vite.config.ts` and is the thing to bump for a real release.
+- **A re-run of the same deploy gets the same number** (run number is per
+  run, not per attempt). Fine for this purpose.

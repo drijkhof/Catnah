@@ -210,6 +210,20 @@ export class TitleScene extends Phaser.Scene {
       .setDepth(1000)
       .setAlpha(0.85);
 
+    // Bottom right, small and quiet: there for telling one build from another
+    // when something is reported, not for reading.
+    this.add
+      .text(GAME_WIDTH - 4, GAME_HEIGHT - 3, __APP_VERSION__, {
+        fontFamily: 'monospace',
+        fontSize: `${Math.round(GAME_WIDTH * 0.018)}px`,
+        color: '#ffffff',
+        stroke: '#2a1d14',
+        strokeThickness: 2,
+      })
+      .setOrigin(1, 1)
+      .setDepth(1000)
+      .setAlpha(0.7);
+
     // A phone has no keys to press, so it is told what it does have.
     const prompt = this.game.device.input.touch ? 'Tap to start' : 'Press any key to start';
 

@@ -1,3 +1,4 @@
+import { execSync } from 'node:child_process';
 import { rm } from 'node:fs/promises';
 import { glob } from 'node:fs/promises';
 import path from 'node:path';
@@ -25,7 +26,35 @@ function stripInternalDocs(): Plugin {
   };
 }
 
+/**
+ * The build number is the GitHub Actions run number when the deploy builds
+ * it: a small integer that goes up by one per deploy, so "it broke in 42" is
+ * easy to say and 43 is plainly newer. A laptop build has no run number and
+ * uses the short commit hash instead, so it can never be mistaken for a
+ * deploy. `unknown` when there is no git to ask either.
+ */
+function build(): string {
+  const run = process.env.GITHUB_RUN_NUMBER;
+
+  if (run) {
+    return run;
+  }
+
+  try {
+    return execSync('git rev-parse --short HEAD', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+  } catch {
+    return 'unknown';
+  }
+}
+
+/** Shown on the title screen. The `0.1` is by hand; the rest is the build. */
+const VERSION = `v0.1.${build()}`;
+
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(VERSION),
+  },
+
   // GitHub Pages serves this as a project site at /Catnah/, not at the root of
   // a domain, so every built asset URL has to be prefixed. It has to be a
   // literal here rather than derived from the repository name, because that is
