@@ -276,6 +276,15 @@ in three letters, `R`, `G` and `Q`, identical in every way except that only
 cells of one letter join into a rock -- so a change of letter is a seam, and
 a bank can be one stone, two side by side, or one stacked on another.
 
+The ground is rounded off wherever it meets air or water. A tile with air on
+two adjacent sides has that corner cut round, grass or dark earth following
+the curve; an inner corner -- a floor meeting a wall, the bed of a pool
+meeting its bank -- is filled with a quarter-disc of earth with grass along
+its curve. A pool's surface is drawn three pixels below its bank, so the
+grass always stands above the water. Collision is still the square tile:
+only the picture bends. Stone shelves in the cave are one rounded slab per
+run of cells, lichen on top.
+
 Trees are drawn the same way. A column of trunk cells is **one trunk**,
 wider at the foot than the top, flaring into roots, bark all the way up with
 a knot or two. A run of branch cells is **one branch** growing out of its

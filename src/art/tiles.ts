@@ -1490,3 +1490,54 @@ export function bakeBranch(
   return thicknessAt;
 }
 
+/** How far a stone shelf bulges past its cells, px: sideways, and up for lichen. */
+export const SHELF_BULGE = { side: 1, top: 2 };
+
+/**
+ * One stone shelf, covering a run of `=` cells in a place whose platforms are
+ * rock: a slab with rounded ends, lit along the top, dark underneath, a
+ * crack or two and lichen on top. The top stays flat: the cat stands on it.
+ */
+export function bakeShelf(
+  scene: Phaser.Scene,
+  key: string,
+  cells: number,
+  palette: TilePalette,
+  seed: number,
+): void {
+  const width = cells * TILE + SHELF_BULGE.side * 2;
+  const height = BRANCH_THICKNESS + SHELF_BULGE.top;
+  const top = SHELF_BULGE.top;
+  const random = createRandom(seed);
+  const dark = shade(palette.rock, 26);
+  const radius = 3;
+
+  bakeTexture(scene, key, width, height, (g) => {
+    g.fillStyle(dark, 1);
+    g.fillRoundedRect(0, top, width, BRANCH_THICKNESS, radius);
+    g.fillStyle(palette.rockLight, 1);
+    g.fillRoundedRect(1, top + 1, width - 2, BRANCH_THICKNESS - 3, radius);
+    g.fillStyle(palette.rock, 1);
+    g.fillRoundedRect(2, top + 2, width - 4, BRANCH_THICKNESS - 5, 2);
+
+    // Cracks and a darker patch or two.
+    for (let i = 0; i < cells; i += 1) {
+      const cx = 3 + Math.floor(random() * (width - 6));
+      g.fillStyle(dark, 1);
+      g.fillRect(cx, top + 2 + Math.floor(random() * 3), 1 + Math.floor(random() * 3), 1);
+      if (random() < 0.5) {
+        g.fillStyle(shade(palette.rock, 10), 1);
+        g.fillRect(cx - 2, top + 3, 4, 2);
+      }
+    }
+
+    // Lichen on top, in dots, standing up a little.
+    for (let x = 2; x < width - 2; x += 1) {
+      if (random() < 0.3) {
+        g.fillStyle(random() < 0.5 ? palette.grass : palette.grassDark, 1);
+        g.fillRect(x, top - 1 + Math.floor(random() * 2), 1, 1 + Math.floor(random() * 2));
+      }
+    }
+  });
+}
+

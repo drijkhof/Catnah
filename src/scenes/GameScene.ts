@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { AWAKE_RANGE, CHARMS_PER_LIFE, CHECKPOINT, GAME_HEIGHT, GAME_WIDTH, LIVES, MAX_LIVES, TILE } from '../config';
+import { AWAKE_RANGE, CHARMS_PER_LIFE, CHECKPOINT, GAME_HEIGHT, GAME_WIDTH, LIVES, MAX_LIVES, TILE, WATER_DROP } from '../config';
 import { Controls } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -13,7 +13,7 @@ import { Spider } from '../objects/Spider';
 import { addGroundShade, createBackdrop } from '../world';
 import { parseLevel, type ParsedLevel, type Solid } from '../level/Level';
 import { LEVELS } from '../level/levels';
-import { BOULDER_BULGE, BRANCH_BULGE, GRASS_DROOP, GRASS_FRINGE_HEIGHT, TILE_VARIANTS, TRUNK_BULGE, bakeBoulder, bakeBranch, bakeTrunk, createRandom, tileKey } from '../art';
+import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, bakeBoulder, bakeBranch, bakeFillet, bakeShelf, bakeTrunk, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { installGodMode, isGodMode } from '../dev/godMode';
@@ -834,6 +834,14 @@ export class GameScene extends Phaser.Scene {
         tile.setVisible(false);
       }
 
+      // Ground with air on two adjacent sides is cut round at that corner.
+      if (this.isGround(solid)) {
+        const corners = this.cornersOf(solid);
+        if (corners.tl || corners.tr || corners.bl || corners.br) {
+          tile.setTexture(roundedTileKey(this, this.tile(solid.textureKey), corners, THEMES[this.level.theme]));
+        }
+      }
+
       // Probes look for solid ground by asking the physics world what is
       // nearby, and charms are static bodies too. Without this flag a hedgehog
       // turns round at a charm and the cat can wall jump off one.
@@ -870,15 +878,82 @@ export class GameScene extends Phaser.Scene {
 
     this.buildBoulders();
     this.buildBranches();
+    this.buildFillets();
 
     return { blocks, branches };
   }
 
-  /** A `=` cell that is a piece of a wooden branch, in a place with trees. */
+  /** Earth: a `#` cell, whatever palette it wears. */
+  private isGround(solid: Solid): boolean {
+    return !solid.isBranch && solid.textureKey.startsWith('ground-');
+  }
+
+  /** Which corners of a ground tile have air on both sides. */
+  private cornersOf(solid: Solid): Corners {
+    const { up, down, left, right } = solid.faces;
+
+    return { tl: up && left, tr: up && right, bl: down && left, br: down && right };
+  }
+
+  /**
+   * Fills every inner corner of the ground with a quarter-disc of earth: an
+   * air or water cell with ground on two adjacent sides (and in the corner
+   * between them) gets one, so a floor curves up into its wall and a pool's
+   * bed curves up into its bank. Pictures only; nothing collides with them.
+   */
+  private buildFillets(): void {
+    const ground = new Set(
+      this.level.solids.filter((solid) => this.isGround(solid)).map((solid) => `${solid.x / TILE},${solid.y / TILE}`),
+    );
+    const columns = Math.ceil(this.level.widthInPixels / TILE);
+    const rows = Math.ceil(this.level.heightInPixels / TILE);
+    const key = `${this.level.theme}:fillet`;
+    const has = (c: number, r: number): boolean => ground.has(`${c},${r}`);
+    const r = FILLET_RADIUS;
+
+    bakeFillet(this, key, THEMES[this.level.theme]);
+
+    for (let row = 0; row < rows; row += 1) {
+      for (let column = 0; column < columns; column += 1) {
+        if (has(column, row)) {
+          continue;
+        }
+
+        const x = column * TILE;
+        const y = row * TILE;
+        const above = has(column, row - 1);
+        const below = has(column, row + 1);
+        const leftOf = has(column - 1, row);
+        const rightOf = has(column + 1, row);
+
+        // The texture is drawn for the bottom-left; the others are flips.
+        if (leftOf && below && has(column - 1, row + 1)) {
+          this.add.image(x, y + TILE - r, key).setOrigin(0, 0);
+        }
+        if (rightOf && below && has(column + 1, row + 1)) {
+          this.add.image(x + TILE - r, y + TILE - r, key).setOrigin(0, 0).setFlipX(true);
+        }
+        if (leftOf && above && has(column - 1, row - 1)) {
+          this.add.image(x, y, key).setOrigin(0, 0).setFlipY(true);
+        }
+        if (rightOf && above && has(column + 1, row - 1)) {
+          this.add.image(x + TILE - r, y, key).setOrigin(0, 0).setFlipX(true).setFlipY(true);
+        }
+      }
+    }
+  }
+
+  /**
+   * A `=` cell drawn as part of one whole platform: a wooden branch where
+   * the platforms are branches, a stone shelf where they are shelves. A
+   * city girder stays a girder, tile by tile.
+   */
   private isWood(solid: Solid): boolean {
+    const style = THEMES[this.level.theme].platformStyle;
+
     return (
       solid.isBranch &&
-      THEMES[this.level.theme].platformStyle === 'branch' &&
+      (style === 'branch' || style === 'shelf') &&
       solid.textureKey.startsWith('branch-') &&
       !solid.textureKey.endsWith('-ledge')
     );
@@ -916,12 +991,25 @@ export class GameScene extends Phaser.Scene {
         length += 1;
       }
 
+      const variant = Math.floor(random() * 3);
+
+      if (palette.platformStyle === 'shelf') {
+        const shelfKey = `${this.level.theme}:shelf:${length}:${variant}`;
+        if (!this.textures.exists(shelfKey)) {
+          bakeShelf(this, shelfKey, length, palette, 1501 + length * 37 + variant * 101);
+        }
+        this.add
+          .image(solid.x - SHELF_BULGE.side, solid.y - SHELF_BULGE.top, shelfKey)
+          .setOrigin(0, 0)
+          .setDepth(-1);
+        continue;
+      }
+
       const base = trunkBeside(solid.x - TILE, solid.y)
         ? 'left'
         : trunkBeside(solid.x + length * TILE, solid.y)
           ? 'right'
           : 'none';
-      const variant = Math.floor(random() * 3);
       const key = `${this.level.theme}:branch:${length}:${base}:${variant}`;
 
       if (!thicknessByKey.has(key)) {
@@ -1071,10 +1159,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
-   * Grass standing up above a ground tile, and drooping over its exposed
-   * corners. Scenery with no body: the ground's silhouette against the sky is
-   * ragged turf rather than a ruled line, and an edge reads as turf hanging
-   * over earth rather than as the end of a tile.
+   * Grass standing up above a ground tile. Scenery with no body: the ground's
+   * silhouette against the sky is ragged turf rather than a ruled line.
    */
   private dressGround(solid: Solid): void {
     const match = /^ground-top(-\d)?$/.exec(solid.textureKey);
@@ -1084,23 +1170,16 @@ export class GameScene extends Phaser.Scene {
     }
 
     const suffix = match[1] ?? '';
+    const corners = this.cornersOf(solid);
+    // Where a top corner is cut round there is no ground under the blades,
+    // so the fringe stops short of it.
+    const from = corners.tl ? CORNER_RADIUS : 0;
+    const to = TILE - (corners.tr ? CORNER_RADIUS : 0);
 
     this.add
       .image(solid.x, solid.y - GRASS_FRINGE_HEIGHT + 1, this.tile(`grass-fringe${suffix}`))
-      .setOrigin(0, 0);
-
-    if (solid.faces.left) {
-      this.add
-        .image(solid.x - GRASS_DROOP.width + 1, solid.y, this.tile('grass-droop'))
-        .setOrigin(0, 0)
-        .setFlipX(true);
-    }
-
-    if (solid.faces.right) {
-      this.add
-        .image(solid.x + TILE - 1, solid.y, this.tile('grass-droop'))
-        .setOrigin(0, 0);
-    }
+      .setOrigin(0, 0)
+      .setCrop(from, 0, to - from, GRASS_FRINGE_HEIGHT);
   }
 
   /**
@@ -1374,7 +1453,7 @@ export class GameScene extends Phaser.Scene {
   private buildWater(): Phaser.Geom.Rectangle[] {
     return this.level.waterZones.map((zone) => {
       // Opaque bed first, behind the cat, so the forest does not show through.
-      this.add
+      const bed = this.add
         .image(zone.x, zone.y, this.tile('water-bed'))
         .setOrigin(0, 0)
         .setDepth(-8);
@@ -1384,6 +1463,14 @@ export class GameScene extends Phaser.Scene {
         .setOrigin(0, 0)
         .setAlpha(0.62)
         .setDepth(20);
+
+      // The surface sits a little below the bank, so the grass always stands
+      // above the water rather than meeting it edge to edge. The zone the
+      // cat swims in is unchanged; only the picture is lower.
+      if (zone.isSurface) {
+        bed.setCrop(0, WATER_DROP, TILE, TILE - WATER_DROP);
+        tile.setCrop(0, WATER_DROP, TILE, TILE - WATER_DROP);
+      }
 
       if (zone.isSurface) {
         // A slow swell, so the surface is alive rather than a painted line.

@@ -94,6 +94,12 @@ export const TILE = 16;
  * `start`, and from `full` on the ground is as dark as it gets, `max`. The
  * colour comes from each theme's palette.
  */
+/**
+ * How far below the bank a pool's surface is drawn, px. The grass on the bank
+ * always stands above the water. The swimmable zone is not lowered.
+ */
+export const WATER_DROP = 3;
+
 export const GROUND_SHADE = {
   start: 6,
   full: 44,

@@ -44,6 +44,13 @@ not the level's.
 hang from the real underside; the flat top is the collision surface and is
 never tapered.
 
+**Corners are canvas textures, not Graphics.** `corners.ts` rounds a ground
+tile's exposed corners and draws the inner-corner fillets pixel by pixel into
+a `CanvasTexture`, because a `Graphics` object can paint but never erase, and
+a crisp transparent corner needs erasing. Its bands are a pixel or two wide
+on purpose: at six pixels of radius a fillet with two-pixel bands had no
+earth left in it at all and vanished into the grass.
+
 **A texture is baked at exactly the size of the thing it collides with.** A
 branch texture is only as tall as its wood (`BRANCH_THICKNESS`), and each cat
 pose is exactly its physics body, so no sprite/body offset juggling is needed
