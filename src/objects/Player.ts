@@ -26,6 +26,11 @@ const WALL_PROBE = 2;
  * its edge, and reaching for the charm reads as climbing off the end of the
  * rope: the cat drops mid-collect, which was never what leaning over for a
  * charm was supposed to cost.
+ *
+ * **Holding on only.** Catching a column gets no margin: the body has to be
+ * over the tile itself. With the margin on the catch as well, a tile plus
+ * 10px each side plus the cat's own width made a 49px band -- three tiles --
+ * that took hold of the cat, around a chain drawn six pixels wide.
  */
 const CLIMB_SIDE_MARGIN = 10;
 
@@ -499,11 +504,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
    */
   private findTrunk(): Phaser.Geom.Rectangle | null {
     const body = this.body;
+    // Lean room while already holding on; none for taking hold. See
+    // `CLIMB_SIDE_MARGIN`.
+    const margin = this.isClimbing ? CLIMB_SIDE_MARGIN : 0;
 
     for (const zone of this.climbZones) {
       if (
-        body.right > zone.x - CLIMB_SIDE_MARGIN &&
-        body.x < zone.right + CLIMB_SIDE_MARGIN &&
+        body.right > zone.x - margin &&
+        body.x < zone.right + margin &&
         body.bottom > zone.y &&
         body.y < zone.bottom
       ) {

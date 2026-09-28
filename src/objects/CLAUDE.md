@@ -324,6 +324,12 @@ without a margin, leaning over for one moved the body past the zone's true
 edge and read as climbing off the end -- the cat dropped mid-collect. The
 margin is horizontal only, same as the zone test it widens.
 
+**The margin is for holding on, not for taking hold.** While the cat is not
+climbing, `findTrunk` uses no margin at all: the body has to be over the tile
+itself. With the margin applied to the catch too, tile plus 10px each side
+plus the cat's 13px body made a 49px band -- three tiles -- that took hold of
+the cat, which around a chain drawn 6px wide read as climbing thin air.
+
 **Letting go hands back a coyote window**, and that is not a nicety either.
 Without it only a jump pressed on the *exact* frame worked: pressing a direction
 first -- which is what hands actually do -- dropped the cat off the rope, and

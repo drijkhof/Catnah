@@ -891,3 +891,21 @@ not on geometry.
   can now be crawled through where before it had to be jumped. Nothing is
   known to be broken by that, but a patch that was the only thing forcing a
   jump is now optional.
+
+## A chain caught the cat from a tile away
+
+Reported from the volcano: one `T` in the map, drawn as a thin chain, but
+three tiles' worth of air took hold of the cat. `CLIMB_SIDE_MARGIN` (10px),
+added so a climbing cat could lean for a charm without dropping, was also
+widening the *catch*: tile plus margin each side plus the cat's own 13px body
+made a 49px band.
+
+- **The margin now applies only while already holding on.** Taking hold
+  needs the body over the tile itself, which measured as a band of about 29px
+  (the 16px tile plus the body's own width) -- still a little forgiving, and
+  the same for every column style. Leaning was re-measured too: the cat holds
+  on to 9px past the chain's edge, as before.
+- **Not narrowed to the drawn width.** A chain is drawn 6px wide, a trunk
+  16px, and the catch could follow the drawing per style. Left alone: the
+  tile-wide catch is what a rope or a trunk has as well, and a 6px catch on
+  a falling cat would be easy to miss on a phone.
