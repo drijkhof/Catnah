@@ -157,10 +157,11 @@ export const CAT = {
   animFrameRate: 8,
 
   /**
-   * Frames per second of the sneak cycle. Slower than `animFrameRate` because
-   * the cat itself is slower: at 42% speed the walk's 8fps read as scurrying.
+   * Frames per second of the sneak cycle. Faster than `animFrameRate`, not
+   * slower: the paws only shift a pixel per frame, so at the walk's pace or
+   * below the stalk read as a stutter. Settled by eye in play.
    */
-  sneakAnimFrameRate: 5,
+  sneakAnimFrameRate: 12,
 
   /** Horizontal run speed, px/sec. */
   speed: 190,
