@@ -74,11 +74,11 @@ const ROWS: string[] = [
   '........................................V....V....V.............................................V...........V...........................................o........R........................................................................V.',
   '........................................V....V....V.....^^^^................................................V...........................................o..............o....................................................................',
   '..P............o..o......o..............................BBBB..........................................................RRR......o.....o......o.....o.....+.............RRR.............RR......o......o......o.....#R....R#.........o........',
-  '.RRR.oo..................................................oo..*.........................^..............................RRR.*............................^^^............RRR...........^^RR^^........................RR^..^RR....................###....',
-  '#######RRR#wwwwCwwCwwwwwwCww########wwwwwwwwwwwwwwwwww########wwwCwwwwwCwwwwwCwwwwCw#######wwwwwwwwwwwwwwwwwwwwwwww#RRRRRR#wwwwCwwwwwCwwwwwwCwwwwwCww#######wwwwwfwwwGGGGwwfwwwwwwGGGGGGGGwwwwCwwwwwwCwwwwwwCwwwwwRRR^^RRRwwwwwwwwwCwwwwwwwwww#RRRR..RRR',
-  '###########wwwwwwwwwwwwwwwww########wwfwwwfwwwfwwwfwww##RRRR##wwwwwwwwwwwwwwwwwwwwww#RRR###wwfwwwfwwwfwwwwwwwwwwwww#R#RR#RRwwwwwwwwwwwwwwwwwwwwwwwwww#######wwfwwwwwwGGGGwwwwwfwwwGGGGGGGGwwwwwwwwwwwwwwwwwwwwwwww#RRRRRRRwwfwwwfwwwwwwwfwwwfw##RRR....R',
-  '############wwwwwwwwwwwwwww##########wwwwwwwwwwwwwwwwRRRRRRRRRRwwwwwwwwwwwwwwwwwwwww##RRRR#wwwwwwwwwwwwwfwwwwwwwwww##RR#RR#wwwwwwwwwwwwwwwwwwwwwwwwww#######wwwwwwwwwGGGGwwwwwwwRRRRRRRRRRRwwwwwwwwwwwwwwwwwwwwww##RRRRRR###wwwwwwwwwwwwwwwwww##RRR...ER',
-  '#####################################################RRRRRRRRRR#####################RRRRRRR#####################################################################################RRRRRRRRRRR#########################RRRR#########################RRRRRRR',
+  '.RRR.oo..................................................oo..*.........................^..............................RRR.*............................^^^............RRR...........^^RR^^........................GG^..^GG....................###....',
+  '#######RRR#wwwwCwwCwwwwwwCww########wwwwwwwwwwwwwwwwww########wwwCwwwwwCwwwwwCwwwwCw#######wwwwwwwwwwwwwwwwwwwwwwww#RRRRRR#wwwwCwwwwwCwwwwwwCwwwwwCww#######wwwwwfwwwGGGGwwfwwwwwwGGGGGGGGwwwwCwwwwwwCwwwwwwCwwwwwGGR^^RGGwwwwwwwwwCwwwwwwwwww#RRRR..RRR',
+  '###########wwwwwwwwwwwwwwwww########wwfwwwfwwwfwwwfwww##RRRR##wwwwwwwwwwwwwwwwwwwwww#RRR###wwfwwwfwwwfwwwwwwwwwwwww#R#RR#RRwwwwwwwwwwwwwwwwwwwwwwwwww#######wwfwwwwwwGGGGwwwwwfwwwGGGGGGGGwwwwwwwwwwwwwwwwwwwwwwww#RRQQRRRwwfwwwfwwwwwwwfwwwfw##RRR....R',
+  '############wwwwwwwwwwwwwww##########wwwwwwwwwwwwwwwwRRRRRRRRRRwwwwwwwwwwwwwwwwwwwww##RRRR#wwwwwwwwwwwwwfwwwwwwwwww##RR#RR#wwwwwwwwwwwwwwwwwwwwwwwwww#######wwwwwwwwwGGGGwwwwwwwRRRRRRRRRRRwwwwwwwwwwwwwwwwwwwwww##RGGGGR###wwwwwwwwwwwwwwwwww##RRR...ER',
+  '#####################################################RRRRRRRRRR#####################RRRRRRR#####################################################################################RRRRRRRRRRR#########################GGGG#########################RRRRRRR',
 ];
 
 export const SWAMP: LevelDefinition = {
