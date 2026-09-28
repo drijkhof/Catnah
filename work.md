@@ -291,7 +291,11 @@ a knot or two. A run of branch cells is **one branch** growing out of its
 trunk: thick where it leaves the wood, thinning to a rounded tip, twigs
 standing up off it, leaves hanging from its real underside; a run with no
 trunk at either end is a fallen bough, even along its length. The top
-surface stays flat, because that is what the cat stands on. Every ground and rock tile comes in three drawings, picked from a
+surface stays flat, because that is what the cat stands on. A run of `B`
+cells -- the low overhang you sneak under -- is **one fallen tree**: a trunk
+lying down, bark along its length, the grain in rings on the end that broke,
+snapped branch stubs standing up off it, moss on top. Like a boulder, it is
+a thing lying on the ground, so the dark does not live inside it. Every ground and rock tile comes in three drawings, picked from a
 tile's own place in the grid, so a run of floor never repeats in step.
 
 Behind the level, distance is done with tone: the far trees are pale and

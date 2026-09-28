@@ -1541,3 +1541,101 @@ export function bakeShelf(
   });
 }
 
+/** How far a fallen log bulges past its cells: sideways, and up for stubs and moss. */
+export const LOG_BULGE = { side: 2, top: 4 };
+
+/**
+ * One fallen tree, covering a run of `B` cells. Drawn on demand at the
+ * length the level asks for and cached by key.
+ *
+ * A trunk lying down: bark ridges running along its length in four tones,
+ * lit along the top and dark underneath, rounded at both ends with the grain
+ * showing in rings on the one that was broken off, a knot or two, a couple
+ * of snapped branch stubs standing up off it, and moss along the top.
+ */
+export function bakeLog(
+  scene: Phaser.Scene,
+  key: string,
+  cells: number,
+  palette: TilePalette,
+  seed: number,
+): void {
+  const width = cells * TILE + LOG_BULGE.side * 2;
+  const height = TILE + LOG_BULGE.top;
+  const top = LOG_BULGE.top;
+  const random = createRandom(seed);
+  const deep = shade(palette.trunkDark, 22);
+  const radius = 7;
+  const bodyW = width;
+  const bodyH = TILE;
+
+  bakeTexture(scene, key, width, height, (g) => {
+    // Silhouette, then the lit top, the bark, the dark underside.
+    g.fillStyle(deep, 1);
+    g.fillRoundedRect(0, top, bodyW, bodyH, radius);
+    g.fillStyle(palette.trunkDark, 1);
+    g.fillRoundedRect(1, top + 1, bodyW - 2, bodyH - 2, radius - 1);
+    g.fillStyle(palette.trunk, 1);
+    g.fillRoundedRect(2, top + 2, bodyW - 4, bodyH - 6, radius - 2);
+    g.fillStyle(palette.trunkLight, 1);
+    g.fillRoundedRect(3, top + 2, bodyW - 6, 2, 2);
+
+    // Bark ridges along the length: broken lines in the light and dark tones,
+    // never the full length, so the wood reads as bark rather than stripes.
+    for (let y = top + 5; y < top + bodyH - 3; y += 2) {
+      let x = 4 + Math.floor(random() * 6);
+      while (x < bodyW - 6) {
+        const len = 4 + Math.floor(random() * 9);
+        const tone = random() < 0.35 ? palette.trunkLight : y > top + 10 ? deep : palette.trunkDark;
+        g.fillStyle(tone, 1);
+        g.fillRect(x, y, Math.min(len, bodyW - 6 - x), 1);
+        x += len + 2 + Math.floor(random() * 5);
+      }
+    }
+
+    // Knots.
+    for (let i = 0; i < Math.max(1, Math.round(cells / 2)); i += 1) {
+      const kx = 8 + Math.floor(random() * (bodyW - 16));
+      const ky = top + 5 + Math.floor(random() * 6);
+      g.fillStyle(deep, 1);
+      g.fillEllipse(kx, ky, 6, 4);
+      g.fillStyle(palette.trunk, 1);
+      g.fillEllipse(kx, ky, 4, 2);
+    }
+
+    // The broken end: rings of grain, on the right.
+    const ex = bodyW - radius - 1;
+    const ey = top + bodyH / 2;
+    g.fillStyle(deep, 1);
+    g.fillEllipse(ex, ey, 9, bodyH - 3);
+    g.fillStyle(lighten(palette.trunkLight, 10), 1);
+    g.fillEllipse(ex, ey, 7, bodyH - 6);
+    g.fillStyle(palette.trunk, 1);
+    g.fillEllipse(ex, ey, 5, bodyH - 9);
+    g.fillStyle(deep, 1);
+    g.fillEllipse(ex, ey, 2, 3);
+
+    // Snapped branch stubs standing up off the top.
+    const stubs = Math.max(1, Math.round(cells * 0.5));
+    for (let i = 0; i < stubs; i += 1) {
+      const sx = 6 + Math.floor(random() * (bodyW - 18));
+      const sh = 2 + Math.floor(random() * 3);
+      g.fillStyle(palette.trunkDark, 1);
+      g.fillRect(sx, top - sh, 4, sh + 2);
+      g.fillStyle(palette.trunk, 1);
+      g.fillRect(sx + 1, top - sh, 2, sh + 1);
+      g.fillStyle(lighten(palette.trunkLight, 10), 1);
+      g.fillRect(sx + 1, top - sh, 2, 1);
+    }
+
+    // Moss along the top, ragged, thickest away from the broken end.
+    for (let x = 3; x < bodyW - 10; x += 1) {
+      const roll = random();
+      if (roll < 0.6) {
+        g.fillStyle(roll < 0.2 ? palette.leafLight : roll < 0.4 ? palette.leaf : shade(palette.leaf, 22), 1);
+        g.fillRect(x, top - 1 + Math.floor(random() * 2), 1, 2 + Math.floor(random() * 2));
+      }
+    }
+  });
+}
+

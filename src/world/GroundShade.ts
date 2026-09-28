@@ -146,7 +146,9 @@ function isMass(solid: Solid, isBuried: boolean): boolean {
     return isBuried;
   }
 
-  return !solid.textureKey.startsWith('house-');
+  // A fallen tree is a thing lying on the ground, like a boulder, not part
+  // of it.
+  return !solid.textureKey.startsWith('house-') && solid.textureKey !== 'bough';
 }
 
 function isRock(solid: Solid): boolean {

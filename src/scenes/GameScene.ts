@@ -13,7 +13,7 @@ import { Spider } from '../objects/Spider';
 import { addGroundShade, createBackdrop } from '../world';
 import { parseLevel, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
-import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, bakeBoulder, bakeBranch, bakeFillet, bakeShelf, bakeTrunk, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
+import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, LOG_BULGE, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTrunk, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { installGodMode, isGodMode } from '../dev/godMode';
@@ -829,8 +829,9 @@ export class GameScene extends Phaser.Scene {
         .refreshBody() as Phaser.Physics.Arcade.Sprite;
 
       // A rock cell collides here but is not drawn here: its cluster is
-      // drawn as one boulder by `buildBoulders`.
-      if (solid.textureKey.startsWith('rock-')) {
+      // drawn as one boulder by `buildBoulders`. A bough cell likewise: its
+      // run is one fallen tree, drawn by `buildLogs`.
+      if (solid.textureKey.startsWith('rock-') || solid.textureKey === 'bough') {
         tile.setVisible(false);
       }
 
@@ -878,6 +879,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.buildBoulders();
+    this.buildLogs();
     this.buildBranches();
     this.buildFillets();
 
@@ -920,6 +922,45 @@ export class GameScene extends Phaser.Scene {
     if (left && corners.bl) flood(0, TILE - r, left);
     if (right && corners.tr) flood(TILE - r, 0, right);
     if (right && corners.br) flood(TILE - r, TILE - r, right);
+  }
+
+  /**
+   * Draws every horizontal run of `B` cells as one fallen tree. The cells
+   * still collide one by one; the log is only the picture, baked once per
+   * length and variant.
+   */
+  private buildLogs(): void {
+    const boughs = this.level.solids.filter((solid) => solid.textureKey === 'bough');
+    const cells = new Set(boughs.map((solid) => `${solid.x / TILE},${solid.y / TILE}`));
+    const palette = THEMES[this.level.theme];
+    const random = createRandom(8161);
+
+    for (const solid of boughs) {
+      const column = solid.x / TILE;
+      const row = solid.y / TILE;
+
+      if (cells.has(`${column - 1},${row}`)) {
+        continue;
+      }
+
+      let length = 1;
+      while (cells.has(`${column + length},${row}`)) {
+        length += 1;
+      }
+
+      const variant = Math.floor(random() * 3);
+      const key = `${this.level.theme}:log:${length}:${variant}`;
+
+      if (!this.textures.exists(key)) {
+        bakeLog(this, key, length, palette, 2203 + length * 41 + variant * 101);
+      }
+
+      this.add
+        .image(solid.x - LOG_BULGE.side, solid.y - LOG_BULGE.top, key)
+        .setOrigin(0, 0)
+        .setFlipX(random() < 0.5)
+        .setDepth(-1);
+    }
   }
 
   /** Earth: a `#` cell, whatever palette it wears. */
