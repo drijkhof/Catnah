@@ -28,6 +28,35 @@ export function generateCatTextures(scene: Phaser.Scene): void {
  * `generateCatTextures`, since animations live on the game the same way
  * textures do.
  */
+/**
+ * The cat's palette beyond the four base colours: a lit edge along the back,
+ * a shaded haunch, and the eye. Derived here so the four poses agree.
+ */
+const TONES = {
+  highlight: Phaser.Display.Color.ValueToColor(COLORS.cat).lighten(14).color,
+  shadow: Phaser.Display.Color.ValueToColor(COLORS.cat).darken(10).color,
+  iris: 0x7ccf63,
+  pupil: 0x1a1410,
+  glint: 0xf4fff0,
+  mouth: 0x8f4f2a,
+};
+
+/** A cat's eye: green iris, slit pupil, and a glint. 2x2, at (x, y). */
+function drawEye(g: Phaser.GameObjects.Graphics, x: number, y: number): void {
+  g.fillStyle(TONES.iris, 1);
+  g.fillRect(x, y, 2, 2);
+  g.fillStyle(TONES.pupil, 1);
+  g.fillRect(x + 1, y, 1, 2);
+  g.fillStyle(TONES.glint, 1);
+  g.fillRect(x, y, 1, 1);
+}
+
+/** The pink inside of an ear: one pixel at the base of the triangle. */
+function drawEarInside(g: Phaser.GameObjects.Graphics, x: number, y: number): void {
+  g.fillStyle(COLORS.catNose, 1);
+  g.fillRect(x, y, 1, 1);
+}
+
 export function createCatAnimations(scene: Phaser.Scene): void {
   scene.anims.create({
     key: 'cat-walk',
@@ -71,45 +100,73 @@ export function createCatAnimations(scene: Phaser.Scene): void {
 function generateStanding(scene: Phaser.Scene): void {
   const { width, height } = CAT;
 
-  bakeTexture(scene, 'cat', width, height, (g) => {
-    // Tail, sweeping up behind.
-    g.fillStyle(COLORS.cat, 1);
-    g.fillRect(0, 4, 3, 6);
-    g.fillRect(1, 3, 3, 2);
-    g.fillRect(2, 8, 3, 3);
+  bakeTexture(scene, 'cat', width, height, (g) => drawStandingFrame(g, 0));
+}
 
-    // Hind and front legs.
-    g.fillRect(5, 13, 3, 5);
-    g.fillRect(14, 13, 3, 5);
+/**
+ * The cat side-on, standing or mid-stride. `stride` 0 is standing; 1 and -1
+ * are the two halves of the walk, one leg planted forward and long, the other
+ * trailing and drawn a pixel short as if lifted. Everything above the legs is
+ * the same picture.
+ */
+function drawStandingFrame(g: Phaser.GameObjects.Graphics, stride: 0 | 1 | -1): void {
+  g.fillStyle(COLORS.cat, 1);
 
-    // Body.
-    g.fillRect(3, 6, 15, 8);
+  // Tail, sweeping up behind.
+  g.fillRect(0, 4, 3, 6);
+  g.fillRect(1, 3, 3, 2);
+  g.fillRect(2, 8, 3, 3);
 
-    // Head.
-    g.fillRect(14, 3, 8, 8);
+  // Hind and front legs.
+  g.fillRect(5 + stride, 13, 3, stride === 0 ? 5 : 5);
+  g.fillRect(14 - stride, stride === 0 ? 13 : 12, 3, stride === 0 ? 5 : 4);
 
-    // Ears.
-    g.fillTriangle(15, 4, 18, 4, 16, 0);
-    g.fillTriangle(19, 4, 22, 4, 21, 0);
+  // Body.
+  g.fillRect(3, 6, 15, 8);
 
-    // Pale chest and belly.
-    g.fillStyle(COLORS.catLight, 1);
-    g.fillRect(6, 11, 9, 3);
-    g.fillRect(16, 9, 5, 2);
+  // Head.
+  g.fillRect(14, 3, 8, 8);
 
-    // Tabby stripes.
-    g.fillStyle(COLORS.catDark, 1);
-    g.fillRect(7, 6, 2, 4);
-    g.fillRect(11, 6, 2, 4);
-    g.fillRect(15, 3, 2, 2);
+  // Ears.
+  g.fillTriangle(15, 4, 18, 4, 16, 0);
+  g.fillTriangle(19, 4, 22, 4, 21, 0);
 
-    // Eye and nose.
-    g.fillStyle(0x2a2118, 1);
-    g.fillRect(18, 6, 2, 2);
+  // Light along the back and the top of the head, from the sun above.
+  g.fillStyle(TONES.highlight, 1);
+  g.fillRect(4, 6, 10, 1);
+  g.fillRect(17, 3, 3, 1);
+  g.fillRect(1, 3, 2, 1);
 
-    g.fillStyle(COLORS.catNose, 1);
-    g.fillRect(21, 8, 1, 2);
-  });
+  // Shade on the haunch and under the chin.
+  g.fillStyle(TONES.shadow, 1);
+  g.fillRect(3, 9, 3, 3);
+  g.fillRect(14, 10, 2, 1);
+
+  // Pale chest, belly and muzzle.
+  g.fillStyle(COLORS.catLight, 1);
+  g.fillRect(6, 11, 9, 3);
+  g.fillRect(16, 9, 5, 2);
+
+  // Tabby stripes, and rings on the tail.
+  g.fillStyle(COLORS.catDark, 1);
+  g.fillRect(7, 6, 2, 4);
+  g.fillRect(11, 6, 2, 4);
+  g.fillRect(15, 3, 2, 2);
+  g.fillRect(0, 6, 3, 1);
+  g.fillRect(2, 9, 2, 1);
+
+  // Toes.
+  g.fillRect(5 + stride, 17, 3, 1);
+  g.fillRect(14 - stride, stride === 0 ? 17 : 15, 3, 1);
+
+  drawEarInside(g, 16, 2);
+  drawEarInside(g, 21, 2);
+  drawEye(g, 18, 6);
+
+  g.fillStyle(COLORS.catNose, 1);
+  g.fillRect(21, 8, 1, 2);
+  g.fillStyle(TONES.mouth, 1);
+  g.fillRect(20, 10, 1, 1);
 }
 
 function generateSneaking(scene: Phaser.Scene): void {
@@ -150,171 +207,105 @@ function drawSneakFrame(g: Phaser.GameObjects.Graphics, stride: 0 | 1 | -1): voi
   g.fillRect(6 - stride, 7, 3, 2);
   g.fillRect(15 + stride, 7, 3, 2);
 
+  // Light along the back, shade on the haunch.
+  g.fillStyle(TONES.highlight, 1);
+  g.fillRect(5, 2, 11, 1);
+  g.fillRect(18, 1, 5, 1);
+  g.fillStyle(TONES.shadow, 1);
+  g.fillRect(4, 5, 3, 2);
+
   g.fillStyle(COLORS.catLight, 1);
   g.fillRect(7, 6, 9, 2);
+  g.fillRect(21, 6, 3, 1);
 
   g.fillStyle(COLORS.catDark, 1);
   g.fillRect(9, 2, 2, 4);
   g.fillRect(13, 2, 2, 4);
+  g.fillRect(2, 4, 1, 2);
+  // Toes.
+  g.fillRect(6 - stride, 8, 3, 1);
+  g.fillRect(15 + stride, 8, 3, 1);
 
-  g.fillStyle(0x2a2118, 1);
-  g.fillRect(21, 3, 2, 2);
+  drawEarInside(g, 17, 1);
+  drawEarInside(g, 22, 1);
+  drawEye(g, 21, 3);
 
   g.fillStyle(COLORS.catNose, 1);
   g.fillRect(24, 5, 1, 2);
 }
 
-/**
- * Clinging to a rope, seen from behind.
- *
- * Baked at the *standing* frame size, so the physics body is untouched and
- * taking hold of a rope changes nothing but the picture. The drawing only uses
- * the middle of that frame, which is why an upright cat fits in a box that is
- * wider than it is tall.
- *
- * There is one pose for both directions, and it is never flipped vertically:
- * a cat climbing down a rope still goes head-up, backwards, the way a cat
- * actually does it. Head-down would read as falling.
- */
 function generateClimbing(scene: Phaser.Scene): void {
   const { width, height } = CAT;
-  const mid = width / 2;
 
-  bakeTexture(scene, 'cat-climb', width, height, (g) => {
-    g.fillStyle(COLORS.cat, 1);
-
-    // Forepaws, reaching out to either side of the rope and gripping it.
-    g.fillRect(mid - 9, 3, 3, 3);
-    g.fillRect(mid + 6, 3, 3, 3);
-
-    // Head, at the top, where it stays.
-    g.fillRect(mid - 4, 1, 8, 6);
-
-    // Ears.
-    g.fillTriangle(mid - 4, 2, mid - 1, 2, mid - 4, -1);
-    g.fillTriangle(mid + 1, 2, mid + 4, 2, mid + 4, -1);
-
-    // Back, hanging straight down from the shoulders.
-    g.fillRect(mid - 4, 6, 8, 9);
-
-    // Hind paws, tucked in lower down.
-    g.fillRect(mid - 7, 10, 3, 3);
-    g.fillRect(mid + 4, 10, 3, 3);
-
-    // Tail, dropping away below.
-    g.fillRect(mid - 1, 14, 2, 4);
-
-    // Pale scruff, so the head reads as separate from the back.
-    g.fillStyle(COLORS.catLight, 1);
-    g.fillRect(mid - 3, 7, 6, 2);
-
-    // Tabby stripes down the spine.
-    g.fillStyle(COLORS.catDark, 1);
-    g.fillRect(mid - 1, 9, 2, 5);
-    g.fillRect(mid - 3, 2, 6, 1);
-
-    // Both eyes: this is the back of a cat's head turned to look up.
-    g.fillStyle(0x2a2118, 1);
-    g.fillRect(mid - 3, 3, 2, 2);
-    g.fillRect(mid + 1, 3, 2, 2);
-  });
+  bakeTexture(scene, 'cat-climb', width, height, (g) => drawClimbFrame(g, false));
 }
 
 /**
- * The two strides of a walk cycle, baked at the standing frame size. `stride`
- * mirrors which leg is planted and which is lifted, so one drawing gives both
- * halves of the gait -- everything above the legs is identical to standing.
+ * The cat from behind, holding a rope: head at the top looking up, back
+ * hanging straight down, paws out to either side. `reaching` is the shuffle
+ * frame, one forepaw stretched further up and the hind paws a beat behind.
  */
+function drawClimbFrame(g: Phaser.GameObjects.Graphics, reaching: boolean): void {
+  const mid = CAT.width / 2;
+
+  g.fillStyle(COLORS.cat, 1);
+
+  // Forepaws, reaching out to either side of the rope and gripping it.
+  g.fillRect(mid - 9, reaching ? 1 : 3, 3, 3);
+  g.fillRect(mid + 6, reaching ? 5 : 3, 3, 3);
+
+  // Head, at the top, where it stays.
+  g.fillRect(mid - 4, 1, 8, 6);
+
+  // Ears.
+  g.fillTriangle(mid - 4, 2, mid - 1, 2, mid - 4, -1);
+  g.fillTriangle(mid + 1, 2, mid + 4, 2, mid + 4, -1);
+
+  // Back, hanging straight down from the shoulders.
+  g.fillRect(mid - 4, 6, 8, 9);
+
+  // Hind paws, tucked in lower down.
+  g.fillRect(mid - 7, reaching ? 8 : 10, 3, 3);
+  g.fillRect(mid + 4, reaching ? 12 : 10, 3, 3);
+
+  // Tail, dropping away below.
+  g.fillRect(mid - 1, 14, 2, 4);
+
+  // Light on the shoulders, shade down the flanks.
+  g.fillStyle(TONES.highlight, 1);
+  g.fillRect(mid - 4, 6, 2, 1);
+  g.fillRect(mid + 2, 6, 2, 1);
+  g.fillRect(mid - 3, 1, 6, 1);
+  g.fillStyle(TONES.shadow, 1);
+  g.fillRect(mid - 4, 9, 1, 6);
+  g.fillRect(mid + 3, 9, 1, 6);
+
+  // Pale scruff, so the head reads as separate from the back.
+  g.fillStyle(COLORS.catLight, 1);
+  g.fillRect(mid - 3, 7, 6, 2);
+
+  // Tabby stripes down the spine, and a ring on the tail.
+  g.fillStyle(COLORS.catDark, 1);
+  g.fillRect(mid - 1, 9, 2, 5);
+  g.fillRect(mid - 3, 2, 6, 1);
+  g.fillRect(mid - 1, 16, 2, 1);
+
+  // Both eyes: this is the back of a cat's head turned to look up.
+  drawEye(g, mid - 3, 3);
+  drawEye(g, mid + 1, 3);
+}
+
 function generateWalking(scene: Phaser.Scene): void {
   const { width, height } = CAT;
 
-  bakeTexture(scene, 'cat-walk-a', width, height, (g) => drawWalkFrame(g, 1));
-  bakeTexture(scene, 'cat-walk-b', width, height, (g) => drawWalkFrame(g, -1));
+  bakeTexture(scene, 'cat-walk-a', width, height, (g) => drawStandingFrame(g, 1));
+  bakeTexture(scene, 'cat-walk-b', width, height, (g) => drawStandingFrame(g, -1));
 }
 
-function drawWalkFrame(g: Phaser.GameObjects.Graphics, stride: 1 | -1): void {
-  g.fillStyle(COLORS.cat, 1);
-
-  // Tail, sweeping up behind.
-  g.fillRect(0, 4, 3, 6);
-  g.fillRect(1, 3, 3, 2);
-  g.fillRect(2, 8, 3, 3);
-
-  // Hind and front legs: one planted forward and long, the other trailing
-  // and drawn a pixel short, as if lifted mid-step.
-  g.fillRect(5 + stride, 13, 3, 5);
-  g.fillRect(14 - stride, 12, 3, 4);
-
-  // Body.
-  g.fillRect(3, 6, 15, 8);
-
-  // Head.
-  g.fillRect(14, 3, 8, 8);
-
-  // Ears.
-  g.fillTriangle(15, 4, 18, 4, 16, 0);
-  g.fillTriangle(19, 4, 22, 4, 21, 0);
-
-  // Pale chest and belly.
-  g.fillStyle(COLORS.catLight, 1);
-  g.fillRect(6, 11, 9, 3);
-  g.fillRect(16, 9, 5, 2);
-
-  // Tabby stripes.
-  g.fillStyle(COLORS.catDark, 1);
-  g.fillRect(7, 6, 2, 4);
-  g.fillRect(11, 6, 2, 4);
-  g.fillRect(15, 3, 2, 2);
-
-  // Eye and nose.
-  g.fillStyle(0x2a2118, 1);
-  g.fillRect(18, 6, 2, 2);
-
-  g.fillStyle(COLORS.catNose, 1);
-  g.fillRect(21, 8, 1, 2);
-}
-
-/**
- * The second half of the climbing shuffle: the same grip as `cat-climb`, one
- * paw reached further up the rope and the other trailing lower, so
- * alternating the two reads as hand-over-hand climbing rather than a static
- * cling.
- */
 function generateClimbingShuffle(scene: Phaser.Scene): void {
   const { width, height } = CAT;
-  const mid = width / 2;
 
-  bakeTexture(scene, 'cat-climb-a', width, height, (g) => {
-    g.fillStyle(COLORS.cat, 1);
-
-    // Forepaws: one stretched further up the rope, the other trailing.
-    g.fillRect(mid - 9, 1, 3, 3);
-    g.fillRect(mid + 6, 5, 3, 3);
-
-    g.fillRect(mid - 4, 1, 8, 6);
-
-    g.fillTriangle(mid - 4, 2, mid - 1, 2, mid - 4, -1);
-    g.fillTriangle(mid + 1, 2, mid + 4, 2, mid + 4, -1);
-
-    g.fillRect(mid - 4, 6, 8, 9);
-
-    // Hind paws, echoing the forepaws' reach one beat behind.
-    g.fillRect(mid - 7, 8, 3, 3);
-    g.fillRect(mid + 4, 12, 3, 3);
-
-    g.fillRect(mid - 1, 14, 2, 4);
-
-    g.fillStyle(COLORS.catLight, 1);
-    g.fillRect(mid - 3, 7, 6, 2);
-
-    g.fillStyle(COLORS.catDark, 1);
-    g.fillRect(mid - 1, 9, 2, 5);
-    g.fillRect(mid - 3, 2, 6, 1);
-
-    g.fillStyle(0x2a2118, 1);
-    g.fillRect(mid - 3, 3, 2, 2);
-    g.fillRect(mid + 1, 3, 2, 2);
-  });
+  bakeTexture(scene, 'cat-climb-a', width, height, (g) => drawClimbFrame(g, true));
 }
 
 /**
@@ -356,20 +347,30 @@ function drawSwimFrame(g: Phaser.GameObjects.Graphics, paddleUp: boolean): void 
   // Hind legs, streamlined and mostly submerged behind.
   g.fillRect(4, 13, 6, 3);
 
+  // Light along the back and the head, shade on the haunch.
+  g.fillStyle(TONES.highlight, 1);
+  g.fillRect(4, 9, 10, 1);
+  g.fillRect(17, 3, 3, 1);
+  g.fillStyle(TONES.shadow, 1);
+  g.fillRect(3, 12, 3, 2);
+
   // Pale chest and belly.
   g.fillStyle(COLORS.catLight, 1);
   g.fillRect(6, 12, 9, 2);
   g.fillRect(16, 9, 5, 2);
 
-  // Tabby stripes.
+  // Tabby stripes, and a ring on the tail.
   g.fillStyle(COLORS.catDark, 1);
   g.fillRect(15, 3, 2, 2);
   g.fillRect(8, 9, 2, 3);
+  g.fillRect(1, 8, 1, 2);
 
-  // Eye and nose.
-  g.fillStyle(0x2a2118, 1);
-  g.fillRect(18, 6, 2, 2);
+  drawEarInside(g, 16, 2);
+  drawEarInside(g, 21, 2);
+  drawEye(g, 18, 6);
 
   g.fillStyle(COLORS.catNose, 1);
   g.fillRect(21, 8, 1, 2);
+  g.fillStyle(TONES.mouth, 1);
+  g.fillRect(20, 10, 1, 1);
 }

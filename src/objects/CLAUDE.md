@@ -54,6 +54,14 @@ The coyote timer is still a timer, and both it and the queue are cleared when a
 jump fires -- otherwise one press could trigger a second jump the next frame
 while the window is still warm.
 
+## The drawing
+
+One picture per pose family, parameterised: `drawStandingFrame(stride)` gives
+standing and both walk strides, `drawSneakFrame(stride)` the stalk,
+`drawClimbFrame(reaching)` the climb and its shuffle. The shared tones
+(`TONES` in `art/cat.ts`) -- a lit edge along the back, a shaded haunch, the
+green eye with its slit pupil -- are what make the four poses read as one cat.
+
 ## The poses
 
 The cat is drawn standing (22x18) and sneaking (26x9), each baked at exactly
