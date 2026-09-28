@@ -144,6 +144,10 @@ Wall jumping has no button of its own: in mid-air against a wall, jump does it.
   stored for later.
 - **Sneaking is blocked from standing up** when there is no headroom, so you
   cannot pop up through a log you are sneaking under, nor jump out from under it.
+- **Sneaking takes you under thorns.** Crawl and the points pass over you;
+  stand up among them and you die. It is the pose that counts, and the pose
+  drops the moment you leave the ground, so falling into thorns still kills.
+  Lava and creatures are not fooled by it.
 
 ### Standing on things
 
@@ -617,6 +621,10 @@ pale point, and the only thing in the game that kills you without being alive or
 being a liquid. What kills is smaller than the tile it stands in: the spikes are
 nine to fifteen pixels of sixteen and the rest is air, so clearing the points is
 clearing them, and brushing the edge of the tile on the way past is not a death.
+
+**A sneaking cat crawls under them.** Standing, walking, jumping or falling into
+thorns kills; low on your belly you pass. This is the one hazard sneaking gets
+you past -- a stalk is worth something, not only a way through a gap.
 
 ## Everything sleeps until you get there
 

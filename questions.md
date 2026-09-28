@@ -871,3 +871,23 @@ all. Details in `src/objects/CLAUDE.md`, under the poses.
   still nudges the body 2.5px sideways into whatever is beside it. Arcade
   cleans that up and it was not part of this bug, so it was left; equal
   widths would remove the nudge if it ever matters.
+
+## Sneaking under thorns
+
+Asked for: crawl past the spikes without dying. Built as a rule on the pose,
+not on geometry.
+
+- **Pose, not height.** The 9px sneaking body does still overlap the thorn
+  rectangle; the check simply skips thorns while `player.sneaking`. Shrinking
+  the deadly rectangle to the top two pixels would have let the body slip
+  under by exactly zero margin, and a one-pixel bounce would have been a
+  death. The pose is what the player chose, and it drops as soon as the cat
+  leaves the ground, so falling into thorns still kills.
+- **Only thorns.** Lava spares nothing, and neither does a hedgehog -- its
+  spines are a creature's, not scenery's, and going under a hedgehog reads
+  wrong. If "spikes" was meant to include the hedgehog, that is a separate
+  decision.
+- **Levels were not re-checked for shortcuts.** Every thorn patch in the game
+  can now be crawled through where before it had to be jumped. Nothing is
+  known to be broken by that, but a patch that was the only thing forcing a
+  jump is now optional.

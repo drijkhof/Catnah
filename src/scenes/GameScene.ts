@@ -118,12 +118,15 @@ export class GameScene extends Phaser.Scene {
   private spiders: Spider[] = [];
   private boss?: Boss;
   /**
-   * Everything that kills on contact and is not a creature: lava, and thorns.
-   *
-   * One list rather than two, because the cat's side of it is identical -- a
-   * rectangle it must not be inside. What each of them *is* lives elsewhere.
+   * Lava: kills on contact, whatever the cat is doing. A rectangle it must not
+   * be inside.
    */
-  private deadlyRects: Phaser.Geom.Rectangle[] = [];
+  private lavaRects: Phaser.Geom.Rectangle[] = [];
+  /**
+   * Thorns: kill on contact unless the cat is sneaking. Low enough, it slips
+   * under the points -- see `touchingSomethingDeadly`.
+   */
+  private thornRects: Phaser.Geom.Rectangle[] = [];
   private lava?: LavaLake;
   private rain?: Rain;
 
@@ -183,7 +186,8 @@ export class GameScene extends Phaser.Scene {
     this.buildDeadVines();
     this.buildFoliage();
     const waterZones = this.buildWater();
-    this.deadlyRects = [...this.buildLava(), ...this.buildThorns()];
+    this.lavaRects = this.buildLava();
+    this.thornRects = this.buildThorns();
     this.charms = this.buildCharms();
     this.checkpoints = this.buildCheckpoints();
     this.respawnPoint = { x: this.level.spawn.x, y: this.level.spawn.y };
@@ -677,17 +681,29 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  /** Is any part of the cat in the lava, or on the thorns? */
+  /**
+   * Is any part of the cat in the lava, or -- unless it is sneaking -- on the
+   * thorns?
+   *
+   * A sneaking cat crawls under the points. That is a rule of the game rather
+   * than geometry (the 9px body does still overlap the thorn rectangle), and
+   * it is deliberately about the *pose*, not the height: the pose is what the
+   * player chose, and it drops the moment the cat leaves the ground, so a
+   * fall into thorns still kills. Lava spares nothing.
+   */
   private touchingSomethingDeadly(): boolean {
     const body = this.player.body;
+    const inside = (zone: Phaser.Geom.Rectangle): boolean =>
+      body.right > zone.x &&
+      body.x < zone.right &&
+      body.bottom > zone.y &&
+      body.y < zone.bottom;
 
-    return this.deadlyRects.some(
-      (zone) =>
-        body.right > zone.x &&
-        body.x < zone.right &&
-        body.bottom > zone.y &&
-        body.y < zone.bottom,
-    );
+    if (this.lavaRects.some(inside)) {
+      return true;
+    }
+
+    return !this.player.sneaking && this.thornRects.some(inside);
   }
 
   /**
