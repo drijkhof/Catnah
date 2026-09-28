@@ -103,6 +103,33 @@ export function bakeBoulder(
       g.fillCircle(bx + 1, by + 2, Math.max(1, r - 2));
     }
 
+    // Bumps down the sides too, so a tall rock is not a pillar of tin.
+    if (cellsHigh >= 3) {
+      const sideBumps = Math.round(cellsHigh * 0.6);
+      for (let i = 0; i < sideBumps; i += 1) {
+        const onLeft = random() < 0.5;
+        const r = 3 + random() * 4;
+        const by = body.y + radius + ((i + random()) / sideBumps) * (body.h - radius * 2);
+        const bx = onLeft ? body.x + 1 : body.x + body.w - 1;
+        g.fillStyle(dark, 1);
+        g.fillCircle(bx, by, r + 1);
+        g.fillStyle(onLeft ? palette.rockLight : mid, 1);
+        g.fillCircle(bx, by, r);
+        g.fillStyle(palette.rock, 1);
+        g.fillCircle(bx + (onLeft ? 2 : -2), by + 1, Math.max(1, r - 2));
+      }
+
+      // Strata: faint dark seams across, unevenly spaced, never full width.
+      for (let y = body.y + 10; y < body.y + body.h - 8; y += 9 + Math.floor(random() * 10)) {
+        const sx = body.x + 3 + Math.floor(random() * 6);
+        const sw = Math.floor(body.w * (0.4 + random() * 0.4));
+        g.fillStyle(mid, 1);
+        g.fillRect(sx, y, sw, 1);
+        g.fillStyle(palette.rockLight, 1);
+        g.fillRect(sx + 2, y + 1, Math.max(2, sw - 6), 1);
+      }
+    }
+
     // Cracks.
     g.fillStyle(dark, 1);
     const cracks = Math.max(1, Math.round((cellsWide * cellsHigh) / 2));

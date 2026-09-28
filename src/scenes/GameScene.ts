@@ -963,7 +963,7 @@ export class GameScene extends Phaser.Scene {
    * variant is baked once and cached under its key.
    */
   private buildBoulders(): void {
-    const BOULDER_MAX = { wide: 9, high: 3 };
+    const BOULDER_MAX = { wide: 9, high: 12 };
     const rocks = this.level.solids.filter((solid) => solid.textureKey.startsWith('rock-'));
     const cells = new Set(rocks.map((solid) => `${solid.x / TILE},${solid.y / TILE}`));
     const seen = new Set<string>();
