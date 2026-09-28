@@ -13,7 +13,7 @@ import { Spider } from '../objects/Spider';
 import { addGroundShade, createBackdrop } from '../world';
 import { parseLevel, type ParsedLevel, type Solid } from '../level/Level';
 import { LEVELS } from '../level/levels';
-import { GRASS_DROOP, GRASS_FRINGE_HEIGHT, createRandom, tileKey } from '../art';
+import { GRASS_DROOP, GRASS_FRINGE_HEIGHT, TILE_VARIANTS, createRandom, tileKey } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { installGodMode, isGodMode } from '../dev/godMode';
@@ -849,8 +849,9 @@ export class GameScene extends Phaser.Scene {
       // Leaves hang below a branch as decoration only. They are not part of the
       // collision box, so the cat lands on the wood rather than on foliage.
       if (solid.isBranch) {
+        const variant = (solid.x / TILE) % TILE_VARIANTS;
         this.add
-          .image(solid.x, solid.y + solid.height, this.tile('branch-leaves'))
+          .image(solid.x, solid.y + solid.height, this.tile(variant === 0 ? 'branch-leaves' : `branch-leaves-${variant}`))
           .setOrigin(0, 0)
           .setDepth(-5);
       }
@@ -916,7 +917,20 @@ export class GameScene extends Phaser.Scene {
    * through, and only the cat's own climbing code cares where they are.
    */
   private buildTrunks(): Phaser.Geom.Rectangle[] {
+    const wooded = THEMES[this.level.theme].columnStyle === 'trunk';
+    const hasZoneBelow = (zone: { x: number; bottom: number }): boolean =>
+      this.level.climbZones.some((other) => other.x === zone.x && other.y === zone.bottom);
+
     return this.level.climbZones.map((zone) => {
+      // Roots at the foot of a tree, where the column meets whatever it
+      // stands on. Trees only: a rope or a chain has no foot.
+      if (wooded && !hasZoneBelow({ x: zone.x, bottom: zone.y + zone.height })) {
+        this.add
+          .image(zone.x + zone.width / 2, zone.y + zone.height + 1, this.tile('trunk-foot'))
+          .setOrigin(0.5, 1)
+          .setDepth(-3);
+      }
+
       this.add
         .image(
           zone.x,

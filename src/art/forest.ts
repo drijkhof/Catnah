@@ -235,6 +235,22 @@ function generateBush(scene: Phaser.Scene): void {
     // A highlight on the side the sun is on.
     g.fillStyle(COLORS.bushLight, 1);
     g.fillCircle(width * 0.68, height * 0.4, height * 0.16);
+    g.fillCircle(width * 0.4, height * 0.36, height * 0.1);
+
+    // Single leaves round the edge, and shadow at the foot where it meets
+    // the ground.
+    g.fillStyle(COLORS.bushDark, 1);
+    for (let i = 0; i < 7; i += 1) {
+      const angle = Math.PI + (i / 6) * Math.PI;
+      g.fillRect(
+        Math.round(width * 0.5 + Math.cos(angle) * width * 0.44) - 1,
+        Math.round(height * 0.66 + Math.sin(angle) * height * 0.5),
+        2,
+        2,
+      );
+    }
+    g.fillStyle(shadeOf(COLORS.bushDark, 22), 1);
+    g.fillRect(width * 0.14, height - 3, width * 0.72, 3);
   });
 }
 

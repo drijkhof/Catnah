@@ -41,6 +41,9 @@ export const GRASS_FRINGE_HEIGHT = 5;
 /** The blades hanging over an exposed corner of the ground. */
 export const GRASS_DROOP = { width: 4, height: 7 };
 
+/** The roots at the foot of a climbable trunk. Wider than the tile. */
+export const TRUNK_FOOT = { width: 28, height: 10 };
+
 /**
  * Earth: a lit lip just under the surface with a few stones bedded in it,
  * then deeper, darker soil. Only the top third is ever really seen -- the
@@ -561,9 +564,16 @@ export function generateTileset(
       return;
     }
 
+    // Bark: a lit top edge, grain lines in the wood, and a knot.
+    g.fillStyle(lighten(palette.branch, 14), 1);
+    g.fillRect(0, 0, TILE, 1);
     g.fillStyle(palette.branchDark, 1);
-    g.fillRect(4, 2, 3, 1);
-    g.fillRect(11, 3, 3, 1);
+    g.fillRect(2, 2, 5, 1);
+    g.fillRect(9, 3, 6, 1);
+    g.fillRect(0, 4, 3, 1);
+    g.fillStyle(shade(palette.branchDark, 18), 1);
+    g.fillRect(12, 1, 2, 2);
+    g.fillRect(6, 5, 1, 3);
   };
 
   bakeTexture(scene, key('branch-mid'), TILE, BRANCH_THICKNESS, drawWood);
@@ -580,13 +590,30 @@ export function generateTileset(
     g.fillCircle(TILE - 2, 2, 3);
   });
 
-  bakeTexture(scene, key('branch-leaves'), TILE, BRANCH_LEAF_DROP, (g) => {
-    g.fillStyle(palette.leaf, 1);
-    g.fillCircle(3, 2, 4);
-    g.fillCircle(12, 3, 5);
-    g.fillStyle(palette.leafLight, 1);
-    g.fillCircle(8, 1, 3);
-  });
+  for (let variant = 0; variant < TILE_VARIANTS; variant += 1) {
+    const suffix = variant === 0 ? '' : `-${variant}`;
+    const random = createRandom(811 + variant * 47);
+
+    bakeTexture(scene, key(`branch-leaves${suffix}`), TILE, BRANCH_LEAF_DROP, (g) => {
+      // Shadowed leaves hanging under the wood, lit ones catching light at
+      // the sides, and a few single leaves at the bottom so the edge is
+      // ragged. Three drawings, so a long branch does not scallop in step.
+      const dark = shade(palette.leaf, 22);
+
+      g.fillStyle(dark, 1);
+      for (let i = 0; i < 3; i += 1) {
+        g.fillCircle(2 + i * 6 + random() * 3, 3 + random() * 3, 3 + random() * 2);
+      }
+      g.fillStyle(palette.leaf, 1);
+      for (let i = 0; i < 3; i += 1) {
+        g.fillCircle(1 + i * 6 + random() * 4, 1 + random() * 2, 2);
+      }
+      g.fillStyle(dark, 1);
+      for (let i = 0; i < 3; i += 1) {
+        g.fillRect(2 + i * 5 + Math.floor(random() * 3), 7 + Math.floor(random() * 3), 1, 2);
+      }
+    });
+  }
 
   /**
    * The two leaf masses. Scenery only: `GameScene` places them, nothing
@@ -620,6 +647,13 @@ export function generateTileset(
       g.fillCircle(width * 0.38, height * 0.42, height * 0.26);
       g.fillCircle(width * 0.62, height * 0.56, height * 0.24);
       g.fillCircle(width * 0.5, height * 0.3, height * 0.18);
+
+      // Light on the upper lumps only: the canopy is lit from above, and a
+      // clump that is lighter at the top and darker beneath has a shape.
+      g.fillStyle(shade(palette.leaf, 10), 1);
+      g.fillCircle(width * 0.3, height * 0.34, height * 0.14);
+      g.fillCircle(width * 0.56, height * 0.22, height * 0.12);
+      g.fillCircle(width * 0.72, height * 0.4, height * 0.1);
     },
   );
 
@@ -702,21 +736,63 @@ export function generateTileset(
   });
 
   bakeTexture(scene, key('bough'), TILE, TILE, (g) => {
-    g.fillStyle(palette.branchDark, 1);
+    // A fallen log: lit along the top, grain along its length, dark under.
+    g.fillStyle(shade(palette.branchDark, 18), 1);
     g.fillRect(0, 0, TILE, TILE);
-
-    g.fillStyle(palette.branch, 1);
-    g.fillRect(0, 3, TILE, 9);
-
     g.fillStyle(palette.branchDark, 1);
-    g.fillRect(2, 6, 6, 1);
-    g.fillRect(10, 9, 5, 1);
+    g.fillRect(0, 2, TILE, 11);
+    g.fillStyle(palette.branch, 1);
+    g.fillRect(0, 3, TILE, 7);
+    g.fillStyle(lighten(palette.branch, 14), 1);
+    g.fillRect(0, 3, TILE, 1);
+    g.fillStyle(palette.branchDark, 1);
+    g.fillRect(1, 6, 6, 1);
+    g.fillRect(9, 8, 6, 1);
+    g.fillRect(12, 5, 3, 1);
+    g.fillStyle(shade(palette.branchDark, 18), 1);
+    g.fillRect(5, 4, 2, 2);
 
+    // Moss along the top.
     g.fillStyle(palette.leaf, 1);
     g.fillRect(0, 0, TILE, 3);
     g.fillStyle(palette.leafLight, 1);
     g.fillRect(3, 0, 4, 1);
     g.fillRect(11, 0, 3, 1);
+    g.fillStyle(shade(palette.leaf, 22), 1);
+    g.fillRect(2, 2, 2, 1);
+    g.fillRect(9, 2, 3, 1);
+  });
+
+  // Roots flaring out at the foot of a trunk, wider than the tile, so a tree
+  // grows out of the ground rather than standing on it.
+  bakeTexture(scene, key('trunk-foot'), TRUNK_FOOT.width, TRUNK_FOOT.height, (g) => {
+    const { width, height } = TRUNK_FOOT;
+    const centre = width / 2;
+    g.fillStyle(palette.trunkDark, 1);
+    g.fillPoints(
+      [
+        new Phaser.Math.Vector2(centre - 8, 0),
+        new Phaser.Math.Vector2(centre + 8, 0),
+        new Phaser.Math.Vector2(width, height),
+        new Phaser.Math.Vector2(0, height),
+      ],
+      true,
+    );
+    g.fillStyle(palette.trunk, 1);
+    g.fillPoints(
+      [
+        new Phaser.Math.Vector2(centre - 7, 0),
+        new Phaser.Math.Vector2(centre + 5, 0),
+        new Phaser.Math.Vector2(width - 4, height),
+        new Phaser.Math.Vector2(3, height),
+      ],
+      true,
+    );
+    g.fillStyle(palette.trunkLight, 1);
+    g.fillRect(centre - 6, 0, 2, height - 2);
+    g.fillStyle(palette.trunkDark, 1);
+    g.fillRect(centre - 1, 2, 1, height - 2);
+    g.fillRect(centre + 3, 4, 1, height - 4);
   });
 
   /**

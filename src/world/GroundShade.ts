@@ -49,7 +49,7 @@ export function addGroundShade(
   const cache = new Map<string, string>();
 
   for (const solid of solids) {
-    if (solid.isBranch || solid.width !== TILE || solid.height !== TILE) {
+    if (solid.isBranch || solid.width !== TILE || solid.height !== TILE || isFacade(solid)) {
       continue;
     }
 
@@ -110,6 +110,15 @@ export function addGroundShade(
 
     scene.add.image(solid.x, solid.y, key).setOrigin(0, 0);
   }
+}
+
+/**
+ * A building is a wall with a room behind it, not a mass of earth: darkening
+ * its inside made a house read as a tunnel. It still counts as solid for its
+ * neighbours -- the ground beside one gets no light from that side.
+ */
+function isFacade(solid: Solid): boolean {
+  return solid.textureKey.startsWith('house-');
 }
 
 /**

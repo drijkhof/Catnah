@@ -21,6 +21,7 @@ export {
   GRASS_DROOP,
   GRASS_FRINGE_HEIGHT,
   TILE_VARIANTS,
+  TRUNK_FOOT,
 } from './tiles';
 export type { TilePalette } from './tiles';
 export {
