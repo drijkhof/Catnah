@@ -1224,16 +1224,45 @@ export class GameScene extends Phaser.Scene {
         continue;
       }
 
-      // Not a rectangle: one rock per row of cells.
-      for (let r = minR; r <= maxR; r += 1) {
-        const inRow = cluster.filter(([, rr]) => rr === r).map(([c]) => c).sort((a, b) => a - b);
-        let runStart = inRow[0];
-        for (let i = 1; i <= inRow.length; i += 1) {
-          if (i === inRow.length || inRow[i] !== inRow[i - 1] + 1) {
-            pile(runStart, r, inRow[i - 1] - runStart + 1, 1);
-            runStart = inRow[i];
+      // Not a rectangle -- a staggered bank, say, each row a little wider
+      // than the one above. Carve it into the biggest filled rectangles it
+      // holds, top to bottom, left to right: a rock is as wide as its row
+      // runs and as tall as every row below keeps that width. What is left
+      // over at the edges becomes small rocks, which reads as rubble at the
+      // foot of a bank.
+      const free = new Set(cluster.map(([c, r]) => `${c},${r}`));
+      const ordered = [...cluster].sort((a, b) => a[1] - b[1] || a[0] - b[0]);
+
+      for (const [c, r] of ordered) {
+        if (!free.has(`${c},${r}`)) {
+          continue;
+        }
+
+        let w = 1;
+        while (free.has(`${c + w},${r}`)) {
+          w += 1;
+        }
+
+        let h = 1;
+        const rowFilled = (rr: number): boolean => {
+          for (let cc = c; cc < c + w; cc += 1) {
+            if (!free.has(`${cc},${rr}`)) {
+              return false;
+            }
+          }
+          return true;
+        };
+        while (rowFilled(r + h)) {
+          h += 1;
+        }
+
+        for (let rr = r; rr < r + h; rr += 1) {
+          for (let cc = c; cc < c + w; cc += 1) {
+            free.delete(`${cc},${rr}`);
           }
         }
+
+        pile(c, r, w, h);
       }
     }
   }
