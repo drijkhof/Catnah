@@ -22,6 +22,8 @@ export {
   GRASS_FRINGE_HEIGHT,
   TILE_VARIANTS,
   TRUNK_FOOT,
+  BOULDER_BULGE,
+  bakeBoulder,
 } from './tiles';
 export type { TilePalette } from './tiles';
 export {

@@ -168,7 +168,7 @@ function lightOf(colour: number, amount: number): number {
 
 /** How tall the floor haze is, and how far the canopy hangs into the screen. */
 export const FOG_HEIGHT = 120;
-export const CANOPY_SIZE = { width: 256, height: 72 };
+export const CANOPY_SIZE = { width: 512, height: 72 };
 
 function generateFog(scene: Phaser.Scene): void {
   // Transparent at the top, solid haze at the floor. Baked as bands of
@@ -187,36 +187,40 @@ function generateFog(scene: Phaser.Scene): void {
 
 function generateCanopy(scene: Phaser.Scene): void {
   const { width, height } = CANOPY_SIZE;
+  const random = createRandom(5);
 
-  // Two chunks, one with a gap in it, laid end to end along the top of the
-  // screen. Built in three tiers: big masses hanging from above the top edge,
-  // a darker tier over them, and a fringe of small lumps along the underside
-  // so the edge is leaves rather than scallops.
-  for (const [key, seed, gap] of [['canopy-a', 5, false], ['canopy-b', 17, true]] as const) {
-    const random = createRandom(seed);
-    const inGap = (x: number, margin: number): boolean =>
-      gap && x > width * (0.4 - margin) && x < width * (0.66 + margin);
+  // One texture, seamless: every lump is drawn three times, at its place and
+  // a full width to either side, so whatever spills off one edge comes back
+  // in at the other. Repeated across the level as a tiling sprite, it has no
+  // joins. Built in tiers: big masses hanging from above the top edge, a
+  // darker tier over them, a fringe of small lumps along the underside so
+  // the edge is leaves rather than scallops, and one gap for the sun.
+  bakeTexture(scene, 'canopy', width, height, (g) => {
+    const gapAt = width * 0.55;
+    const gapHalf = width * 0.07;
 
-    bakeTexture(scene, key, width, height, (g) => {
-      const tier = (colour: number, count: number, minR: number, maxR: number, yBase: number, ySpread: number, margin: number): void => {
-        for (let i = 0; i < count; i += 1) {
-          const x = (i / count) * width + random() * (width / count);
-          if (inGap(x, margin)) {
-            continue;
-          }
-          const radius = minR + random() * (maxR - minR);
-          g.fillStyle(colour, 1);
-          g.fillCircle(x, yBase + random() * ySpread, radius);
+    const tier = (colour: number, count: number, minR: number, maxR: number, yBase: number, ySpread: number, gapScale: number): void => {
+      for (let i = 0; i < count; i += 1) {
+        const x = (i / count) * width + random() * (width / count);
+        if (Math.abs(x - gapAt) < gapHalf * gapScale) {
+          continue;
         }
-      };
+        const radius = minR + random() * (maxR - minR);
+        const y = yBase + random() * ySpread;
+        g.fillStyle(colour, 1);
+        for (const dx of [-width, 0, width]) {
+          g.fillCircle(x + dx, y, radius);
+        }
+      }
+    };
 
-      tier(COLORS.canopy, 12, 18, 30, 8, 14, 0);
-      tier(COLORS.canopyDark, 12, 14, 24, -6, 12, 0.04);
-      // The fringe: small, many, and reaching lower than the masses above.
-      tier(COLORS.canopy, 30, 4, 9, 30, 18, -0.02);
-      tier(COLORS.canopyDark, 24, 3, 7, 24, 16, 0.02);
-    });
-  }
+    // The dark top tier runs through the gap unbroken: the gap is thinner
+    // leaves the sun gets through, not a hole in the roof.
+    tier(COLORS.canopy, 24, 18, 30, 8, 14, 1);
+    tier(COLORS.canopyDark, 24, 14, 24, -10, 10, 0);
+    tier(COLORS.canopy, 60, 4, 9, 30, 18, 0.8);
+    tier(COLORS.canopyDark, 48, 3, 7, 24, 16, 1);
+  });
 }
 
 function generateBush(scene: Phaser.Scene): void {

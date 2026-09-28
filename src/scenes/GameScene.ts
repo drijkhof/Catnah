@@ -13,7 +13,7 @@ import { Spider } from '../objects/Spider';
 import { addGroundShade, createBackdrop } from '../world';
 import { parseLevel, type ParsedLevel, type Solid } from '../level/Level';
 import { LEVELS } from '../level/levels';
-import { GRASS_DROOP, GRASS_FRINGE_HEIGHT, TILE_VARIANTS, createRandom, tileKey } from '../art';
+import { BOULDER_BULGE, GRASS_DROOP, GRASS_FRINGE_HEIGHT, TILE_VARIANTS, bakeBoulder, createRandom, tileKey } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { installGodMode, isGodMode } from '../dev/godMode';
@@ -828,6 +828,12 @@ export class GameScene extends Phaser.Scene {
         .setOrigin(0, 0)
         .refreshBody() as Phaser.Physics.Arcade.Sprite;
 
+      // A rock cell collides here but is not drawn here: its cluster is
+      // drawn as one boulder by `buildBoulders`.
+      if (solid.textureKey.startsWith('rock-')) {
+        tile.setVisible(false);
+      }
+
       // Probes look for solid ground by asking the physics world what is
       // nearby, and charms are static bodies too. Without this flag a hedgehog
       // turns round at a charm and the cat can wall jump off one.
@@ -857,7 +863,106 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
+    this.buildBoulders();
+
     return { blocks, branches };
+  }
+
+  /**
+   * Draws every cluster of `R` cells as one boulder.
+   *
+   * The cells still collide one by one; this is only the picture. A cluster
+   * that fills its bounding rectangle is one rock; any other shape is a rock
+   * per row. Anything wider than `BOULDER_MAX.wide` or taller than
+   * `BOULDER_MAX.high` is broken into a pile of smaller ones, at seeded
+   * widths so a long bank is not a row of equal blocks. Each size and
+   * variant is baked once and cached under its key.
+   */
+  private buildBoulders(): void {
+    const BOULDER_MAX = { wide: 6, high: 3 };
+    const rocks = this.level.solids.filter((solid) => solid.textureKey.startsWith('rock-'));
+    const cells = new Set(rocks.map((solid) => `${solid.x / TILE},${solid.y / TILE}`));
+    const seen = new Set<string>();
+    const random = createRandom(4451);
+    const palette = THEMES[this.level.theme];
+
+    const place = (column: number, row: number, wide: number, high: number): void => {
+      const variant = Math.floor(random() * 3);
+      const key = `${this.level.theme}:boulder:${wide}x${high}:${variant}`;
+
+      if (!this.textures.exists(key)) {
+        bakeBoulder(this, key, wide, high, palette, 977 + wide * 31 + high * 17 + variant * 101);
+      }
+
+      this.add
+        .image(column * TILE - BOULDER_BULGE.x, row * TILE - BOULDER_BULGE.y, key)
+        .setOrigin(0, 0);
+    };
+
+    // A rectangle of cells, broken into rocks no bigger than the maximum.
+    const pile = (column: number, row: number, wide: number, high: number): void => {
+      let r = row;
+      while (r < row + high) {
+        const h = Math.min(BOULDER_MAX.high, row + high - r);
+        let c = column;
+        while (c < column + wide) {
+          const left = column + wide - c;
+          const w = left <= BOULDER_MAX.wide ? left : 3 + Math.floor(random() * (BOULDER_MAX.wide - 2));
+          place(c, r, Math.min(w, left), h);
+          c += w;
+        }
+        r += h;
+      }
+    };
+
+    for (const rock of rocks) {
+      const start = `${rock.x / TILE},${rock.y / TILE}`;
+      if (seen.has(start)) {
+        continue;
+      }
+
+      // Flood the cluster.
+      const cluster: Array<[number, number]> = [];
+      const queue: Array<[number, number]> = [[rock.x / TILE, rock.y / TILE]];
+      seen.add(start);
+      while (queue.length) {
+        const [c, r] = queue.pop() as [number, number];
+        cluster.push([c, r]);
+        for (const [dc, dr] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+          const key = `${c + dc},${r + dr}`;
+          if (cells.has(key) && !seen.has(key)) {
+            seen.add(key);
+            queue.push([c + dc, r + dr]);
+          }
+        }
+      }
+
+      const columns = cluster.map(([c]) => c);
+      const rows = cluster.map(([, r]) => r);
+      const minC = Math.min(...columns);
+      const maxC = Math.max(...columns);
+      const minR = Math.min(...rows);
+      const maxR = Math.max(...rows);
+      const wide = maxC - minC + 1;
+      const high = maxR - minR + 1;
+
+      if (cluster.length === wide * high) {
+        pile(minC, minR, wide, high);
+        continue;
+      }
+
+      // Not a rectangle: one rock per row of cells.
+      for (let r = minR; r <= maxR; r += 1) {
+        const inRow = cluster.filter(([, rr]) => rr === r).map(([c]) => c).sort((a, b) => a - b);
+        let runStart = inRow[0];
+        for (let i = 1; i <= inRow.length; i += 1) {
+          if (i === inRow.length || inRow[i] !== inRow[i - 1] + 1) {
+            pile(runStart, r, inRow[i - 1] - runStart + 1, 1);
+            runStart = inRow[i];
+          }
+        }
+      }
+    }
   }
 
   /**

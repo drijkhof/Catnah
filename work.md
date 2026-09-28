@@ -265,14 +265,19 @@ and the two numbers that shape it live in `config.ts`.
 Turf stands up above the ground in a ragged fringe and droops over its
 corners. Earth has stones bedded in its lip. Rock is cobblestone with a mossy
 crown, and a rock is a boulder set down *on* the ground rather than part of
-it: it stays lit all through, and the grass runs on underneath. Every ground and rock tile comes in three drawings, picked from a
+it: it stays lit all through, and the grass runs on underneath. A run of
+rock cells is drawn as **one boulder** -- rounded, bulging a pixel past the
+cells it collides in, cracked, mossy on top -- and a long bank of them as a
+pile of unequal ones. The cells still collide one by one; only the picture
+is joined. Every ground and rock tile comes in three drawings, picked from a
 tile's own place in the grid, so a run of floor never repeats in step.
 
 Behind the level, distance is done with tone: the far trees are pale and
 flat, the mid trees a little darker with a shadowed underside, both drawn as
 silhouettes in one hazy family rather than a brown trunk under a green blob.
 Haze lies along the floor between the ranks, and a canopy hangs across the
-top of the screen with gaps for the sun. Climbable trunks are bark the full
+top of the screen, one seamless strip repeated so it has no joins, thinning
+where the sun comes through. Climbable trunks are bark the full
 width of their tile.
 
 ## Level 1 — the forest

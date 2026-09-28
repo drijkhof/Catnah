@@ -74,17 +74,15 @@ export class Backdrop {
    * sun to come through.
    */
   private addCanopy(): void {
-    const random = createRandom(2718);
+    // Wide enough to cover the level at its scroll factor, plus a screen.
+    // One seamless texture repeated, so there is no join anywhere.
     const span = this.levelWidth * 0.35 + GAME_WIDTH;
 
-    for (let x = -CANOPY_SIZE.width; x < span; x += CANOPY_SIZE.width) {
-      this.scene.add
-        .image(x, 0, random() < 0.6 ? 'canopy-a' : 'canopy-b')
-        .setOrigin(0, 0)
-        .setFlipX(random() < 0.5)
-        .setScrollFactor(0.35, 0)
-        .setDepth(DEPTH.canopy);
-    }
+    this.scene.add
+      .tileSprite(0, 0, span, CANOPY_SIZE.height, 'canopy')
+      .setOrigin(0, 0)
+      .setScrollFactor(0.35, 0)
+      .setDepth(DEPTH.canopy);
   }
 
   private addSky(): void {

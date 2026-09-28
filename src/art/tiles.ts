@@ -44,6 +44,94 @@ export const GRASS_DROOP = { width: 4, height: 7 };
 /** The roots at the foot of a climbable trunk. Wider than the tile. */
 export const TRUNK_FOOT = { width: 28, height: 10 };
 
+/** How far a boulder bulges past the cells it collides in, px. */
+export const BOULDER_BULGE = { x: 1, y: 2 };
+
+/**
+ * One boulder, covering a rectangle of `R` cells. Drawn on demand by the
+ * scene at whatever size a cluster turns out to be, and cached by key.
+ *
+ * A rock is a lump, not masonry: a rounded mass, lit along the top and the
+ * left, dark underneath, with a couple of bumps breaking its top line, a
+ * crack or two, and moss on its crown. It bulges a pixel past the cells it
+ * stands in, which is what stops it reading as a box.
+ */
+export function bakeBoulder(
+  scene: Phaser.Scene,
+  key: string,
+  cellsWide: number,
+  cellsHigh: number,
+  palette: TilePalette,
+  seed: number,
+): void {
+  const width = cellsWide * TILE + BOULDER_BULGE.x * 2;
+  const height = cellsHigh * TILE + BOULDER_BULGE.y;
+  const random = createRandom(seed);
+  const top = BOULDER_BULGE.y;
+  const body = { x: 0, y: top, w: width, h: height - top };
+  const radius = Math.min(7, Math.floor(body.h / 2) - 1, Math.floor(body.w / 2) - 1);
+  const dark = shade(palette.rock, 26);
+  const mid = shade(palette.rock, 8);
+
+  bakeTexture(scene, key, width, height, (g) => {
+    // Silhouette, then the lit top and left, then the body, then the dark
+    // underside -- each inset from the last so the edges become bands.
+    g.fillStyle(dark, 1);
+    g.fillRoundedRect(body.x, body.y, body.w, body.h, radius);
+    g.fillStyle(palette.rockLight, 1);
+    g.fillRoundedRect(body.x + 1, body.y + 1, body.w - 2, body.h - 3, radius);
+    g.fillStyle(palette.rock, 1);
+    g.fillRoundedRect(body.x + 3, body.y + 3, body.w - 5, body.h - 6, Math.max(2, radius - 2));
+    g.fillStyle(mid, 1);
+    g.fillEllipse(body.x + body.w * 0.62, body.y + body.h * 0.7, body.w * 0.5, body.h * 0.45);
+    g.fillStyle(dark, 1);
+    g.fillRoundedRect(body.x + 2, body.y + body.h - 3, body.w - 4, 3, 2);
+
+    // A few bumps along the top, unevenly sized and spaced, so the top line
+    // is not a ruler and not a row of scallops either.
+    const bumps = Math.max(1, Math.round(cellsWide * 0.7));
+    for (let i = 0; i < bumps; i += 1) {
+      const bx = body.x + radius + ((i + random()) / bumps) * (body.w - radius * 2);
+      const r = 3 + random() * 5;
+      const by = body.y + r - 1 - Math.floor(random() * 3);
+      g.fillStyle(dark, 1);
+      g.fillCircle(bx, by, r + 1);
+      g.fillStyle(palette.rockLight, 1);
+      g.fillCircle(bx, by, r);
+      g.fillStyle(palette.rock, 1);
+      g.fillCircle(bx + 1, by + 2, Math.max(1, r - 2));
+    }
+
+    // Cracks.
+    g.fillStyle(dark, 1);
+    const cracks = Math.max(1, Math.round((cellsWide * cellsHigh) / 2));
+    for (let i = 0; i < cracks; i += 1) {
+      let cx = body.x + 4 + Math.floor(random() * (body.w - 8));
+      let cy = body.y + 4 + Math.floor(random() * (body.h - 8));
+      const steps = 3 + Math.floor(random() * 4);
+      for (let j = 0; j < steps; j += 1) {
+        g.fillRect(cx, cy, 1, 2);
+        cx += random() < 0.5 ? -1 : 1;
+        cy += 2;
+      }
+    }
+
+    // Moss on the crown: a band of green along the top that follows the
+    // bumps, ragged, standing up a little, with a few drips down the face.
+    for (let x = body.x + radius - 2; x < body.x + body.w - radius + 2; x += 1) {
+      const roll = random();
+      if (roll < 0.8) {
+        g.fillStyle(roll < 0.25 ? palette.leafLight : roll < 0.6 ? palette.grass : palette.grassDark, 1);
+        g.fillRect(x, Math.floor(random() * 2), 1, 2 + Math.floor(random() * 3));
+      }
+      if (random() < 0.1) {
+        g.fillStyle(palette.grassDark, 1);
+        g.fillRect(x, top + 2, 1, 3 + Math.floor(random() * 4));
+      }
+    }
+  });
+}
+
 /**
  * Earth: a lit lip just under the surface with a few stones bedded in it,
  * then deeper, darker soil. Only the top third is ever really seen -- the
