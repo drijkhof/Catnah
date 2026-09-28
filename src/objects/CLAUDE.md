@@ -318,17 +318,27 @@ at `climbHorizontalSpeed` instead of letting go, which is what makes a bank of
 ropes a wall rather than a row of poles. Climbing off the end of one drops the
 cat, because `findTrunk` stops finding anything.
 
-`findTrunk` is widened by `CLIMB_SIDE_MARGIN` (10px) for exactly this reason:
-charms are routinely placed one tile beside a column rather than on it, and
-without a margin, leaning over for one moved the body past the zone's true
-edge and read as climbing off the end -- the cat dropped mid-collect. The
-margin is horizontal only, same as the zone test it widens.
+`findTrunk` has no side margin: the body has to be over the column's tile,
+and the same test decides taking hold and keeping it. It had a 10px margin
+for a while, so a climbing cat could lean for a heart placed one tile beside
+the column. On the catch, that made a chain drawn 6px wide take hold of the
+cat from three tiles of air; kept for the hold only, it left the cat hanging
+where it could never have caught on. Neither is worth it: with the body over
+the tile the cat can still lean 14px, which reaches a heart in the next
+column (measured in the volcano: collected, still climbing).
 
-**The margin is for holding on, not for taking hold.** While the cat is not
-climbing, `findTrunk` uses no margin at all: the body has to be over the tile
-itself. With the margin applied to the catch too, tile plus 10px each side
-plus the cat's 13px body made a 49px band -- three tiles -- that took hold of
-the cat, which around a chain drawn 6px wide read as climbing thin air.
+**Climbing down lets go on `blocked.down`, never on `touching.down`.** Arcade
+raises `touching.down` on any overlap entered while moving down, and a heart
+is an overlap. Reaching for one on the way down read as touching the floor
+and dropped the cat; on the way up it raised `touching.up`, which nothing
+reads, so the same reach was fine. `blocked` is level geometry only.
+
+**Taking a heart in the air gives the cat a jump** -- the same `touching.down`
+raised by the overlap makes that frame count as grounded, and the coyote
+window follows. It began as a side effect and is now a rule of the game
+(`work.md`): it must survive any change to `onGround`. The climb release
+above deliberately bypasses `onGround` rather than changing it, for that
+reason.
 
 **Letting go hands back a coyote window**, and that is not a nicety either.
 Without it only a jump pressed on the *exact* frame worked: pressing a direction

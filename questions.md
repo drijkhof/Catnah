@@ -896,16 +896,21 @@ not on geometry.
 
 Reported from the volcano: one `T` in the map, drawn as a thin chain, but
 three tiles' worth of air took hold of the cat. `CLIMB_SIDE_MARGIN` (10px),
-added so a climbing cat could lean for a charm without dropping, was also
-widening the *catch*: tile plus margin each side plus the cat's own 13px body
-made a 49px band.
+added so a climbing cat could lean for a charm without dropping, was widening
+the catch: tile plus margin each side plus the cat's own 13px body made a
+49px band.
 
-- **The margin now applies only while already holding on.** Taking hold
-  needs the body over the tile itself, which measured as a band of about 29px
-  (the 16px tile plus the body's own width) -- still a little forgiving, and
-  the same for every column style. Leaning was re-measured too: the cat holds
-  on to 9px past the chain's edge, as before.
-- **Not narrowed to the drawn width.** A chain is drawn 6px wide, a trunk
-  16px, and the catch could follow the drawing per style. Left alone: the
-  tile-wide catch is what a rope or a trunk has as well, and a 6px catch on
-  a falling cat would be easy to miss on a phone.
+- **First fix kept the margin for holding on only.** That made the catch
+  narrower than the hold, and it showed: jump past a chain without catching
+  it, catch it higher, shuffle back to that spot, and hang there in air you
+  could never have grabbed from. Rejected on sight.
+- **Now: no margin at all.** Catch and hold are the same test, body over the
+  tile. Measured: both end at 14px from the column's centre, and leaning
+  that far still collects a heart in the next column while climbing.
+- **Found on the way: climbing down past a heart dropped the cat**, climbing
+  up did not. Arcade raises `touching.down` on any overlap entered while
+  moving down, and the climb's "landed on the floor" check read it. It reads
+  `blocked.down` now. `onGround` itself was left alone, because...
+- **...taking a heart in the air gives a jump, and that stays.** It is the
+  same flag, it began as a side effect, and it is wanted -- now written into
+  `work.md` as a rule. Any future change to `onGround` has to keep it.

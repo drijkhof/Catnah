@@ -17,24 +17,6 @@ const CLIMB_TOP_MARGIN = 0;
 const WALL_PROBE = 2;
 
 /**
- * How far past the edge of a climb zone the cat is still holding on, px.
- *
- * A charm sitting one tile beside a trunk or a liana is close enough to lean
- * for without meaning to let go -- levels are full of exactly that, a little
- * cluster of hearts flanking a column rather than sitting on it. Without any
- * margin, `findTrunk` stops finding the column the instant the body clears
- * its edge, and reaching for the charm reads as climbing off the end of the
- * rope: the cat drops mid-collect, which was never what leaning over for a
- * charm was supposed to cost.
- *
- * **Holding on only.** Catching a column gets no margin: the body has to be
- * over the tile itself. With the margin on the catch as well, a tile plus
- * 10px each side plus the cat's own width made a 49px band -- three tiles --
- * that took hold of the cat, around a chain drawn six pixels wide.
- */
-const CLIMB_SIDE_MARGIN = 10;
-
-/**
  * The cat.
  *
  * Movement is deliberately not a straight "set velocity from input": it adds
@@ -379,7 +361,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const sideways = (controls.right ? 1 : 0) - (controls.left ? 1 : 0);
 
     // Climbing down onto the floor simply stands the cat up.
-    if (onGround && vertical >= 0) {
+    //
+    // `blocked.down`, not `onGround`: Arcade also raises `touching.down` on a
+    // plain overlap while moving down, and a charm beside the rope is one.
+    // Reaching for a heart on the way *down* read as touching the floor and
+    // dropped the cat; on the way up it raised `touching.up`, which nothing
+    // reads, so the same reach was fine. A floor is level geometry, which is
+    // what `blocked` means.
+    if (this.body.blocked.down && vertical >= 0) {
       this.releaseTrunk();
       return false;
     }
@@ -504,14 +493,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
    */
   private findTrunk(): Phaser.Geom.Rectangle | null {
     const body = this.body;
-    // Lean room while already holding on; none for taking hold. See
-    // `CLIMB_SIDE_MARGIN`.
-    const margin = this.isClimbing ? CLIMB_SIDE_MARGIN : 0;
 
+    // The body has to be over the tile, and the same test decides taking hold
+    // and keeping it. There used to be a 10px margin on each side; on the
+    // catch it made a thin chain grab the cat from three tiles of air, and on
+    // the hold it left the cat hanging where it could never have caught on.
     for (const zone of this.climbZones) {
       if (
-        body.right > zone.x - margin &&
-        body.x < zone.right + margin &&
+        body.right > zone.x &&
+        body.x < zone.right &&
         body.bottom > zone.y &&
         body.y < zone.bottom
       ) {

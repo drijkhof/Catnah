@@ -144,6 +144,9 @@ Wall jumping has no button of its own: in mid-air against a wall, jump does it.
   stored for later.
 - **Sneaking is blocked from standing up** when there is no headroom, so you
   cannot pop up through a log you are sneaking under, nor jump out from under it.
+- **Taking a heart in the air gives you a jump.** Fall or leap through one
+  and you can jump again from it, as if it were a step. Hearts placed in open
+  air are placed with that in mind.
 - **Sneaking takes you under thorns.** Crawl and the points pass over you;
   stand up among them and you die. It is the pose that counts, and the pose
   drops the moment you leave the ground, so falling into thorns still kills.
