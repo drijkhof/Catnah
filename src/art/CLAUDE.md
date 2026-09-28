@@ -32,11 +32,17 @@ the forest does not rearrange itself on every hot reload and on every player's
 device. A fixed seed per layer keeps placement stable and still scattered.
 
 **A picture need not be a tile.** Collision is per 16px cell; what is drawn
-over it can be any size. `bakeBoulder` draws a whole cluster of `R` cells as
-one rounded rock (`GameScene.buildBoulders` finds the clusters), the root
-flare is wider than its trunk, and the canopy is one seamless strip in a
+over it can be any size. `bakeBoulder`, `bakeTrunk` and `bakeBranch` each
+draw a whole cluster, column or run of cells as one thing, baked on demand
+at the size the level asks for and cached by key (`GameScene.buildBoulders`,
+`buildWholeTrunks` and `buildBranches` find them and hide the per-cell tile
+sprites, which go on colliding). The canopy is one seamless strip in a
 tiling sprite. When a thing looks like a grid, that is the drawing's fault,
 not the level's.
+
+`bakeBranch` returns the wood's thickness under each cell so the leaves can
+hang from the real underside; the flat top is the collision surface and is
+never tapered.
 
 **A texture is baked at exactly the size of the thing it collides with.** A
 branch texture is only as tall as its wood (`BRANCH_THICKNESS`), and each cat

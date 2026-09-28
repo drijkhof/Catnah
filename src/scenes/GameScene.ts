@@ -13,7 +13,7 @@ import { Spider } from '../objects/Spider';
 import { addGroundShade, createBackdrop } from '../world';
 import { parseLevel, type ParsedLevel, type Solid } from '../level/Level';
 import { LEVELS } from '../level/levels';
-import { BOULDER_BULGE, GRASS_DROOP, GRASS_FRINGE_HEIGHT, TILE_VARIANTS, bakeBoulder, createRandom, tileKey } from '../art';
+import { BOULDER_BULGE, BRANCH_BULGE, GRASS_DROOP, GRASS_FRINGE_HEIGHT, TILE_VARIANTS, TRUNK_BULGE, bakeBoulder, bakeBranch, bakeTrunk, createRandom, tileKey } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { installGodMode, isGodMode } from '../dev/godMode';
@@ -852,9 +852,14 @@ export class GameScene extends Phaser.Scene {
 
       this.dressGround(solid);
 
-      // Leaves hang below a branch as decoration only. They are not part of the
-      // collision box, so the cat lands on the wood rather than on foliage.
-      if (solid.isBranch) {
+      // A branch cell in a leafy place collides here but is drawn as part of
+      // one whole branch by `buildBranches`, leaves and all.
+      if (this.isWood(solid)) {
+        tile.setVisible(false);
+      } else if (solid.isBranch) {
+        // Leaves hang below a branch as decoration only. They are not part of
+        // the collision box, so the cat lands on the wood rather than on
+        // foliage.
         const variant = (solid.x / TILE) % TILE_VARIANTS;
         this.add
           .image(solid.x, solid.y + solid.height, this.tile(variant === 0 ? 'branch-leaves' : `branch-leaves-${variant}`))
@@ -864,8 +869,87 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.buildBoulders();
+    this.buildBranches();
 
     return { blocks, branches };
+  }
+
+  /** A `=` cell that is a piece of a wooden branch, in a place with trees. */
+  private isWood(solid: Solid): boolean {
+    return (
+      solid.isBranch &&
+      THEMES[this.level.theme].platformStyle === 'branch' &&
+      solid.textureKey.startsWith('branch-') &&
+      !solid.textureKey.endsWith('-ledge')
+    );
+  }
+
+  /**
+   * Draws every run of `=` cells as one branch.
+   *
+   * The cells still collide one by one. A run with a trunk at one end grows
+   * out of it: thick there, thinning to a rounded tip; one with no trunk is
+   * a fallen bough, even along its length. The leaves under it hang from the
+   * wood's actual underside at each cell, which the baker reports.
+   */
+  private buildBranches(): void {
+    const wood = this.level.solids.filter((solid) => this.isWood(solid));
+    const cells = new Set(wood.map((solid) => `${solid.x / TILE},${solid.y / TILE}`));
+    const palette = THEMES[this.level.theme];
+    const random = createRandom(6131);
+    const thicknessByKey = new Map<string, number[]>();
+
+    const trunkBeside = (x: number, y: number): boolean =>
+      this.level.climbZones.some((zone) => zone.x === x && zone.y <= y && zone.y + zone.height > y);
+
+    for (const solid of wood) {
+      const column = solid.x / TILE;
+      const row = solid.y / TILE;
+
+      // Only the leftmost cell of a run starts one.
+      if (cells.has(`${column - 1},${row}`)) {
+        continue;
+      }
+
+      let length = 1;
+      while (cells.has(`${column + length},${row}`)) {
+        length += 1;
+      }
+
+      const base = trunkBeside(solid.x - TILE, solid.y)
+        ? 'left'
+        : trunkBeside(solid.x + length * TILE, solid.y)
+          ? 'right'
+          : 'none';
+      const variant = Math.floor(random() * 3);
+      const key = `${this.level.theme}:branch:${length}:${base}:${variant}`;
+
+      if (!thicknessByKey.has(key)) {
+        thicknessByKey.set(
+          key,
+          bakeBranch(this, key, length, base, palette, 1201 + length * 37 + variant * 101 + (base === 'left' ? 7 : base === 'right' ? 13 : 0)),
+        );
+      }
+
+      const thickness = thicknessByKey.get(key) as number[];
+
+      this.add
+        .image(solid.x - (base === 'left' ? BRANCH_BULGE.root : 0), solid.y - BRANCH_BULGE.top, key)
+        .setOrigin(0, 0)
+        .setDepth(-1);
+
+      for (let i = 0; i < length; i += 1) {
+        const leafVariant = (column + i) % TILE_VARIANTS;
+        this.add
+          .image(
+            solid.x + i * TILE,
+            solid.y + (thickness[i] ?? solid.height),
+            this.tile(leafVariant === 0 ? 'branch-leaves' : `branch-leaves-${leafVariant}`),
+          )
+          .setOrigin(0, 0)
+          .setDepth(-5);
+      }
+    }
   }
 
   /**
@@ -879,19 +963,30 @@ export class GameScene extends Phaser.Scene {
    * variant is baked once and cached under its key.
    */
   private buildBoulders(): void {
-    const BOULDER_MAX = { wide: 6, high: 3 };
+    const BOULDER_MAX = { wide: 9, high: 3 };
     const rocks = this.level.solids.filter((solid) => solid.textureKey.startsWith('rock-'));
     const cells = new Set(rocks.map((solid) => `${solid.x / TILE},${solid.y / TILE}`));
     const seen = new Set<string>();
     const random = createRandom(4451);
     const palette = THEMES[this.level.theme];
 
+    // Every full cell of anything, for telling a buried stone from a boulder
+    // in the open: a cluster with no air round it gets no moss.
+    const anything = new Set(
+      this.level.solids
+        .filter((solid) => !solid.isBranch && solid.width === TILE && solid.height === TILE)
+        .map((solid) => `${solid.x / TILE},${solid.y / TILE}`),
+    );
+    const columnsInLevel = Math.ceil(this.level.widthInPixels / TILE);
+    const rowsInLevel = Math.ceil(this.level.heightInPixels / TILE);
+    let exposed = true;
+
     const place = (column: number, row: number, wide: number, high: number): void => {
       const variant = Math.floor(random() * 3);
-      const key = `${this.level.theme}:boulder:${wide}x${high}:${variant}`;
+      const key = `${this.level.theme}:boulder:${wide}x${high}:${variant}:${exposed ? 'moss' : 'bare'}`;
 
       if (!this.textures.exists(key)) {
-        bakeBoulder(this, key, wide, high, palette, 977 + wide * 31 + high * 17 + variant * 101);
+        bakeBoulder(this, key, wide, high, palette, 977 + wide * 31 + high * 17 + variant * 101, exposed);
       }
 
       this.add
@@ -907,7 +1002,7 @@ export class GameScene extends Phaser.Scene {
         let c = column;
         while (c < column + wide) {
           const left = column + wide - c;
-          const w = left <= BOULDER_MAX.wide ? left : 3 + Math.floor(random() * (BOULDER_MAX.wide - 2));
+          const w = left <= BOULDER_MAX.wide ? left : 4 + Math.floor(random() * (BOULDER_MAX.wide - 3));
           place(c, r, Math.min(w, left), h);
           c += w;
         }
@@ -921,18 +1016,25 @@ export class GameScene extends Phaser.Scene {
         continue;
       }
 
-      // Flood the cluster.
+      // Flood the cluster, noting whether any cell of it touches air.
       const cluster: Array<[number, number]> = [];
       const queue: Array<[number, number]> = [[rock.x / TILE, rock.y / TILE]];
       seen.add(start);
+      exposed = false;
       while (queue.length) {
         const [c, r] = queue.pop() as [number, number];
         cluster.push([c, r]);
         for (const [dc, dr] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-          const key = `${c + dc},${r + dr}`;
+          const nc = c + dc;
+          const nr = r + dr;
+          const key = `${nc},${nr}`;
+          const inside = nc >= 0 && nr >= 0 && nc < columnsInLevel && nr < rowsInLevel;
+          if (inside && !anything.has(key)) {
+            exposed = true;
+          }
           if (cells.has(key) && !seen.has(key)) {
             seen.add(key);
-            queue.push([c + dc, r + dr]);
+            queue.push([nc, nr]);
           }
         }
       }
@@ -1023,33 +1125,69 @@ export class GameScene extends Phaser.Scene {
    */
   private buildTrunks(): Phaser.Geom.Rectangle[] {
     const wooded = THEMES[this.level.theme].columnStyle === 'trunk';
-    const hasZoneBelow = (zone: { x: number; bottom: number }): boolean =>
-      this.level.climbZones.some((other) => other.x === zone.x && other.y === zone.bottom);
+
+    if (wooded) {
+      this.buildWholeTrunks();
+    }
 
     return this.level.climbZones.map((zone) => {
-      // Roots at the foot of a tree, where the column meets whatever it
-      // stands on. Trees only: a rope or a chain has no foot.
-      if (wooded && !hasZoneBelow({ x: zone.x, bottom: zone.y + zone.height })) {
+      if (!wooded) {
         this.add
-          .image(zone.x + zone.width / 2, zone.y + zone.height + 1, this.tile('trunk-foot'))
-          .setOrigin(0.5, 1)
+          .image(
+            zone.x,
+            zone.y,
+            this.tile(
+              zone.isTop ? (zone.againstWall ? 'trunk-head' : 'trunk-top') : 'trunk',
+            ),
+          )
+          .setOrigin(0, 0)
+          // Behind the cat, so a climbing cat is seen against its trunk.
           .setDepth(-3);
       }
 
+      return new Phaser.Geom.Rectangle(zone.x, zone.y, zone.width, zone.height);
+    });
+  }
+
+  /**
+   * Draws every column of `T` cells as one trunk: wider at the foot than the
+   * top, roots at the bottom, bark all the way up. The cells still collide
+   * (and climb) one by one; this is only the picture. Each height and
+   * variant is baked once and cached under its key.
+   */
+  private buildWholeTrunks(): void {
+    const zones = [...this.level.climbZones].sort((a, b) => a.x - b.x || a.y - b.y);
+    const palette = THEMES[this.level.theme];
+    const random = createRandom(7919);
+    let i = 0;
+
+    while (i < zones.length) {
+      const top = zones[i];
+      let cells = 1;
+
+      while (
+        i + cells < zones.length &&
+        zones[i + cells].x === top.x &&
+        zones[i + cells].y === top.y + cells * TILE
+      ) {
+        cells += 1;
+      }
+
+      const variant = Math.floor(random() * 3);
+      const key = `${this.level.theme}:trunk:${cells}:${variant}`;
+
+      if (!this.textures.exists(key)) {
+        bakeTrunk(this, key, cells, palette, 3301 + cells * 53 + variant * 101);
+      }
+
       this.add
-        .image(
-          zone.x,
-          zone.y,
-          this.tile(
-            zone.isTop ? (zone.againstWall ? 'trunk-head' : 'trunk-top') : 'trunk',
-          ),
-        )
+        .image(top.x - TRUNK_BULGE, top.y, key)
         .setOrigin(0, 0)
         // Behind the cat, so a climbing cat is seen against its trunk.
         .setDepth(-3);
 
-      return new Phaser.Geom.Rectangle(zone.x, zone.y, zone.width, zone.height);
-    });
+      i += cells;
+    }
   }
 
   /**
@@ -1167,13 +1305,17 @@ export class GameScene extends Phaser.Scene {
         crown(solid.x + TILE / 2, solid.y - 8, TILE * 2.5);
       }
 
+      if (random() < 0.4) {
+        crown(solid.x + TILE / 2 + (random() - 0.5) * TILE * 3, solid.y - 14, TILE * 2);
+      }
+
       if (isCrown) {
         crown(solid.x + TILE / 2, solid.y - 18, TILE * 2);
       }
     }
 
     for (const solid of this.level.solids) {
-      if (!this.sprouts(solid, wooded) || random() > 0.38) {
+      if (!this.sprouts(solid, wooded) || random() > 0.5) {
         continue;
       }
 

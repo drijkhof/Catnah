@@ -27,21 +27,30 @@ export function addGroundShade(
   const columns = Math.ceil(widthInPixels / TILE);
   const rows = Math.ceil(heightInPixels / TILE);
 
-  // Full cells only. A branch is a bar of wood with air on both sides of it,
-  // and water is not ground.
-  const full = new Set<number>();
   const index = (column: number, row: number): number => row * columns + column;
+  const cellOf = (solid: Solid): number => index(solid.x / TILE, solid.y / TILE);
+  const fullCell = (solid: Solid): boolean =>
+    !solid.isBranch && solid.width === TILE && solid.height === TILE;
+
+  // Every full cell, whatever it is made of, for telling buried from exposed.
+  const anything = new Set<number>(solids.filter(fullCell).map(cellOf));
+  const inside = (column: number, row: number): boolean =>
+    column >= 0 && row >= 0 && column < columns && row < rows;
+  const buried = buriedRocks(solids.filter((solid) => fullCell(solid) && isRock(solid)), anything, index, inside, columns);
+
+  // What the darkness lives in: earth, cave wall, and stones buried in them.
+  const full = new Set<number>();
 
   for (const solid of solids) {
-    if (isMass(solid)) {
-      full.add(index(solid.x / TILE, solid.y / TILE));
+    if (isMass(solid, buried.has(cellOf(solid)))) {
+      full.add(cellOf(solid));
     }
   }
 
   // Outside the level counts as solid: the bottom rows go fully dark rather
   // than being lit from below by nothing.
   const isAir = (column: number, row: number): boolean =>
-    column >= 0 && row >= 0 && column < columns && row < rows && !full.has(index(column, row));
+    inside(column, row) && !full.has(index(column, row));
 
   const CELL = 2;
   const cellsPerSide = TILE / CELL;
@@ -49,7 +58,7 @@ export function addGroundShade(
   const cache = new Map<string, string>();
 
   for (const solid of solids) {
-    if (!isMass(solid)) {
+    if (!isMass(solid, buried.has(cellOf(solid)))) {
       continue;
     }
 
@@ -113,24 +122,100 @@ export function addGroundShade(
 }
 
 /**
- * What the darkness lives in: earth, and the walls of a cave. Not:
+ * What the darkness lives in: earth, the walls of a cave, and stones buried
+ * in them. Not:
  *
  * - a branch, a bar of wood with air both sides of it;
- * - a rock (`R`), which is a boulder lying *on* the ground, not part of it --
- *   it stays lit all through, and the earth under it keeps its grass, as if
- *   the rock had been set down on the lawn;
+ * - a rock (`R`) that touches air, which is a boulder lying *on* the ground,
+ *   not part of it -- it stays lit all through, and the earth under it keeps
+ *   its grass, as if the rock had been set down on the lawn. The same `R`
+ *   with earth on every side is a stone *in* the ground, there to break up
+ *   the earth, and it darkens with it -- see `buriedRocks`;
  * - a building, a wall with a room behind it -- darkening its inside made a
  *   house read as a tunnel.
  *
  * Everything that is not mass counts as air for the distance field too, so
  * the ground beside a boulder or a house is lit from that side.
  */
-function isMass(solid: Solid): boolean {
+function isMass(solid: Solid, isBuried: boolean): boolean {
   if (solid.isBranch || solid.width !== TILE || solid.height !== TILE) {
     return false;
   }
 
-  return !solid.textureKey.startsWith('rock-') && !solid.textureKey.startsWith('house-');
+  if (isRock(solid)) {
+    return isBuried;
+  }
+
+  return !solid.textureKey.startsWith('house-');
+}
+
+function isRock(solid: Solid): boolean {
+  return solid.textureKey.startsWith('rock-');
+}
+
+/**
+ * Which rock cells belong to a cluster that never touches air.
+ *
+ * Whole clusters, not cells: the middle of a boulder on the lawn has rock on
+ * every side too, and is not buried. A cluster is buried when none of its
+ * cells has a neighbour that is air or outside the level. The level's own
+ * layout decides, so no extra glyph is needed to tell a boulder from a stone
+ * in the earth.
+ */
+function buriedRocks(
+  rocks: Solid[],
+  anything: Set<number>,
+  index: (column: number, row: number) => number,
+  inside: (column: number, row: number) => boolean,
+  columns: number,
+): Set<number> {
+  const rockCells = new Set<number>(rocks.map((solid) => index(solid.x / TILE, solid.y / TILE)));
+  const seen = new Set<number>();
+  const result = new Set<number>();
+
+  for (const start of rockCells) {
+    if (seen.has(start)) {
+      continue;
+    }
+
+    const cluster: number[] = [];
+    const queue = [start];
+    let exposed = false;
+    seen.add(start);
+
+    while (queue.length) {
+      const cell = queue.pop() as number;
+      cluster.push(cell);
+      const column = cell % columns;
+      const row = Math.floor(cell / columns);
+
+      for (const [dc, dr] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const c = column + dc;
+        const r = row + dr;
+
+        if (!inside(c, r)) {
+          continue;
+        }
+
+        const next = index(c, r);
+
+        if (!anything.has(next)) {
+          exposed = true;
+        } else if (rockCells.has(next) && !seen.has(next)) {
+          seen.add(next);
+          queue.push(next);
+        }
+      }
+    }
+
+    if (!exposed) {
+      for (const cell of cluster) {
+        result.add(cell);
+      }
+    }
+  }
+
+  return result;
 }
 
 /**

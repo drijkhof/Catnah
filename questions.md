@@ -952,3 +952,14 @@ masses, organic edges, and nothing drawn where it cannot be seen. Decisions:
 - **Forest first.** The other themes get the ground shade and the new tiles
   for free (the cave already reads much better); their own backdrops are
   untouched so far.
+
+## Stones in the ground versus boulders on it
+
+The same `R` is used for both, and for a turn the shade treated every `R` as
+a boulder in the open, which lit the stones buried to break up the earth
+and left holes in the dark. Rather than a new glyph, the level's own layout
+decides: a rock cluster with air anywhere round it is a boulder (lit, mossy,
+grass running on underneath); one with earth on every side is a stone in
+the ground (bare, darkening with the earth). Whole clusters, not cells -- the
+middle of a boulder has rock on every side too. A glyph would have been
+explicit but would have meant editing every level that already has both.

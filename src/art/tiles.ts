@@ -63,6 +63,7 @@ export function bakeBoulder(
   cellsHigh: number,
   palette: TilePalette,
   seed: number,
+  mossy = true,
 ): void {
   const width = cellsWide * TILE + BOULDER_BULGE.x * 2;
   const height = cellsHigh * TILE + BOULDER_BULGE.y;
@@ -114,6 +115,10 @@ export function bakeBoulder(
         cx += random() < 0.5 ? -1 : 1;
         cy += 2;
       }
+    }
+
+    if (!mossy) {
+      return;
     }
 
     // Moss on the crown: a band of green along the top that follows the
@@ -1269,3 +1274,192 @@ export function generateTileset(
     g.fillRect(6, 18, 4, 2);
   });
 }
+
+/** How far a whole trunk bulges past its column of cells, px, each side. */
+export const TRUNK_BULGE = 6;
+
+/** How far a whole branch reaches into its trunk, and how high its twigs stand. */
+export const BRANCH_BULGE = { root: 5, top: 3 };
+
+/**
+ * One trunk, covering a column of `T` cells: drawn on demand by the scene at
+ * whatever height a column turns out to be, and cached by key.
+ *
+ * A tree, not a post: wider at the foot than the top, flaring into roots at
+ * the very bottom, with bark ridges in four tones running the whole height,
+ * a knot or two, and the odd notch in the outline. Lit from the left.
+ */
+export function bakeTrunk(
+  scene: Phaser.Scene,
+  key: string,
+  cells: number,
+  palette: TilePalette,
+  seed: number,
+): void {
+  const width = TILE + TRUNK_BULGE * 2;
+  const height = cells * TILE;
+  const centre = width / 2;
+  const random = createRandom(seed);
+  const deep = shade(palette.trunkDark, 22);
+  const footHeight = Math.min(10, height);
+
+  // Width at the top and the base, and how far the roots flare.
+  const topWidth = cells <= 2 ? 16 : 14;
+  const baseWidth = cells <= 2 ? 18 : 20;
+
+  // A wobble along the outline, so the edges are not ruled lines.
+  const wobble: number[] = [];
+  let w = 0;
+  for (let y = 0; y < height; y += 1) {
+    if (y % 6 === 0) {
+      w = Math.floor(random() * 3) - 1;
+    }
+    wobble.push(w);
+  }
+
+  const knots = Array.from({ length: Math.max(1, Math.floor(cells / 3)) }, () => ({
+    y: 8 + Math.floor(random() * Math.max(1, height - 16)),
+    side: random() < 0.5 ? -1 : 1,
+  }));
+
+  bakeTexture(scene, key, width, height, (g) => {
+    for (let y = 0; y < height; y += 1) {
+      const t = y / Math.max(1, height - 1);
+      let half = (topWidth + (baseWidth - topWidth) * t) / 2 + wobble[y] * 0.5;
+
+      // Roots.
+      const fromFoot = height - y;
+      if (fromFoot <= footHeight) {
+        const f = 1 - fromFoot / footHeight;
+        half += f * f * (width / 2 - half);
+      }
+
+      const left = Math.round(centre - half);
+      const right = Math.round(centre + half);
+      const span = right - left;
+
+      g.fillStyle(palette.trunkDark, 1);
+      g.fillRect(left, y, span, 1);
+      g.fillStyle(palette.trunk, 1);
+      g.fillRect(left + 1, y, span - 3, 1);
+      // Lit edge on the left, ridges across, deep shadow on the right.
+      g.fillStyle(palette.trunkLight, 1);
+      g.fillRect(left + 2, y, 2, 1);
+      g.fillRect(left + Math.round(span * 0.45), y, 1, 1);
+      g.fillStyle(palette.trunkDark, 1);
+      g.fillRect(left + Math.round(span * 0.3), y, 1, 1);
+      g.fillRect(left + Math.round(span * 0.62), y, 2, 1);
+      g.fillStyle(deep, 1);
+      g.fillRect(left + Math.round(span * 0.82), y, 1, 1);
+      g.fillRect(right - 2, y, 2, 1);
+    }
+
+    // Knots: a dark ring with a lit centre, set a little into the bark.
+    for (const knot of knots) {
+      const kx = centre + knot.side * 3;
+      g.fillStyle(deep, 1);
+      g.fillEllipse(kx, knot.y, 6, 5);
+      g.fillStyle(palette.trunk, 1);
+      g.fillEllipse(kx, knot.y, 4, 3);
+      g.fillStyle(palette.trunkLight, 1);
+      g.fillRect(kx - 1, knot.y - 1, 1, 1);
+    }
+
+    // Notches in the bark.
+    for (let i = 0; i < cells * 2; i += 1) {
+      const ny = Math.floor(random() * height);
+      g.fillStyle(random() < 0.5 ? deep : palette.trunkLight, 1);
+      g.fillRect(centre - 6 + Math.floor(random() * 10), ny, 1 + Math.floor(random() * 2), 1);
+    }
+  });
+}
+
+/**
+ * One branch, covering a run of `=` cells, growing out of a trunk on `base`'s
+ * side (or free-standing, for `none`): thick where it leaves the trunk, thin
+ * and rounded at the tip, with a lit top, a dark underside, grain, and a few
+ * twigs standing up off it. The top surface stays flat: that is what the cat
+ * stands on, and the taper is all taken out of the underside.
+ *
+ * @returns the wood's thickness under each cell, so leaves can hang from it.
+ */
+export function bakeBranch(
+  scene: Phaser.Scene,
+  key: string,
+  cells: number,
+  base: 'left' | 'right' | 'none',
+  palette: TilePalette,
+  seed: number,
+): number[] {
+  const root = base === 'none' ? 0 : BRANCH_BULGE.root;
+  const width = cells * TILE + root;
+  const height = BRANCH_THICKNESS + BRANCH_BULGE.top;
+  const top = BRANCH_BULGE.top;
+  const random = createRandom(seed);
+  const deep = shade(palette.branchDark, 18);
+  const lit = lighten(palette.branch, 14);
+  const thicknessAt: number[] = [];
+
+  // Thickness along the wood, from the trunk to the tip. Free-standing wood
+  // is a fallen bough: even all along, rounded at both ends.
+  const thickness = (x: number): number => {
+    const length = cells * TILE;
+    const fromBase = base === 'right' ? length - 1 - x : x;
+    const t = base === 'none' ? 0.5 : fromBase / Math.max(1, length - 1);
+    const tipFade = Math.min(1, (length - fromBase) / 6);
+    const endFade = base === 'none' ? Math.min(1, x / 4, (length - 1 - x) / 4) : 1;
+    return Math.max(2, Math.round((BRANCH_THICKNESS - 3 * t) * (0.6 + 0.4 * tipFade) * (0.5 + 0.5 * endFade)));
+  };
+
+  bakeTexture(scene, key, width, height, (g) => {
+    for (let cx = 0; cx < cells * TILE; cx += 1) {
+      const th = thickness(cx);
+      const x = base === 'left' ? cx + root : cx;
+
+      g.fillStyle(palette.branchDark, 1);
+      g.fillRect(x, top, 1, th);
+      g.fillStyle(palette.branch, 1);
+      g.fillRect(x, top + 1, 1, Math.max(0, th - 2));
+      g.fillStyle(lit, 1);
+      g.fillRect(x, top, 1, 1);
+
+      if (cx % TILE === 0) {
+        thicknessAt.push(th);
+      }
+    }
+
+    // The flare where the wood leaves the trunk: a little wider than the
+    // branch, a little higher, so the join is hidden and looks grown.
+    if (base !== 'none') {
+      const fx = base === 'left' ? 0 : width - root;
+      g.fillStyle(palette.branchDark, 1);
+      g.fillRect(fx, top - 1, root, BRANCH_THICKNESS + 2);
+      g.fillStyle(palette.branch, 1);
+      g.fillRect(fx + (base === 'left' ? 1 : 0), top, root - 1, BRANCH_THICKNESS);
+      g.fillStyle(lit, 1);
+      g.fillRect(fx, top - 1, root, 1);
+    }
+
+    // Grain and a knot.
+    g.fillStyle(palette.branchDark, 1);
+    for (let i = 0; i < cells * 2; i += 1) {
+      g.fillRect(root + Math.floor(random() * (cells * TILE - 6)), top + 2 + Math.floor(random() * 3), 3 + Math.floor(random() * 4), 1);
+    }
+    g.fillStyle(deep, 1);
+    g.fillRect(root + Math.floor(random() * (cells * TILE - 4)), top + 1, 2, 2);
+
+    // Twigs standing up off the top, each with a leaf or two.
+    const twigs = Math.max(1, Math.round(cells * 0.6));
+    for (let i = 0; i < twigs; i += 1) {
+      const tx = root + 3 + Math.floor(random() * (cells * TILE - 6));
+      g.fillStyle(palette.branchDark, 1);
+      g.fillRect(tx, 0, 1, top);
+      g.fillStyle(random() < 0.5 ? palette.leaf : palette.leafLight, 1);
+      g.fillRect(tx - 1, 0, 2, 1);
+      g.fillRect(tx + 1, 1, 1, 1);
+    }
+  });
+
+  return thicknessAt;
+}
+

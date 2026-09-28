@@ -23,7 +23,11 @@ export {
   TILE_VARIANTS,
   TRUNK_FOOT,
   BOULDER_BULGE,
+  BRANCH_BULGE,
+  TRUNK_BULGE,
   bakeBoulder,
+  bakeBranch,
+  bakeTrunk,
 } from './tiles';
 export type { TilePalette } from './tiles';
 export {

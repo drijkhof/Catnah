@@ -264,12 +264,21 @@ and the two numbers that shape it live in `config.ts`.
 
 Turf stands up above the ground in a ragged fringe and droops over its
 corners. Earth has stones bedded in its lip. Rock is cobblestone with a mossy
-crown, and a rock is a boulder set down *on* the ground rather than part of
-it: it stays lit all through, and the grass runs on underneath. A run of
-rock cells is drawn as **one boulder** -- rounded, bulging a pixel past the
-cells it collides in, cracked, mossy on top -- and a long bank of them as a
-pile of unequal ones. The cells still collide one by one; only the picture
-is joined. Every ground and rock tile comes in three drawings, picked from a
+crown. A run of rock cells is drawn as **one boulder** -- rounded, bulging a
+pixel past the cells it collides in, cracked -- and a long bank of them as a
+pile of unequal ones. Whether a rock is *on* the ground or *in* it is read
+off the level: a cluster that touches air is a boulder on the lawn, lit all
+through, mossy on top, with the grass running on underneath; one with earth
+on every side is a stone in the ground, bare, darkening with the earth
+around it. The cells still collide one by one; only the picture is joined.
+
+Trees are drawn the same way. A column of trunk cells is **one trunk**,
+wider at the foot than the top, flaring into roots, bark all the way up with
+a knot or two. A run of branch cells is **one branch** growing out of its
+trunk: thick where it leaves the wood, thinning to a rounded tip, twigs
+standing up off it, leaves hanging from its real underside; a run with no
+trunk at either end is a fallen bough, even along its length. The top
+surface stays flat, because that is what the cat stands on. Every ground and rock tile comes in three drawings, picked from a
 tile's own place in the grid, so a run of floor never repeats in step.
 
 Behind the level, distance is done with tone: the far trees are pale and
