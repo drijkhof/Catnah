@@ -8,7 +8,10 @@ binary assets and runs straight after clone.
 - `cat.ts` — the cat: standing, sneaking, climbing, swimming, and the walk,
   climb and swim animation cycles built from them.
 - `tiles.ts` — every level tile, drawn from a palette so three themes share one
-  set of shapes. Keys are namespaced: `cave:rock-fill`.
+  set of shapes. Keys are namespaced: `cave:rock-fill`. Ground and rock tiles
+  come in `TILE_VARIANTS` drawings (`ground-top`, `ground-top-1`, ...), and
+  `grass-fringe*` / `grass-droop` are the turf that stands above and hangs
+  over them, placed by `GameScene.dressGround`.
 - `forest.ts` — the forest's own scenery: sky, sun, trees, bushes, grass. And
   the little heart, which is the same everywhere.
 - `backdrops.ts` — cave and city scenery: stalactites, crystals, skylines, moon.

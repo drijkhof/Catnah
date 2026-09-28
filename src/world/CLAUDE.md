@@ -5,7 +5,10 @@ physics body.
 
 One backdrop per place, chosen by `createBackdrop`:
 
-- `Backdrop` — the forest: sky, sun, shafts of light, two ranks of trees, bushes.
+- `Backdrop` — the forest: sky, sun, shafts of light, two ranks of trees, haze
+  between them, a canopy over the top, bushes.
+- `GroundShade` — not a backdrop but used by every level: the darkness inside
+  the ground, as a distance field from every exposed face. See the file.
 - `CaveBackdrop` — stalactites at two depths, crystals, a pool of floor light.
 - `CityBackdrop` — night sky, moon, two ranks of buildings with lit windows.
 
@@ -30,7 +33,9 @@ which is what reads as depth:
 | Sky | 0 (pinned to the viewport, so it never runs out) |
 | Sun and light rays | 0.04 |
 | Far trees | 0.25 |
+| Haze (both bands) | 0 sideways, 1 vertically: featureless, pinned to the ground line |
 | Mid trees | 0.5 |
+| Canopy | 0.35 sideways, 0 vertically: pinned to the top of the viewport |
 | Bushes, grass tufts | 1 |
 
 **Anything touching the forest floor must stay at scroll factor 1.** Bushes sit

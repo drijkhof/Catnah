@@ -8,7 +8,7 @@ import { generateTileset } from './tiles';
 import { THEMES } from '../level/themes';
 
 export { bakeTexture, createRandom } from './canvas';
-export { BUSH_SIZE, CHECKPOINT_SIZE, SUN_SIZE, TREE_SIZES, TUFT_SIZE } from './forest';
+export { BUSH_SIZE, CANOPY_SIZE, CHECKPOINT_SIZE, FOG_HEIGHT, SUN_SIZE, TREE_SIZES, TUFT_SIZE } from './forest';
 export { BUTTON_SIZE } from './ui';
 export { BUILDING_SIZE, CONE_SIZE, DEAD_TREE_SIZE, MOON_SIZE, STALACTITE_SIZE, STALAGMITE_SIZE } from './backdrops';
 export {
@@ -18,6 +18,9 @@ export {
   FOLIAGE_NEAR_SIZE,
   generateTileset,
   tileKey,
+  GRASS_DROOP,
+  GRASS_FRINGE_HEIGHT,
+  TILE_VARIANTS,
 } from './tiles';
 export type { TilePalette } from './tiles';
 export {

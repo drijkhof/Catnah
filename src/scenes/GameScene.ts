@@ -10,10 +10,10 @@ import { Crow } from '../objects/Crow';
 import { GroundEnemy } from '../objects/GroundEnemy';
 import { Piranha } from '../objects/Piranha';
 import { Spider } from '../objects/Spider';
-import { createBackdrop } from '../world';
+import { addGroundShade, createBackdrop } from '../world';
 import { parseLevel, type ParsedLevel, type Solid } from '../level/Level';
 import { LEVELS } from '../level/levels';
-import { createRandom, tileKey } from '../art';
+import { GRASS_DROOP, GRASS_FRINGE_HEIGHT, createRandom, tileKey } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { installGodMode, isGodMode } from '../dev/godMode';
@@ -181,6 +181,15 @@ export class GameScene extends Phaser.Scene {
     );
 
     const { blocks, branches } = this.buildSolids();
+    // Added straight after the tiles and before anything that stands on them,
+    // so at the same depth it draws over the ground and under the cat.
+    addGroundShade(
+      this,
+      this.level.solids,
+      this.level.widthInPixels,
+      this.level.heightInPixels,
+      THEMES[this.level.theme].shade,
+    );
     const climbZones = this.buildTrunks();
     const lianaZones = this.buildLianas();
     this.buildDeadVines();
@@ -835,6 +844,8 @@ export class GameScene extends Phaser.Scene {
       body.checkCollision.left = solid.faces.left;
       body.checkCollision.right = solid.faces.right;
 
+      this.dressGround(solid);
+
       // Leaves hang below a branch as decoration only. They are not part of the
       // collision box, so the cat lands on the wood rather than on foliage.
       if (solid.isBranch) {
@@ -846,6 +857,39 @@ export class GameScene extends Phaser.Scene {
     }
 
     return { blocks, branches };
+  }
+
+  /**
+   * Grass standing up above a ground tile, and drooping over its exposed
+   * corners. Scenery with no body: the ground's silhouette against the sky is
+   * ragged turf rather than a ruled line, and an edge reads as turf hanging
+   * over earth rather than as the end of a tile.
+   */
+  private dressGround(solid: Solid): void {
+    const match = /^ground-top(-\d)?$/.exec(solid.textureKey);
+
+    if (!match) {
+      return;
+    }
+
+    const suffix = match[1] ?? '';
+
+    this.add
+      .image(solid.x, solid.y - GRASS_FRINGE_HEIGHT + 1, this.tile(`grass-fringe${suffix}`))
+      .setOrigin(0, 0);
+
+    if (solid.faces.left) {
+      this.add
+        .image(solid.x - GRASS_DROOP.width + 1, solid.y, this.tile('grass-droop'))
+        .setOrigin(0, 0)
+        .setFlipX(true);
+    }
+
+    if (solid.faces.right) {
+      this.add
+        .image(solid.x + TILE - 1, solid.y, this.tile('grass-droop'))
+        .setOrigin(0, 0);
+    }
   }
 
   /**

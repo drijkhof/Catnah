@@ -5,9 +5,9 @@ fetched as `/assets/player.png`.
 
 **This folder is empty on purpose.** All current art is generated at runtime by
 `BootScene` (see `src/scenes/CLAUDE.md`), so the project has no binary files to
-manage and runs straight after clone. The placeholder look — flat rectangles,
-and a highlight stripe on every ground tile rather than only the top one — is
-expected, not a bug to fix in code.
+manage and runs straight after clone. The look is described in `work.md`
+under *The look*; it is drawn, not placeholder, but every drawing is still
+one function that a file can replace.
 
 ## Replacing placeholders with real art
 

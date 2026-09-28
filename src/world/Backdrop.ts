@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { COLORS, GAME_HEIGHT, GAME_WIDTH } from '../config';
-import { BUSH_SIZE, SUN_SIZE, TREE_SIZES, createRandom } from '../art';
+import { BUSH_SIZE, CANOPY_SIZE, SUN_SIZE, TREE_SIZES, createRandom } from '../art';
 
 /**
  * Draw order. Everything the player interacts with sits at the default depth of
@@ -12,7 +12,10 @@ const DEPTH = {
   sun: -95,
   rays: -92,
   treesFar: -80,
+  fogFar: -76,
   treesMid: -70,
+  fogNear: -66,
+  canopy: -60,
   bushes: -10,
   foreground: 50,
 } as const;
@@ -43,8 +46,45 @@ export class Backdrop {
     this.addSun();
     this.addLightRays();
     this.addTreeRank('far');
+    this.addFog(DEPTH.fogFar, 0.85);
     this.addTreeRank('mid');
+    this.addFog(DEPTH.fogNear, 0.4);
+    this.addCanopy();
     this.addBushes();
+  }
+
+  /**
+   * Haze along the floor. Featureless, so it is pinned sideways and only its
+   * height follows the ground line; a band behind the mid trees pushes the far
+   * rank back, and a thinner one in front sets the mid rank into the air too.
+   */
+  private addFog(depth: number, alpha: number): void {
+    this.scene.add
+      .image(0, this.groundLine + 6, 'fog')
+      .setOrigin(0, 1)
+      .setScrollFactor(0, 1)
+      .setDepth(depth)
+      .setAlpha(alpha);
+  }
+
+  /**
+   * Leaves hanging over the top of the screen, between the trees and the
+   * cat. Pinned to the top of the viewport and parallaxing sideways, so the
+   * forest is closed in from above wherever the cat goes, with gaps for the
+   * sun to come through.
+   */
+  private addCanopy(): void {
+    const random = createRandom(2718);
+    const span = this.levelWidth * 0.35 + GAME_WIDTH;
+
+    for (let x = -CANOPY_SIZE.width; x < span; x += CANOPY_SIZE.width) {
+      this.scene.add
+        .image(x, 0, random() < 0.6 ? 'canopy-a' : 'canopy-b')
+        .setOrigin(0, 0)
+        .setFlipX(random() < 0.5)
+        .setScrollFactor(0.35, 0)
+        .setDepth(DEPTH.canopy);
+    }
   }
 
   private addSky(): void {

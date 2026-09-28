@@ -1,5 +1,5 @@
 import { MAX_CHARMS_PER_LEVEL, SPIDER, TILE } from '../config';
-import { BRANCH_THICKNESS } from '../art';
+import { BRANCH_THICKNESS, TILE_VARIANTS } from '../art';
 import type { ThemeName } from './themes';
 import type { GroundEnemyKind } from '../config';
 
@@ -296,11 +296,11 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
         case '#':
           // Grass only where the earth is actually exposed to the sky. This is
           // what stops a stack of tiles reading as stripes.
-          block(x, y, at(column, row - 1) === '#' ? 'ground-fill' : 'ground-top', column, row);
+          block(x, y, variantOf(at(column, row - 1) === '#' ? 'ground-fill' : 'ground-top', column, row), column, row);
           break;
 
         case 'R':
-          block(x, y, at(column, row - 1) === 'R' ? 'rock-fill' : 'rock-top', column, row);
+          block(x, y, variantOf(at(column, row - 1) === 'R' ? 'rock-fill' : 'rock-top', column, row), column, row);
           break;
 
         case 'M':
@@ -780,6 +780,18 @@ function groupIntoPools(tiles: WaterZone[]): WaterZone[][] {
   }
 
   return pools;
+}
+
+/**
+ * Picks one of the drawings of a ground or rock tile from its place in the
+ * grid. Not random: the same tile gets the same drawing on every device and
+ * every reload, and the stride is chosen so neighbours in a row and in a
+ * column differ.
+ */
+function variantOf(base: string, column: number, row: number): string {
+  const variant = (column * 7 + row * 5) % TILE_VARIANTS;
+
+  return variant === 0 ? base : `${base}-${variant}`;
 }
 
 /** Solids that fill their whole cell, as opposed to a platform's thin bar. */

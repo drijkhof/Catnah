@@ -17,6 +17,8 @@ export function generateForestTextures(scene: Phaser.Scene): void {
   generateSky(scene);
   generateSun(scene);
   generateTrees(scene);
+  generateFog(scene);
+  generateCanopy(scene);
   generateBush(scene);
   generateGrassTuft(scene);
   generateLife(scene);
@@ -52,53 +54,167 @@ function generateSun(scene: Phaser.Scene): void {
 
 function generateTrees(scene: Phaser.Scene): void {
   const variants = [
-    { key: 'tree-far-a', size: TREE_SIZES.far, leaf: COLORS.treeFar, trunk: COLORS.treeFarTrunk, seed: 11 },
-    { key: 'tree-far-b', size: TREE_SIZES.far, leaf: COLORS.treeFar, trunk: COLORS.treeFarTrunk, seed: 29 },
-    { key: 'tree-mid-a', size: TREE_SIZES.mid, leaf: COLORS.treeMid, trunk: COLORS.treeMidTrunk, seed: 47 },
-    { key: 'tree-mid-b', size: TREE_SIZES.mid, leaf: COLORS.treeMid, trunk: COLORS.treeMidTrunk, seed: 83 },
+    { key: 'tree-far-a', size: TREE_SIZES.far, leaf: COLORS.treeFar, trunk: COLORS.treeFarTrunk, seed: 11, modelled: false },
+    { key: 'tree-far-b', size: TREE_SIZES.far, leaf: COLORS.treeFar, trunk: COLORS.treeFarTrunk, seed: 29, modelled: false },
+    { key: 'tree-mid-a', size: TREE_SIZES.mid, leaf: COLORS.treeMid, trunk: COLORS.treeMidTrunk, seed: 47, modelled: true },
+    { key: 'tree-mid-b', size: TREE_SIZES.mid, leaf: COLORS.treeMid, trunk: COLORS.treeMidTrunk, seed: 83, modelled: true },
   ];
 
   for (const variant of variants) {
     const { width, height } = variant.size;
-    const random = createRandom(variant.seed);
 
     bakeTexture(scene, variant.key, width, height, (g) => {
-      const trunkWidth = Math.round(width * 0.14);
-      const centre = width / 2;
+      drawTree(g, width, height, variant.leaf, variant.trunk, createRandom(variant.seed), variant.modelled);
+    });
+  }
+}
 
-      g.fillStyle(variant.trunk, 1);
-      g.fillRect(centre - trunkWidth / 2, height * 0.4, trunkWidth, height * 0.6);
+/**
+ * A tree seen through the air between it and the cat.
+ *
+ * Drawn as a silhouette in one tonal family: the trunk is only a little darker
+ * than the crown, never a different material, because haze flattens distance
+ * into tone. That is what stops a background tree looking pasted on. The far
+ * rank is flat; the mid rank gets a shadowed underside and a lit top, which
+ * is all the modelling distance allows.
+ */
+function drawTree(
+  g: Phaser.GameObjects.Graphics,
+  width: number,
+  height: number,
+  leaf: number,
+  trunk: number,
+  random: () => number,
+  modelled: boolean,
+): void {
+  const centre = width / 2;
+  const trunkWidth = width * 0.15;
+  const crownY = height * 0.3;
 
-      // A root flare at the base and two limbs angled up into the canopy.
-      // Drawn as triangles rather than bars: horizontal rectangles read as
-      // crossbars on a telephone pole, not as branches.
-      g.fillTriangle(
-        centre - trunkWidth * 1.6, height,
-        centre + trunkWidth * 1.6, height,
-        centre, height * 0.82,
-      );
-      g.fillTriangle(
-        centre - trunkWidth * 0.4, height * 0.62,
-        centre - trunkWidth * 2.2, height * 0.4,
-        centre - trunkWidth * 0.4, height * 0.5,
-      );
-      g.fillTriangle(
-        centre + trunkWidth * 0.4, height * 0.68,
-        centre + trunkWidth * 2.4, height * 0.46,
-        centre + trunkWidth * 0.4, height * 0.56,
-      );
+  // Trunk: tapering up into the crown, flaring out into roots at the foot.
+  g.fillStyle(trunk, 1);
+  g.fillPoints(
+    [
+      new Phaser.Math.Vector2(centre - trunkWidth * 0.5, crownY),
+      new Phaser.Math.Vector2(centre + trunkWidth * 0.5, crownY),
+      new Phaser.Math.Vector2(centre + trunkWidth * 0.7, height * 0.88),
+      new Phaser.Math.Vector2(centre + trunkWidth * 1.8, height),
+      new Phaser.Math.Vector2(centre - trunkWidth * 1.8, height),
+      new Phaser.Math.Vector2(centre - trunkWidth * 0.7, height * 0.88),
+    ],
+    true,
+  );
 
-      // Canopy: overlapping blobs read as foliage at this size, and scatter
-      // deterministically so the tree looks the same on every run.
-      g.fillStyle(variant.leaf, 1);
+  // Two limbs reaching up into the crown, tapering as they go.
+  const limb = (toX: number, toY: number, fromY: number, thickness: number): void => {
+    g.fillPoints(
+      [
+        new Phaser.Math.Vector2(centre - thickness, fromY),
+        new Phaser.Math.Vector2(centre + thickness, fromY - thickness),
+        new Phaser.Math.Vector2(toX + thickness * 0.3, toY),
+        new Phaser.Math.Vector2(toX - thickness * 0.3, toY),
+      ],
+      true,
+    );
+  };
 
-      for (let i = 0; i < 9; i += 1) {
-        const bx = centre + (random() - 0.5) * width * 0.78;
-        const by = height * 0.3 + (random() - 0.5) * height * 0.42;
-        const radius = width * (0.15 + random() * 0.14);
+  limb(centre - width * 0.3, height * 0.22, height * 0.58, trunkWidth * 0.55);
+  limb(centre + width * 0.3, height * 0.2, height * 0.52, trunkWidth * 0.5);
 
-        g.fillCircle(bx, by, radius);
-      }
+  // Crown: one mass with lumps round its edge, rather than a scatter of
+  // circles -- a tree has a shape, a cloud of blobs does not.
+  const lump = (colour: number, cx: number, cy: number, radius: number): void => {
+    g.fillStyle(colour, 1);
+    g.fillCircle(cx, cy, radius);
+  };
+
+  g.fillStyle(leaf, 1);
+  g.fillEllipse(centre, crownY, width * 0.84, height * 0.4);
+
+  for (let i = 0; i < 8; i += 1) {
+    const angle = (i / 8) * Math.PI * 2 + random() * 0.5;
+    lump(
+      leaf,
+      centre + Math.cos(angle) * width * 0.34,
+      crownY + Math.sin(angle) * height * 0.15,
+      width * (0.11 + random() * 0.09),
+    );
+  }
+
+  if (!modelled) {
+    return;
+  }
+
+  // Shadow under the crown, and light on top of it.
+  const under = shadeOf(leaf, 14);
+  const lit = lightOf(leaf, 9);
+
+  for (let i = 0; i < 4; i += 1) {
+    lump(under, centre + (i - 1.5) * width * 0.2 + (random() - 0.5) * 8, crownY + height * 0.12 + random() * 6, width * (0.12 + random() * 0.06));
+  }
+
+  for (let i = 0; i < 3; i += 1) {
+    lump(lit, centre + (i - 1) * width * 0.22 + (random() - 0.5) * 10, crownY - height * 0.11 - random() * 6, width * (0.1 + random() * 0.05));
+  }
+}
+
+function shadeOf(colour: number, amount: number): number {
+  return Phaser.Display.Color.ValueToColor(colour).darken(amount).color;
+}
+
+function lightOf(colour: number, amount: number): number {
+  return Phaser.Display.Color.ValueToColor(colour).lighten(amount).color;
+}
+
+/** How tall the floor haze is, and how far the canopy hangs into the screen. */
+export const FOG_HEIGHT = 120;
+export const CANOPY_SIZE = { width: 256, height: 72 };
+
+function generateFog(scene: Phaser.Scene): void {
+  // Transparent at the top, solid haze at the floor. Baked as bands of
+  // rising alpha; a plain alpha fill bakes correctly where a gradient style
+  // does not (see `fillVerticalGradient`).
+  const bands = 24;
+
+  bakeTexture(scene, 'fog', GAME_WIDTH, FOG_HEIGHT, (g) => {
+    for (let i = 0; i < bands; i += 1) {
+      const t = i / (bands - 1);
+      g.fillStyle(COLORS.fog, t * t);
+      g.fillRect(0, Math.floor((i * FOG_HEIGHT) / bands), GAME_WIDTH, Math.ceil(FOG_HEIGHT / bands) + 1);
+    }
+  });
+}
+
+function generateCanopy(scene: Phaser.Scene): void {
+  const { width, height } = CANOPY_SIZE;
+
+  // Two chunks, one with a gap in it, laid end to end along the top of the
+  // screen. Built in three tiers: big masses hanging from above the top edge,
+  // a darker tier over them, and a fringe of small lumps along the underside
+  // so the edge is leaves rather than scallops.
+  for (const [key, seed, gap] of [['canopy-a', 5, false], ['canopy-b', 17, true]] as const) {
+    const random = createRandom(seed);
+    const inGap = (x: number, margin: number): boolean =>
+      gap && x > width * (0.4 - margin) && x < width * (0.66 + margin);
+
+    bakeTexture(scene, key, width, height, (g) => {
+      const tier = (colour: number, count: number, minR: number, maxR: number, yBase: number, ySpread: number, margin: number): void => {
+        for (let i = 0; i < count; i += 1) {
+          const x = (i / count) * width + random() * (width / count);
+          if (inGap(x, margin)) {
+            continue;
+          }
+          const radius = minR + random() * (maxR - minR);
+          g.fillStyle(colour, 1);
+          g.fillCircle(x, yBase + random() * ySpread, radius);
+        }
+      };
+
+      tier(COLORS.canopy, 12, 18, 30, 8, 14, 0);
+      tier(COLORS.canopyDark, 12, 14, 24, -6, 12, 0.04);
+      // The fringe: small, many, and reaching lower than the masses above.
+      tier(COLORS.canopy, 30, 4, 9, 30, 18, -0.02);
+      tier(COLORS.canopyDark, 24, 3, 7, 24, 16, 0.02);
     });
   }
 }

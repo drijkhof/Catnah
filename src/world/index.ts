@@ -6,6 +6,8 @@ import { CityBackdrop } from './CityBackdrop';
 import { SwampBackdrop } from './SwampBackdrop';
 import { VolcanoBackdrop } from './VolcanoBackdrop';
 
+export { addGroundShade } from './GroundShade';
+
 /**
  * Builds the scenery for a place.
  *

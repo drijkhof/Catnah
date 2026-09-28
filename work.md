@@ -252,6 +252,28 @@ One wall alone will not do it — a jump off the floor plus a single wall jump
 reaches 172px, and there it stops.
 
 
+## The look
+
+Pixel art at the game's own scale, drawn in code, and lit by one rule: **a
+surface is lit, a mass is dark.** Grass, the lip of earth under it, a cliff
+face and the top course of a wall show their texture; a tile or so in,
+everything fades to the same near-black, and nothing is drawn where nothing
+can be seen. The fade is a distance field over the whole level rather than a
+set of tiles, so it works the same in the forest, the cave and the volcano,
+and the two numbers that shape it live in `config.ts`.
+
+Turf stands up above the ground in a ragged fringe and droops over its
+corners. Earth has stones bedded in its lip. Rock is cobblestone with a mossy
+crown. Every ground and rock tile comes in three drawings, picked from a
+tile's own place in the grid, so a run of floor never repeats in step.
+
+Behind the level, distance is done with tone: the far trees are pale and
+flat, the mid trees a little darker with a shadowed underside, both drawn as
+silhouettes in one hazy family rather than a brown trunk under a green blob.
+Haze lies along the floor between the ranks, and a canopy hangs across the
+top of the screen with gaps for the sun. Climbable trunks are bark the full
+width of their tile.
+
 ## Level 1 — the forest
 
 Sunlit forest, 80 tiles wide. The sun is up in the top right, with shafts of

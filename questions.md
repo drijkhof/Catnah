@@ -930,3 +930,25 @@ get the number were tried in the space of one conversation:
   `vite.config.ts` and is the thing to bump for a real release.
 - **A re-run of the same deploy gets the same number** (run number is per
   run, not per attempt). Fine for this purpose.
+
+## The graphical overhaul, first pass
+
+Asked for, with five reference pictures. What they had in common was not
+resolution but lighting and composition: depth by tone, lit tops on dark
+masses, organic edges, and nothing drawn where it cannot be seen. Decisions:
+
+- **Stayed at the current resolution and stayed pixel art.** The reference
+  ground was at roughly our scale; what it spent better was colour and
+  contrast. Doubling the canvas remains possible later and is not needed for
+  this.
+- **The dark ground is an overlay, not baked into tiles.** A distance field
+  from every exposed face, cached per pattern and placed as one image per
+  tile. Tunable in one place, works for every theme, and the tiles under it
+  stay simple.
+- **Drawn in code, by Claude.** The reference textures are an artist's; this
+  is a step toward them, not a match. Every drawing is one function in
+  `src/art`, so any of them can be replaced by a file later without touching
+  anything else.
+- **Forest first.** The other themes get the ground shade and the new tiles
+  for free (the cave already reads much better); their own backdrops are
+  untouched so far.

@@ -87,6 +87,20 @@ export const GAME_HEIGHT = RESOLUTION.height;
 export const TILE = 16;
 
 /**
+ * The darkness inside the ground -- see `world/GroundShade.ts`.
+ *
+ * A surface is lit; a tile in, the ground is a mass. `start` and `full` are
+ * distances from the nearest air in pixels: nothing is darkened closer than
+ * `start`, and from `full` on the ground is as dark as it gets, `max`. The
+ * colour comes from each theme's palette.
+ */
+export const GROUND_SHADE = {
+  start: 6,
+  full: 30,
+  max: 0.9,
+} as const;
+
+/**
  * How far from the cat a creature goes on living, in game pixels.
  *
  * Nothing on the far side of a 248-tile swamp should be pacing, hunting or
@@ -734,10 +748,17 @@ export const COLORS = {
 
   // Distant trees are lighter and bluer than near ones: haze in the air makes
   // far away things lose contrast, which is what sells depth.
-  treeFar: 0x6e9b86,
-  treeFarTrunk: 0x5d7a6b,
-  treeMid: 0x477a5f,
-  treeMidTrunk: 0x4a3b2c,
+  treeFar: 0x8fb5a0,
+  treeFarTrunk: 0x7ea08c,
+  treeMid: 0x5a8a6c,
+  treeMidTrunk: 0x4b715a,
+
+  // Haze along the floor between the ranks of trees, and the canopy hanging
+  // over the top of the screen. Both are what make the forest deep: the haze
+  // pushes the far trees back, the canopy closes the space in from above.
+  fog: 0xdbe8c6,
+  canopy: 0x2a5236,
+  canopyDark: 0x1b3c27,
 
   bush: 0x4f8f4a,
   bushDark: 0x3c7038,

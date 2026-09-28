@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { TILE } from '../config';
-import { bakeTexture } from './canvas';
+import { bakeTexture, createRandom } from './canvas';
 
 /** Height of the solid wooden part of a branch, in game pixels. */
 export const BRANCH_THICKNESS = 8;
@@ -27,6 +27,196 @@ function shade(colour: number, amount: number): number {
   return Phaser.Display.Color.ValueToColor(colour).darken(amount).color;
 }
 
+/** A lighter version of a palette colour, for the lit edge of a thing. */
+function lighten(colour: number, amount: number): number {
+  return Phaser.Display.Color.ValueToColor(colour).lighten(amount).color;
+}
+
+/** How many drawings of each ground and rock tile there are. */
+export const TILE_VARIANTS = 3;
+
+/** How far the grass fringe stands up above a ground tile, px. */
+export const GRASS_FRINGE_HEIGHT = 5;
+
+/** The blades hanging over an exposed corner of the ground. */
+export const GRASS_DROOP = { width: 4, height: 7 };
+
+/**
+ * Earth: a lit lip just under the surface with a few stones bedded in it,
+ * then deeper, darker soil. Only the top third is ever really seen -- the
+ * ground shade (`world/GroundShade.ts`) swallows the rest -- so that is where
+ * the drawing goes.
+ */
+function drawEarth(
+  g: Phaser.GameObjects.Graphics,
+  palette: TilePalette,
+  random: () => number,
+  surface: boolean,
+): void {
+  const deep = shade(palette.dirt, 14);
+  const lip = lighten(palette.dirt, 10);
+
+  g.fillStyle(palette.dirt, 1);
+  g.fillRect(0, 0, TILE, TILE);
+  g.fillStyle(deep, 1);
+  g.fillRect(0, surface ? 11 : 9, TILE, TILE);
+
+  if (surface) {
+    g.fillStyle(lip, 1);
+    g.fillRect(0, 6, TILE, 2);
+  }
+
+  // Stones: rounded lumps with a lit top edge, sitting in the lip.
+  const count = surface ? 3 : 2;
+
+  for (let i = 0; i < count; i += 1) {
+    const w = 3 + Math.floor(random() * 3);
+    const h = 2 + Math.floor(random() * 2);
+    const x = Math.floor(random() * (TILE - w));
+    const y = surface ? 7 + Math.floor(random() * 5) : 2 + Math.floor(random() * 11);
+
+    g.fillStyle(palette.dirtDark, 1);
+    g.fillRect(x, y, w, h);
+    g.fillRect(x + 1, y - 1, w - 2, 1);
+    g.fillRect(x + 1, y + h, w - 2, 1);
+    g.fillStyle(lip, 1);
+    g.fillRect(x + 1, y, w - 2, 1);
+  }
+}
+
+/** Turf: a ragged top, a lit crown, and a dark seam where it meets the soil. */
+function drawGrassTop(
+  g: Phaser.GameObjects.Graphics,
+  palette: TilePalette,
+  random: () => number,
+): void {
+  const light = lighten(palette.grass, 16);
+  const seam = shade(palette.grassDark, 30);
+
+  g.fillStyle(seam, 1);
+  g.fillRect(0, 5, TILE, 1);
+  g.fillStyle(palette.grassDark, 1);
+  g.fillRect(0, 2, TILE, 3);
+  g.fillStyle(palette.grass, 1);
+  g.fillRect(0, 0, TILE, 3);
+
+  // Roots of grass dipping into the seam, and a few pale blades on top.
+  for (let x = 0; x < TILE; x += 1) {
+    if (random() < 0.3) {
+      g.fillStyle(palette.grassDark, 1);
+      g.fillRect(x, 5, 1, 1);
+    }
+
+    if (random() < 0.35) {
+      g.fillStyle(light, 1);
+      g.fillRect(x, 1, 1, 1);
+    }
+
+    if (random() < 0.25) {
+      g.fillStyle(palette.grassDark, 1);
+      g.fillRect(x, 1, 1, 2);
+    }
+  }
+}
+
+/** The blades above a grass tile. Its bottom row joins the tile's top. */
+function drawGrassFringe(
+  g: Phaser.GameObjects.Graphics,
+  palette: TilePalette,
+  random: () => number,
+): void {
+  const light = lighten(palette.grass, 16);
+  const bottom = GRASS_FRINGE_HEIGHT;
+
+  g.fillStyle(palette.grass, 1);
+  g.fillRect(0, bottom - 1, TILE, 1);
+
+  for (let x = 0; x < TILE; x += 1) {
+    const roll = random();
+
+    if (roll < 0.45) {
+      continue;
+    }
+
+    const height = roll < 0.75 ? 2 : roll < 0.92 ? 3 : 5;
+    const tone = random() < 0.3 ? palette.grassDark : random() < 0.5 ? light : palette.grass;
+
+    g.fillStyle(tone, 1);
+    g.fillRect(x, bottom - height, 1, height);
+  }
+}
+
+/**
+ * Cobblestone: two courses of stones with a lit top-left edge and a dark
+ * underside, set in a darker mortar with the corners knocked off.
+ */
+function drawCobble(
+  g: Phaser.GameObjects.Graphics,
+  palette: TilePalette,
+  random: () => number,
+): void {
+  const mortar = shade(palette.rock, 32);
+
+  g.fillStyle(mortar, 1);
+  g.fillRect(0, 0, TILE, TILE);
+
+  const courses = [
+    { y: 0, h: 8 },
+    { y: 8, h: 8 },
+  ];
+
+  courses.forEach((course, i) => {
+    // Each course is split into two stones at a different place, so the
+    // joints stagger like laid stone rather than lining up like a grid.
+    const split = (i === 0 ? 5 : 9) + Math.floor(random() * 4);
+    const stones = [
+      { x: 0, w: split },
+      { x: split, w: TILE - split },
+    ];
+
+    for (const stone of stones) {
+      const x = stone.x;
+      const y = course.y;
+      const w = stone.w;
+      const h = course.h;
+      const tone = random() < 0.3 ? shade(palette.rock, 8) : palette.rock;
+
+      g.fillStyle(tone, 1);
+      g.fillRect(x + 1, y + 1, w - 2, h - 2);
+      g.fillStyle(palette.rockLight, 1);
+      g.fillRect(x + 1, y + 1, w - 3, 1);
+      g.fillRect(x + 1, y + 1, 1, h - 3);
+      g.fillStyle(palette.rockDark, 1);
+      g.fillRect(x + 2, y + h - 2, w - 3, 1);
+      g.fillRect(x + w - 2, y + 2, 1, h - 3);
+    }
+  });
+}
+
+/** A little moss and grass on top of a rock, so a pillar has a green crown. */
+function drawMossCap(
+  g: Phaser.GameObjects.Graphics,
+  palette: TilePalette,
+  random: () => number,
+): void {
+  g.fillStyle(palette.grassDark, 1);
+  g.fillRect(0, 0, TILE, 2);
+  g.fillStyle(palette.grass, 1);
+  g.fillRect(0, 0, TILE, 1);
+
+  for (let x = 0; x < TILE; x += 1) {
+    if (random() < 0.4) {
+      g.fillStyle(palette.leafLight, 1);
+      g.fillRect(x, 0, 1, 1);
+    }
+
+    if (random() < 0.3) {
+      g.fillStyle(palette.grassDark, 1);
+      g.fillRect(x, 2, 1, 1 + Math.floor(random() * 2));
+    }
+  }
+}
+
 /**
  * The colours a level's tiles are drawn in.
  *
@@ -46,6 +236,8 @@ export type PlatformStyle = 'branch' | 'shelf' | 'girder';
 export interface TilePalette {
   columnStyle: ColumnStyle;
   platformStyle: PlatformStyle;
+  /** What the ground fades to, a tile in from any surface. Near black. */
+  shade: number;
   grass: number;
   grassDark: number;
   dirt: number;
@@ -96,63 +288,50 @@ export function generateTileset(
   const key = (name: string) => tileKey(theme, name);
 
   // --- floor -------------------------------------------------------------
-  bakeTexture(scene, key('ground-top'), TILE, TILE, (g) => {
-    g.fillStyle(palette.dirt, 1);
-    g.fillRect(0, 0, TILE, TILE);
+  //
+  // Three variants of every ground and rock tile, picked by the level from a
+  // tile's own place in the grid, so a run of floor never repeats its stones
+  // in step. The suffix-less one is variant 0; `Level.ts` adds `-1` and `-2`.
+  for (let variant = 0; variant < TILE_VARIANTS; variant += 1) {
+    const suffix = variant === 0 ? '' : `-${variant}`;
 
+    bakeTexture(scene, key(`ground-top${suffix}`), TILE, TILE, (g) => {
+      drawEarth(g, palette, createRandom(101 + variant * 17), true);
+      drawGrassTop(g, palette, createRandom(211 + variant * 31));
+    });
+
+    bakeTexture(scene, key(`ground-fill${suffix}`), TILE, TILE, (g) => {
+      drawEarth(g, palette, createRandom(307 + variant * 23), false);
+    });
+
+    bakeTexture(scene, key(`rock-top${suffix}`), TILE, TILE, (g) => {
+      drawCobble(g, palette, createRandom(401 + variant * 29));
+      drawMossCap(g, palette, createRandom(503 + variant * 37));
+    });
+
+    bakeTexture(scene, key(`rock-fill${suffix}`), TILE, TILE, (g) => {
+      drawCobble(g, palette, createRandom(601 + variant * 41));
+    });
+
+    // The blades that stand up above a grass tile. Scenery: `GameScene` puts
+    // one over every ground-top tile, so the ground's silhouette against the
+    // sky is ragged rather than a ruled line.
+    bakeTexture(scene, key(`grass-fringe${suffix}`), TILE, GRASS_FRINGE_HEIGHT, (g) => {
+      drawGrassFringe(g, palette, createRandom(701 + variant * 43));
+    });
+  }
+
+  // A few blades hanging over the corner where the ground ends, so an edge
+  // reads as turf overhanging earth rather than a tile boundary.
+  bakeTexture(scene, key('grass-droop'), GRASS_DROOP.width, GRASS_DROOP.height, (g) => {
+    const { width, height } = GRASS_DROOP;
     g.fillStyle(palette.grassDark, 1);
-    g.fillRect(0, 0, TILE, 6);
-
+    g.fillRect(0, 0, width, 2);
+    g.fillRect(width - 2, 2, 2, height - 4);
+    g.fillRect(width - 3, height - 3, 2, 3);
     g.fillStyle(palette.grass, 1);
-    g.fillRect(0, 0, TILE, 3);
-    g.fillRect(2, 3, 2, 3);
-    g.fillRect(8, 3, 2, 4);
-    g.fillRect(13, 3, 2, 2);
-
-    g.fillStyle(palette.dirtDark, 1);
-    g.fillRect(4, 9, 3, 2);
-    g.fillRect(11, 12, 3, 2);
-  });
-
-  bakeTexture(scene, key('ground-fill'), TILE, TILE, (g) => {
-    g.fillStyle(palette.dirt, 1);
-    g.fillRect(0, 0, TILE, TILE);
-
-    g.fillStyle(palette.dirtDark, 1);
-    g.fillRect(3, 2, 3, 2);
-    g.fillRect(10, 6, 4, 2);
-    g.fillRect(5, 11, 3, 2);
-  });
-
-  // --- rock --------------------------------------------------------------
-  bakeTexture(scene, key('rock-top'), TILE, TILE, (g) => {
-    g.fillStyle(palette.rock, 1);
-    g.fillRect(0, 0, TILE, TILE);
-
-    g.fillStyle(palette.rockLight, 1);
-    g.fillRect(0, 0, TILE, 3);
-    g.fillRect(2, 3, 5, 1);
-
-    g.fillStyle(palette.leaf, 1);
-    g.fillRect(9, 0, 5, 2);
-    g.fillRect(1, 1, 3, 1);
-
-    g.fillStyle(palette.rockDark, 1);
-    g.fillRect(4, 7, 4, 2);
-    g.fillRect(11, 10, 3, 2);
-  });
-
-  bakeTexture(scene, key('rock-fill'), TILE, TILE, (g) => {
-    g.fillStyle(palette.rock, 1);
-    g.fillRect(0, 0, TILE, TILE);
-
-    g.fillStyle(palette.rockDark, 1);
-    g.fillRect(3, 1, 1, 6);
-    g.fillRect(12, 4, 1, 7);
-    g.fillRect(7, 9, 3, 2);
-
-    g.fillStyle(palette.rockLight, 1);
-    g.fillRect(9, 2, 1, 5);
+    g.fillRect(1, 0, width - 1, 1);
+    g.fillRect(width - 1, 1, 1, 3);
   });
 
   // --- climbable columns -------------------------------------------------
@@ -210,14 +389,32 @@ export function generateTileset(
       }
 
       default: {
-        g.fillStyle(palette.trunk, 1);
-        g.fillRect(inset, 0, TRUNK_WIDTH, TILE);
+        // Bark, the full width of the tile: ridges in four tones, lit from the
+        // left, with the odd notch so the edge is not a ruler. The climb zone
+        // is the tile anyway; a thin pole in the middle of it read as a post.
+        const deep = shade(palette.trunkDark, 20);
         g.fillStyle(palette.trunkDark, 1);
-        g.fillRect(inset + 1, 0, 1, TILE);
-        g.fillRect(inset + 7, 0, 2, TILE);
+        g.fillRect(0, 0, TILE, TILE);
+        g.fillStyle(palette.trunk, 1);
+        g.fillRect(1, 0, TILE - 3, TILE);
         g.fillStyle(palette.trunkLight, 1);
-        g.fillRect(inset + 4, 0, 1, TILE);
-        g.fillRect(inset + 10, 0, 1, TILE);
+        g.fillRect(2, 0, 2, TILE);
+        g.fillRect(7, 0, 1, TILE);
+        g.fillStyle(palette.trunkDark, 1);
+        g.fillRect(5, 0, 1, TILE);
+        g.fillRect(9, 0, 2, TILE);
+        g.fillRect(13, 0, 1, TILE);
+        g.fillStyle(deep, 1);
+        g.fillRect(TILE - 2, 0, 2, TILE);
+        g.fillRect(10, 3, 1, 5);
+        g.fillRect(5, 10, 1, 4);
+        // Notches in the bark.
+        g.fillStyle(palette.trunkLight, 1);
+        g.fillRect(3, 6, 2, 1);
+        g.fillRect(8, 12, 2, 1);
+        g.fillStyle(deep, 1);
+        g.fillRect(6, 2, 1, 1);
+        g.fillRect(11, 9, 1, 1);
       }
     }
   };
