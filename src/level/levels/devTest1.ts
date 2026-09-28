@@ -12,21 +12,20 @@ import type { LevelDefinition } from '../Level';
  * overhang does, does not reliably test it.
  */
 const ROWS: string[] = [
-  '........#####...........',
-  '........#####...........',
-  '........#####...........',
-  '........#####...........',
-  '........BBBBB...........',
-  '.P......=====..........E',
-  '###  #############  ####',
-  '########################',
+  '..........#####............',
+  '..........#####............',
+  '..........#####............',
+  '........BBBBBBBBB..........',
+  '....P........===..........E',
+  '#  #################  #####',
+  '###########################',
 ];
 
 export const DEV_TEST_1: LevelDefinition = {
   name: 'Dev 1: Duck',
   theme: 'forest',
-  widthInTiles: 24,
-  groundRow: 6,
+  widthInTiles: 27,
+  groundRow: 5,
   branchesNeedTrunks: false,
   climbableColumns: false,
   rows: ROWS,
