@@ -816,3 +816,36 @@ Both asked for directly. Numbers and shapes I picked without asking back:
   old boolean `catnah:muted`, which is still read once as a fallback so an
   existing silent/on preference survives rather than resetting to `all`. The
   old key is never written again.
+
+## First dev test level: a mandatory duck
+
+Asked for directly: a small, dev-only level to test sneaking under something.
+`DEV_TEST_1` is appended to `LEVELS` from inside `import.meta.env.DEV`, in
+`levels/index.ts` -- confirmed gone from `dist` the same way as
+`installLevelSkip`/`installGodMode`.
+
+**First version was not actually mandatory**, and worth recording why: the
+overhang (`B`) sat directly above the gap with open rows above it, copying
+`forest.ts`'s optional duck passage exactly -- but forest's is a *choice*
+(jump up, land on top, walk across), and a test level needs the thing it is
+testing to be unavoidable. Fixed by running solid ground the rest of the way
+up to the top of the level, so there is no open air anywhere above the gap to
+arc a jump through.
+
+**Found while checking that fix held**: standing still cannot walk through
+the wall, and sneaking passes cleanly -- but repeatedly tapping jump while
+pinned against the wall lets the cat creep through it, a few pixels at a
+time, over several taps. Traced to the same 2px margin that makes the duck
+gap work at all (an 18px standing body against a 16px opening): each jump
+nudges the body's Y by a pixel or two right as it is separated from the wall
+on X, and Arcade resolves the two axes in separate passes, so a nudge on one
+axis occasionally leaves less overlap on the other than there was a moment
+before, letting the body creep past the edge instead of snapping cleanly
+back to it. Not something introduced by this level -- the same 2px
+margin is what the shipped forest overhang relies on too, just never stressed
+this way there because it was never mandatory. Left alone: reproducing it
+needs a deliberate, repeated tap-jump-into-a-wall pattern no ordinary play
+does by accident, and a real fix would mean touching how Arcade's own
+separation is used generally, well past what a test level should be
+motivating on its own. Worth knowing about if a *later* level ever makes a
+duck mandatory for real.

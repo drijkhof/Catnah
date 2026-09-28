@@ -242,6 +242,24 @@ down. The row to use is always the spawn row plus one, or plus two when a
 boulder sits directly under the spawn tile (`P` sits on top of it, not on the
 floor beneath).
 
+## Dev-only test levels
+
+`levels/index.ts` pushes `DEV_TEST_1` (and any later ones) onto `LEVELS` from
+inside `if (import.meta.env.DEV)`, the same dead-branch trick `installLevelSkip`
+and `installGodMode` use to disappear from the build -- confirmed the same way,
+a grep of `dist` for the level's name string comes back empty. `LEVELS.push`
+has to sit inside the branch; the `import` of the data above it does not need
+to, since an unused pure-data import tree-shakes on its own.
+
+Nothing about `LEVELS.length` growing by one in a dev build needs guarding
+elsewhere: `installLevelSkip`'s wraparound and `leaveLevel`'s `% LEVELS.length`
+both read the array's current length each time rather than assuming six, and
+nothing persists a level *index* across a build (see `questions.md`).
+
+A dev test level is one idea, small, named `Dev <n>: <what>` so it reads as
+what it is if it is ever seen out of context, and does not need an exit (`E`)
+-- `buildExit` does nothing at all when a level has none.
+
 ## Falling out of the world
 
 The level has a gap in the floor. `GameScene` sets the physics world **taller**

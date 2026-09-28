@@ -154,6 +154,9 @@ instead of scrolling with the world, plus a high `setDepth` to stay on top.
   turns gold while it is on. Development only — see `src/dev/CLAUDE.md`.
 - **Skipping a level**: Cmd-click the level name for the next one, Ctrl-click
   for the previous. Development only.
+- **Dev test levels**: small, single-mechanic levels past the end of the real
+  game (Cmd-click past City), for checking one thing in isolation without
+  playing to it. Development only — see `src/level/CLAUDE.md`.
 
 - Physics bodies and velocity vectors: set `physics.arcade.debug` to `true` in
   `src/main.ts`.
