@@ -603,8 +603,29 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     // The body is narrower than the drawing, so it is centred within the frame
     // by hand. The bottom-centre origin still puts its feet on the sprite's y.
+    const previousHeight = this.body.height;
+
     this.body.setSize(width, height, false);
     this.body.setOffset((frameWidth - width) / 2, 0);
+
+    // `setSize` grows or shrinks the body from its *top* (`body.y`), leaving
+    // the bottom -- where the feet actually are -- to land wherever that
+    // puts it. Standing up after ducking grew the box downward instead of
+    // upward, planting the new, taller body's feet 9px into the floor. This
+    // keeps the bottom anchored where it already was by moving the top the
+    // other way, which is what "the feet stay put and the head moves" means.
+    const shift = height - previousHeight;
+
+    this.body.y -= shift;
+
+    // Arcade's own `postUpdate` moves the sprite by `position - prevFrame`,
+    // not by resyncing from `body.y` outright -- so the line above, on its
+    // own, reads as the body having *moved* by `shift` this frame, and the
+    // sprite is nudged by that same amount on top of a position that was
+    // already correct. Shifting `prevFrame` along with `body.y` keeps that
+    // delta at whatever real physics produced, so a pose change moves the
+    // collision box without ever moving the drawing.
+    this.body.prevFrame.y -= shift;
   }
 
   /**
