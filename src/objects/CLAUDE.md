@@ -62,6 +62,19 @@ body and frame identical the offset is always zero and the cat neither sinks
 into the floor nor pops off it when the pose swaps. Spawn points are therefore
 ground lines, not sprite centres.
 
+**A pose is a still picture, and an animation can overwrite it.** `setTexture`
+does not stop a running animation, so the walk cycle, still ticking after the
+cat ducked, could put a standing-height frame back on the flattened body. With
+the origin at the paws that lifts the body's top by the height difference: the
+9px body hung 9px above the floor, fell, and took the drawing 9px into the
+ground with it; standing up from there put the full body inside the floor,
+beyond what Arcade will separate, and the cat dropped through. It only
+happened when a walk-cycle tick fell inside the tap, which is why it looked
+random. `refreshTexture` stops any animation before it swaps the picture, and
+`step` re-checks a sneaking cat's texture every frame. Anything that plays an
+animation on the cat must go through `setMoving`, which is skipped while
+sneaking.
+
 Standing is 18px — taller than one 16px tile on purpose. A one-tile gap under an
 overhang cannot be walked through, only sneaked through, so the level grid
 alone creates a sneaking passage with no special markup.

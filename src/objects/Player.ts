@@ -186,8 +186,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.updateFacing(controls);
 
     // Sneaking has its own single pose, untouched by the walk cycle -- only
-    // set here, never overwritten while it holds.
-    if (!this.isSneaking) {
+    // set here, never overwritten while it holds. The pose is re-checked
+    // every frame all the same: a frame of any other size on a sneaking body
+    // is exactly the mismatch `refreshTexture` explains, so it is put right
+    // here before the next physics step can act on it.
+    if (this.isSneaking) {
+      if (this.texture.key !== 'cat-sneak') {
+        this.refreshTexture();
+      }
+    } else {
       this.setMoving('cat-walk', 'cat', onGround && Math.abs(this.body.velocity.x) > 5);
     }
   }
@@ -616,6 +623,19 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
    * leaving the body alone.
    */
   private refreshTexture(): void {
+    // A pose is a still picture, so whatever cycle was running has to stop
+    // here -- `setTexture` on its own does not stop an animation. Left running,
+    // the walk cycle's next tick put a standing-height frame back on a cat
+    // whose body had just been flattened to sneak. The sprite's origin is at
+    // the paws, so a taller frame moved the body's top up by the difference:
+    // the 9px body hung 9px above the floor, fell, and dragged the drawing 9px
+    // into the ground with it. Standing up from there put the full-height
+    // body 9px inside the floor, which is more than Arcade is willing to
+    // separate, and the cat dropped straight through.
+    if (this.anims.isPlaying) {
+      this.anims.stop();
+    }
+
     if (this.isClimbing) {
       this.setTexture('cat-climb');
       return;

@@ -849,3 +849,25 @@ does by accident, and a real fix would mean touching how Arcade's own
 separation is used generally, well past what a test level should be
 motivating on its own. Worth knowing about if a *later* level ever makes a
 duck mandatory for real.
+
+## Ducking against a wall dropped the cat through the floor
+
+Reproduced on `DEV_TEST_1` more than half the time: walk right into the
+wall, tap down, and the cat sinks and falls out of the level. Diagnosed as
+the walk cycle still running while the cat was ducked, and one of its ticks
+putting a standing-height frame back on the flattened body -- confirmed by
+switching every cat animation off, after which it could not be reproduced at
+all. Details in `src/objects/CLAUDE.md`, under the poses.
+
+- **Fixed at the picture, not the body.** The pose swap now stops any running
+  animation, and a sneaking cat's texture is re-checked every frame. The body
+  maths and `hasHeadroom` were left alone: they were correct, they were only
+  ever fed a wrong sprite position.
+- **`hasHeadroom` still measures from the sprite**, not the body. With the
+  cause fixed the two never disagree, so this stays as is; if a second way of
+  desynchronising them ever appears, measuring from the body is the safer
+  choice.
+- **`sneakBodyWidth` is still 18 against a standing 13**, so the duck frame
+  still nudges the body 2.5px sideways into whatever is beside it. Arcade
+  cleans that up and it was not part of this bug, so it was left; equal
+  widths would remove the nudge if it ever matters.
