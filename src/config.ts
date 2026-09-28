@@ -147,21 +147,7 @@ export const CAT = {
    * fall through.
    */
   bodyWidth: 13,
-
-  /**
-   * Same width as standing, deliberately -- crouching is not a reason to get
-   * wider. It used to be 18, wider than standing's 13, sized only to look
-   * centred under the longer 26px sneak frame with no thought for how it
-   * compared to the standing body. That mismatch is what let ducking right
-   * up against a wall punch the body a few pixels sideways into whatever was
-   * next to it, for one frame, before the sneaking pose's own offset caught
-   * up -- a solid wall usually just shoved that back out again, but a
-   * one-way branch happened to be sitting exactly there once, misread the
-   * lunge as landing on top of it, and dropped the cat into the floor a few
-   * frames later trying to resolve it. Equal width closes the gap outright:
-   * ducking can now only ever change height.
-   */
-  sneakBodyWidth: 13,
+  sneakBodyWidth: 18,
 
   /** Sneaking pose: longer and much flatter, like a cat about to pounce. */
   sneakWidth: 26,

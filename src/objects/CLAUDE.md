@@ -57,29 +57,10 @@ while the window is still warm.
 ## The poses
 
 The cat is drawn standing (22x18) and sneaking (26x9), each baked at exactly
-its physics body size. The sprite origin is at the **paws**, `(0.5, 1)`, so
-the pose swap is meant to change nothing but the body's height -- and doing
-that safely takes more than just calling `setSize`. Spawn points are
-therefore ground lines, not sprite centres.
-
-**`setSize` grows a body from its top, not its feet.** `applyPose` cannot
-just call `body.setSize(width, height)` and stop -- that changes
-`body.height` but leaves `body.y` (the box's top) exactly where it was, so
-standing up after a duck grew the box *downward* from a fixed top instead of
-upward from the fixed paws, planting the taller body's feet `CAT.height -
-CAT.sneakHeight` (9px) into the floor. `applyPose` now records the height
-before resizing and shifts `body.y` back afterward by the difference, which
-keeps the *bottom* anchored -- the head moves, the feet do not.
-
-That fix alone still made the cat visibly lunge on the very frame of the
-change, for an unrelated reason: Arcade's `postUpdate` does not resync the
-sprite from `body.y`, it moves the sprite by `body.position - body.prevFrame`
--- the delta since the frame started. Adjusting `body.y` without also moving
-`prevFrame` reads as the body having *moved* by that whole amount this frame,
-and a sprite that was already sitting correctly gets nudged by it a second
-time. `applyPose` shifts `prevFrame.y` by the same amount as `body.y` for
-exactly this reason, which keeps that delta equal to whatever real physics
-produced this frame and stops a pose change from ever moving the drawing.
+its physics body size. The sprite origin is at the **paws**, `(0.5, 1)`, so with
+body and frame identical the offset is always zero and the cat neither sinks
+into the floor nor pops off it when the pose swaps. Spawn points are therefore
+ground lines, not sprite centres.
 
 Standing is 18px — taller than one 16px tile on purpose. A one-tile gap under an
 overhang cannot be walked through, only sneaked through, so the level grid
