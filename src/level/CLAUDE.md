@@ -20,6 +20,7 @@ its platforms must attach to a column. Everything else is derived.
 | `=` | branch — what the platforms are in level 1 |
 | `B` | fallen bough, a full-height solid for low overhangs |
 | `R` | boulder / brick — solid rock, and what wall jumps are taken from |
+| `G`, `Q` | the same rock. The letter is a seam: touching cells of one letter are drawn as one boulder, so `RRRGGG` is two rocks side by side and `RR` over `GG` is one stacked on another |
 | `M` | masonry — a house rather than a flat: plaster under a pantile roof |
 | `T` | climbable column — a rope, drainpipe or chain, or (`climbableColumns: false`) a real tree, which is never climbable at all |
 | `V` | liana — always climbable everywhere, regardless of `climbableColumns`. Never a platform, even at its top: it hangs from nothing, so there is nothing up there to stand on. Coexists with `T` in the same level: a tree, and the liana beside it |

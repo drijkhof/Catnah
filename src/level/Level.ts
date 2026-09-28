@@ -10,6 +10,10 @@ import type { GroundEnemyKind } from '../config';
  *   `=`  one-way platform — a branch, a stone shelf, a girder
  *   `B`  full-height solid used for low overhangs
  *   `R`  boulder / brick — solid rock, and what wall jumps are taken from
+ *   `G`  the same rock, and so is `Q`. The letter is a seam: touching rock
+ *        cells of one letter are drawn as one boulder, so `RRRGGG` is two
+ *        boulders side by side and `RR` over `GG` is one stacked on another,
+ *        where `RRRRRR` would be a single stone. Nothing else differs
  *   `T`  climbable column, in most places — a rope, a drainpipe, a chain, or
  *        (`climbableColumns: false`) a real tree, which cannot be climbed at
  *        all. The way up a tree is its own branches, exactly like the
@@ -112,6 +116,13 @@ export interface Solid {
    * between tiles -- see `exposedFaces`.
    */
   faces: Faces;
+  /**
+   * The map character this came from. Rock comes in several letters that
+   * differ in nothing but this, and the scene groups touching cells of one
+   * letter into one drawn boulder -- so the letter is where one rock ends
+   * and the next begins.
+   */
+  glyph: string;
 }
 
 /** A piranha, and the pool it lives in. */
@@ -273,6 +284,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     textureKey,
     isBranch: true,
     faces: { up: true, down: false, left: false, right: false },
+    glyph: '=',
   });
 
   const block = (x: number, y: number, textureKey: string, column: number, row: number): void => {
@@ -284,6 +296,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
       textureKey,
       isBranch: false,
       faces: exposedFaces(at, column, row),
+      glyph: at(column, row),
     });
   };
 
@@ -300,7 +313,9 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           break;
 
         case 'R':
-          block(x, y, variantOf(at(column, row - 1) === 'R' ? 'rock-fill' : 'rock-top', column, row), column, row);
+        case 'G':
+        case 'Q':
+          block(x, y, variantOf(ROCK.has(at(column, row - 1)) ? 'rock-fill' : 'rock-top', column, row), column, row);
           break;
 
         case 'M':
@@ -326,6 +341,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
               // One-way: solid underfoot and nothing else. You pass up through
               // one from below and land on it coming down.
               : { up: true, down: false, left: false, right: false },
+            glyph: '=',
           });
           break;
 
@@ -795,7 +811,10 @@ function variantOf(base: string, column: number, row: number): string {
 }
 
 /** Solids that fill their whole cell, as opposed to a platform's thin bar. */
-const FULL_CELL = new Set(['#', 'B', 'R']);
+const FULL_CELL = new Set(['#', 'B', 'R', 'G', 'Q']);
+
+/** The rock letters. One material; the letter only says where a boulder ends. */
+const ROCK = new Set(['R', 'G', 'Q']);
 
 /**
  * Works out which sides of a tile anything could ever touch.

@@ -965,7 +965,9 @@ export class GameScene extends Phaser.Scene {
   private buildBoulders(): void {
     const BOULDER_MAX = { wide: 9, high: 12 };
     const rocks = this.level.solids.filter((solid) => solid.textureKey.startsWith('rock-'));
-    const cells = new Set(rocks.map((solid) => `${solid.x / TILE},${solid.y / TILE}`));
+    // Cell -> its letter. Cells join a cluster only through the same letter,
+    // which is what lets a level draw a seam between two rocks.
+    const cells = new Map(rocks.map((solid) => [`${solid.x / TILE},${solid.y / TILE}`, solid.glyph]));
     const seen = new Set<string>();
     const random = createRandom(4451);
     const palette = THEMES[this.level.theme];
@@ -1019,6 +1021,7 @@ export class GameScene extends Phaser.Scene {
       // Flood the cluster, noting whether any cell of it touches air.
       const cluster: Array<[number, number]> = [];
       const queue: Array<[number, number]> = [[rock.x / TILE, rock.y / TILE]];
+      const letter = rock.glyph;
       seen.add(start);
       exposed = false;
       while (queue.length) {
@@ -1032,7 +1035,7 @@ export class GameScene extends Phaser.Scene {
           if (inside && !anything.has(key)) {
             exposed = true;
           }
-          if (cells.has(key) && !seen.has(key)) {
+          if (cells.get(key) === letter && !seen.has(key)) {
             seen.add(key);
             queue.push([nc, nr]);
           }

@@ -271,6 +271,10 @@ off the level: a cluster that touches air is a boulder on the lawn, lit all
 through, mossy on top, with the grass running on underneath; one with earth
 on every side is a stone in the ground, bare, darkening with the earth
 around it. The cells still collide one by one; only the picture is joined.
+Where one boulder ends and the next begins is the level's to say: rock comes
+in three letters, `R`, `G` and `Q`, identical in every way except that only
+cells of one letter join into a rock -- so a change of letter is a seam, and
+a bank can be one stone, two side by side, or one stacked on another.
 
 Trees are drawn the same way. A column of trunk cells is **one trunk**,
 wider at the foot than the top, flaring into roots, bark all the way up with
