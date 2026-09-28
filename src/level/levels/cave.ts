@@ -101,7 +101,6 @@ const ROWS: string[] = [
 export const CAVE: LevelDefinition = {
   name: 'Cave',
   theme: 'cave',
-  widthInTiles: 240,
   groundRow: 12,
   branchesNeedTrunks: false,
   rows: ROWS,

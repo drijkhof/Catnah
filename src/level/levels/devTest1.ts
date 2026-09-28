@@ -24,7 +24,6 @@ const ROWS: string[] = [
 export const DEV_TEST_1: LevelDefinition = {
   name: 'Dev 1: Duck',
   theme: 'forest',
-  widthInTiles: 27,
   groundRow: 5,
   branchesNeedTrunks: false,
   climbableColumns: false,

@@ -60,7 +60,6 @@ import type { GroundEnemyKind } from '../config';
 export interface LevelDefinition {
   name: string;
   theme: ThemeName;
-  widthInTiles: number;
   /** Row of the floor's surface, which scenery is planted against. */
   groundRow: number;
   /**
@@ -229,7 +228,8 @@ export interface ParsedLevel {
  * `ParsedLevel` will work.
  */
 export function parseLevel(definition: LevelDefinition): ParsedLevel {
-  const width = definition.widthInTiles;
+  // The level is as wide as its longest row; shorter rows are padded out.
+  const width = Math.max(0, ...definition.rows.map((row) => row.length));
   const rows = definition.rows.map((row) => row.padEnd(width, '.'));
   const at = (column: number, row: number): string => rows[row]?.[column] ?? '.';
 

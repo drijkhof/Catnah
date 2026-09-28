@@ -74,7 +74,6 @@ const ROWS: string[] = [
 export const CANOPY: LevelDefinition = {
   name: 'Canopy',
   theme: 'jungle',
-  widthInTiles: 78,
   groundRow: 39,
   branchesNeedTrunks: false,
   // A T here is a real tree, same as the forest's -- you cannot climb it, only

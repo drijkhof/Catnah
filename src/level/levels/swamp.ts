@@ -84,7 +84,6 @@ const ROWS: string[] = [
 export const SWAMP: LevelDefinition = {
   name: 'Swamp',
   theme: 'swamp',
-  widthInTiles: 248,
   groundRow: 26,
   branchesNeedTrunks: false,
   rows: ROWS,

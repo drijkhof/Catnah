@@ -289,7 +289,7 @@ every run, for every player. A generator that runs at boot is one refactor away
 from being a level that quietly differs, and a level nobody can point at is a
 level nobody can fix.
 
-Rows are written **short** and padded out to `widthInTiles` by `parseLevel`,
+Rows are written **short** and padded out to the longest row by `parseLevel`,
 which is why the right-hand ends are ragged. To change a level, edit the rows.
 To lay out a new one, write whatever you like, run it once, paste the output in
 and throw the script away.

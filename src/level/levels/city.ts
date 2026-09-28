@@ -64,7 +64,6 @@ const ROWS: string[] = [
 export const CITY: LevelDefinition = {
   name: 'City',
   theme: 'city',
-  widthInTiles: 176,
   groundRow: 30,
   branchesNeedTrunks: false,
   // Girders, not branches: you cannot pass up through one.

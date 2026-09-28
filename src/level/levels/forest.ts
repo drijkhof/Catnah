@@ -64,7 +64,6 @@ const ROWS: string[] = [
 export const FOREST: LevelDefinition = {
   name: 'Forest',
   theme: 'forest',
-  widthInTiles: 90,
   groundRow: 30,
   branchesNeedTrunks: true,
   // You cannot climb a tree. The way up one is its branches, which is why

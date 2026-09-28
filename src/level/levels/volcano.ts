@@ -63,7 +63,6 @@ const ROWS: string[] = [
 export const VOLCANO: LevelDefinition = {
   name: 'Volcano',
   theme: 'volcano',
-  widthInTiles: 104,
   groundRow: 28,
   branchesNeedTrunks: false,
   rows: ROWS,
