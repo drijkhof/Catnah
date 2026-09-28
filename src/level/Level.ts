@@ -352,7 +352,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           // the tree and handed a ledge partway up its own length.
           const isTop = !'T='.includes(at(column, row - 1));
           const againstWall =
-            'R#BM'.includes(at(column - 1, row)) || 'R#BM'.includes(at(column + 1, row));
+            SOLID_LETTERS.includes(at(column - 1, row)) || SOLID_LETTERS.includes(at(column + 1, row));
 
           climbZones.push({ x, y, width: TILE, height: TILE, isTop, againstWall });
 
@@ -372,7 +372,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
         case 'V': {
           const isTop = at(column, row - 1) !== 'V';
           const againstWall =
-            'R#BM'.includes(at(column - 1, row)) || 'R#BM'.includes(at(column + 1, row));
+            SOLID_LETTERS.includes(at(column - 1, row)) || SOLID_LETTERS.includes(at(column + 1, row));
 
           lianaZones.push({ x, y, width: TILE, height: TILE, isTop, againstWall });
           break;
@@ -384,7 +384,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
         case 'v': {
           const isTop = at(column, row - 1) !== 'v';
           const againstWall =
-            'R#BM'.includes(at(column - 1, row)) || 'R#BM'.includes(at(column + 1, row));
+            SOLID_LETTERS.includes(at(column - 1, row)) || SOLID_LETTERS.includes(at(column + 1, row));
 
           deadVineZones.push({ x, y, width: TILE, height: TILE, isTop, againstWall });
           break;
@@ -701,7 +701,7 @@ function assertThornsStandOnGround(rows: string[], width: number, name: string):
 
       const below = rows[row + 1]?.[column] ?? '.';
 
-      if (!'#RBMA='.includes(below)) {
+      if (!`${SOLID_LETTERS}A=`.includes(below)) {
         throw new Error(
           `${name}: the thorns at ${column},${row} stand on nothing (found '${below}').`,
         );
@@ -719,7 +719,7 @@ function assertSpidersHangFromRock(rows: string[], width: number, name: string):
 
       const above = rows[row - 1]?.[column] ?? '.';
 
-      if (!'#RBM'.includes(above)) {
+      if (!SOLID_LETTERS.includes(above)) {
         throw new Error(
           `${name}: the spider at ${column},${row} has no rock over it (found '${above}').`,
         );
@@ -815,6 +815,15 @@ const FULL_CELL = new Set(['#', 'B', 'R', 'G', 'Q']);
 
 /** The rock letters. One material; the letter only says where a boulder ends. */
 const ROCK = new Set(['R', 'G', 'Q']);
+
+/**
+ * Every letter that is a full solid cell, as a string for `includes`. The
+ * checks that ask "is there a wall beside this?" or "does this stand on
+ * something?" all read it, so a new solid letter is added here once. (`G`
+ * and `Q` were missed by three of them when they were added, and a level
+ * with thorns on a `G` refused to load.)
+ */
+const SOLID_LETTERS = [...FULL_CELL, 'M'].join('');
 
 /**
  * Works out which sides of a tile anything could ever touch.
