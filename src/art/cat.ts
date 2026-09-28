@@ -40,6 +40,20 @@ export function createCatAnimations(scene: Phaser.Scene): void {
   });
 
   scene.anims.create({
+    key: 'cat-sneak-walk',
+    frames: [
+      { key: 'cat-sneak' },
+      { key: 'cat-sneak-a' },
+      { key: 'cat-sneak' },
+      { key: 'cat-sneak-b' },
+    ],
+    // Slower than the walk: the cat moves at less than half speed, and a
+    // stalk is a careful placing of paws, not a trot.
+    frameRate: CAT.sneakAnimFrameRate,
+    repeat: -1,
+  });
+
+  scene.anims.create({
     key: 'cat-climb-shuffle',
     frames: [{ key: 'cat-climb' }, { key: 'cat-climb-a' }],
     frameRate: CAT.animFrameRate,
@@ -102,38 +116,52 @@ function generateSneaking(scene: Phaser.Scene): void {
   const width = CAT.sneakWidth;
   const height = CAT.sneakHeight;
 
-  bakeTexture(scene, 'cat-sneak', width, height, (g) => {
-    // Tail held low and straight out behind.
-    g.fillStyle(COLORS.cat, 1);
-    g.fillRect(0, 4, 5, 2);
+  bakeTexture(scene, 'cat-sneak', width, height, (g) => drawSneakFrame(g, 0));
+  bakeTexture(scene, 'cat-sneak-a', width, height, (g) => drawSneakFrame(g, 1));
+  bakeTexture(scene, 'cat-sneak-b', width, height, (g) => drawSneakFrame(g, -1));
+}
 
-    // Body, stretched long and flat.
-    g.fillRect(4, 2, 17, 6);
+/**
+ * One frame of the stalk. Every frame is the same 26x9, so swapping between
+ * them changes nothing about the body -- see `Player.refreshTexture` for why
+ * that matters.
+ *
+ * @param stride 0 for the rest pose; 1 and -1 slide the two paws in opposite
+ *   directions, one reaching forward while the other trails, for the two
+ *   stride frames.
+ */
+function drawSneakFrame(g: Phaser.GameObjects.Graphics, stride: 0 | 1 | -1): void {
+  // Tail held low and straight out behind.
+  g.fillStyle(COLORS.cat, 1);
+  g.fillRect(0, 4, 5, 2);
 
-    // Head, dropped to the same low line.
-    g.fillRect(17, 1, 8, 7);
+  // Body, stretched long and flat.
+  g.fillRect(4, 2, 17, 6);
 
-    // Ears flattened back, the way a stalking cat holds them.
-    g.fillTriangle(17, 2, 20, 2, 16, 0);
-    g.fillTriangle(20, 2, 23, 2, 21, 0);
+  // Head, dropped to the same low line.
+  g.fillRect(17, 1, 8, 7);
 
-    // Tucked paws.
-    g.fillRect(6, 7, 3, 2);
-    g.fillRect(15, 7, 3, 2);
+  // Ears flattened back, the way a stalking cat holds them.
+  g.fillTriangle(17, 2, 20, 2, 16, 0);
+  g.fillTriangle(20, 2, 23, 2, 21, 0);
 
-    g.fillStyle(COLORS.catLight, 1);
-    g.fillRect(7, 6, 9, 2);
+  // Tucked paws: a stalk is a slow, deliberate placing of one paw at a time,
+  // so the two slide against each other by a pixel rather than lifting.
+  g.fillRect(6 - stride, 7, 3, 2);
+  g.fillRect(15 + stride, 7, 3, 2);
 
-    g.fillStyle(COLORS.catDark, 1);
-    g.fillRect(9, 2, 2, 4);
-    g.fillRect(13, 2, 2, 4);
+  g.fillStyle(COLORS.catLight, 1);
+  g.fillRect(7, 6, 9, 2);
 
-    g.fillStyle(0x2a2118, 1);
-    g.fillRect(21, 3, 2, 2);
+  g.fillStyle(COLORS.catDark, 1);
+  g.fillRect(9, 2, 2, 4);
+  g.fillRect(13, 2, 2, 4);
 
-    g.fillStyle(COLORS.catNose, 1);
-    g.fillRect(24, 5, 1, 2);
-  });
+  g.fillStyle(0x2a2118, 1);
+  g.fillRect(21, 3, 2, 2);
+
+  g.fillStyle(COLORS.catNose, 1);
+  g.fillRect(24, 5, 1, 2);
 }
 
 /**

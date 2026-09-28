@@ -43,6 +43,10 @@ Ginger, so it stays readable against all that green. Two poses:
 Standing is deliberately taller than one 16px tile, which is what makes a
 one-tile gap something you can only get through by sneaking.
 
+Both poses have a walk cycle. The stalk's is slower than the walk's (5 fps
+against 8): the paws slide past each other a pixel at a time, a careful
+placing of feet rather than a trot.
+
 ## Nothing can kill you before you move
 
 Every level starts somewhere nothing can reach. Measured by standing perfectly

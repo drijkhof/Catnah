@@ -71,9 +71,10 @@ ground with it; standing up from there put the full body inside the floor,
 beyond what Arcade will separate, and the cat dropped through. It only
 happened when a walk-cycle tick fell inside the tap, which is why it looked
 random. `refreshTexture` stops any animation before it swaps the picture, and
-`step` re-checks a sneaking cat's texture every frame. Anything that plays an
-animation on the cat must go through `setMoving`, which is skipped while
-sneaking.
+every frame of a cycle is baked at its pose's body size: the walk's at 22x18,
+the stalk's (`cat-sneak-walk`) at 26x9. Anything that plays an animation on
+the cat must go through `setMoving`, and a new cycle must keep to its pose's
+frame size.
 
 Standing is 18px — taller than one 16px tile on purpose. A one-tile gap under an
 overhang cannot be walked through, only sneaked through, so the level grid

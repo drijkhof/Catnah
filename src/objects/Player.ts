@@ -185,17 +185,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.applyWallSlide(controls, wall, onGround);
     this.updateFacing(controls);
 
-    // Sneaking has its own single pose, untouched by the walk cycle -- only
-    // set here, never overwritten while it holds. The pose is re-checked
-    // every frame all the same: a frame of any other size on a sneaking body
-    // is exactly the mismatch `refreshTexture` explains, so it is put right
-    // here before the next physics step can act on it.
+    // Each pose has its own cycle and its own still frame, and every frame of
+    // a cycle is baked at that pose's body size -- the walk's at 22x18, the
+    // stalk's at 26x9. That is what keeps an animation tick from ever
+    // changing the body; see `refreshTexture` for what happened when one did.
+    const moving = onGround && Math.abs(this.body.velocity.x) > 5;
+
     if (this.isSneaking) {
-      if (this.texture.key !== 'cat-sneak') {
-        this.refreshTexture();
-      }
+      this.setMoving('cat-sneak-walk', 'cat-sneak', moving);
     } else {
-      this.setMoving('cat-walk', 'cat', onGround && Math.abs(this.body.velocity.x) > 5);
+      this.setMoving('cat-walk', 'cat', moving);
     }
   }
 

@@ -156,6 +156,12 @@ export const CAT = {
   /** Frames per second for the walk, climb and swim cycles. */
   animFrameRate: 8,
 
+  /**
+   * Frames per second of the sneak cycle. Slower than `animFrameRate` because
+   * the cat itself is slower: at 42% speed the walk's 8fps read as scurrying.
+   */
+  sneakAnimFrameRate: 5,
+
   /** Horizontal run speed, px/sec. */
   speed: 190,
   /** How fast the cat reaches full speed on the ground, px/sec^2. */
