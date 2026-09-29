@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { AWAKE_RANGE, CHARMS_PER_LIFE, CHECKPOINT, GAME_HEIGHT, GAME_WIDTH, GROUND_SHADE, LIVES, MAX_LIVES, TILE, WATER_DROP } from '../config';
+import { AWAKE_RANGE, CHARMS_PER_LIFE, CHECKPOINT, GAME_HEIGHT, GAME_WIDTH, LIVES, MAX_LIVES, TILE, WATER_DROP } from '../config';
 import { Controls } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -13,7 +13,7 @@ import { Spider } from '../objects/Spider';
 import { addGroundShade, bakeScenery, createBackdrop } from '../world';
 import { parseLevel, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
-import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, LOG_BULGE, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTrunk, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
+import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, LOG_BULGE, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { installGodMode, isGodMode } from '../dev/godMode';
@@ -984,17 +984,13 @@ export class GameScene extends Phaser.Scene {
     const key = `${this.level.theme}:void-fill`;
 
     if (!this.textures.exists(key)) {
-      // Exactly what a `#` deep in a mass looks like: the fill tile with the
-      // shade at its full strength over it. Then `_` beside deep `#` is the
-      // same picture, stones and all, and there is no seam.
-      const source = this.textures.get(this.tile('ground-fill')).getSourceImage() as CanvasImageSource;
-      const canvas = this.textures.createCanvas(key, TILE, TILE) as Phaser.Textures.CanvasTexture;
-      const ctx = canvas.context;
-      const shade = Phaser.Display.Color.IntegerToRGB(palette.shade);
-      ctx.drawImage(source, 0, 0);
-      ctx.fillStyle = `rgba(${shade.r}, ${shade.g}, ${shade.b}, ${GROUND_SHADE.max})`;
-      ctx.fillRect(0, 0, TILE, TILE);
-      canvas.refresh();
+      // Flat: the tone the ground shade finishes in. Deep `#` is that tone
+      // too (the fade runs to full strength), so `_` beside it is the same
+      // picture and there is no seam.
+      bakeTexture(this, key, TILE, TILE, (g) => {
+        g.fillStyle(palette.shade, 1);
+        g.fillRect(0, 0, TILE, TILE);
+      });
     }
 
     for (const cell of this.level.voids) {
@@ -1038,6 +1034,15 @@ export class GameScene extends Phaser.Scene {
     const ground = new Set(
       this.level.solids.filter((solid) => this.isGround(solid)).map((solid) => `${solid.x / TILE},${solid.y / TILE}`),
     );
+    // Only an open cell gets a fillet: not rock, not a building, not void.
+    // Void in particular is not `#` but is not air either, and a fillet
+    // drawn into it put a green wedge at every corner of a cave's mass.
+    const closed = new Set([
+      ...this.level.solids
+        .filter((solid) => !solid.isBranch && solid.width === TILE && solid.height === TILE)
+        .map((solid) => `${solid.x / TILE},${solid.y / TILE}`),
+      ...this.level.voids.map((cell) => `${cell.x / TILE},${cell.y / TILE}`),
+    ]);
     const columns = Math.ceil(this.level.widthInPixels / TILE);
     const rows = Math.ceil(this.level.heightInPixels / TILE);
     const key = `${this.level.theme}:fillet`;
@@ -1048,7 +1053,7 @@ export class GameScene extends Phaser.Scene {
 
     for (let row = 0; row < rows; row += 1) {
       for (let column = 0; column < columns; column += 1) {
-        if (has(column, row)) {
+        if (closed.has(`${column},${row}`)) {
           continue;
         }
 

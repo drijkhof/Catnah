@@ -103,7 +103,11 @@ export const WATER_DROP = 3;
 export const GROUND_SHADE = {
   start: 6,
   full: 44,
-  max: 0.8,
+  // The fade finishes: deep ground is a flat tone, with no texture left in
+  // it, and void (`_`) is that same tone, so the two never show a seam. The
+  // tone itself is each theme's `shade`, chosen to be exactly as dark as the
+  // old 0.8 over earth was -- nothing got darker when this went to 1.
+  max: 1,
 } as const;
 
 /**

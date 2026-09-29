@@ -1007,10 +1007,16 @@ and `_` beside it meet without a seam.
   unless `#` above", which put a grass top -- and with it the fringe and
   rounded corners -- on every `#` sitting under void: the underside of every
   shell around a cave ceiling. Void above now counts as rock above.
-- **The void's fill is the deep rock itself**, the fill tile with the shade
-  at full strength over it, repeated along each run, so `_` beside a deep
-  `#` is pixel-identical and there is no seam. A flat colour was tried
-  first and drew a hard line three cells in.
+- **The darkness finishes in a flat tone, and void is that tone.** The fade
+  used to stop at 80%, leaving faint stones in deep `#`; a flat void beside
+  it drew a hard line, and a textured void beside it looked like `#` still
+  being painted. Now the fade runs to full strength and each theme's shade
+  colour was recomputed to be exactly the tone 80% used to reach, so deep
+  `#` is flat, `_` is the same flat, nothing got darker, and there is no
+  seam.
+- **Fillets go only in open cells.** The inner-corner fillet loop treated
+  every non-`#` cell as air, void included, and put a green wedge at every
+  corner of a cave's mass.
 - **The cave was converted by script**: every `#` at least four cells from
   anything not solid became `_`, keeping three cells of textured rock
   round every opening. 10,113 of 13,036 cells.
