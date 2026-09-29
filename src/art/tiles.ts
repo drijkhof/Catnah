@@ -64,6 +64,7 @@ export function bakeBoulder(
   palette: TilePalette,
   seed: number,
   mossy = true,
+  restsOn = false,
 ): void {
   const width = cellsWide * TILE + BOULDER_BULGE.x * 2;
   const height = cellsHigh * TILE + BOULDER_BULGE.y;
@@ -73,16 +74,24 @@ export function bakeBoulder(
   const radius = Math.min(7, Math.floor(body.h / 2) - 1, Math.floor(body.w / 2) - 1);
   const dark = shade(palette.rock, 26);
   const mid = shade(palette.rock, 8);
+  // A boulder lying on rock has a flat base: its bottom corners stay tight,
+  // or they curve away from the ground and show a gap under each end.
+  const corners = (r: number): { tl: number; tr: number; bl: number; br: number } => ({
+    tl: r,
+    tr: r,
+    bl: restsOn ? Math.min(2, r) : r,
+    br: restsOn ? Math.min(2, r) : r,
+  });
 
   bakeTexture(scene, key, width, height, (g) => {
     // Silhouette, then the lit top and left, then the body, then the dark
     // underside -- each inset from the last so the edges become bands.
     g.fillStyle(dark, 1);
-    g.fillRoundedRect(body.x, body.y, body.w, body.h, radius);
+    g.fillRoundedRect(body.x, body.y, body.w, body.h, corners(radius));
     g.fillStyle(palette.rockLight, 1);
-    g.fillRoundedRect(body.x + 1, body.y + 1, body.w - 2, body.h - 3, radius);
+    g.fillRoundedRect(body.x + 1, body.y + 1, body.w - 2, body.h - 3, corners(radius));
     g.fillStyle(palette.rock, 1);
-    g.fillRoundedRect(body.x + 3, body.y + 3, body.w - 5, body.h - 6, Math.max(2, radius - 2));
+    g.fillRoundedRect(body.x + 3, body.y + 3, body.w - 5, body.h - 6, corners(Math.max(2, radius - 2)));
     g.fillStyle(mid, 1);
     g.fillEllipse(body.x + body.w * 0.62, body.y + body.h * 0.7, body.w * 0.5, body.h * 0.45);
     g.fillStyle(dark, 1);

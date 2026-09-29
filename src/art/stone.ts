@@ -14,11 +14,15 @@ export interface RockPiece {
 const PIECE = 512;
 
 /**
- * How far past a ground cell rock may reach into open air, px. Enough for
- * the outline to be the fragments' and not the grid's, not so much that
- * the cat stands in the rock or a tunnel narrows visibly.
+ * How far past a ground cell rock may reach into open air, px: sideways,
+ * and up or down. Small, so a tunnel keeps its width and the cat's feet
+ * stay on the surface; the outline is the fragments' all the same, because
+ * they may also fall short of the cell by up to `BITE`.
  */
-const REACH = 4;
+const REACH_X = 2;
+const REACH_Y = 1;
+const BITE = 4;
+const REACH = Math.max(REACH_X, REACH_Y, BITE);
 
 /**
  * Bakes a cave's ground as fractured rock.
@@ -154,9 +158,11 @@ export function bakeRockMass(
   // reach of the boundary between ground and open air: if close enough to
   // its nearest seed. Anywhere else: no.
   const openAt = (c: number, r: number): boolean => c < 0 || r < 0 || c >= columns || r >= rows ? false : !isSolid(c, r);
+  // Is this ground pixel within BITE of an open cell? Only there may rock
+  // fall short of its cell.
   const nearOpen = (x: number, y: number): boolean => {
-    for (let dy = -REACH; dy <= REACH; dy += REACH) {
-      for (let dx = -REACH; dx <= REACH; dx += REACH) {
+    for (let dy = -BITE; dy <= BITE; dy += BITE) {
+      for (let dx = -BITE; dx <= BITE; dx += BITE) {
         if (openAt(Math.floor((x + dx) / TILE), Math.floor((y + dy) / TILE))) {
           return true;
         }
@@ -164,16 +170,24 @@ export function bakeRockMass(
     }
     return false;
   };
+  // A pixel in a cell that is solid but not ground -- a boulder, void, a
+  // building -- is not drawn, but for the outline it is more rock: no rim
+  // between the ground and what sits in it.
+  const solidPixel = (x: number, y: number): boolean => {
+    const c = Math.floor(x / TILE);
+    const r = Math.floor(y / TILE);
+    return c >= 0 && r >= 0 && c < columns && r < rows && isSolid(c, r);
+  };
   // Is this air pixel within REACH of a ground cell, straight across or up
   // or down? Diagonally past a corner counts too, near enough.
   const nearGround = (x: number, y: number): boolean => {
     const c = Math.floor(x / TILE);
     const r = Math.floor(y / TILE);
     return (
-      isGround(Math.floor((x - REACH) / TILE), r) ||
-      isGround(Math.floor((x + REACH) / TILE), r) ||
-      isGround(c, Math.floor((y - REACH) / TILE)) ||
-      isGround(c, Math.floor((y + REACH) / TILE))
+      isGround(Math.floor((x - REACH_X) / TILE), r) ||
+      isGround(Math.floor((x + REACH_X) / TILE), r) ||
+      isGround(c, Math.floor((y - REACH_Y) / TILE)) ||
+      isGround(c, Math.floor((y + REACH_Y) / TILE))
     );
   };
 
@@ -312,11 +326,15 @@ export function bakeRockMass(
             if (!mask[i]) {
               continue;
             }
-            const edge =
-              (x === 0 ? !rockAt(px - 1, py + y) : !mask[i - 1]) ||
-              (x === w - 1 ? !rockAt(px + w, py + y) : !mask[i + 1]) ||
-              (y === 0 ? !rockAt(px + x, py - 1) : !mask[i - w]) ||
-              (y === h - 1 ? !rockAt(px + x, py + h) : !mask[i + w]);
+            // Air beside this pixel? A solid cell that is not ground does
+            // not count: the rock runs into it without a rim.
+            const airAt = (nx: number, ny: number): boolean => {
+              if (nx < 0 || ny < 0 || nx >= w || ny >= h) {
+                return !rockAt(px + nx, py + ny) && !solidPixel(px + nx, py + ny);
+              }
+              return !mask[ny * w + nx] && !solidPixel(px + nx, py + ny);
+            };
+            const edge = airAt(x - 1, y) || airAt(x + 1, y) || airAt(x, y - 1) || airAt(x, y + 1);
             if (edge) {
               put(i, rim);
               continue;

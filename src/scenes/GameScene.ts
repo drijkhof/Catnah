@@ -1059,7 +1059,9 @@ export class GameScene extends Phaser.Scene {
       rows,
       (c, r) => ground.has(`${c},${r}`),
       (c, r) => solid.has(`${c},${r}`),
-      (c, r) => (ground.get(`${c},${r}`)?.textureKey ?? '').startsWith('ground-top'),
+      // A top is a surface something could lie on: ground-top with open air
+      // above it, not ground under a boulder.
+      (c, r) => (ground.get(`${c},${r}`)?.textureKey ?? '').startsWith('ground-top') && !solid.has(`${c},${r - 1}`),
       THEMES[this.level.theme],
       9277,
     );
@@ -1272,10 +1274,18 @@ export class GameScene extends Phaser.Scene {
 
     const place = (column: number, row: number, wide: number, high: number): void => {
       const variant = Math.floor(random() * 3);
-      const key = `${this.level.theme}:boulder:${wide}x${high}:${variant}:${exposed ? 'moss' : 'bare'}`;
+      // Resting on something solid? Then its base is flat.
+      let restsOn = false;
+      for (let c = column; c < column + wide; c += 1) {
+        if (anything.has(`${c},${row + high}`)) {
+          restsOn = true;
+          break;
+        }
+      }
+      const key = `${this.level.theme}:boulder:${wide}x${high}:${variant}:${exposed ? 'moss' : 'bare'}:${restsOn ? 'flat' : 'round'}`;
 
       if (!this.textures.exists(key)) {
-        bakeBoulder(this, key, wide, high, palette, 977 + wide * 31 + high * 17 + variant * 101, exposed);
+        bakeBoulder(this, key, wide, high, palette, 977 + wide * 31 + high * 17 + variant * 101, exposed, restsOn);
       }
 
       this.add
