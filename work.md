@@ -286,15 +286,14 @@ only the picture bends. Stone shelves in the cave are one rounded slab per
 run of cells, lichen on top.
 
 What the ground is made of depends on the place too. Outdoors it is earth
-with stones in it. In the cave it is **fitted stone**: one big seamless wall
-of blocks, twelve to forty pixels each in uneven courses with thin mortar,
-from which every ground cell shows the window at its own position -- so
-the blocks run across cells, the same way a boulder runs across its cells --
-with a course of flat, paler cap stones along the top under the dust. Where
-the stone meets air its edge is not the cell's edge: it wobbles, bulging
-out and biting in by up to three pixels, continuous from cell to cell, the
-convex corners chamfered, a thin dark rim all along it -- so the mass has a
-silhouette the way the trees do, rather than a ruled one.
+with stones in it. In the cave it is **fitted stone**, built from the level
+itself: every stone is a run of one to three cells inside a row of ground,
+so a stone never crosses into air, and the mass has no edge of its own --
+its silhouette is the outline of the stones along it, each one a polygon
+with its corners nudged out where it meets air and in where it meets
+mortar, some corners cut. The course the cat walks on is broader and paler,
+lit along each stone's own top edge. Rows are staggered so the joints do
+not line up. All of it is one drawing per level, baked with the rest.
 
 What lies on a surface depends on the place. Where there is sun it is grass;
 in the cave, where there is none, it is **dust and pebbles**: a pale worn

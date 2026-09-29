@@ -209,10 +209,11 @@ export const CAVE_WALL_SIZE = 192;
 export function generateCaveWall(scene: Phaser.Scene): void {
   const size = CAVE_WALL_SIZE;
   const random = createRandom(3137);
-  const base = 0x24222c;
-  const lumps = [0x2a2733, 0x201e28, 0x2e2b38];
-  const crack = 0x18161f;
-  const fleck = 0x3d3948;
+  // Blue-grey, not black-and-grey: a cave lit by its crystals.
+  const base = 0x232a3c;
+  const lumps = [0x283047, 0x1f2536, 0x2d3650];
+  const crack = 0x161b29;
+  const fleck = 0x3f4b6b;
 
   bakeTexture(scene, 'cave-wall', size, size, (g) => {
     g.fillStyle(base, 1);

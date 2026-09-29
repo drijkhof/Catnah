@@ -40,18 +40,15 @@ sprites, which go on colliding). The canopy is one seamless strip in a
 tiling sprite. When a thing looks like a grid, that is the drawing's fault,
 not the level's.
 
-`bakeStoneWall` is the same idea for a whole material: one seamless
-`STONE_WALL_SIZE` wall, and `GameScene.stoneTile` cuts each ground cell's
-16px window out of it by world position (a canvas texture per window and
-kind, cached), so the blocks are bigger than a cell and continue across
-cells. A `groundStyle` of `stone` on the palette turns it on. `stoneTile`
-also draws the cell's edge: `STONE_EDGE` bigger than the cell each way, a
-profile per exposed face (periodic in the wall's size, so it agrees across
-cells and the wrap) that bulges into the air or bites into the cell, a
-chamfer at convex corners, a rim where the mass meets air, and the dust and
-cap course following the top profile. A covered face constrains nothing --
-the first version treated its margin as air and drew a rim at every cell
-boundary in the mass.
+`drawStoneMass` (`stone.ts`) draws a cave's ground as whole stones taken
+from the level: `GameScene.buildStoneMass` cuts each row of ground cells
+into runs of one to three cells, marks which sides meet air, and the drawing
+nudges each stone's corners out on those sides and in on the others. The
+silhouette of the mass is therefore stone outlines, never a cut -- an
+earlier version clipped a periodic wall texture at the cell edge with a
+wobble, and the clipped stones were what gave it away. One `Graphics` per
+level, at depth -0.2, baked into the chunks (the bake takes a Graphics with
+the whole level as its bounds).
 
 `bakeBranch` returns the wood's thickness under each cell so the leaves can
 hang from the real underside; the flat top is the collision surface and is

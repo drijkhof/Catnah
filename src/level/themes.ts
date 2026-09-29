@@ -146,7 +146,7 @@ export const THEMES: Record<ThemeName, TilePalette> = {
   cave: {
     surfaceStyle: 'dust',
     groundStyle: 'stone',
-    shade: 0x121217,
+    shade: 0x11151f,
     columnStyle: 'rope',
     platformStyle: 'shelf',
     // No sun: what lies on a cave floor is dust, pale and grey, not grass.

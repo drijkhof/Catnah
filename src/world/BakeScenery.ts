@@ -37,6 +37,13 @@ export function bakeScenery(scene: Phaser.Scene, widthInPixels: number, heightIn
   }
 
   list.forEach((object, index) => {
+    // A Graphics object drawn once for the whole level (the stone mass) has
+    // no size of its own; it goes into every chunk.
+    if (object instanceof Phaser.GameObjects.Graphics && object.scrollFactorX === 1 && object.depth <= 0 && !tweened.has(object)) {
+      candidates.push({ object: object as unknown as Bakeable, index, bounds: new Phaser.Geom.Rectangle(0, 0, widthInPixels, heightInPixels) });
+      return;
+    }
+
     if (!isStaticScenery(object, tweened)) {
       return;
     }
@@ -89,7 +96,14 @@ export function bakeScenery(scene: Phaser.Scene, widthInPixels: number, heightIn
   // time is a search of the whole list each, and with twenty-seven thousand
   // of them that took most of a second.
   const baked = new Set<Phaser.GameObjects.GameObject>(candidates.map((entry) => entry.object));
-  const kept = list.filter((object) => !baked.has(object));
+  // Hidden colliding tiles -- whose picture is drawn some other way, as a
+  // boulder or a stone mass -- leave the display list too. Their bodies stay.
+  const hiddenTile = (object: Phaser.GameObjects.GameObject): boolean =>
+    (object instanceof Phaser.GameObjects.Image || object instanceof Phaser.GameObjects.Sprite) &&
+    !object.visible &&
+    !!object.body &&
+    (object.body as Phaser.Physics.Arcade.StaticBody).physicsType === Phaser.Physics.Arcade.STATIC_BODY;
+  const kept = list.filter((object) => !baked.has(object) && !hiddenTile(object));
   list.length = 0;
   list.push(...kept);
 
