@@ -98,8 +98,11 @@ export function bakeBoulder(
     g.fillRoundedRect(body.x + 3, body.y + 3, body.w - 5, body.h - 3 - under, corners(Math.max(2, radius - 2)));
     g.fillStyle(mid, 1);
     g.fillEllipse(body.x + body.w * 0.62, body.y + body.h * 0.7, body.w * 0.5, body.h * 0.45);
-    if (!restsOn) {
-      g.fillStyle(dark, 1);
+    g.fillStyle(dark, 1);
+    if (restsOn) {
+      // One pixel of shadow along the base, where it meets the ground.
+      g.fillRect(body.x + 2, body.y + body.h - 1, body.w - 4, 1);
+    } else {
       g.fillRoundedRect(body.x + 2, body.y + body.h - 3, body.w - 4, 3, 2);
     }
 
