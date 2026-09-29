@@ -1020,3 +1020,10 @@ and `_` beside it meet without a seam.
 - **The cave was converted by script**: every `#` at least four cells from
   anything not solid became `_`, keeping three cells of textured rock
   round every opening. 10,113 of 13,036 cells.
+
+## Dev test level 1 emptied
+
+Asked for: everything removed from the duck level. `DEV_TEST_1` is now flat
+ground with a spawn and an exit, renamed "Dev 1: Empty", so it stays a
+blank slate for the next single-mechanic test. The duck notes above are kept as
+history.
