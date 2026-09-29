@@ -7,6 +7,11 @@ import type { GroundEnemyKind } from '../config';
  * One level, as a grid of characters.
  *
  *   `#`  floor / earth
+ *   `_`  void -- solid rock that is never seen. Dark, impassable, and free:
+ *        it gets a collision body only where it touches something that is
+ *        not solid, and no picture at all beyond one flat dark fill. Use it
+ *        for the mass behind the walls of a cave, with `#` for the rock
+ *        near the surface that shows its texture
  *   `=`  one-way platform — a branch, a stone shelf, a girder
  *   `B`  full-height solid used for low overhangs
  *   `R`  boulder / brick — solid rock, and what wall jumps are taken from
@@ -214,6 +219,12 @@ export interface ParsedLevel {
   charms: Point[];
   /** Thorn tiles. Deadly, and scenery otherwise -- nothing stands on them. */
   thorns: Point[];
+  /**
+   * Every `_` cell, including the buried ones that have no `Solid`. The
+   * ground shade needs them all to know where the mass is; the scene fills
+   * them flat dark.
+   */
+  voids: Point[];
   /** Checkpoints, in the order they appear in the grid. */
   checkpoints: Point[];
   /**
@@ -258,6 +269,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const nests: Point[] = [];
   const charms: Point[] = [];
   const thorns: Point[] = [];
+  const voids: Point[] = [];
   const checkpoints: Point[] = [];
   let spawn: Point | null = null;
   let boss: Point | null = null;
@@ -325,6 +337,17 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
         case 'B':
           block(x, y, 'bough', column, row);
           break;
+
+        case '_': {
+          voids.push({ x, y });
+          // A body only on the shell: a void cell with nothing but solid
+          // round it can never be reached, so it is not a Solid at all.
+          const faces = exposedFaces(at, column, row);
+          if (faces.up || faces.down || faces.left || faces.right) {
+            block(x, y, 'void', column, row);
+          }
+          break;
+        }
 
         case '=':
           solids.push({
@@ -555,6 +578,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     nests,
     charms,
     thorns,
+    voids,
     checkpoints,
     extraLives,
     spawn,
@@ -811,7 +835,7 @@ function variantOf(base: string, column: number, row: number): string {
 }
 
 /** Solids that fill their whole cell, as opposed to a platform's thin bar. */
-const FULL_CELL = new Set(['#', 'B', 'R', 'G', 'Q']);
+const FULL_CELL = new Set(['#', 'B', 'R', 'G', 'Q', '_']);
 
 /** The rock letters. One material; the letter only says where a boulder ends. */
 const ROCK = new Set(['R', 'G', 'Q']);

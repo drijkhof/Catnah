@@ -19,6 +19,7 @@ its platforms must attach to a column. Everything else is derived.
 | `#` | forest floor / earth |
 | `=` | branch — what the platforms are in level 1 |
 | `B` | fallen bough, a full-height solid for low overhangs |
+| `_` | void: solid rock that is never seen. Dark, impassable, and free -- a collision body only where it touches something not solid, one flat dark fill for the picture. The mass behind a cave's walls; keep `#` for the rock near the surface that shows texture |
 | `R` | boulder / brick — solid rock, and what wall jumps are taken from |
 | `G`, `Q` | the same rock. The letter is a seam: touching cells of one letter are drawn as one boulder, so `RRRGGG` is two rocks side by side and `RR` over `GG` is one stacked on another |
 | `M` | masonry — a house rather than a flat: plaster under a pantile roof |

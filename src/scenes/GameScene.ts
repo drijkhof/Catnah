@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { AWAKE_RANGE, CHARMS_PER_LIFE, CHECKPOINT, GAME_HEIGHT, GAME_WIDTH, LIVES, MAX_LIVES, TILE, WATER_DROP } from '../config';
+import { AWAKE_RANGE, CHARMS_PER_LIFE, CHECKPOINT, GAME_HEIGHT, GAME_WIDTH, GROUND_SHADE, LIVES, MAX_LIVES, TILE, WATER_DROP } from '../config';
 import { Controls } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -13,7 +13,7 @@ import { Spider } from '../objects/Spider';
 import { addGroundShade, bakeScenery, createBackdrop } from '../world';
 import { parseLevel, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
-import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, LOG_BULGE, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTrunk, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
+import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, LOG_BULGE, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { installGodMode, isGodMode } from '../dev/godMode';
@@ -186,6 +186,7 @@ export class GameScene extends Phaser.Scene {
     addGroundShade(
       this,
       this.level.solids,
+      this.level.voids,
       this.level.widthInPixels,
       this.level.heightInPixels,
       THEMES[this.level.theme].shade,
@@ -830,15 +831,16 @@ export class GameScene extends Phaser.Scene {
       // Ledges carry no art of their own: the tree crown or the nest is
       // already drawn, and this is only the surface to stand on.
       const invisible = solid.textureKey.endsWith('-ledge');
+      const isVoid = solid.textureKey === 'void';
       const tile = group
-        .create(solid.x, solid.y, this.tile(invisible ? 'branch-mid' : solid.textureKey))
+        .create(solid.x, solid.y, this.tile(invisible ? 'branch-mid' : isVoid ? 'ground-fill' : solid.textureKey))
         .setOrigin(0, 0)
         .refreshBody() as Phaser.Physics.Arcade.Sprite;
 
       // A rock cell collides here but is not drawn here: its cluster is
       // drawn as one boulder by `buildBoulders`. A bough cell likewise: its
       // run is one fallen tree, drawn by `buildLogs`.
-      if (solid.textureKey.startsWith('rock-') || solid.textureKey === 'bough') {
+      if (solid.textureKey.startsWith('rock-') || solid.textureKey === 'bough' || isVoid) {
         tile.setVisible(false);
       }
 
@@ -885,6 +887,7 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
+    this.buildVoid();
     this.buildBoulders();
     this.buildLogs();
     this.buildBranches();
@@ -967,6 +970,49 @@ export class GameScene extends Phaser.Scene {
         .setOrigin(0, 0)
         .setFlipX(random() < 0.5)
         .setDepth(-1);
+    }
+  }
+
+  /**
+   * Fills every run of `_` cells flat dark: one stretched image per run,
+   * in the colour the ground shade fades to, so `#` deep in a mass and `_`
+   * beside it meet without a seam. Baked with the rest of the scenery.
+   */
+  private buildVoid(): void {
+    const cells = new Set(this.level.voids.map((cell) => `${cell.x / TILE},${cell.y / TILE}`));
+    const palette = THEMES[this.level.theme];
+    const key = `${this.level.theme}:void-fill`;
+
+    if (!this.textures.exists(key)) {
+      // What the deepest shade looks like over earth: the shade colour at its
+      // full strength over the dirt, so a `_` next to a deep `#` is the same
+      // dark.
+      const mix = Phaser.Display.Color.Interpolate.ColorWithColor(
+        Phaser.Display.Color.ValueToColor(palette.dirt),
+        Phaser.Display.Color.ValueToColor(palette.shade),
+        100,
+        Math.round(GROUND_SHADE.max * 100),
+      );
+      bakeTexture(this, key, TILE, TILE, (g) => {
+        g.fillStyle(Phaser.Display.Color.GetColor(mix.r, mix.g, mix.b), 1);
+        g.fillRect(0, 0, TILE, TILE);
+      });
+    }
+
+    for (const cell of this.level.voids) {
+      const column = cell.x / TILE;
+      const row = cell.y / TILE;
+
+      if (cells.has(`${column - 1},${row}`)) {
+        continue;
+      }
+
+      let length = 1;
+      while (cells.has(`${column + length},${row}`)) {
+        length += 1;
+      }
+
+      this.add.image(cell.x, cell.y, key).setOrigin(0, 0).setDisplaySize(length * TILE, TILE);
     }
   }
 

@@ -980,3 +980,26 @@ batches. The overhaul roughly doubled a count that was already too high.
   phone test. To be restored to forest, canopy, swamp, cave, volcano, city.
 - **Found on the way:** Phaser 4's `RenderTexture.draw` only queues; the
   first bake drew nothing and the cat stood on invisible ground.
+
+## A cell that is neither air nor a tile
+
+Asked for after the cave's lag: a way to write the mass behind a cave's
+walls without paying for a tile per cell. `_` is void: solid rock that is
+never seen. It counts as solid for everything -- neighbours' faces, the
+darkness, the level checks -- but gets a collision body only where it
+touches something that is not solid (the shell; a buried `_` is just a
+character in the file), and its whole picture is one flat dark rectangle
+per run, in the colour the ground shade fades to, so `#` deep in a mass
+and `_` beside it meet without a seam.
+
+- **`_`, not a space.** A space was suggested and would read well, but rows
+  are written short and padded with air, and every editor trims trailing
+  spaces: a row ending in void would silently become a row ending in air,
+  invisible in the file. Only the dev test level ever used spaces (as
+  pits), so the choice was free; `_` survives the editor.
+- **After the scenery bake, void no longer buys frame time** -- a chunk
+  costs the same whatever it holds -- only build time and memory. It is
+  still the honest way to say "mass" in a level file.
+- **The bottom row of a level is always shell**, because outside the level
+  counts as air for a tile's faces. Harmless: a body per cell along one
+  row.

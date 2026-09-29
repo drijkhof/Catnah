@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { GROUND_SHADE, TILE } from '../config';
 import { bakeTexture } from '../art';
-import type { Solid } from '../level/Level';
+import type { Point, Solid } from '../level/Level';
 
 /**
  * The darkness inside the ground.
@@ -20,6 +20,7 @@ import type { Solid } from '../level/Level';
 export function addGroundShade(
   scene: Phaser.Scene,
   solids: Solid[],
+  voids: Point[],
   widthInPixels: number,
   heightInPixels: number,
   colour: number,
@@ -33,7 +34,9 @@ export function addGroundShade(
     !solid.isBranch && solid.width === TILE && solid.height === TILE;
 
   // Every full cell, whatever it is made of, for telling buried from exposed.
-  const anything = new Set<number>(solids.filter(fullCell).map(cellOf));
+  // Void cells too, the buried ones included: they are mass, just unseen.
+  const voidCells = voids.map((cell) => index(cell.x / TILE, cell.y / TILE));
+  const anything = new Set<number>([...solids.filter(fullCell).map(cellOf), ...voidCells]);
   const inside = (column: number, row: number): boolean =>
     column >= 0 && row >= 0 && column < columns && row < rows;
   const buried = buriedRocks(solids.filter((solid) => fullCell(solid) && isRock(solid)), anything, index, inside, columns);
@@ -45,6 +48,9 @@ export function addGroundShade(
     if (isMass(solid, buried.has(cellOf(solid)))) {
       full.add(cellOf(solid));
     }
+  }
+  for (const cell of voidCells) {
+    full.add(cell);
   }
 
   // Outside the level counts as solid: the bottom rows go fully dark rather
@@ -61,7 +67,9 @@ export function addGroundShade(
   const deepPattern = new Array(cellsPerSide * cellsPerSide).fill(deepest) as number[];
 
   for (const solid of solids) {
-    if (!isMass(solid, buried.has(cellOf(solid)))) {
+    // A void cell is filled flat dark by the scene; the overlay has nothing
+    // to add to it.
+    if (!isMass(solid, buried.has(cellOf(solid))) || solid.textureKey === 'void') {
       continue;
     }
 
