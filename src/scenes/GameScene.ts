@@ -1064,11 +1064,10 @@ export class GameScene extends Phaser.Scene {
       (c, r) => solid.has(`${c},${r}`),
       (c, r) => boulders.has(`${c},${r}`),
       // A top is a surface something could lie on: ground-top with open air
-      // or a boulder above it -- the rock is drawn in front of a boulder, so
-      // pebbles at its foot show -- but not ground under void or a building.
-      (c, r) =>
-        (ground.get(`${c},${r}`)?.textureKey ?? '').startsWith('ground-top') &&
-        (!solid.has(`${c},${r - 1}`) || boulders.has(`${c},${r - 1}`)),
+      // above it. Not ground under a boulder: the rock is drawn in front of
+      // the boulder, so pebbles there would sit on the boulder's foot and
+      // read as pebbles on the boulder. Its feet get their own heaps.
+      (c, r) => (ground.get(`${c},${r}`)?.textureKey ?? '').startsWith('ground-top') && !solid.has(`${c},${r - 1}`),
       THEMES[this.level.theme],
       9277,
     );

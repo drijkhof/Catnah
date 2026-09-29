@@ -158,14 +158,7 @@ export function bakeBoulder(
     }
 
     if (palette.surfaceStyle === 'dust') {
-      // Dust and pebbles on the crown instead of moss.
-      for (let x = body.x + radius - 2; x < body.x + body.w - radius + 2; x += 1) {
-        const roll = random();
-        if (roll < 0.5) {
-          g.fillStyle(roll < 0.2 ? palette.rockLight : palette.grass, 1);
-          g.fillRect(x, top - 1 + Math.floor(random() * 2), 1, 1 + Math.floor(random() * 2));
-        }
-      }
+      // Nothing on the crown: dust lies at a boulder's feet, not on top of it.
       return;
     }
 
