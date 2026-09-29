@@ -1052,6 +1052,9 @@ export class GameScene extends Phaser.Scene {
 
     const columns = Math.ceil(this.level.widthInPixels / TILE);
     const rows = Math.ceil(this.level.heightInPixels / TILE);
+    const boulders = new Set(
+      this.level.solids.filter((s) => s.textureKey.startsWith('rock-')).map((s) => `${s.x / TILE},${s.y / TILE}`),
+    );
     const pieces = bakeRockMass(
       this,
       `${this.level.theme}:rock:${this.levelIndex}`,
@@ -1059,9 +1062,13 @@ export class GameScene extends Phaser.Scene {
       rows,
       (c, r) => ground.has(`${c},${r}`),
       (c, r) => solid.has(`${c},${r}`),
+      (c, r) => boulders.has(`${c},${r}`),
       // A top is a surface something could lie on: ground-top with open air
-      // above it, not ground under a boulder.
-      (c, r) => (ground.get(`${c},${r}`)?.textureKey ?? '').startsWith('ground-top') && !solid.has(`${c},${r - 1}`),
+      // or a boulder above it -- the rock is drawn in front of a boulder, so
+      // pebbles at its foot show -- but not ground under void or a building.
+      (c, r) =>
+        (ground.get(`${c},${r}`)?.textureKey ?? '').startsWith('ground-top') &&
+        (!solid.has(`${c},${r - 1}`) || boulders.has(`${c},${r - 1}`)),
       THEMES[this.level.theme],
       9277,
     );
@@ -1288,9 +1295,12 @@ export class GameScene extends Phaser.Scene {
         bakeBoulder(this, key, wide, high, palette, 977 + wide * 31 + high * 17 + variant * 101, exposed, restsOn);
       }
 
+      // Behind the ground's own picture: the rock's edge draws over the
+      // boulder's foot, so a boulder sits in the ground, not on it.
       this.add
         .image(column * TILE - BOULDER_BULGE.x, row * TILE - BOULDER_BULGE.y, key)
-        .setOrigin(0, 0);
+        .setOrigin(0, 0)
+        .setDepth(-0.3);
     };
 
     // A rectangle of cells, broken into rocks no bigger than the maximum.
