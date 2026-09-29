@@ -13,7 +13,7 @@ import { Spider } from '../objects/Spider';
 import { addGroundShade, bakeScenery, createBackdrop } from '../world';
 import { parseLevel, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
-import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, LOG_BULGE, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, createRandom, drawStoneMass, packStones, roundedTileKey, tileKey, type Corners } from '../art';
+import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, LOG_BULGE, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { installGodMode, isGodMode } from '../dev/godMode';
@@ -1037,43 +1037,36 @@ export class GameScene extends Phaser.Scene {
     }
 
     const ground = new Map<string, Solid>();
-    for (const solid of this.level.solids) {
-      if (this.isGround(solid)) {
-        ground.set(`${solid.x / TILE},${solid.y / TILE}`, solid);
+    const solid = new Set<string>();
+    for (const s of this.level.solids) {
+      if (this.isGround(s)) {
+        ground.set(`${s.x / TILE},${s.y / TILE}`, s);
       }
+      if (!s.isBranch && s.width === TILE && s.height === TILE) {
+        solid.add(`${s.x / TILE},${s.y / TILE}`);
+      }
+    }
+    for (const cell of this.level.voids) {
+      solid.add(`${cell.x / TILE},${cell.y / TILE}`);
     }
 
     const columns = Math.ceil(this.level.widthInPixels / TILE);
     const rows = Math.ceil(this.level.heightInPixels / TILE);
-    const isGround = (c: number, r: number): boolean => ground.has(`${c},${r}`);
-    const stones = packStones(
+    const pieces = bakeRockMass(
+      this,
+      `${this.level.theme}:rock:${this.levelIndex}`,
       columns,
       rows,
-      isGround,
+      (c, r) => ground.has(`${c},${r}`),
+      (c, r) => solid.has(`${c},${r}`),
       (c, r) => (ground.get(`${c},${r}`)?.textureKey ?? '').startsWith('ground-top'),
+      THEMES[this.level.theme],
       9277,
     );
 
-    // Inner corners, for the dust: an open cell with ground below and ground
-    // to one side (and in the corner between). The dust sits on the floor
-    // against the wall.
-    const corners: Array<{ x: number; y: number; side: 1 | -1 }> = [];
-    for (let r = 0; r < rows; r += 1) {
-      for (let c = 0; c < columns; c += 1) {
-        if (isGround(c, r) || !isGround(c, r + 1)) {
-          continue;
-        }
-        if (isGround(c - 1, r) && isGround(c - 1, r + 1)) {
-          corners.push({ x: c * TILE, y: (r + 1) * TILE, side: -1 });
-        }
-        if (isGround(c + 1, r) && isGround(c + 1, r + 1)) {
-          corners.push({ x: (c + 1) * TILE, y: (r + 1) * TILE, side: 1 });
-        }
-      }
+    for (const piece of pieces) {
+      this.add.image(piece.x, piece.y, piece.key).setOrigin(0, 0).setDepth(-0.2);
     }
-
-    const graphics = this.add.graphics().setDepth(-0.2);
-    drawStoneMass(graphics, stones, corners, THEMES[this.level.theme]);
   }
 
   /** Earth: a `#` cell, whatever palette it wears. */

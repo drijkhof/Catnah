@@ -286,18 +286,17 @@ only the picture bends. Stone shelves in the cave are one rounded slab per
 run of cells, lichen on top.
 
 What the ground is made of depends on the place too. Outdoors it is earth
-with stones in it. In the cave it is **fitted stone**, built from the level
-itself: the ground is packed with stones of many sizes -- eight to
-forty-eight pixels wide, eight to thirty-two tall, the big ones first and
-the gaps between them filled with small ones -- and a stone never crosses
-into air, so the mass has no edge of its own: its silhouette is the outline
-of the stones along it, each one a polygon with its corners nudged out
-where it meets air and in where it meets mortar, and cut, deeply on the big
-ones, so it is a lump of rock rather than a brick. The course the cat walks
-on is the same stone, with a pebble on it now and then; where a floor meets
-a wall there is a little dust in the corner. Where water touches the stone
-it is drawn back the few pixels a stone may bulge, so the stone stands over
-the water. All of it is one drawing per level, baked with the rest.
+with stones in it. In the cave it is **rock**: one mass, broken into fragments. Seeds are
+scattered through the ground, about one per cell, and every pixel of rock
+belongs to its nearest seed, so the fragments have edges at whatever angle
+the seeds dictate, never along the grid, with a one-pixel fissure where two
+meet. Each fragment has its own tone and is bevelled toward the light. At
+the air the mass has no edge of its own: fragment by fragment it bulges out
+or falls short, and a dark rim runs round the whole silhouette. The course
+the cat walks on is simply the top of the rock, with a pebble on it now and
+then; where a floor meets a wall there is a little dust in the corner. Where
+water touches the rock it is drawn back the few pixels the rock may bulge.
+Drawn pixel by pixel into a few big pictures per level, baked with the rest.
 
 What lies on a surface depends on the place. Where there is sun it is grass;
 in the cave, where there is none, it is **dust and pebbles**: a pale worn

@@ -40,17 +40,17 @@ sprites, which go on colliding). The canopy is one seamless strip in a
 tiling sprite. When a thing looks like a grid, that is the drawing's fault,
 not the level's.
 
-`packStones` and `drawStoneMass` (`stone.ts`) draw a cave's ground as
-whole stones taken from the level: the mass is packed greedily on a grid of
-half-cells with stones of random size shrunk to fit inside the ground, so
-big stones come with small ones between them; each knows which sides meet
-air, and the drawing nudges its corners out on those sides and in on the
-others. The
-silhouette of the mass is therefore stone outlines, never a cut -- an
-earlier version clipped a periodic wall texture at the cell edge with a
-wobble, and the clipped stones were what gave it away. One `Graphics` per
-level, at depth -0.2, baked into the chunks (the bake takes a Graphics with
-the whole level as its bounds).
+`bakeRockMass` (`stone.ts`) draws a cave's ground as fractured rock: seeds
+scattered through the ground, every pixel assigned to its nearest seed (a
+Voronoi split, bucketed by cell, typed arrays, squared distances), a fissure
+where two fragments meet, a bevel toward the light, and an outline made by
+each seed's own reach into the air. Pixel work, into canvas textures of 512
+square, only over cells that are ground or touch ground; the scene places
+them and the bake flattens them. Textures outlive the scene, so it removes
+a stale piece before baking over it -- a level restart hit "texture key
+already in use" before that. Earlier versions were stones set in mortar,
+first clipped from a periodic wall, then packed as rectangles; both read as
+masonry, and the ask was rock.
 
 `bakeBranch` returns the wood's thickness under each cell so the leaves can
 hang from the real underside; the flat top is the collision surface and is

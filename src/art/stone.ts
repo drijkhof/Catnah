@@ -3,232 +3,371 @@ import { TILE } from '../config';
 import { createRandom } from './canvas';
 import type { TilePalette } from './tiles';
 
-/** The packing grid: half a cell, so stones can be small as well as big. */
-const SUB = TILE / 2;
-
-/** One stone of a fitted-stone mass, in px. `exposed` says which sides meet air. */
-export interface Stone {
+/** One picture of the rock, covering part of the level. */
+export interface RockPiece {
+  key: string;
   x: number;
   y: number;
-  w: number;
-  h: number;
-  exposed: { up: boolean; down: boolean; left: boolean; right: boolean };
-  /** In the course the cat walks on: air above, on a ground-top cell. */
-  top: boolean;
 }
 
+/** The side of one piece, px. A power of two, like the scenery chunks. */
+const PIECE = 512;
+
+/** How far past a ground cell rock may reach into open air, px. */
+const REACH = 4;
+
 /**
- * Packs a mass of ground cells with stones of many sizes.
+ * Bakes a cave's ground as fractured rock.
  *
- * Works on a grid of half-cells. Walking it top to bottom, left to right,
- * each free half-cell of ground starts a stone: a rectangle of random size,
- * one to six half-cells wide and one to four tall, shrunk until every
- * half-cell in it is ground and free. Big stones first come out big, and
- * what is left between them comes out as small ones -- which is what a real
- * wall of fitted stone looks like. A stone never crosses into air, so the
- * mass's silhouette is the outline of its stones.
+ * Not stones set in mortar: one mass, broken into fragments. Seeds are
+ * scattered through the ground, about one per cell, and every pixel of
+ * rock belongs to its nearest seed, so the fragments are Voronoi cells --
+ * their edges run at whatever angle the seeds dictate, never along the
+ * grid. Where two fragments meet there is a one-pixel fissure. Each
+ * fragment has its own tone and is bevelled: lit along the edges that
+ * face up and left, dark along the ones that face down and right.
  *
- * @param isGround whether the cell at (column, row) is ground.
- * @param isTop whether that cell is the top of the ground (grass-top).
+ * At the air the mass has no edge of its own. A pixel within `REACH` of
+ * the ground, outside or inside it, is rock if it is close enough to its
+ * nearest seed -- each seed has its own reach -- so the outline bulges and
+ * falls short fragment by fragment. A dark rim runs round the whole
+ * silhouette. Pebbles lie on the walking surface now and then, and there is
+ * dust in the inner corners.
+ *
+ * Rendered pixel by pixel into canvas textures of `PIECE` square, only where
+ * there is ground; the scene places them and the scenery bake flattens
+ * them. Cells that are solid but not ground (void, rock, a building) count
+ * as more ground for the outline: the rock runs into them without an edge.
  */
-export function packStones(
+export function bakeRockMass(
+  scene: Phaser.Scene,
+  keyPrefix: string,
   columns: number,
   rows: number,
   isGround: (column: number, row: number) => boolean,
+  isSolid: (column: number, row: number) => boolean,
   isTop: (column: number, row: number) => boolean,
-  seed: number,
-): Stone[] {
-  const random = createRandom(seed);
-  const W = columns * 2;
-  const H = rows * 2;
-  const free = new Uint8Array(W * H);
-  const groundAt = (sx: number, sy: number): boolean =>
-    sx >= 0 && sy >= 0 && sx < W && sy < H && isGround(Math.floor(sx / 2), Math.floor(sy / 2));
+  palette: TilePalette,
+  seedValue: number,
+): RockPiece[] {
+  const random = createRandom(seedValue);
+  const width = columns * TILE;
+  const height = rows * TILE;
 
-  for (let sy = 0; sy < H; sy += 1) {
-    for (let sx = 0; sx < W; sx += 1) {
-      free[sy * W + sx] = groundAt(sx, sy) ? 1 : 0;
+  // Seeds: flat typed arrays, bucketed by cell (each cell holds at most two).
+  const seedX: number[] = [];
+  const seedY: number[] = [];
+  const seedReach: number[] = [];
+  const seedTone: number[] = [];
+  const bucket = new Int32Array(columns * rows * 2).fill(-1);
+
+  for (let r = 0; r < rows; r += 1) {
+    for (let c = 0; c < columns; c += 1) {
+      if (!isGround(c, r)) {
+        continue;
+      }
+      // Mostly one seed per cell, sometimes none (a bigger fragment), sometimes
+      // two (a couple of small ones).
+      const roll = random();
+      const count = roll < 0.18 ? 0 : roll < 0.8 ? 1 : 2;
+      for (let i = 0; i < count; i += 1) {
+        bucket[(r * columns + c) * 2 + i] = seedX.length;
+        seedX.push(c * TILE + random() * TILE);
+        seedY.push(r * TILE + random() * TILE);
+        seedReach.push(9 + random() * 8);
+        seedTone.push(Math.floor(random() * 5));
+      }
     }
   }
 
-  const stones: Stone[] = [];
-  const fits = (sx: number, sy: number, w: number, h: number): boolean => {
-    for (let y = sy; y < sy + h; y += 1) {
-      for (let x = sx; x < sx + w; x += 1) {
-        if (x >= W || y >= H || !free[y * W + x]) {
-          return false;
+  // The two nearest seeds to a point, as indices (-1 for none), with their
+  // distances. Squared distances while comparing; roots only for the two
+  // that matter.
+  let n1 = -1;
+  let n2 = -1;
+  let nd1 = 0;
+  let nd2 = 0;
+  const nearest = (x: number, y: number): void => {
+    const c = Math.floor(x / TILE);
+    const r = Math.floor(y / TILE);
+    let q1 = Number.POSITIVE_INFINITY;
+    let q2 = Number.POSITIVE_INFINITY;
+    n1 = -1;
+    n2 = -1;
+    for (let rr = Math.max(0, r - 2); rr <= Math.min(rows - 1, r + 2); rr += 1) {
+      for (let cc = Math.max(0, c - 2); cc <= Math.min(columns - 1, c + 2); cc += 1) {
+        const b = (rr * columns + cc) * 2;
+        for (let k = 0; k < 2; k += 1) {
+          const s = bucket[b + k];
+          if (s < 0) break;
+          const dx = seedX[s] - x;
+          const dy = seedY[s] - y;
+          const q = dx * dx + dy * dy;
+          if (q < q1) {
+            q2 = q1;
+            n2 = n1;
+            q1 = q;
+            n1 = s;
+          } else if (q < q2) {
+            q2 = q;
+            n2 = s;
+          }
         }
       }
     }
-    return true;
+    nd1 = Math.sqrt(q1);
+    nd2 = Math.sqrt(q2);
   };
 
-  for (let sy = 0; sy < H; sy += 1) {
-    for (let sx = 0; sx < W; sx += 1) {
-      if (!free[sy * W + sx]) {
+  const rgb = (colour: number): [number, number, number] => {
+    const c = Phaser.Display.Color.IntegerToRGB(colour);
+    return [c.r, c.g, c.b];
+  };
+  const base = [
+    rgb(shade(palette.rock, 8)),
+    rgb(shade(palette.rock, 16)),
+    rgb(palette.rock),
+    rgb(shade(palette.rock, 12)),
+    rgb(lighten(palette.rock, 4)),
+  ];
+  const litTones = base.map(([r, g, b]) => rgb(lighten(Phaser.Display.Color.GetColor(r, g, b), 10)));
+  const darkTones = base.map(([r, g, b]) => rgb(shade(Phaser.Display.Color.GetColor(r, g, b), 18)));
+  const fissure = rgb(shade(palette.rockDark, 30));
+  const rim = rgb(shade(palette.rockDark, 36));
+  const pebbleLit = rgb(palette.rockLight);
+  const dust = rgb(palette.grass);
+
+  // Is this pixel rock? Inside ground away from any open cell: yes. Within
+  // reach of the boundary between ground and open air: if close enough to
+  // its nearest seed. Anywhere else: no.
+  const openAt = (c: number, r: number): boolean => c < 0 || r < 0 || c >= columns || r >= rows ? false : !isSolid(c, r);
+  const nearOpen = (x: number, y: number): boolean => {
+    for (let dy = -REACH; dy <= REACH; dy += REACH) {
+      for (let dx = -REACH; dx <= REACH; dx += REACH) {
+        if (openAt(Math.floor((x + dx) / TILE), Math.floor((y + dy) / TILE))) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+  const rockAt = (x: number, y: number): boolean => {
+    const c = Math.floor(x / TILE);
+    const r = Math.floor(y / TILE);
+    const ground = isGround(c, r);
+    const solid = c >= 0 && r >= 0 && c < columns && r < rows && isSolid(c, r);
+    if (!ground && solid) {
+      return false;
+    }
+    if (!nearOpen(x, y)) {
+      return ground;
+    }
+    if (!ground && !isGround(Math.floor((x - REACH) / TILE), r) && !isGround(Math.floor((x + REACH) / TILE), r) && !isGround(c, Math.floor((y - REACH) / TILE)) && !isGround(c, Math.floor((y + REACH) / TILE))) {
+      return false;
+    }
+    nearest(x, y);
+    return n1 >= 0 && nd1 <= seedReach[n1];
+  };
+
+  const pieces: RockPiece[] = [];
+
+  // Which cells need any work at all: ground, or touching ground (that is
+  // where the rock reaches into the air). A cell of ground with no open
+  // cell round it is all rock, and needs only colouring.
+  const groundNear = (c: number, r: number): boolean => {
+    for (let dr = -1; dr <= 1; dr += 1) {
+      for (let dc = -1; dc <= 1; dc += 1) {
+        if (isGround(c + dc, r + dr)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+  const openNear = (c: number, r: number): boolean => {
+    for (let dr = -1; dr <= 1; dr += 1) {
+      for (let dc = -1; dc <= 1; dc += 1) {
+        if (openAt(c + dc, r + dr)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  for (let py = 0; py < height; py += PIECE) {
+    for (let px = 0; px < width; px += PIECE) {
+      const w = Math.min(PIECE, width - px);
+      const h = Math.min(PIECE, height - py);
+      const c0 = Math.floor(px / TILE);
+      const r0 = Math.floor(py / TILE);
+      const c1 = Math.ceil((px + w) / TILE);
+      const r1 = Math.ceil((py + h) / TILE);
+
+      const cells: Array<[number, number, boolean]> = [];
+      for (let r = r0; r < r1; r += 1) {
+        for (let c = c0; c < c1; c += 1) {
+          if (groundNear(c, r)) {
+            cells.push([c, r, isGround(c, r) && !openNear(c, r)]);
+          }
+        }
+      }
+      if (cells.length === 0) {
         continue;
       }
 
-      // Big or small: mostly two to four half-cells wide, sometimes six,
-      // sometimes one; one to three tall, the odd four.
-      const roll = random();
-      let w = roll < 0.15 ? 1 : roll < 0.75 ? 2 + Math.floor(random() * 3) : 5 + Math.floor(random() * 2);
-      let h = random() < 0.2 ? 1 : random() < 0.8 ? 2 : 3 + Math.floor(random() * 2);
-      while (w > 1 && !fits(sx, sy, w, h)) w -= 1;
-      while (h > 1 && !fits(sx, sy, w, h)) h -= 1;
+      const key = `${keyPrefix}:${px},${py}`;
+      // Textures outlive the scene. A level restarted, or reached again,
+      // bakes its rock afresh over the old piece.
+      if (scene.textures.exists(key)) {
+        scene.textures.remove(key);
+      }
+      const canvas = scene.textures.createCanvas(key, w, h) as Phaser.Textures.CanvasTexture;
+      const ctx = canvas.context;
+      const image = ctx.createImageData(w, h);
+      const data = image.data;
+      const mask = new Uint8Array(w * h);
+      const near1 = new Int32Array(w * h).fill(-1);
+      const near2 = new Int32Array(w * h).fill(-1);
+      const dist1 = new Float32Array(w * h);
+      const dist2 = new Float32Array(w * h);
 
-      for (let y = sy; y < sy + h; y += 1) {
-        for (let x = sx; x < sx + w; x += 1) {
-          free[y * W + x] = 0;
+      // Pass one: which pixels are rock, and each rock pixel's nearest seeds,
+      // found once.
+      for (const [c, r, interior] of cells) {
+        for (let y = r * TILE - py; y < r * TILE + TILE - py; y += 1) {
+          for (let x = c * TILE - px; x < c * TILE + TILE - px; x += 1) {
+            if (x < 0 || y < 0 || x >= w || y >= h) continue;
+            const i = y * w + x;
+            nearest(px + x, py + y);
+            let rock: boolean;
+            if (interior) {
+              rock = true;
+            } else {
+              const ground = isGround(c, r);
+              const solid = isSolid(c, r);
+              if (!ground && solid) {
+                rock = false;
+              } else if (!nearOpen(px + x, py + y)) {
+                rock = ground;
+              } else {
+                rock = n1 >= 0 && nd1 <= seedReach[n1];
+              }
+            }
+            mask[i] = rock ? 1 : 0;
+            near1[i] = n1;
+            near2[i] = n2;
+            dist1[i] = nd1;
+            dist2[i] = nd2;
+          }
         }
       }
 
-      const airLeft = Array.from({ length: h }, (_, i) => !groundAt(sx - 1, sy + i)).some(Boolean);
-      const airRight = Array.from({ length: h }, (_, i) => !groundAt(sx + w, sy + i)).some(Boolean);
-      const airUp = Array.from({ length: w }, (_, i) => !groundAt(sx + i, sy - 1)).some(Boolean);
-      const airDown = Array.from({ length: w }, (_, i) => !groundAt(sx + i, sy + h)).some(Boolean);
+      const put = (i: number, c: [number, number, number]): void => {
+        data[i * 4] = c[0];
+        data[i * 4 + 1] = c[1];
+        data[i * 4 + 2] = c[2];
+        data[i * 4 + 3] = 255;
+      };
 
-      stones.push({
-        x: sx * SUB,
-        y: sy * SUB,
-        w: w * SUB,
-        h: h * SUB,
-        exposed: { up: airUp, down: airDown, left: airLeft, right: airRight },
-        top: airUp && isTop(Math.floor(sx / 2), Math.floor(sy / 2)),
-      });
-    }
-  }
-
-  return stones;
-}
-
-/**
- * Draws a packed mass of stone into a Graphics object.
- *
- * Every stone is a polygon: its rectangle with each corner nudged, outward
- * on a side that meets air, inward where it meets another stone (that gap
- * is the mortar), and many corners cut, deeply on the bigger stones, so the
- * shapes are angular rather than rectangular. Lit from above-left. On the
- * walking course, a pebble now and then; in the inner corners of the mass,
- * where a floor meets a wall, a little dust.
- */
-export function drawStoneMass(
-  g: Phaser.GameObjects.Graphics,
-  stones: Stone[],
-  corners: Array<{ x: number; y: number; side: 1 | -1 }>,
-  palette: TilePalette,
-): void {
-  const random = createRandom(9241);
-  const mortar = shade(palette.rockDark, 12);
-  const rim = shade(palette.rockDark, 30);
-  const tones = [shade(palette.rock, 8), shade(palette.rock, 16), palette.rock, shade(palette.rock, 12), lighten(palette.rock, 4)];
-
-  // Mortar behind everything, inset from the faces that meet air so it never
-  // shows past the stones.
-  g.fillStyle(mortar, 1);
-  for (const s of stones) {
-    const inL = s.exposed.left ? 3 : 0;
-    const inR = s.exposed.right ? 3 : 0;
-    const inT = s.exposed.up ? 3 : 0;
-    const inB = s.exposed.down ? 3 : 0;
-    g.fillRect(s.x + inL, s.y + inT, s.w - inL - inR, s.h - inT - inB);
-  }
-
-  for (const s of stones) {
-    const { up, down, left, right } = s.exposed;
-    const out = (): number => 1 + Math.floor(random() * 3);
-    const gap = (): number => 1 + Math.floor(random() * 2);
-    const nudge = (side: boolean): number => (side ? out() : -gap());
-    const x0 = s.x;
-    const y0 = s.y;
-    const x1 = s.x + s.w;
-    const y1 = s.y + s.h;
-    const corners4: Array<[number, number]> = [
-      [x0 - nudge(left), y0 - nudge(up)],
-      [x1 + nudge(right), y0 - nudge(up)],
-      [x1 + nudge(right), y1 + nudge(down)],
-      [x0 - nudge(left), y1 + nudge(down)],
-    ];
-
-    // Corners cut: often, and up to two fifths of the shorter side on a big
-    // stone, so it reads as a lump of rock rather than a brick.
-    const poly: Phaser.Math.Vector2[] = [];
-    const big = s.w >= 24 && s.h >= 16;
-    corners4.forEach(([cx, cy], i) => {
-      const [nxp, nyp] = corners4[(i + 1) % 4];
-      const [pxp, pyp] = corners4[(i + 3) % 4];
-      const toNext = Math.hypot(nxp - cx, nyp - cy) || 1;
-      const toPrev = Math.hypot(pxp - cx, pyp - cy) || 1;
-      if (random() < (big ? 0.7 : 0.45)) {
-        const cut = Math.min(2 + random() * (big ? 6 : 3), Math.min(toNext, toPrev) * (big ? 0.4 : 0.33));
-        poly.push(new Phaser.Math.Vector2(cx + ((pxp - cx) / toPrev) * cut, cy + ((pyp - cy) / toPrev) * cut));
-        poly.push(new Phaser.Math.Vector2(cx + ((nxp - cx) / toNext) * cut, cy + ((nyp - cy) / toNext) * cut));
-      } else {
-        poly.push(new Phaser.Math.Vector2(cx, cy));
+      // Pass two: colour.
+      for (const [c, r] of cells) {
+        for (let y = r * TILE - py; y < r * TILE + TILE - py; y += 1) {
+          for (let x = c * TILE - px; x < c * TILE + TILE - px; x += 1) {
+            if (x < 0 || y < 0 || x >= w || y >= h) continue;
+            const i = y * w + x;
+            if (!mask[i]) {
+              continue;
+            }
+            const edge =
+              (x === 0 ? !rockAt(px - 1, py + y) : !mask[i - 1]) ||
+              (x === w - 1 ? !rockAt(px + w, py + y) : !mask[i + 1]) ||
+              (y === 0 ? !rockAt(px + x, py - 1) : !mask[i - w]) ||
+              (y === h - 1 ? !rockAt(px + x, py + h) : !mask[i + w]);
+            if (edge) {
+              put(i, rim);
+              continue;
+            }
+            const s1 = near1[i];
+            const s2 = near2[i];
+            if (s1 < 0) {
+              put(i, base[0]);
+              continue;
+            }
+            const gap = dist2[i] - dist1[i];
+            if (s2 >= 0 && gap < 1.1) {
+              put(i, fissure);
+              continue;
+            }
+            if (s2 >= 0 && gap < 3.2) {
+              // Bevel: this edge faces up/left if the neighbour lies down/right.
+              const toward = -(seedX[s2] - seedX[s1]) - (seedY[s2] - seedY[s1]);
+              put(i, toward > 0 ? darkTones[seedTone[s1]] : litTones[seedTone[s1]]);
+              continue;
+            }
+            put(i, base[seedTone[s1]]);
+          }
+        }
       }
-    });
 
-    const tone = tones[Math.floor(random() * tones.length)];
-    const lit = lighten(tone, 9);
-    const dark = shade(tone, 16);
-
-    g.fillStyle(rim, 1);
-    g.fillPoints(inset(poly, -1, 0, 0), true);
-    g.fillStyle(dark, 1);
-    g.fillPoints(poly, true);
-    g.fillStyle(lit, 1);
-    g.fillPoints(inset(poly, 1, -1, -1), true);
-    g.fillStyle(tone, 1);
-    g.fillPoints(inset(poly, 2, 0, 0), true);
-
-    // A crack on the bigger stones.
-    if (big && random() < 0.6) {
-      let cx = x0 + 5 + Math.floor(random() * (s.w - 10));
-      let cy = y0 + 3 + Math.floor(random() * 4);
-      g.fillStyle(dark, 1);
-      for (let t = 0; t < 4 + Math.floor(random() * 5); t += 1) {
-        g.fillRect(cx, cy, 1, 1);
-        cx += random() < 0.5 ? -1 : 1;
-        cy += 1;
-        if (cy > y1 - 4) break;
+      // Pebbles on the walking surface: on a top cell, a couple of pixels
+      // above the first rock pixel of a random column, now and then.
+      for (let r = r0; r < r1; r += 1) {
+        for (let c = c0; c < c1; c += 1) {
+          if (!isTop(c, r) || random() > 0.3) {
+            continue;
+          }
+          const x = c * TILE + 2 + Math.floor(random() * (TILE - 5)) - px;
+          for (let y = r * TILE - REACH - py; y < r * TILE + TILE - py; y += 1) {
+            if (y >= 0 && y < h && x >= 0 && x + 1 < w && mask[y * w + x]) {
+              if (y - 2 >= 0) {
+                put((y - 2) * w + x, pebbleLit);
+                put((y - 2) * w + x + 1, pebbleLit);
+                put((y - 1) * w + x, fissure);
+                put((y - 1) * w + x + 1, fissure);
+              }
+              break;
+            }
+          }
+        }
       }
-    }
 
-    // A pebble or two on the walking course, now and then.
-    if (s.top && random() < 0.3) {
-      const px = x0 + 2 + Math.floor(random() * Math.max(1, s.w - 5));
-      const py = Math.min(corners4[0][1], corners4[1][1]) - 2;
-      g.fillStyle(palette.rockLight, 1);
-      g.fillRect(px, py, 2, 1);
-      g.fillStyle(dark, 1);
-      g.fillRect(px, py + 1, 2, 1);
+      // Dust in the inner corners: an open cell with ground below and ground
+      // to one side gets a small wedge on the floor against the wall.
+      for (let r = r0; r < r1; r += 1) {
+        for (let c = c0; c < c1; c += 1) {
+          if (isGround(c, r) || !isGround(c, r + 1) || random() > 0.5) {
+            continue;
+          }
+          const sides: Array<1 | -1> = [];
+          if (isGround(c - 1, r) && isGround(c - 1, r + 1)) sides.push(-1);
+          if (isGround(c + 1, r) && isGround(c + 1, r + 1)) sides.push(1);
+          for (const side of sides) {
+            const cornerX = (side < 0 ? c * TILE : (c + 1) * TILE) - px;
+            for (let row = 0; row < 6; row += 1) {
+              const y = (r + 1) * TILE - REACH + row - py;
+              if (y < 0 || y >= h) continue;
+              const wideness = [1, 2, 3, 5, 6, 7][row];
+              for (let k = 0; k < wideness; k += 1) {
+                const x = side < 0 ? cornerX + k : cornerX - 1 - k;
+                if (x < 0 || x >= w) continue;
+                const i = y * w + x;
+                if (!mask[i]) {
+                  put(i, dust);
+                }
+              }
+            }
+          }
+        }
+      }
+
+      ctx.putImageData(image, 0, 0);
+      canvas.refresh();
+      pieces.push({ key, x: px, y: py });
     }
   }
 
-  // Dust in the inner corners: a little wedge of pale grey where a floor
-  // meets a wall, on the floor, against the wall.
-  g.fillStyle(palette.grass, 1);
-  for (const corner of corners) {
-    if (random() > 0.55) {
-      continue;
-    }
-    // `side` 1: the wall is to the right of the corner, -1: to the left.
-    const d = corner.side;
-    g.fillRect(corner.x - (d > 0 ? 5 : 0), corner.y - 1, 5, 1);
-    g.fillRect(corner.x - (d > 0 ? 3 : 0), corner.y - 2, 3, 1);
-    g.fillRect(corner.x - (d > 0 ? 1 : 0), corner.y - 3, 1, 1);
-  }
-}
-
-function inset(poly: Phaser.Math.Vector2[], by: number, dx: number, dy: number): Phaser.Math.Vector2[] {
-  const cx = poly.reduce((sum, p) => sum + p.x, 0) / poly.length;
-  const cy = poly.reduce((sum, p) => sum + p.y, 0) / poly.length;
-  return poly.map((p) => {
-    const vx = p.x - cx;
-    const vy = p.y - cy;
-    const len = Math.hypot(vx, vy) || 1;
-    return new Phaser.Math.Vector2(cx + vx - (vx / len) * by + dx, cy + vy - (vy / len) * by + dy);
-  });
+  return pieces;
 }
 
 function shade(colour: number, amount: number): number {
