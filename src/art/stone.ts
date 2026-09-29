@@ -178,10 +178,13 @@ export function bakeRockMass(
   // A pixel in a cell that is solid but not ground -- a boulder, void, a
   // building -- is not drawn, but for the outline it is more rock: no rim
   // between the ground and what sits in it.
+  // For the rim only: a boulder counts as solid here, so there is no rim
+  // between the rock and a boulder sitting in it -- the rock runs on into
+  // the boulder -- even though the reach treats the boulder cell as open.
   const solidPixel = (x: number, y: number): boolean => {
     const c = Math.floor(x / TILE);
     const r = Math.floor(y / TILE);
-    return c >= 0 && r >= 0 && c < columns && r < rows && isSolid(c, r) && !isBoulder(c, r);
+    return c >= 0 && r >= 0 && c < columns && r < rows && isSolid(c, r);
   };
   // Is this air pixel within REACH of a ground cell, straight across or up
   // or down? Diagonally past a corner counts too, near enough.

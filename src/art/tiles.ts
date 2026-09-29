@@ -86,16 +86,22 @@ export function bakeBoulder(
   bakeTexture(scene, key, width, height, (g) => {
     // Silhouette, then the lit top and left, then the body, then the dark
     // underside -- each inset from the last so the edges become bands.
+    // A boulder resting on rock continues into it: no dark underside, no
+    // outline along the bottom, the stone's own colour running down to the
+    // base. The ground's rim, drawn in front, finishes the join.
+    const under = restsOn ? 0 : 3;
     g.fillStyle(dark, 1);
     g.fillRoundedRect(body.x, body.y, body.w, body.h, corners(radius));
     g.fillStyle(palette.rockLight, 1);
-    g.fillRoundedRect(body.x + 1, body.y + 1, body.w - 2, body.h - 3, corners(radius));
+    g.fillRoundedRect(body.x + 1, body.y + 1, body.w - 2, body.h - (restsOn ? 1 : 3), corners(radius));
     g.fillStyle(palette.rock, 1);
-    g.fillRoundedRect(body.x + 3, body.y + 3, body.w - 5, body.h - 6, corners(Math.max(2, radius - 2)));
+    g.fillRoundedRect(body.x + 3, body.y + 3, body.w - 5, body.h - 3 - under, corners(Math.max(2, radius - 2)));
     g.fillStyle(mid, 1);
     g.fillEllipse(body.x + body.w * 0.62, body.y + body.h * 0.7, body.w * 0.5, body.h * 0.45);
-    g.fillStyle(dark, 1);
-    g.fillRoundedRect(body.x + 2, body.y + body.h - 3, body.w - 4, 3, 2);
+    if (!restsOn) {
+      g.fillStyle(dark, 1);
+      g.fillRoundedRect(body.x + 2, body.y + body.h - 3, body.w - 4, 3, 2);
+    }
 
     // A few bumps along the top, unevenly sized and spaced, so the top line
     // is not a ruler and not a row of scallops either.
