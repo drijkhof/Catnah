@@ -40,6 +40,12 @@ sprites, which go on colliding). The canopy is one seamless strip in a
 tiling sprite. When a thing looks like a grid, that is the drawing's fault,
 not the level's.
 
+`bakeStoneWall` is the same idea for a whole material: one seamless
+`STONE_WALL_SIZE` wall, and `GameScene.stoneTile` cuts each ground cell's
+16px window out of it by world position (a canvas texture per window and
+kind, cached), so the blocks are bigger than a cell and continue across
+cells. A `groundStyle` of `stone` on the palette turns it on.
+
 `bakeBranch` returns the wood's thickness under each cell so the leaves can
 hang from the real underside; the flat top is the collision surface and is
 never tapered.

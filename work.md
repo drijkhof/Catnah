@@ -285,6 +285,13 @@ grass always stands above the water. Collision is still the square tile:
 only the picture bends. Stone shelves in the cave are one rounded slab per
 run of cells, lichen on top.
 
+What the ground is made of depends on the place too. Outdoors it is earth
+with stones in it. In the cave it is **fitted stone**: one big seamless wall
+of blocks, twelve to forty pixels each in uneven courses with thin mortar,
+from which every ground cell shows the window at its own position -- so
+the blocks run across cells, the same way a boulder runs across its cells --
+with a course of flat, paler cap stones along the top under the dust.
+
 What lies on a surface depends on the place. Where there is sun it is grass;
 in the cave, where there is none, it is **dust and pebbles**: a pale worn
 band along every ledge with pebbles lying in it, pebbles instead of moss

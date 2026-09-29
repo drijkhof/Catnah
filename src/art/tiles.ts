@@ -223,6 +223,15 @@ function drawEarth(
   }
 }
 
+/**
+ * Fitted stone: a wall of angular blocks with dark mortar between them.
+ *
+ * The blocks are the cells of a jittered grid on a torus -- the layout wraps
+ * at every edge and is the same for every variant -- so tiles butt together
+ * without a seam and the blocks read as running across the wall. Variants
+ * differ in tone and cracks only. Each block is lit from the top-left. The
+ * top tile has a course of flat, paler cap stones under its dust.
+ */
 /** Turf: a ragged top, a lit crown, and a dark seam where it meets the soil. */
 function drawGrassTop(
   g: Phaser.GameObjects.Graphics,
@@ -443,10 +452,14 @@ export type PlatformStyle = 'branch' | 'shelf' | 'girder';
  */
 export type SurfaceStyle = 'grass' | 'dust';
 
+/** What the ground is made of: earth with stones in it, or fitted stone. */
+export type GroundStyle = 'earth' | 'stone';
+
 export interface TilePalette {
   columnStyle: ColumnStyle;
   platformStyle: PlatformStyle;
   surfaceStyle: SurfaceStyle;
+  groundStyle: GroundStyle;
   /** What the ground fades to, a tile in from any surface. Near black. */
   shade: number;
   grass: number;
@@ -1727,3 +1740,104 @@ export function bakeLog(
   });
 }
 
+/** The seamless stone wall a cave's ground is cut from, px square. */
+export const STONE_WALL_SIZE = 128;
+
+/**
+ * A wall of fitted stone, seamless, that every ground cell of a stone place
+ * shows its own window of -- see `GameScene.stoneTile`. Big blocks, twelve
+ * to forty pixels, in irregular courses, so the mortar is a line between
+ * stones rather than the thing you see. Lit from the top-left.
+ */
+export function bakeStoneWall(scene: Phaser.Scene, key: string, palette: TilePalette): void {
+  const size = STONE_WALL_SIZE;
+  const random = createRandom(9013);
+  const mortar = shade(palette.rockDark, 12);
+  const tones = [palette.rock, shade(palette.rock, 10), lighten(palette.rock, 6), shade(palette.rock, 5), lighten(palette.rock, 2)];
+
+  bakeTexture(scene, key, size, size, (g) => {
+    g.fillStyle(mortar, 1);
+    g.fillRect(0, 0, size, size);
+
+    // Courses of uneven height round the vertical torus, each split into
+    // stones of uneven width round the horizontal one, staggered.
+    let y = 0;
+    const courses: Array<{ y: number; h: number }> = [];
+    while (y < size) {
+      const h = Math.min(12 + Math.floor(random() * 12), size - y);
+      courses.push({ y, h: h < 8 ? size - y : h });
+      y += h;
+    }
+
+    for (const course of courses) {
+      let x = Math.floor(random() * 20);
+      const start = x;
+      while (x < start + size) {
+        const w = Math.min(12 + Math.floor(random() * 28), start + size - x);
+        const width = w < 8 ? start + size - x : w;
+        const tone = tones[Math.floor(random() * tones.length)];
+        const lit = lighten(tone, 12);
+        const dark = shade(tone, 16);
+        const jx = Math.floor(random() * 2);
+        const jy = Math.floor(random() * 2);
+
+        for (const ox of [0, -size, size]) {
+          for (const oy of [0, -size, size]) {
+            const sx = x + ox + jx;
+            const sy = course.y + oy + jy;
+            const sw = width - 2 - jx;
+            const sh = course.h - 2 - jy;
+            if (sw < 3 || sh < 3) {
+              continue;
+            }
+            g.fillStyle(dark, 1);
+            g.fillRect(sx, sy, sw, sh);
+            g.fillStyle(tone, 1);
+            g.fillRect(sx, sy, sw - 1, sh - 1);
+            g.fillStyle(lit, 1);
+            g.fillRect(sx, sy, sw - 1, 1);
+            g.fillRect(sx, sy, 1, sh - 1);
+            // A chip off a corner, and a fleck.
+            if (random() < 0.5) {
+              g.fillStyle(mortar, 1);
+              g.fillRect(sx + sw - 2, sy + sh - 2, 2, 2);
+            }
+            if (random() < 0.6) {
+              g.fillStyle(random() < 0.5 ? lit : dark, 1);
+              g.fillRect(sx + 2 + Math.floor(random() * Math.max(1, sw - 4)), sy + 2 + Math.floor(random() * Math.max(1, sh - 4)), 1 + Math.floor(random() * 2), 1);
+            }
+          }
+        }
+        x += width;
+      }
+    }
+  });
+}
+
+/**
+ * What goes over a stone ground cell's window when it is the top of the
+ * ground: a course of flat, paler cap stones, and the dust on them.
+ * Transparent elsewhere.
+ */
+export function bakeStoneCap(scene: Phaser.Scene, key: string, palette: TilePalette): void {
+  const random = createRandom(9017);
+  const mortar = shade(palette.rockDark, 12);
+  const capTone = lighten(palette.rock, 16);
+
+  bakeTexture(scene, key, TILE, TILE, (g) => {
+    g.fillStyle(mortar, 1);
+    g.fillRect(0, 0, TILE, 8);
+    let x = 0;
+    while (x < TILE) {
+      const width = Math.min(5 + Math.floor(random() * 5), TILE - x);
+      g.fillStyle(shade(capTone, 16), 1);
+      g.fillRect(x, 1, width, 7);
+      g.fillStyle(capTone, 1);
+      g.fillRect(x, 1, Math.max(1, width - 1), 6);
+      g.fillStyle(palette.rockLight, 1);
+      g.fillRect(x, 1, Math.max(1, width - 1), 1);
+      x += width + 1;
+    }
+    drawDustTop(g, palette, createRandom(9019));
+  });
+}

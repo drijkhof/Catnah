@@ -17,6 +17,7 @@ export const THEMES: Record<ThemeName, TilePalette> = {
   // trees look like.
   jungle: {
     surfaceStyle: 'grass',
+    groundStyle: 'earth',
     shade: 0x181d13,
     columnStyle: 'trunk',
     platformStyle: 'branch',
@@ -59,6 +60,7 @@ export const THEMES: Record<ThemeName, TilePalette> = {
 
   forest: {
     surfaceStyle: 'grass',
+    groundStyle: 'earth',
     shade: 0x1d2015,
     columnStyle: 'trunk',
     platformStyle: 'branch',
@@ -100,6 +102,7 @@ export const THEMES: Record<ThemeName, TilePalette> = {
   // the water is the murkiest thing on screen rather than the clearest.
   swamp: {
     surfaceStyle: 'grass',
+    groundStyle: 'earth',
     shade: 0x171a12,
     columnStyle: 'trunk',
     platformStyle: 'branch',
@@ -142,6 +145,7 @@ export const THEMES: Record<ThemeName, TilePalette> = {
   // bedded rock shelves, wet stone.
   cave: {
     surfaceStyle: 'dust',
+    groundStyle: 'stone',
     shade: 0x121217,
     columnStyle: 'rope',
     platformStyle: 'shelf',
@@ -183,6 +187,7 @@ export const THEMES: Record<ThemeName, TilePalette> = {
   // Night city: brick, concrete, steel girders, drainpipes and lamplight.
   city: {
     surfaceStyle: 'grass',
+    groundStyle: 'earth',
     shade: 0x15161d,
     columnStyle: 'pipe',
     platformStyle: 'girder',
@@ -224,6 +229,7 @@ export const THEMES: Record<ThemeName, TilePalette> = {
   // climb, and the only greens left are the glow of the stuff below.
   volcano: {
     surfaceStyle: 'grass',
+    groundStyle: 'earth',
     shade: 0x1a0d0d,
     columnStyle: 'chain',
     platformStyle: 'shelf',

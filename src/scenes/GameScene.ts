@@ -13,7 +13,7 @@ import { Spider } from '../objects/Spider';
 import { addGroundShade, bakeScenery, createBackdrop } from '../world';
 import { parseLevel, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
-import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, LOG_BULGE, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
+import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, LOG_BULGE, SHELF_BULGE, STONE_WALL_SIZE, TILE_VARIANTS, TRUNK_BULGE, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeStoneCap, bakeStoneWall, bakeTexture, bakeTrunk, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { installGodMode, isGodMode } from '../dev/godMode';
@@ -845,12 +845,19 @@ export class GameScene extends Phaser.Scene {
         tile.setVisible(false);
       }
 
-      // Ground with air on two adjacent sides is cut round at that corner.
+      // Ground in a stone place shows its own window of one big wall of
+      // fitted stone, so the blocks run across cells. Then, either way,
+      // ground with air on two adjacent sides is cut round at that corner.
       if (this.isGround(solid)) {
+        const base = THEMES[this.level.theme].groundStyle === 'stone'
+          ? this.stoneTile(solid)
+          : this.tile(solid.textureKey);
         const corners = this.cornersOf(solid);
         if (corners.tl || corners.tr || corners.bl || corners.br) {
-          tile.setTexture(roundedTileKey(this, this.tile(solid.textureKey), corners, THEMES[this.level.theme]));
+          tile.setTexture(roundedTileKey(this, base, corners, THEMES[this.level.theme]));
           this.floodCorners(solid, corners);
+        } else if (base !== this.tile(solid.textureKey)) {
+          tile.setTexture(base);
         }
       }
 
@@ -1011,6 +1018,43 @@ export class GameScene extends Phaser.Scene {
       // stretching it. Static, so the scenery bake flattens it like the rest.
       this.add.tileSprite(cell.x, cell.y, length * TILE, TILE, key).setOrigin(0, 0);
     }
+  }
+
+  /**
+   * The 16px window of the stone wall that a ground cell shows: the wall is
+   * `STONE_WALL_SIZE` square and seamless, and a cell at world (x, y) shows
+   * the window at (x, y) modulo that, so neighbouring cells continue the
+   * same blocks. A top cell has the cap course and dust laid over it. One
+   * canvas texture per window and kind, cached.
+   */
+  private stoneTile(solid: Solid): string {
+    const theme = this.level.theme;
+    const palette = THEMES[theme];
+    const wall = `${theme}:stone-wall`;
+    const cap = `${theme}:stone-cap`;
+    const top = solid.textureKey.startsWith('ground-top');
+    const wx = ((solid.x % STONE_WALL_SIZE) + STONE_WALL_SIZE) % STONE_WALL_SIZE;
+    const wy = ((solid.y % STONE_WALL_SIZE) + STONE_WALL_SIZE) % STONE_WALL_SIZE;
+    const key = `${theme}:stone:${wx},${wy}:${top ? 'top' : 'fill'}`;
+
+    if (this.textures.exists(key)) {
+      return key;
+    }
+
+    if (!this.textures.exists(wall)) {
+      bakeStoneWall(this, wall, palette);
+      bakeStoneCap(this, cap, palette);
+    }
+
+    const canvas = this.textures.createCanvas(key, TILE, TILE) as Phaser.Textures.CanvasTexture;
+    const ctx = canvas.context;
+    ctx.drawImage(this.textures.get(wall).getSourceImage() as CanvasImageSource, -wx, -wy);
+    if (top) {
+      ctx.drawImage(this.textures.get(cap).getSourceImage() as CanvasImageSource, 0, 0);
+    }
+    canvas.refresh();
+
+    return key;
   }
 
   /** Earth: a `#` cell, whatever palette it wears. */
