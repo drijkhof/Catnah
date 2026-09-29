@@ -155,6 +155,19 @@ export function bakeRockMass(
     }
     return false;
   };
+  // Is this air pixel within REACH of a ground cell, straight across or up
+  // or down? Diagonally past a corner counts too, near enough.
+  const nearGround = (x: number, y: number): boolean => {
+    const c = Math.floor(x / TILE);
+    const r = Math.floor(y / TILE);
+    return (
+      isGround(Math.floor((x - REACH) / TILE), r) ||
+      isGround(Math.floor((x + REACH) / TILE), r) ||
+      isGround(c, Math.floor((y - REACH) / TILE)) ||
+      isGround(c, Math.floor((y + REACH) / TILE))
+    );
+  };
+
   const rockAt = (x: number, y: number): boolean => {
     const c = Math.floor(x / TILE);
     const r = Math.floor(y / TILE);
@@ -166,7 +179,7 @@ export function bakeRockMass(
     if (!nearOpen(x, y)) {
       return ground;
     }
-    if (!ground && !isGround(Math.floor((x - REACH) / TILE), r) && !isGround(Math.floor((x + REACH) / TILE), r) && !isGround(c, Math.floor((y - REACH) / TILE)) && !isGround(c, Math.floor((y + REACH) / TILE))) {
+    if (!ground && !nearGround(x, y)) {
       return false;
     }
     nearest(x, y);
@@ -243,7 +256,6 @@ export function bakeRockMass(
           for (let x = c * TILE - px; x < c * TILE + TILE - px; x += 1) {
             if (x < 0 || y < 0 || x >= w || y >= h) continue;
             const i = y * w + x;
-            nearest(px + x, py + y);
             let rock: boolean;
             if (interior) {
               rock = true;
@@ -252,15 +264,23 @@ export function bakeRockMass(
               const solid = isSolid(c, r);
               if (!ground && solid) {
                 rock = false;
+              } else if (!ground && !nearGround(px + x, py + y)) {
+                // Air further than REACH from any ground: never rock. This is
+                // the cap on how far the rock may bulge out of its cell.
+                rock = false;
               } else if (!nearOpen(px + x, py + y)) {
                 rock = ground;
               } else {
+                nearest(px + x, py + y);
                 rock = n1 >= 0 && nd1 <= seedReach[n1];
               }
             }
+            if (rock) {
+              nearest(px + x, py + y);
+            }
             mask[i] = rock ? 1 : 0;
-            near1[i] = n1;
-            near2[i] = n2;
+            near1[i] = rock ? n1 : -1;
+            near2[i] = rock ? n2 : -1;
             dist1[i] = nd1;
             dist2[i] = nd2;
           }
