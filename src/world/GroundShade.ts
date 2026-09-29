@@ -57,6 +57,9 @@ export function addGroundShade(
   const reach = Math.ceil(GROUND_SHADE.full / TILE) + 1;
   const cache = new Map<string, string>();
 
+  const deepest = shadeFor(Number.POSITIVE_INFINITY);
+  const deepPattern = new Array(cellsPerSide * cellsPerSide).fill(deepest) as number[];
+
   for (const solid of solids) {
     if (!isMass(solid, buried.has(cellOf(solid)))) {
       continue;
@@ -64,31 +67,40 @@ export function addGroundShade(
 
     const column = solid.x / TILE;
     const row = solid.y / TILE;
-    const alphas: number[] = [];
-    let any = false;
 
-    for (let cy = 0; cy < cellsPerSide; cy += 1) {
+    // The air tiles within reach, found once per tile rather than once per
+    // cell of it. A tile with none is as dark as it gets all over, which is
+    // most of a cave: it skips the distance field entirely.
+    const air: Array<[number, number]> = [];
+
+    for (let dr = -reach; dr <= reach; dr += 1) {
+      for (let dc = -reach; dc <= reach; dc += 1) {
+        if (isAir(column + dc, row + dr)) {
+          air.push([dc * TILE, dr * TILE]);
+        }
+      }
+    }
+
+    const alphas: number[] = air.length === 0 ? deepPattern : [];
+    let any = air.length === 0;
+
+    for (let cy = 0; air.length > 0 && cy < cellsPerSide; cy += 1) {
       for (let cx = 0; cx < cellsPerSide; cx += 1) {
         const px = cx * CELL + CELL / 2;
         const py = cy * CELL + CELL / 2;
         let nearest = Number.POSITIVE_INFINITY;
 
-        for (let dr = -reach; dr <= reach; dr += 1) {
-          for (let dc = -reach; dc <= reach; dc += 1) {
-            if (!isAir(column + dc, row + dr)) {
-              continue;
-            }
-
-            // Distance from this cell's centre to that air tile's rectangle.
-            const left = dc * TILE;
-            const top = dr * TILE;
-            const ox = Math.max(left - px, 0, px - (left + TILE));
-            const oy = Math.max(top - py, 0, py - (top + TILE));
-            nearest = Math.min(nearest, Math.hypot(ox, oy));
+        for (const [left, top] of air) {
+          // Distance from this cell's centre to that air tile's rectangle.
+          const ox = Math.max(left - px, 0, px - (left + TILE));
+          const oy = Math.max(top - py, 0, py - (top + TILE));
+          const d = ox * ox + oy * oy;
+          if (d < nearest) {
+            nearest = d;
           }
         }
 
-        const alpha = shadeFor(nearest);
+        const alpha = shadeFor(Math.sqrt(nearest));
         alphas.push(alpha);
         any ||= alpha > 0;
       }

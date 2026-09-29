@@ -963,3 +963,20 @@ grass running on underneath); one with earth on every side is a stone in
 the ground (bare, darkening with the earth). Whole clusters, not cells -- the
 middle of a boulder has rock on every side too. A glyph would have been
 explicit but would have meant editing every level that already has both.
+
+## The cave lagged on a phone
+
+Not residual: the cave itself. Measured on the laptop, a cave frame took
+14ms against the forest's 0.9ms, because the cave had 27,000 game objects
+-- 12,400 fill tiles, 10,000 shade overlays, fringes, boulders -- every one
+submitted to the renderer every frame, with 195 textures breaking the
+batches. The overhaul roughly doubled a count that was already too high.
+
+- **Fixed by baking**, not by drawing less: all static scenery is drawn once
+  into 512px chunk textures when the level is built (`world/BakeScenery.ts`).
+  Cave: 14ms -> 0.16ms a frame, 27,000 objects -> 326; the build dropped from
+  over five seconds (a quadratic cleanup, since fixed) to half a second.
+- **The level order is temporarily CAVE first** (`levels/index.ts`), for the
+  phone test. To be restored to forest, canopy, swamp, cave, volcano, city.
+- **Found on the way:** Phaser 4's `RenderTexture.draw` only queues; the
+  first bake drew nothing and the cat stood on invisible ground.

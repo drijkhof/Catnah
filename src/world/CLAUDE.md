@@ -9,6 +9,17 @@ One backdrop per place, chosen by `createBackdrop`:
   between them, a canopy over the top, bushes.
 - `GroundShade` — not a backdrop but used by every level: the darkness inside
   the ground, as a distance field from every exposed face. See the file.
+- `BakeScenery` — run last, once a level is built: flattens every static
+  picture (tiles, shade, grass, boulders, trees, fillets, beds, thorns...)
+  into 512px chunk textures and throws the originals away. The cave had
+  27,000 pictures and drew them all every frame; it has 16 chunks now. Read
+  the file before adding scenery: anything static at depth 0 or behind, at
+  scroll factor 1, with no tween and no animation, gets baked; anything
+  else stays live. **Phaser 4 buffers `draw()` -- `render()` must follow, and
+  before the originals are destroyed.**
+
+**Colliding tiles are physics Images, not Sprites**, so once baked they sit
+off the display list with only their bodies, costing nothing per frame.
 - `CaveBackdrop` — stalactites at two depths, crystals, a pool of floor light.
 - `CityBackdrop` — night sky, moon, two ranks of buildings with lit windows.
 

@@ -10,7 +10,7 @@ import { Crow } from '../objects/Crow';
 import { GroundEnemy } from '../objects/GroundEnemy';
 import { Piranha } from '../objects/Piranha';
 import { Spider } from '../objects/Spider';
-import { addGroundShade, createBackdrop } from '../world';
+import { addGroundShade, bakeScenery, createBackdrop } from '../world';
 import { parseLevel, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
 import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, LOG_BULGE, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTrunk, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
@@ -243,6 +243,10 @@ export class GameScene extends Phaser.Scene {
 
     this.buildCreatures(blocks, branches);
     this.buildExit();
+
+    // Last, once everything static exists: flatten it into a few big
+    // textures. See `world/BakeScenery.ts` for what counts as static.
+    bakeScenery(this, this.level.widthInPixels, this.level.heightInPixels);
 
     this.controls = new Controls(this);
     this.buildHud();
@@ -815,8 +819,11 @@ export class GameScene extends Phaser.Scene {
     blocks: Phaser.Physics.Arcade.StaticGroup;
     branches: Phaser.Physics.Arcade.StaticGroup;
   } {
-    const blocks = this.physics.add.staticGroup();
-    const branches = this.physics.add.staticGroup();
+    // Physics Images, not Sprites: a tile never animates, and an Image is
+    // not on the scene's update list, so once its picture is baked into the
+    // scenery (`world/BakeScenery.ts`) it costs nothing per frame.
+    const blocks = this.physics.add.staticGroup({ classType: Phaser.Physics.Arcade.Image });
+    const branches = this.physics.add.staticGroup({ classType: Phaser.Physics.Arcade.Image });
 
     for (const solid of this.level.solids) {
       const group = solid.isBranch ? branches : blocks;
