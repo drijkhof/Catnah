@@ -194,3 +194,60 @@ function generateCity(scene: Phaser.Scene): void {
     });
   }
 }
+
+/** The tile of the cave's back wall. Seamless; repeated behind the tunnels. */
+export const CAVE_WALL_SIZE = 192;
+
+/**
+ * The inside of a cave: the rock wall behind the tunnels. Drawn seamless --
+ * every lump also drawn a full size to either side and above and below --
+ * and a little lighter than the void the tunnels are cut from, so a tunnel
+ * reads as carved in front of a wall rather than as a hole in nothing.
+ * Rounded lumps of stone in three close tones, cracks between them, and a
+ * few pale flecks.
+ */
+export function generateCaveWall(scene: Phaser.Scene): void {
+  const size = CAVE_WALL_SIZE;
+  const random = createRandom(3137);
+  const base = 0x24222c;
+  const lumps = [0x2a2733, 0x201e28, 0x2e2b38];
+  const crack = 0x18161f;
+  const fleck = 0x3d3948;
+
+  bakeTexture(scene, 'cave-wall', size, size, (g) => {
+    g.fillStyle(base, 1);
+    g.fillRect(0, 0, size, size);
+
+    const wrap = (draw: (dx: number, dy: number) => void): void => {
+      for (const dx of [-size, 0, size]) {
+        for (const dy of [-size, 0, size]) {
+          draw(dx, dy);
+        }
+      }
+    };
+
+    for (let i = 0; i < 70; i += 1) {
+      const x = random() * size;
+      const y = random() * size;
+      const w = 10 + random() * 24;
+      const h = 7 + random() * 14;
+      const tone = lumps[Math.floor(random() * lumps.length)];
+      wrap((dx, dy) => {
+        g.fillStyle(crack, 1);
+        g.fillEllipse(x + dx, y + dy, w + 3, h + 3);
+        g.fillStyle(tone, 1);
+        g.fillEllipse(x + dx, y + dy, w, h);
+      });
+    }
+
+    for (let i = 0; i < 40; i += 1) {
+      const x = Math.floor(random() * size);
+      const y = Math.floor(random() * size);
+      wrap((dx, dy) => {
+        g.fillStyle(fleck, 1);
+        g.fillRect(x + dx, y + dy, 1 + Math.floor(random() * 2), 1);
+      });
+    }
+  });
+}
+

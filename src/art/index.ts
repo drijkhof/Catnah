@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { generateCaveWall } from './backdrops';
 import { createCatAnimations, generateCatTextures } from './cat';
 import { generateBackdropTextures } from './backdrops';
 import { generateCreatureTextures } from './creatures';
@@ -11,7 +12,7 @@ export { bakeTexture, createRandom } from './canvas';
 export { CORNER_RADIUS, FILLET_RADIUS, bakeFillet, roundedTileKey, type Corners } from './corners';
 export { BUSH_SIZE, CANOPY_SIZE, CHECKPOINT_SIZE, FOG_HEIGHT, SUN_SIZE, TREE_SIZES, TUFT_SIZE } from './forest';
 export { BUTTON_SIZE } from './ui';
-export { BUILDING_SIZE, CONE_SIZE, DEAD_TREE_SIZE, MOON_SIZE, STALACTITE_SIZE, STALAGMITE_SIZE } from './backdrops';
+export { BUILDING_SIZE, CAVE_WALL_SIZE, CONE_SIZE, DEAD_TREE_SIZE, MOON_SIZE, STALACTITE_SIZE, STALAGMITE_SIZE } from './backdrops';
 export {
   BRANCH_LEAF_DROP,
   BRANCH_THICKNESS,
@@ -54,6 +55,7 @@ export function generatePlaceholderArt(scene: Phaser.Scene): void {
   generateForestTextures(scene);
   generateCreatureTextures(scene);
   generateBackdropTextures(scene);
+  generateCaveWall(scene);
 
   // All three tilesets are baked up front. They are a few dozen small textures
   // in total, and it means changing level never waits on drawing.

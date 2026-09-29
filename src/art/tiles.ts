@@ -148,6 +148,18 @@ export function bakeBoulder(
       return;
     }
 
+    if (palette.surfaceStyle === 'dust') {
+      // Dust and pebbles on the crown instead of moss.
+      for (let x = body.x + radius - 2; x < body.x + body.w - radius + 2; x += 1) {
+        const roll = random();
+        if (roll < 0.5) {
+          g.fillStyle(roll < 0.2 ? palette.rockLight : palette.grass, 1);
+          g.fillRect(x, top - 1 + Math.floor(random() * 2), 1, 1 + Math.floor(random() * 2));
+        }
+      }
+      return;
+    }
+
     // Moss on the crown: a band of green along the top that follows the
     // bumps, ragged, standing up a little, with a few drips down the face.
     for (let x = body.x + radius - 2; x < body.x + body.w - radius + 2; x += 1) {
@@ -213,6 +225,11 @@ function drawGrassTop(
   palette: TilePalette,
   random: () => number,
 ): void {
+  if (palette.surfaceStyle === 'dust') {
+    drawDustTop(g, palette, random);
+    return;
+  }
+
   const light = lighten(palette.grass, 16);
   const seam = shade(palette.grassDark, 30);
 
@@ -242,12 +259,59 @@ function drawGrassTop(
   }
 }
 
+/**
+ * Dust: a thin pale band where the rock has been worn, with pebbles lying in
+ * it, and a dark seam below. No sun, so nothing grows.
+ */
+function drawDustTop(
+  g: Phaser.GameObjects.Graphics,
+  palette: TilePalette,
+  random: () => number,
+): void {
+  g.fillStyle(shade(palette.grassDark, 30), 1);
+  g.fillRect(0, 3, TILE, 1);
+  g.fillStyle(palette.grassDark, 1);
+  g.fillRect(0, 1, TILE, 2);
+  g.fillStyle(palette.grass, 1);
+  g.fillRect(0, 0, TILE, 1);
+
+  for (let x = 0; x < TILE; x += 1) {
+    const roll = random();
+    if (roll < 0.18) {
+      // A pebble: a lit top over a dark base.
+      g.fillStyle(palette.rockLight, 1);
+      g.fillRect(x, 0, 2, 1);
+      g.fillStyle(palette.rockDark, 1);
+      g.fillRect(x, 1, 2, 1);
+      x += 1;
+    } else if (roll < 0.3) {
+      g.fillStyle(palette.grassDark, 1);
+      g.fillRect(x, 0, 1, 1);
+    }
+  }
+}
+
 /** The blades above a grass tile. Its bottom row joins the tile's top. */
 function drawGrassFringe(
   g: Phaser.GameObjects.Graphics,
   palette: TilePalette,
   random: () => number,
 ): void {
+  if (palette.surfaceStyle === 'dust') {
+    // A few pebbles lying on the surface, barely standing above it.
+    const bottom = GRASS_FRINGE_HEIGHT;
+    for (let x = 0; x < TILE - 1; x += 1) {
+      if (random() < 0.12) {
+        g.fillStyle(palette.rockLight, 1);
+        g.fillRect(x, bottom - 2, 2, 1);
+        g.fillStyle(palette.rockDark, 1);
+        g.fillRect(x, bottom - 1, 2, 1);
+        x += 2;
+      }
+    }
+    return;
+  }
+
   const light = lighten(palette.grass, 16);
   const bottom = GRASS_FRINGE_HEIGHT;
 
@@ -322,6 +386,18 @@ function drawMossCap(
   palette: TilePalette,
   random: () => number,
 ): void {
+  if (palette.surfaceStyle === 'dust') {
+    g.fillStyle(palette.grass, 1);
+    g.fillRect(0, 0, TILE, 1);
+    for (let x = 0; x < TILE - 1; x += 3) {
+      if (random() < 0.4) {
+        g.fillStyle(palette.rockLight, 1);
+        g.fillRect(x, 0, 2, 1);
+      }
+    }
+    return;
+  }
+
   g.fillStyle(palette.grassDark, 1);
   g.fillRect(0, 0, TILE, 2);
   g.fillStyle(palette.grass, 1);
@@ -356,9 +432,17 @@ export type ColumnStyle = 'trunk' | 'rope' | 'pipe' | 'chain';
 /** What a one-way platform is made of. */
 export type PlatformStyle = 'branch' | 'shelf' | 'girder';
 
+/**
+ * What grows -- or lies -- on a surface. Grass where there is sun; dust and
+ * pebbles where there is none. `grass` and `grassDark` are the surface's
+ * colours either way: green outdoors, pale grey in a cave.
+ */
+export type SurfaceStyle = 'grass' | 'dust';
+
 export interface TilePalette {
   columnStyle: ColumnStyle;
   platformStyle: PlatformStyle;
+  surfaceStyle: SurfaceStyle;
   /** What the ground fades to, a tile in from any surface. Near black. */
   shade: number;
   grass: number;

@@ -17,11 +17,28 @@ export class CaveBackdrop {
       .setScrollFactor(0)
       .setDepth(-100);
 
+    // The inside of the cave: a rock wall close behind the tunnels, one
+    // seamless texture repeated over the whole level. Nearly locked to the
+    // world, so it reads as the far side of the passage the cat is in, not
+    // as a distant view. The stalactites hang on it, nearly as close.
+    const wallFactor = 0.9;
+    scene.add
+      .tileSprite(
+        0,
+        0,
+        levelWidth * wallFactor + GAME_WIDTH,
+        levelHeight * wallFactor + GAME_HEIGHT,
+        'cave-wall',
+      )
+      .setOrigin(0, 0)
+      .setScrollFactor(wallFactor)
+      .setDepth(-90);
+
     const random = createRandom(4711);
 
     for (const [spacing, factor, depth, scale] of [
-      [110, 0.3, -80, 0.8],
-      [150, 0.6, -70, 1.2],
+      [110, 0.8, -80, 0.8],
+      [150, 0.88, -70, 1.2],
     ] as const) {
       for (let x = -spacing; x < levelWidth + spacing; x += spacing) {
         const key = random() < 0.5 ? 'stalactite-a' : 'stalactite-b';

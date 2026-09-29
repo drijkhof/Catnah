@@ -285,6 +285,14 @@ grass always stands above the water. Collision is still the square tile:
 only the picture bends. Stone shelves in the cave are one rounded slab per
 run of cells, lichen on top.
 
+What lies on a surface depends on the place. Where there is sun it is grass;
+in the cave, where there is none, it is **dust and pebbles**: a pale worn
+band along every ledge with pebbles lying in it, pebbles instead of moss
+on the rocks and shelves, and nothing green anywhere. The cave's backdrop
+is the inside of a cave: a wall of cobbled stone close behind the tunnels,
+with the stalactites and crystals hanging on it, so a passage reads as
+carved in front of rock rather than as a hole in nothing.
+
 Trees are drawn the same way. A column of trunk cells is **one trunk**,
 wider at the foot than the top, flaring into roots, bark all the way up with
 a knot or two. A run of branch cells is **one branch** growing out of its
