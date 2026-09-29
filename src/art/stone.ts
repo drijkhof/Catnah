@@ -13,8 +13,12 @@ export interface RockPiece {
 /** The side of one piece, px. A power of two, like the scenery chunks. */
 const PIECE = 512;
 
-/** How far past a ground cell rock may reach into open air, px. */
-const REACH = 4;
+/**
+ * How far past a ground cell rock may reach into open air, px. Two: enough
+ * for the outline to be the fragments' and not the grid's, not so much that
+ * the cat stands in the rock or a tunnel narrows visibly.
+ */
+const REACH = 2;
 
 /**
  * Bakes a cave's ground as fractured rock.
