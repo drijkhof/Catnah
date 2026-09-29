@@ -295,7 +295,10 @@ the air the mass has no edge of its own: fragment by fragment it bulges out
 or falls short, and a dark rim runs round the whole silhouette. The course
 the cat walks on is simply the top of the rock, with pebbles on it in many
 greys, from a speck to a lump; where a floor meets a wall there is dust
-heaped in the corner and specks of it trailing out along the floor; where a
+heaped in the corner, a rounded speckled heap, and specks of it trailing
+out along the floor; a boulder standing on the rock gets the same at each
+of its feet, with plenty of pebbles beyond -- the way grass runs under a
+rock in the forest; where a
 ceiling meets a wall there is, often, a cobweb -- a few threads from the
 corner and strands sagging between them, one pale grey, drawn once and
 never moving. Where

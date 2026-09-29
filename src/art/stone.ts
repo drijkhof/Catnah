@@ -407,6 +407,49 @@ export function bakeRockMass(
         }
       }
 
+      // A heap of dust on a floor, against something standing on it: a
+      // quarter-round of radius `size`, speckled in greys, thinning toward
+      // its edge, with pebbles scattered along the floor beyond it.
+      const heap = (cornerX: number, floorY: number, side: 1 | -1, size: number, pebbles: number): void => {
+        for (let row = 0; row < size; row += 1) {
+          const y = floorY - 1 - row;
+          // Round: the width at this height is a quarter circle's.
+          const wide = Math.round(Math.sqrt(size * size - row * row) * (1 + random() * 0.3));
+          for (let k = 0; k < wide; k += 1) {
+            // Thinner toward the outside, so the edge is loose.
+            if (random() < 0.15 + (k / Math.max(1, wide)) * 0.3) continue;
+            putIf(side < 0 ? cornerX + k : cornerX - 1 - k, y, grey(), false);
+          }
+        }
+        for (let k = 0; k < pebbles; k += 1) {
+          const d = size + Math.floor(random() * 14);
+          const x = side < 0 ? cornerX + d : cornerX - 1 - d;
+          const tall = random() < 0.4 ? 2 : 1;
+          const tone = grey();
+          putIf(x, floorY - 1, tone, false);
+          if (random() < 0.5) putIf(x + 1, floorY - 1, tone, false);
+          if (tall === 2) putIf(x, floorY - 2, tone, false);
+        }
+      };
+
+      // The feet of boulders: where something solid that is not ground
+      // stands on the ground, with air beside it, a heap against each of
+      // its sides and plenty of pebbles beyond -- the way grass runs under
+      // a rock in the forest.
+      for (let r = r0; r < r1; r += 1) {
+        for (let c = c0; c < c1; c += 1) {
+          if (isGround(c, r) || isSolid(c, r) || !isGround(c, r + 1)) {
+            continue;
+          }
+          for (const side of [-1, 1] as const) {
+            const standing = isSolid(c + side, r) && !isGround(c + side, r) && isGround(c + side, r + 1);
+            if (!standing) continue;
+            const cornerX = (side < 0 ? c * TILE : (c + 1) * TILE) - px;
+            heap(cornerX, (r + 1) * TILE - py, side, 4 + Math.floor(random() * 2), 10);
+          }
+        }
+      }
+
       // Inner corners: dust where a floor meets a wall, a web where a ceiling
       // does. An open cell with ground on one side and ground below is a
       // floor corner; with ground above, a ceiling corner.
@@ -420,22 +463,7 @@ export function bakeRockMass(
             const cornerX = (side < 0 ? c * TILE : (c + 1) * TILE) - px;
 
             if (isGround(c, r + 1) && isGround(c + side, r + 1) && random() < 0.8) {
-              // Dust: a speckled wedge on the floor against the wall, and a
-              // few specks further out along the floor.
-              const floorY = (r + 1) * TILE - py;
-              const tall = 3 + Math.floor(random() * 4);
-              for (let row = 0; row < tall; row += 1) {
-                const y = floorY - 1 - row;
-                const wide = Math.round(((tall - row) / tall) * (5 + random() * 5));
-                for (let k = 0; k < wide; k += 1) {
-                  if (random() < 0.25) continue;
-                  putIf(side < 0 ? cornerX + k : cornerX - 1 - k, y, grey(), false);
-                }
-              }
-              for (let k = 0; k < 6; k += 1) {
-                const d = 6 + Math.floor(random() * 12);
-                putIf(side < 0 ? cornerX + d : cornerX - 1 - d, floorY - 1 - Math.floor(random() * 2), grey(), false);
-              }
+              heap(cornerX, (r + 1) * TILE - py, side, 4 + Math.floor(random() * 3), 6);
             }
 
             if (isGround(c, r - 1) && isGround(c + side, r - 1) && random() < 0.45) {
