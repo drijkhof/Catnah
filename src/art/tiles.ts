@@ -1743,6 +1743,9 @@ export function bakeLog(
 /** The seamless stone wall a cave's ground is cut from, px square. */
 export const STONE_WALL_SIZE = 128;
 
+/** How far a stone cell's picture may bulge past or bite into its cell, px. */
+export const STONE_EDGE = 3;
+
 /**
  * A wall of fitted stone, seamless, that every ground cell of a stone place
  * shows its own window of -- see `GameScene.stoneTile`. Big blocks, twelve
@@ -1760,7 +1763,10 @@ export function bakeStoneWall(scene: Phaser.Scene, key: string, palette: TilePal
     g.fillRect(0, 0, size, size);
 
     // Courses of uneven height round the vertical torus, each split into
-    // stones of uneven width round the horizontal one, staggered.
+    // stones of uneven width round the horizontal one, staggered. That is
+    // only where a stone *starts*: its shape is a polygon, every corner
+    // nudged on its own and some corners cut off, so no edge is straight
+    // and no course stays level.
     let y = 0;
     const courses: Array<{ y: number; h: number }> = [];
     while (y < size) {
@@ -1768,6 +1774,17 @@ export function bakeStoneWall(scene: Phaser.Scene, key: string, palette: TilePal
       courses.push({ y, h: h < 8 ? size - y : h });
       y += h;
     }
+
+    const shrink = (poly: Array<{ x: number; y: number }>, by: number, dx: number, dy: number): Phaser.Math.Vector2[] => {
+      const cx = poly.reduce((sum, q) => sum + q.x, 0) / poly.length;
+      const cy = poly.reduce((sum, q) => sum + q.y, 0) / poly.length;
+      return poly.map((q) => {
+        const vx = q.x - cx;
+        const vy = q.y - cy;
+        const len = Math.hypot(vx, vy) || 1;
+        return new Phaser.Math.Vector2(cx + vx - (vx / len) * by + dx, cy + vy - (vy / len) * by + dy);
+      });
+    };
 
     for (const course of courses) {
       let x = Math.floor(random() * 20);
@@ -1778,66 +1795,58 @@ export function bakeStoneWall(scene: Phaser.Scene, key: string, palette: TilePal
         const tone = tones[Math.floor(random() * tones.length)];
         const lit = lighten(tone, 12);
         const dark = shade(tone, 16);
-        const jx = Math.floor(random() * 2);
-        const jy = Math.floor(random() * 2);
+
+        // The stone: its rectangle's corners, each pushed a few pixels in or
+        // out, and one or two of them cut, which adds a vertex.
+        const nudge = (): number => Math.round((random() - 0.5) * 4);
+        const x0 = x + 1;
+        const y0 = course.y + 1;
+        const x1 = x + width - 1;
+        const y1 = course.y + course.h - 1;
+        const corners: Array<[number, number]> = [
+          [x0 + nudge(), y0 + nudge()],
+          [x1 + nudge(), y0 + nudge()],
+          [x1 + nudge(), y1 + nudge()],
+          [x0 + nudge(), y1 + nudge()],
+        ];
+        const poly: Array<{ x: number; y: number }> = [];
+        corners.forEach(([cx, cy], i) => {
+          if (random() < 0.45) {
+            // Cut: two points either side of where the corner was.
+            const [nx, ny] = corners[(i + 1) % 4];
+            const [px, py] = corners[(i + 3) % 4];
+            const toNext = Math.hypot(nx - cx, ny - cy) || 1;
+            const toPrev = Math.hypot(px - cx, py - cy) || 1;
+            // Never more than a third of the shorter side, or the two cut
+            // points cross their neighbours' and the shape ties itself in a
+            // bow.
+            const cut = Math.min(2 + random() * 4, Math.min(toNext, toPrev) / 3);
+            poly.push({ x: cx + ((px - cx) / toPrev) * cut, y: cy + ((py - cy) / toPrev) * cut });
+            poly.push({ x: cx + ((nx - cx) / toNext) * cut, y: cy + ((ny - cy) / toNext) * cut });
+          } else {
+            poly.push({ x: cx, y: cy });
+          }
+        });
 
         for (const ox of [0, -size, size]) {
           for (const oy of [0, -size, size]) {
-            const sx = x + ox + jx;
-            const sy = course.y + oy + jy;
-            const sw = width - 2 - jx;
-            const sh = course.h - 2 - jy;
-            if (sw < 3 || sh < 3) {
-              continue;
-            }
             g.fillStyle(dark, 1);
-            g.fillRect(sx, sy, sw, sh);
-            g.fillStyle(tone, 1);
-            g.fillRect(sx, sy, sw - 1, sh - 1);
+            g.fillPoints(shrink(poly, 0, ox, oy), true);
             g.fillStyle(lit, 1);
-            g.fillRect(sx, sy, sw - 1, 1);
-            g.fillRect(sx, sy, 1, sh - 1);
-            // A chip off a corner, and a fleck.
-            if (random() < 0.5) {
-              g.fillStyle(mortar, 1);
-              g.fillRect(sx + sw - 2, sy + sh - 2, 2, 2);
-            }
-            if (random() < 0.6) {
+            g.fillPoints(shrink(poly, 1, ox - 1, oy - 1), true);
+            g.fillStyle(tone, 1);
+            g.fillPoints(shrink(poly, 2, ox, oy), true);
+            // A fleck or two on the face.
+            if (random() < 0.7) {
+              const cx = poly.reduce((sum, q) => sum + q.x, 0) / poly.length + ox;
+              const cy = poly.reduce((sum, q) => sum + q.y, 0) / poly.length + oy;
               g.fillStyle(random() < 0.5 ? lit : dark, 1);
-              g.fillRect(sx + 2 + Math.floor(random() * Math.max(1, sw - 4)), sy + 2 + Math.floor(random() * Math.max(1, sh - 4)), 1 + Math.floor(random() * 2), 1);
+              g.fillRect(Math.round(cx + (random() - 0.5) * width * 0.4), Math.round(cy + (random() - 0.5) * course.h * 0.4), 1 + Math.floor(random() * 2), 1);
             }
           }
         }
         x += width;
       }
     }
-  });
-}
-
-/**
- * What goes over a stone ground cell's window when it is the top of the
- * ground: a course of flat, paler cap stones, and the dust on them.
- * Transparent elsewhere.
- */
-export function bakeStoneCap(scene: Phaser.Scene, key: string, palette: TilePalette): void {
-  const random = createRandom(9017);
-  const mortar = shade(palette.rockDark, 12);
-  const capTone = lighten(palette.rock, 16);
-
-  bakeTexture(scene, key, TILE, TILE, (g) => {
-    g.fillStyle(mortar, 1);
-    g.fillRect(0, 0, TILE, 8);
-    let x = 0;
-    while (x < TILE) {
-      const width = Math.min(5 + Math.floor(random() * 5), TILE - x);
-      g.fillStyle(shade(capTone, 16), 1);
-      g.fillRect(x, 1, width, 7);
-      g.fillStyle(capTone, 1);
-      g.fillRect(x, 1, Math.max(1, width - 1), 6);
-      g.fillStyle(palette.rockLight, 1);
-      g.fillRect(x, 1, Math.max(1, width - 1), 1);
-      x += width + 1;
-    }
-    drawDustTop(g, palette, createRandom(9019));
   });
 }

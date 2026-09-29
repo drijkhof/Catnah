@@ -44,7 +44,14 @@ not the level's.
 `STONE_WALL_SIZE` wall, and `GameScene.stoneTile` cuts each ground cell's
 16px window out of it by world position (a canvas texture per window and
 kind, cached), so the blocks are bigger than a cell and continue across
-cells. A `groundStyle` of `stone` on the palette turns it on.
+cells. A `groundStyle` of `stone` on the palette turns it on. `stoneTile`
+also draws the cell's edge: `STONE_EDGE` bigger than the cell each way, a
+profile per exposed face (periodic in the wall's size, so it agrees across
+cells and the wrap) that bulges into the air or bites into the cell, a
+chamfer at convex corners, a rim where the mass meets air, and the dust and
+cap course following the top profile. A covered face constrains nothing --
+the first version treated its margin as air and drew a rim at every cell
+boundary in the mass.
 
 `bakeBranch` returns the wood's thickness under each cell so the leaves can
 hang from the real underside; the flat top is the collision surface and is

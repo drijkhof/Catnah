@@ -290,7 +290,11 @@ with stones in it. In the cave it is **fitted stone**: one big seamless wall
 of blocks, twelve to forty pixels each in uneven courses with thin mortar,
 from which every ground cell shows the window at its own position -- so
 the blocks run across cells, the same way a boulder runs across its cells --
-with a course of flat, paler cap stones along the top under the dust.
+with a course of flat, paler cap stones along the top under the dust. Where
+the stone meets air its edge is not the cell's edge: it wobbles, bulging
+out and biting in by up to three pixels, continuous from cell to cell, the
+convex corners chamfered, a thin dark rim all along it -- so the mass has a
+silhouette the way the trees do, rather than a ruled one.
 
 What lies on a surface depends on the place. Where there is sun it is grass;
 in the cave, where there is none, it is **dust and pebbles**: a pale worn

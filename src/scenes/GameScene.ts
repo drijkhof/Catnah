@@ -13,7 +13,7 @@ import { Spider } from '../objects/Spider';
 import { addGroundShade, bakeScenery, createBackdrop } from '../world';
 import { parseLevel, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
-import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, LOG_BULGE, SHELF_BULGE, STONE_WALL_SIZE, TILE_VARIANTS, TRUNK_BULGE, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeStoneCap, bakeStoneWall, bakeTexture, bakeTrunk, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
+import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, LOG_BULGE, SHELF_BULGE, STONE_EDGE, STONE_WALL_SIZE, TILE_VARIANTS, TRUNK_BULGE, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeStoneWall, bakeTexture, bakeTrunk, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { installGodMode, isGodMode } from '../dev/godMode';
@@ -845,19 +845,22 @@ export class GameScene extends Phaser.Scene {
         tile.setVisible(false);
       }
 
-      // Ground in a stone place shows its own window of one big wall of
-      // fitted stone, so the blocks run across cells. Then, either way,
-      // ground with air on two adjacent sides is cut round at that corner.
+      // Ground in a stone place is cut from one big wall of fitted stone,
+      // with a wobbling edge wherever it meets air: the cell collides here
+      // but its picture is `stoneTile`'s, a little bigger than the cell.
+      // Earth is a tile, and ground with air on two adjacent sides is cut
+      // round at that corner.
       if (this.isGround(solid)) {
-        const base = THEMES[this.level.theme].groundStyle === 'stone'
-          ? this.stoneTile(solid)
-          : this.tile(solid.textureKey);
         const corners = this.cornersOf(solid);
-        if (corners.tl || corners.tr || corners.bl || corners.br) {
-          tile.setTexture(roundedTileKey(this, base, corners, THEMES[this.level.theme]));
+        if (THEMES[this.level.theme].groundStyle === 'stone') {
+          tile.setVisible(false);
+          this.add
+            .image(solid.x - STONE_EDGE, solid.y - STONE_EDGE, this.stoneTile(solid))
+            .setOrigin(0, 0);
           this.floodCorners(solid, corners);
-        } else if (base !== this.tile(solid.textureKey)) {
-          tile.setTexture(base);
+        } else if (corners.tl || corners.tr || corners.bl || corners.br) {
+          tile.setTexture(roundedTileKey(this, this.tile(solid.textureKey), corners, THEMES[this.level.theme]));
+          this.floodCorners(solid, corners);
         }
       }
 
@@ -1021,21 +1024,30 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
-   * The 16px window of the stone wall that a ground cell shows: the wall is
-   * `STONE_WALL_SIZE` square and seamless, and a cell at world (x, y) shows
-   * the window at (x, y) modulo that, so neighbouring cells continue the
-   * same blocks. A top cell has the cap course and dust laid over it. One
-   * canvas texture per window and kind, cached.
+   * The picture of one stone ground cell: its window of the big wall, with
+   * a wobbling edge wherever the cell meets air.
+   *
+   * The wall is `STONE_WALL_SIZE` square and seamless, and a cell at world
+   * (x, y) shows the window at (x, y) modulo that, so neighbouring cells
+   * continue the same blocks. The picture is `STONE_EDGE` bigger than the
+   * cell on every side: on an exposed face the edge follows a profile that
+   * bulges into the air and bites into the cell by up to that much, drawn
+   * from the world position so it runs on from one cell to the next; on a
+   * covered face the margin is empty. A convex corner is chamfered. Along
+   * the top the surface carries dust and a course of paler cap stones,
+   * following the same profile. A thin dark rim runs round every exposed
+   * edge. One canvas texture per window, faces and kind, cached.
    */
   private stoneTile(solid: Solid): string {
     const theme = this.level.theme;
     const palette = THEMES[theme];
     const wall = `${theme}:stone-wall`;
-    const cap = `${theme}:stone-cap`;
     const top = solid.textureKey.startsWith('ground-top');
-    const wx = ((solid.x % STONE_WALL_SIZE) + STONE_WALL_SIZE) % STONE_WALL_SIZE;
-    const wy = ((solid.y % STONE_WALL_SIZE) + STONE_WALL_SIZE) % STONE_WALL_SIZE;
-    const key = `${theme}:stone:${wx},${wy}:${top ? 'top' : 'fill'}`;
+    const W = STONE_WALL_SIZE;
+    const wx = ((solid.x % W) + W) % W;
+    const wy = ((solid.y % W) + W) % W;
+    const { up, down, left, right } = solid.faces;
+    const key = `${theme}:stone:${wx},${wy}:${up ? 1 : 0}${down ? 1 : 0}${left ? 1 : 0}${right ? 1 : 0}:${top ? 'top' : 'fill'}`;
 
     if (this.textures.exists(key)) {
       return key;
@@ -1043,15 +1055,116 @@ export class GameScene extends Phaser.Scene {
 
     if (!this.textures.exists(wall)) {
       bakeStoneWall(this, wall, palette);
-      bakeStoneCap(this, cap, palette);
     }
 
-    const canvas = this.textures.createCanvas(key, TILE, TILE) as Phaser.Textures.CanvasTexture;
+    const B = STONE_EDGE;
+    const size = TILE + B * 2;
+    const source = this.textures.get(wall).getSourceImage() as HTMLCanvasElement;
+    const wallPixels = source.getContext('2d')?.getImageData(0, 0, W, W).data as Uint8ClampedArray;
+    const canvas = this.textures.createCanvas(key, size, size) as Phaser.Textures.CanvasTexture;
     const ctx = canvas.context;
-    ctx.drawImage(this.textures.get(wall).getSourceImage() as CanvasImageSource, -wx, -wy);
-    if (top) {
-      ctx.drawImage(this.textures.get(cap).getSourceImage() as CanvasImageSource, 0, 0);
+    const image = ctx.createImageData(size, size);
+    const rgb = (colour: number): { r: number; g: number; b: number } => Phaser.Display.Color.IntegerToRGB(colour);
+    const dust = rgb(palette.grass);
+    const dustDark = rgb(palette.grassDark);
+    const capTone = rgb(Phaser.Display.Color.ValueToColor(palette.rock).lighten(16).color);
+    const capLit = rgb(palette.rockLight);
+    const mortar = rgb(Phaser.Display.Color.ValueToColor(palette.rockDark).darken(12).color);
+    const rim = rgb(Phaser.Display.Color.ValueToColor(palette.rockDark).darken(30).color);
+
+    // The edge profile: how far, at a point along a face, the stone bulges
+    // out of (+) or into (-) the cell. Periodic in the wall's size so it
+    // agrees across the wrap, and different per face so top and bottom do
+    // not mirror each other.
+    const profile = (t: number, seed: number): number => {
+      const k = (Math.PI * 2) / W;
+      return Math.round(
+        1.4 * Math.sin(t * k * 3 + seed) + 1.0 * Math.sin(t * k * 7 + seed * 1.7) + 0.5 * Math.sin(t * k * 13 + seed * 0.4),
+      );
+    };
+
+    const inside = new Uint8Array(size * size);
+    // For finding the rim: like `inside`, but a covered face's margin counts
+    // as solid, because the neighbouring cell is there. Otherwise every cell
+    // boundary inside the mass got a rim of its own.
+    const mass = new Uint8Array(size * size);
+    const depthBelowTop = new Int8Array(size * size);
+
+    for (let py = 0; py < size; py += 1) {
+      for (let px = 0; px < size; px += 1) {
+        const lx = px - B;
+        const ly = py - B;
+        const X = wx + lx;
+        const Y = wy + ly;
+        // Distances in from each exposed face, after that face's profile.
+        // A covered face constrains nothing: the mass continues through it.
+        const fromTop = up ? ly + profile(X, 1.3) : Number.POSITIVE_INFINITY;
+        const fromBottom = down ? TILE - 1 - ly + profile(X, 2.9) : Number.POSITIVE_INFINITY;
+        const fromLeft = left ? lx + profile(Y, 4.1) : Number.POSITIVE_INFINITY;
+        const fromRight = right ? TILE - 1 - lx + profile(Y, 5.7) : Number.POSITIVE_INFINITY;
+        let ok = fromTop >= 0 && fromBottom >= 0 && fromLeft >= 0 && fromRight >= 0;
+        // Chamfered convex corners.
+        const chamfer = 4;
+        if (ok && up && left && fromTop + fromLeft < chamfer) ok = false;
+        if (ok && up && right && fromTop + fromRight < chamfer) ok = false;
+        if (ok && down && left && fromBottom + fromLeft < chamfer) ok = false;
+        if (ok && down && right && fromBottom + fromRight < chamfer) ok = false;
+        mass[py * size + px] = ok ? 1 : 0;
+        // Never drawn past the margin on a covered face: the neighbour is there.
+        if (!up && ly < 0) ok = false;
+        if (!down && ly >= TILE) ok = false;
+        if (!left && lx < 0) ok = false;
+        if (!right && lx >= TILE) ok = false;
+        inside[py * size + px] = ok ? 1 : 0;
+        depthBelowTop[py * size + px] = Math.max(-128, Math.min(127, Number.isFinite(fromTop) ? fromTop : 127));
+      }
     }
+
+    for (let py = 0; py < size; py += 1) {
+      for (let px = 0; px < size; px += 1) {
+        const i = py * size + px;
+        if (!inside[i]) {
+          continue;
+        }
+        const o = i * 4;
+        const lx = px - B;
+        const ly = py - B;
+        const X = wx + lx;
+        const Y = wy + ly;
+        // The rim: a pixel with air beside it. Beyond the canvas counts as
+        // solid (the picture continues in the next cell).
+        const edge =
+          (px > 0 && !mass[i - 1]) ||
+          (px < size - 1 && !mass[i + 1]) ||
+          (py > 0 && !mass[i - size]) ||
+          (py < size - 1 && !mass[i + size]);
+        let c: { r: number; g: number; b: number };
+
+        if (edge && (up || down || left || right)) {
+          c = rim;
+        } else if (top && up && depthBelowTop[i] < 3) {
+          // Dust on the surface, with the odd pale pebble.
+          const pebble = ((X * 7919 + Y * 104729) % 17) === 0;
+          c = depthBelowTop[i] === 0 ? (pebble ? capLit : dust) : dustDark;
+        } else if (top && up && depthBelowTop[i] < 8) {
+          // The cap course: flat paler stones, split every so often.
+          const split = ((X + Math.floor(X / 7) * 3) % 8) === 0 || depthBelowTop[i] === 7;
+          c = split ? mortar : depthBelowTop[i] === 3 ? capLit : capTone;
+        } else {
+          const sx = ((X % W) + W) % W;
+          const sy = ((Y % W) + W) % W;
+          const w = (sy * W + sx) * 4;
+          c = { r: wallPixels[w], g: wallPixels[w + 1], b: wallPixels[w + 2] };
+        }
+
+        image.data[o] = c.r;
+        image.data[o + 1] = c.g;
+        image.data[o + 2] = c.b;
+        image.data[o + 3] = 255;
+      }
+    }
+
+    ctx.putImageData(image, 0, 0);
     canvas.refresh();
 
     return key;
@@ -1076,6 +1189,10 @@ export class GameScene extends Phaser.Scene {
    * bed curves up into its bank. Pictures only; nothing collides with them.
    */
   private buildFillets(): void {
+    if (THEMES[this.level.theme].groundStyle === 'stone') {
+      return;
+    }
+
     const ground = new Set(
       this.level.solids.filter((solid) => this.isGround(solid)).map((solid) => `${solid.x / TILE},${solid.y / TILE}`),
     );
@@ -1377,7 +1494,7 @@ export class GameScene extends Phaser.Scene {
   private dressGround(solid: Solid): void {
     const match = /^ground-top(-\d)?$/.exec(solid.textureKey);
 
-    if (!match) {
+    if (!match || THEMES[this.level.theme].groundStyle === 'stone') {
       return;
     }
 
