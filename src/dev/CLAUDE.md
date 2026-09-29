@@ -56,11 +56,10 @@ call sits inside a dead branch does get dropped. Checked after building:
 Mac needs `disableContextMenu()`, or Ctrl-click opens the browser's own menu
 instead.
 
-**This is also how a dev test level is reached.** `src/level/levels/index.ts`
-pushes each one onto `LEVELS` from inside `import.meta.env.DEV`, past the real
-game, so level-skip past City lands on it in a dev build and does nothing
-different in a production one -- see `level/CLAUDE.md`'s "Dev-only test
-levels".
+**This is also how a dev test level would be reached**, if there were one:
+it is pushed onto `LEVELS` from inside `import.meta.env.DEV`, past the real
+game, so level-skip past City lands on it in a dev build -- see
+`level/CLAUDE.md`'s "Dev-only test levels".
 
 ## Restoring is allowed to refuse
 

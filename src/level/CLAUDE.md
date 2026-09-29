@@ -246,8 +246,9 @@ floor beneath).
 
 ## Dev-only test levels
 
-`levels/index.ts` pushes `DEV_TEST_1` (and any later ones) onto `LEVELS` from
-inside `if (import.meta.env.DEV)`, the same dead-branch trick `installLevelSkip`
+There are none at the moment. To add one, push it onto `LEVELS` in
+`levels/index.ts` from inside `if (import.meta.env.DEV)` (past the real game, so
+level-skip past City lands on it), the same dead-branch trick `installLevelSkip`
 and `installGodMode` use to disappear from the build -- confirmed the same way,
 a grep of `dist` for the level's name string comes back empty. `LEVELS.push`
 has to sit inside the branch; the `import` of the data above it does not need

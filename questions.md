@@ -1021,9 +1021,9 @@ and `_` beside it meet without a seam.
   anything not solid became `_`, keeping three cells of textured rock
   round every opening. 10,113 of 13,036 cells.
 
-## Dev test level 1 emptied
+## Dev test level 1 deleted
 
-Asked for: everything removed from the duck level. `DEV_TEST_1` is now flat
-ground with a spawn and an exit, renamed "Dev 1: Empty", so it stays a
-blank slate for the next single-mechanic test. The duck notes above are kept as
-history.
+Asked for: the duck level, after it had been emptied, deleted outright. The
+file and its entry in `LEVELS` are gone; the notes above stay as history. The
+`if (import.meta.env.DEV)` block in `levels/index.ts` went with it, since it
+had nothing left to push, and `level/CLAUDE.md` says how to bring one back.
