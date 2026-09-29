@@ -976,8 +976,8 @@ batches. The overhaul roughly doubled a count that was already too high.
   into 512px chunk textures when the level is built (`world/BakeScenery.ts`).
   Cave: 14ms -> 0.16ms a frame, 27,000 objects -> 326; the build dropped from
   over five seconds (a quadratic cleanup, since fixed) to half a second.
-- **The level order is temporarily CAVE first** (`levels/index.ts`), for the
-  phone test. To be restored to forest, canopy, swamp, cave, volcano, city.
+- **The level order was temporarily CAVE first** for the phone test, and is
+  back to forest, canopy, swamp, cave, volcano, city.
 - **Found on the way:** Phaser 4's `RenderTexture.draw` only queues; the
   first bake drew nothing and the cat stood on invisible ground.
 

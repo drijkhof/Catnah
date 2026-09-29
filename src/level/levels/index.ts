@@ -14,10 +14,7 @@ import { DEV_TEST_1 } from './devTest1';
  * descends into is the volcano -- so it has to be the thing you do immediately
  * before arriving there.
  */
-// TEMPORARY: the cave first, to test whether its lag on a phone is the cave's
-// own or something the earlier levels leave behind. Restore to
-// [FOREST, CANOPY, SWAMP, CAVE, VOLCANO, CITY] afterwards.
-export const LEVELS: LevelDefinition[] = [CAVE, FOREST, CANOPY, SWAMP, VOLCANO, CITY];
+export const LEVELS: LevelDefinition[] = [FOREST, CANOPY, SWAMP, CAVE, VOLCANO, CITY];
 
 // Dev-only test levels, appended past the real game so a player never reaches
 // one by simply finishing City -- except in a dev build, where finishing it
