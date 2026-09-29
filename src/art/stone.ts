@@ -158,11 +158,11 @@ export function bakeRockMass(
   // Is this pixel rock? Inside ground away from any open cell: yes. Within
   // reach of the boundary between ground and open air: if close enough to
   // its nearest seed. Anywhere else: no.
-  // Open, for the outline: air, or a boulder. The rock is drawn in front of
-  // a boulder, so it may reach over the boulder's foot or fall short and
-  // show it, and either way the boulder sits in the ground.
-  const openAt = (c: number, r: number): boolean =>
-    c < 0 || r < 0 || c >= columns || r >= rows ? false : !isSolid(c, r) || isBoulder(c, r);
+  // Open, for the outline: air only. A boulder is solid here too: the rock
+  // must not fall short at a boulder's edge, or the gap shows between the
+  // boulder's base and the ground as a dark line and holes. The join is
+  // flush, and there is no rim on it either (see `solidPixel`).
+  const openAt = (c: number, r: number): boolean => (c < 0 || r < 0 || c >= columns || r >= rows ? false : !isSolid(c, r));
   // Is this ground pixel within BITE of an open cell? Only there may rock
   // fall short of its cell.
   const nearOpen = (x: number, y: number): boolean => {
@@ -203,7 +203,7 @@ export function bakeRockMass(
     const c = Math.floor(x / TILE);
     const r = Math.floor(y / TILE);
     const ground = isGround(c, r);
-    const solid = c >= 0 && r >= 0 && c < columns && r < rows && isSolid(c, r) && !isBoulder(c, r);
+    const solid = c >= 0 && r >= 0 && c < columns && r < rows && isSolid(c, r);
     if (!ground && solid) {
       return false;
     }
@@ -292,7 +292,7 @@ export function bakeRockMass(
               rock = true;
             } else {
               const ground = isGround(c, r);
-              const solid = isSolid(c, r) && !isBoulder(c, r);
+              const solid = isSolid(c, r);
               if (!ground && solid) {
                 rock = false;
               } else if (!ground && !nearGround(px + x, py + y)) {
