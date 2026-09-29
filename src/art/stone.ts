@@ -440,6 +440,30 @@ export function bakeRockMass(
         }
       };
 
+      // Pebbles on the seam under a boulder: a few per cell, lying on the
+      // join line over the boulder's foot (the rock picture is in front).
+      // Pebbles only -- a band of dust here was tried and looked wrong.
+      for (let r = r0; r < r1; r += 1) {
+        for (let c = c0; c < c1; c += 1) {
+          if (!isGround(c, r) || !isBoulder(c, r - 1)) {
+            continue;
+          }
+          const seamY = r * TILE - py;
+          const count = 2 + Math.floor(random() * 3);
+          for (let k = 0; k < count; k += 1) {
+            const x = c * TILE + Math.floor(random() * (TILE - 2)) - px;
+            const pw = random() < 0.6 ? 2 : 1;
+            const tone = grey();
+            for (let dx = 0; dx < pw; dx += 1) {
+              const xx = x + dx;
+              if (xx < 0 || xx >= w) continue;
+              if (seamY - 2 >= 0 && seamY - 2 < h) put((seamY - 2) * w + xx, tone);
+              if (seamY - 1 >= 0 && seamY - 1 < h) put((seamY - 1) * w + xx, fissure);
+            }
+          }
+        }
+      }
+
       // The feet of boulders: where something solid that is not ground
       // stands on the ground, with air beside it, a heap against each of
       // its sides and plenty of pebbles beyond -- the way grass runs under
