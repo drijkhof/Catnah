@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { ThemeName } from '../level/themes';
+import type { ParsedLevel } from '../level/Level';
 import { Backdrop } from './Backdrop';
 import { CaveBackdrop } from './CaveBackdrop';
 import { CityBackdrop } from './CityBackdrop';
@@ -18,13 +19,14 @@ export { bakeScenery } from './BakeScenery';
 export function createBackdrop(
   theme: ThemeName,
   scene: Phaser.Scene,
+  level: ParsedLevel,
   levelWidth: number,
   groundLine: number,
   levelHeight: number,
 ): void {
   switch (theme) {
     case 'cave':
-      new CaveBackdrop(scene, levelWidth, levelHeight);
+      new CaveBackdrop(scene, level, levelWidth, levelHeight);
       break;
     case 'swamp':
       new SwampBackdrop(scene, levelWidth, groundLine);

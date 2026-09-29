@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH } from '../config';
+import { GAME_HEIGHT, GAME_WIDTH, TILE } from '../config';
+import type { ParsedLevel } from '../level/Level';
 import { STALACTITE_SIZE, STALAGMITE_SIZE, createRandom } from '../art';
 
 /**
@@ -10,74 +11,95 @@ import { STALACTITE_SIZE, STALAGMITE_SIZE, createRandom } from '../art';
  * stalactites moving at two different rates rather than from a horizon.
  */
 export class CaveBackdrop {
-  constructor(scene: Phaser.Scene, levelWidth: number, levelHeight: number) {
+  constructor(scene: Phaser.Scene, level: ParsedLevel, levelWidth: number, levelHeight: number) {
     scene.add
       .image(0, 0, 'cave-sky')
       .setOrigin(0, 0)
       .setScrollFactor(0)
       .setDepth(-100);
 
-    // The inside of the cave: a rock wall close behind the tunnels, one
-    // seamless texture repeated over the whole level. Nearly locked to the
-    // world, so it reads as the far side of the passage the cat is in, not
-    // as a distant view. The stalactites hang on it, nearly as close.
-    const wallFactor = 0.9;
+    // The inside of the cave: a rock wall behind the tunnels, one seamless
+    // texture repeated over the whole level. Locked to the world -- there is
+    // no horizon in a cave, the wall is the far side of the passage the cat
+    // is in -- which also makes it static, so the scenery bake flattens it
+    // into the chunks with everything else.
     scene.add
-      .tileSprite(
-        0,
-        0,
-        levelWidth * wallFactor + GAME_WIDTH,
-        levelHeight * wallFactor + GAME_HEIGHT,
-        'cave-wall',
-      )
+      .tileSprite(0, 0, levelWidth, levelHeight, 'cave-wall')
       .setOrigin(0, 0)
-      .setScrollFactor(wallFactor)
       .setDepth(-90);
 
     const random = createRandom(4711);
 
-    for (const [spacing, factor, depth, scale] of [
-      [110, 0.8, -80, 0.8],
-      [150, 0.88, -70, 1.2],
-    ] as const) {
-      for (let x = -spacing; x < levelWidth + spacing; x += spacing) {
-        const key = random() < 0.5 ? 'stalactite-a' : 'stalactite-b';
-        const jitter = (random() - 0.5) * spacing * 0.6;
+    // Where the rock meets the air: a ceiling is a solid cell with an open
+    // one under it, a floor an open cell with a solid one under it. Stone
+    // grows from those, not from anywhere on the wall.
+    const full = new Set<string>();
+    for (const solid of level.solids) {
+      if (!solid.isBranch && solid.width === TILE && solid.height === TILE) {
+        full.add(`${solid.x / TILE},${solid.y / TILE}`);
+      }
+    }
+    for (const cell of level.voids) {
+      full.add(`${cell.x / TILE},${cell.y / TILE}`);
+    }
+    const columns = Math.ceil(levelWidth / TILE);
+    const rows = Math.ceil(levelHeight / TILE);
+    const ceilings: Array<[number, number]> = [];
+    const floors: Array<[number, number]> = [];
 
-        scene.add
-          .image(x + jitter, 40 + (random() - 0.5) * 40, key)
-          .setOrigin(0.5, 0)
-          .setDisplaySize(
-            STALACTITE_SIZE.width * scale,
-            STALACTITE_SIZE.height * scale * (0.7 + random() * 0.7),
-          )
-          .setScrollFactor(factor)
-          .setDepth(depth);
+    for (let row = 0; row < rows - 1; row += 1) {
+      for (let column = 0; column < columns; column += 1) {
+        const here = full.has(`${column},${row}`);
+        const below = full.has(`${column},${row + 1}`);
+        if (here && !below) {
+          ceilings.push([column * TILE + TILE / 2, (row + 1) * TILE]);
+        } else if (!here && below) {
+          floors.push([column * TILE + TILE / 2, (row + 1) * TILE]);
+        }
       }
     }
 
-    // The cave is solid rock with tunnels cut through it, so there is no single
-    // floor to stand things on. Stalagmites and crystals are scattered through
-    // the whole depth instead, and show wherever a chamber has been carved out.
-    for (let x = 0; x < levelWidth; x += 70) {
-      const y = 40 + random() * (levelHeight - 60);
+    // Stalactites hang from ceilings, roughly one in five spots, never two
+    // side by side. Two sizes, the bigger drawn in front.
+    let lastX = -Infinity;
+    for (const [x, y] of ceilings) {
+      if (x - lastX < TILE * 2 || random() > 0.22) {
+        continue;
+      }
+      lastX = x;
+      const big = random() < 0.4;
+      const scale = big ? 1.1 : 0.7;
+      scene.add
+        .image(x + (random() - 0.5) * 6, y - 2, random() < 0.5 ? 'stalactite-a' : 'stalactite-b')
+        .setOrigin(0.5, 0)
+        .setDisplaySize(
+          STALACTITE_SIZE.width * scale,
+          STALACTITE_SIZE.height * scale * (0.7 + random() * 0.7),
+        )
+        .setDepth(big ? -70 : -80);
+    }
 
-      if (random() < 0.4) {
+    // Stalagmites and crystals stand on floors, behind whatever stands there
+    // for real.
+    lastX = -Infinity;
+    for (const [x, y] of floors) {
+      if (x - lastX < TILE * 3) {
+        continue;
+      }
+      const roll = random();
+      if (roll < 0.14) {
+        lastX = x;
         const scale = 0.6 + random() * 0.7;
-
         scene.add
-          .image(x + (random() - 0.5) * 50, y, random() < 0.5 ? 'stalagmite-a' : 'stalagmite-b')
+          .image(x + (random() - 0.5) * 6, y + 2, random() < 0.5 ? 'stalagmite-a' : 'stalagmite-b')
           .setOrigin(0.5, 1)
           .setDisplaySize(STALAGMITE_SIZE.width * scale, STALAGMITE_SIZE.height * scale)
-          .setScrollFactor(0.85)
           .setDepth(-12);
-      }
-
-      if (random() < 0.55) {
+      } else if (roll < 0.3) {
+        lastX = x;
         scene.add
-          .image(x + (random() - 0.5) * 60, y + 20, 'crystal')
+          .image(x + (random() - 0.5) * 6, y + 1, 'crystal')
           .setOrigin(0.5, 1)
-          .setScrollFactor(0.85)
           .setDepth(-11)
           .setBlendMode(Phaser.BlendModes.ADD);
       }

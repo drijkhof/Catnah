@@ -20,9 +20,12 @@ One backdrop per place, chosen by `createBackdrop`:
 
 **Colliding tiles are physics Images, not Sprites**, so once baked they sit
 off the display list with only their bodies, costing nothing per frame.
-- `CaveBackdrop` — a cobbled rock wall close behind the tunnels (a seamless
-  `cave-wall` tile sprite at scroll factor 0.9), stalactites nearly as near,
-  crystals, a pool of floor light.
+- `CaveBackdrop` — the inside of a cave. A cobbled rock wall behind the
+  tunnels (a seamless `cave-wall` tile sprite) locked to the world at scroll
+  factor 1: there is no horizon in a cave, the wall is the far side of the
+  passage. Stalactites hang from real ceilings and stalagmites and crystals
+  stand on real floors, read off the level's own cells. All static, so the
+  scenery bake flattens the lot.
 - `CityBackdrop` — night sky, moon, two ranks of buildings with lit windows.
 
 The backdrop is where a level's character lives, because the tiles themselves

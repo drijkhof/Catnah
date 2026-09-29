@@ -193,10 +193,14 @@ function drawEarth(
 
   g.fillStyle(palette.dirt, 1);
   g.fillRect(0, 0, TILE, TILE);
-  g.fillStyle(deep, 1);
-  g.fillRect(0, surface ? 11 : 9, TILE, TILE);
 
+  // Only the surface tile is banded -- a lit lip under the grass, darker
+  // earth below it. A fill tile is plain earth with stones in it: a band on
+  // every fill tile lined up into stripes wherever a wall was several tiles
+  // thick and lit, which in a cave is everywhere.
   if (surface) {
+    g.fillStyle(deep, 1);
+    g.fillRect(0, 11, TILE, TILE);
     g.fillStyle(lip, 1);
     g.fillRect(0, 6, TILE, 2);
   }

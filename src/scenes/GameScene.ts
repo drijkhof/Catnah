@@ -175,6 +175,7 @@ export class GameScene extends Phaser.Scene {
     createBackdrop(
       this.level.theme,
       this,
+      this.level,
       this.level.widthInPixels,
       this.level.groundLine,
       this.level.heightInPixels,
