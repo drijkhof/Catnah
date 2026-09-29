@@ -293,8 +293,12 @@ the seeds dictate, never along the grid, with a one-pixel fissure where two
 meet. Each fragment has its own tone and is bevelled toward the light. At
 the air the mass has no edge of its own: fragment by fragment it bulges out
 or falls short, and a dark rim runs round the whole silhouette. The course
-the cat walks on is simply the top of the rock, with a pebble on it now and
-then; where a floor meets a wall there is a little dust in the corner. Where
+the cat walks on is simply the top of the rock, with pebbles on it in many
+greys, from a speck to a lump; where a floor meets a wall there is dust
+heaped in the corner and specks of it trailing out along the floor; where a
+ceiling meets a wall there is, often, a cobweb -- a few threads from the
+corner and strands sagging between them, one pale grey, drawn once and
+never moving. Where
 water touches the rock it is drawn back the few pixels the rock may bulge.
 Drawn pixel by pixel into a few big pictures per level, baked with the rest.
 

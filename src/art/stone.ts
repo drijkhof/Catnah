@@ -14,11 +14,11 @@ export interface RockPiece {
 const PIECE = 512;
 
 /**
- * How far past a ground cell rock may reach into open air, px. Two: enough
- * for the outline to be the fragments' and not the grid's, not so much that
+ * How far past a ground cell rock may reach into open air, px. Enough for
+ * the outline to be the fragments' and not the grid's, not so much that
  * the cat stands in the rock or a tunnel narrows visibly.
  */
-const REACH = 2;
+const REACH = 4;
 
 /**
  * Bakes a cave's ground as fractured rock.
@@ -138,8 +138,17 @@ export function bakeRockMass(
   const darkTones = base.map(([r, g, b]) => rgb(shade(Phaser.Display.Color.GetColor(r, g, b), 18)));
   const fissure = rgb(shade(palette.rockDark, 30));
   const rim = rgb(shade(palette.rockDark, 36));
-  const pebbleLit = rgb(palette.rockLight);
-  const dust = rgb(palette.grass);
+  // Greys for what lies about: pebbles, dust, and the threads of a web.
+  const greys: Array<[number, number, number]> = [
+    rgb(palette.rockLight),
+    rgb(lighten(palette.rock, 14)),
+    rgb(palette.rock),
+    rgb(palette.grass),
+    rgb(palette.grassDark),
+    rgb(lighten(palette.rockLight, 8)),
+  ];
+  const grey = (): [number, number, number] => greys[Math.floor(random() * greys.length)];
+  const web = rgb(lighten(palette.rockLight, 12));
 
   // Is this pixel rock? Inside ground away from any open cell: yes. Within
   // reach of the boundary between ground and open air: if close enough to
@@ -334,51 +343,104 @@ export function bakeRockMass(
         }
       }
 
-      // Pebbles on the walking surface: on a top cell, a couple of pixels
-      // above the first rock pixel of a random column, now and then.
+      // What lies on the rock, drawn straight into the picture.
+      const putIf = (x: number, y: number, c: [number, number, number], onRock: boolean): void => {
+        if (x < 0 || y < 0 || x >= w || y >= h) return;
+        const i = y * w + x;
+        if (!!mask[i] === onRock) put(i, c);
+      };
+      // The first rock pixel down a column, from the top of a cell's reach.
+      const surfaceAt = (x: number, r: number): number => {
+        for (let y = r * TILE - REACH - py; y < r * TILE + TILE - py; y += 1) {
+          if (y >= 0 && y < h && x >= 0 && x < w && mask[y * w + x]) return y;
+        }
+        return -1;
+      };
+      const line = (x0: number, y0: number, x1: number, y1: number, c: [number, number, number], every = 1): void => {
+        const steps = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+        for (let t = 0; t <= steps; t += 1) {
+          if (t % every !== 0) continue;
+          putIf(Math.round(x0 + ((x1 - x0) * t) / steps), Math.round(y0 + ((y1 - y0) * t) / steps), c, false);
+        }
+      };
+
+      // Pebbles on the walking surface: one to three per top cell, most
+      // cells, in whatever grey, from a speck to a lump.
       for (let r = r0; r < r1; r += 1) {
         for (let c = c0; c < c1; c += 1) {
-          if (!isTop(c, r) || random() > 0.3) {
+          if (!isTop(c, r) || random() > 0.7) {
             continue;
           }
-          const x = c * TILE + 2 + Math.floor(random() * (TILE - 5)) - px;
-          for (let y = r * TILE - REACH - py; y < r * TILE + TILE - py; y += 1) {
-            if (y >= 0 && y < h && x >= 0 && x + 1 < w && mask[y * w + x]) {
-              if (y - 2 >= 0) {
-                put((y - 2) * w + x, pebbleLit);
-                put((y - 2) * w + x + 1, pebbleLit);
-                put((y - 1) * w + x, fissure);
-                put((y - 1) * w + x + 1, fissure);
+          const count = 1 + Math.floor(random() * 3);
+          for (let k = 0; k < count; k += 1) {
+            const x = c * TILE + Math.floor(random() * (TILE - 3)) - px;
+            const top = surfaceAt(x, r);
+            if (top < 0) continue;
+            const size = random();
+            const pw = size < 0.5 ? 1 : size < 0.85 ? 2 : 3;
+            const ph = pw === 3 ? 2 : 1;
+            const tone = grey();
+            for (let dy = 0; dy < ph; dy += 1) {
+              for (let dx = 0; dx < pw; dx += 1) {
+                putIf(x + dx, top - ph + dy, dy === ph - 1 && ph > 1 ? fissure : tone, false);
               }
-              break;
             }
           }
         }
       }
 
-      // Dust in the inner corners: an open cell with ground below and ground
-      // to one side gets a small wedge on the floor against the wall.
+      // Inner corners: dust where a floor meets a wall, a web where a ceiling
+      // does. An open cell with ground on one side and ground below is a
+      // floor corner; with ground above, a ceiling corner.
       for (let r = r0; r < r1; r += 1) {
         for (let c = c0; c < c1; c += 1) {
-          if (isGround(c, r) || !isGround(c, r + 1) || random() > 0.5) {
+          if (isGround(c, r)) {
             continue;
           }
-          const sides: Array<1 | -1> = [];
-          if (isGround(c - 1, r) && isGround(c - 1, r + 1)) sides.push(-1);
-          if (isGround(c + 1, r) && isGround(c + 1, r + 1)) sides.push(1);
-          for (const side of sides) {
+          for (const side of [-1, 1] as const) {
+            if (!isGround(c + side, r)) continue;
             const cornerX = (side < 0 ? c * TILE : (c + 1) * TILE) - px;
-            for (let row = 0; row < 6; row += 1) {
-              const y = (r + 1) * TILE - REACH + row - py;
-              if (y < 0 || y >= h) continue;
-              const wideness = [1, 2, 3, 5, 6, 7][row];
-              for (let k = 0; k < wideness; k += 1) {
-                const x = side < 0 ? cornerX + k : cornerX - 1 - k;
-                if (x < 0 || x >= w) continue;
-                const i = y * w + x;
-                if (!mask[i]) {
-                  put(i, dust);
+
+            if (isGround(c, r + 1) && isGround(c + side, r + 1) && random() < 0.8) {
+              // Dust: a speckled wedge on the floor against the wall, and a
+              // few specks further out along the floor.
+              const floorY = (r + 1) * TILE - py;
+              const tall = 3 + Math.floor(random() * 4);
+              for (let row = 0; row < tall; row += 1) {
+                const y = floorY - 1 - row;
+                const wide = Math.round(((tall - row) / tall) * (5 + random() * 5));
+                for (let k = 0; k < wide; k += 1) {
+                  if (random() < 0.25) continue;
+                  putIf(side < 0 ? cornerX + k : cornerX - 1 - k, y, grey(), false);
                 }
+              }
+              for (let k = 0; k < 6; k += 1) {
+                const d = 6 + Math.floor(random() * 12);
+                putIf(side < 0 ? cornerX + d : cornerX - 1 - d, floorY - 1 - Math.floor(random() * 2), grey(), false);
+              }
+            }
+
+            if (isGround(c, r - 1) && isGround(c + side, r - 1) && random() < 0.45) {
+              // A cobweb: threads from the corner, and strands sagging between
+              // them, drawn every other pixel so they are gauzy.
+              const roofY = r * TILE - py;
+              const reach = 8 + Math.floor(random() * 7);
+              const dir = side < 0 ? 1 : -1;
+              const ends: Array<[number, number]> = [];
+              for (const [fx, fy] of [[1, 0.15], [0.85, 0.5], [0.5, 0.85], [0.15, 1]]) {
+                const ex = cornerX + dir * Math.round(reach * fx * (0.8 + random() * 0.4));
+                const ey = roofY + Math.round(reach * fy * (0.8 + random() * 0.4));
+                ends.push([ex, ey]);
+                line(cornerX + (dir < 0 ? -1 : 0), roofY, ex, ey, web, 2);
+              }
+              for (let k = 0; k + 1 < ends.length; k += 1) {
+                const [ax, ay] = ends[k];
+                const [bx, by] = ends[k + 1];
+                // A strand sags: its midpoint pulled toward the corner.
+                const mx = Math.round((ax + bx) / 2 - dir * 1);
+                const my = Math.round((ay + by) / 2 - 1);
+                line(ax, ay, mx, my, web, 2);
+                line(mx, my, bx, by, web, 2);
               }
             }
           }
