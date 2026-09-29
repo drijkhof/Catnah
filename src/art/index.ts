@@ -13,7 +13,7 @@ export { CORNER_RADIUS, FILLET_RADIUS, bakeFillet, roundedTileKey, type Corners 
 export { bakeRockMass, type RockPiece } from './stone';
 export { BUSH_SIZE, CANOPY_SIZE, CHECKPOINT_SIZE, FOG_HEIGHT, SUN_SIZE, TREE_SIZES, TUFT_SIZE } from './forest';
 export { BUTTON_SIZE } from './ui';
-export { BUILDING_SIZE, CAVE_WALL_SIZE, CONE_SIZE, DEAD_TREE_SIZE, MOON_SIZE, STALACTITE_SIZE, STALAGMITE_SIZE } from './backdrops';
+export { CAVE_WALL_SIZE, CONE_SIZE, DEAD_TREE_SIZE, STALACTITE_SIZE, STALAGMITE_SIZE } from './backdrops';
 export {
   BRANCH_LEAF_DROP,
   BRANCH_THICKNESS,

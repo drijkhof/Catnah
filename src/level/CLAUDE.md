@@ -22,8 +22,7 @@ its platforms must attach to a column. Everything else is derived.
 | `_` | void: solid rock that is never seen. Dark, impassable, and free -- a collision body only where it touches something not solid, one flat dark fill for the picture. The mass behind a cave's walls; keep `#` for the rock near the surface that shows texture |
 | `R` | boulder / brick — solid rock, and what wall jumps are taken from |
 | `G`, `Q` | the same rock. The letter is a seam: touching cells of one letter are drawn as one boulder, so `RRRGGG` is two rocks side by side and `RR` over `GG` is one stacked on another |
-| `M` | masonry — a house rather than a flat: plaster under a pantile roof |
-| `T` | climbable column — a rope, drainpipe or chain, or (`climbableColumns: false`) a real tree, which is never climbable at all |
+| `T` | climbable column — a rope or chain, or (`climbableColumns: false`) a real tree, which is never climbable at all |
 | `V` | liana — always climbable everywhere, regardless of `climbableColumns`. Never a platform, even at its top: it hangs from nothing, so there is nothing up there to stand on. Coexists with `T` in the same level: a tree, and the liana beside it |
 | `v` | dead vine — the liana's stem with no leaves, never climbable, purely decoration |
 | `w` | water — swimmable, not solid, harmless on its own |
@@ -32,7 +31,6 @@ its platforms must attach to a column. Everything else is derived.
 | `N` | nest — a ledge set into the tile, so the cat sits *in* it |
 | `+` | spare heart, on its own — no nest, no ledge. Write one directly above a row of `N` for a heart sitting in a nest |
 | `W` | water with a spare heart floating in it — use this instead of `+` inside a pool, or it punches a hole in the water |
-| `A` | parked car — two rows: a long lower one, a short upper one over its middle |
 | `h` | hedgehog, `r` rat — walkers, only ever on plain `#` floor |
 | `f` | piranha — water *with* a fish in it |
 | `c` | crow |
@@ -80,8 +78,8 @@ group of individual sprites does not, so it is done here.
 
 ## Themes are palettes, not new tiles
 
-All three levels use the same tile *shapes* and differ by colour: a girder and a
-branch are the same one-way platform underneath, a drainpipe and a trunk are the
+Every level uses the same tile *shapes* and differs by colour: a stone shelf and a
+branch are the same one-way platform underneath, a rope and a trunk are the
 same climbable column. Tilesets are baked per theme under namespaced keys
 (`cave:rock-fill`), and the scene resolves names through `this.tile()`.
 
@@ -150,8 +148,8 @@ where a nest was intended floats visibly above the rim rather than in it.
 
 `assertBranchesGrowFromTrunks` refuses to parse a level containing a branch with
 no trunk at either end, but only when the definition asks for it. That is the
-forest's rule: a branch belongs to a tree. The cave's stone shelves and the
-city's girders stand on their own. Physics is perfectly happy with a branch hanging in
+forest's rule: a branch belongs to a tree. The cave's stone shelves
+stand on their own. Physics is perfectly happy with a branch hanging in
 mid-air, so this is a rule about the world rather than about the code — checking
 it here means a level cannot quietly drift out of that shape.
 
@@ -248,7 +246,7 @@ floor beneath).
 
 There are none at the moment. To add one, push it onto `LEVELS` in
 `levels/index.ts` from inside `if (import.meta.env.DEV)` (past the real game, so
-level-skip past City lands on it), the same dead-branch trick `installLevelSkip`
+level-skip past the last level lands on it), the same dead-branch trick `installLevelSkip`
 and `installGodMode` use to disappear from the build -- confirmed the same way,
 a grep of `dist` for the level's name string comes back empty. `LEVELS.push`
 has to sit inside the branch; the `import` of the data above it does not need
@@ -314,18 +312,6 @@ pool with nothing holding it looks exactly as wrong as it was.
 of four shapes and it was boring in a way the short version never was. It is
 fifteen *different* pieces now. A generator that repeats a pattern gives you a
 short level you have to walk through several times.
-
-A city building is either **gone through** -- `arcade()` cuts two rows out of it
-at street level -- or **gone over**, with one drainpipe on the side you arrive
-at. Coming down the far side needs nothing, which is why it is one pipe per
-climb and not two. A column with a wall beside it is drawn with a gutter hopper
-on top (`trunk-head`); one standing on its own gets a lamp, and is a lamppost.
-
-**Awnings are not a staircase.** `solidPlatforms` is on in the city, so a girder
-is solid on every face: an awning is something you come at from the side, and a
-stack of them up a wall is a ceiling. Measured -- a full jump carries the cat
-86px sideways by the time it falls back to where it took off, so it flies clean
-over a three-tile awning it jumped at from underneath.
 
 The cave is not built up from a floor; it starts as solid rock and tunnels are
 cut out of it. That is what gives it an uneven floor and a roof over every

@@ -58,7 +58,7 @@ instead.
 
 **This is also how a dev test level would be reached**, if there were one:
 it is pushed onto `LEVELS` from inside `import.meta.env.DEV`, past the real
-game, so level-skip past City lands on it in a dev build -- see
+game, so level-skip past the last level lands on it in a dev build -- see
 `level/CLAUDE.md`'s "Dev-only test levels".
 
 ## Restoring is allowed to refuse

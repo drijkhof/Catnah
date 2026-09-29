@@ -8,7 +8,7 @@ import { isSolidTile } from './solid';
 const PROBE = 3;
 
 /**
- * Something that paces the floor: a hedgehog in the wild, a rat in the city.
+ * Something that paces the floor: a hedgehog, or a faster rat.
  *
  * They differ in what they look like and how fast they scurry, and in nothing
  * else, so they are one class rather than two nearly identical ones.

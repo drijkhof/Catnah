@@ -1,7 +1,6 @@
 import type { LevelDefinition } from '../Level';
 import { FOREST } from './forest';
 import { CAVE } from './cave';
-import { CITY } from './city';
 import { SWAMP } from './swamp';
 import { CANOPY } from './canopy';
 import { VOLCANO } from './volcano';
@@ -13,4 +12,4 @@ import { VOLCANO } from './volcano';
  * descends into is the volcano -- so it has to be the thing you do immediately
  * before arriving there.
  */
-export const LEVELS: LevelDefinition[] = [FOREST, CANOPY, SWAMP, CAVE, VOLCANO, CITY];
+export const LEVELS: LevelDefinition[] = [FOREST, CANOPY, SWAMP, CAVE, VOLCANO];

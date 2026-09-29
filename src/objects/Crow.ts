@@ -89,7 +89,7 @@ export class Crow extends Phaser.Physics.Arcade.Sprite {
       : toCat < CROW.attackRange;
 
     // It calls once, as it breaks off the circle. Calling the whole way in
-    // would be a car alarm rather than a bird.
+    // would be an alarm rather than a bird.
     if (this.attacking && !wasAttacking) {
       sound.playAt('caw', this.x, this.y);
     }

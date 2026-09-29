@@ -5,7 +5,6 @@ import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
 import { Crocodile } from '../objects/Crocodile';
 import { LavaLake } from '../objects/LavaLake';
-import { Rain } from '../objects/Rain';
 import { Crow } from '../objects/Crow';
 import { GroundEnemy } from '../objects/GroundEnemy';
 import { Piranha } from '../objects/Piranha';
@@ -128,7 +127,6 @@ export class GameScene extends Phaser.Scene {
    */
   private thornRects: Phaser.Geom.Rectangle[] = [];
   private lava?: LavaLake;
-  private rain?: Rain;
 
   /** True from the moment the cat is killed until it is back on its feet. */
   private dying = false;
@@ -158,7 +156,6 @@ export class GameScene extends Phaser.Scene {
     this.level = parseLevel(LEVELS[this.levelIndex]);
     this.crocodiles = [];
     this.spiders = [];
-    this.rain = undefined;
     this.lifeIcons = [];
     this.dying = false;
     this.leaving = false;
@@ -410,7 +407,6 @@ export class GameScene extends Phaser.Scene {
     // carry on whether or not anybody is looking. What the lava does *not* do
     // off screen is be heard -- that is handled where it spits.
     this.lava?.step(delta);
-    this.rain?.step(delta);
 
     if (this.boss) {
       if (this.awake(this.boss)) {
@@ -646,7 +642,7 @@ export class GameScene extends Phaser.Scene {
    * The weather and the sound of the place.
    *
    * Both come off the theme rather than off the level, because they are what
-   * the *place* is like: two city levels should sound and feel the same, and a
+   * the *place* is like: two cave levels should sound and feel the same, and a
    * second swamp should have the same wind in it.
    *
    * The bed is one continuous layer. The sparse noises on top -- birds, drips --
@@ -656,15 +652,10 @@ export class GameScene extends Phaser.Scene {
   private buildWeather(): void {
     const theme = this.level.theme;
 
-    if (theme === 'city') {
-      this.rain = new Rain(this);
-    }
-
     const bed: Record<string, Ambience> = {
       forest: 'wind',
       jungle: 'wind',
       swamp: 'wind',
-      city: 'rain',
       cave: 'hush',
       volcano: 'rumble',
     };
@@ -674,14 +665,11 @@ export class GameScene extends Phaser.Scene {
     // Birds in anything with leaves in it, water in anything underground. Every
     // gap is different: birds on a fixed beat are a smoke alarm.
     const sparse: Partial<
-      Record<string, { voice: 'chirp' | 'drip' | 'patter'; min: number; max: number }>
+      Record<string, { voice: 'chirp' | 'drip'; min: number; max: number }>
     > = {
       forest: { voice: 'chirp', min: 1800, max: 5200 },
       jungle: { voice: 'chirp', min: 1200, max: 3800 },
       cave: { voice: 'drip', min: 2200, max: 6000 },
-      // Rain is drops, not a hiss. Often enough to be rain, never regular
-      // enough to be a rhythm.
-      city: { voice: 'patter', min: 70, max: 300 },
     };
 
     const sound_ = sparse[theme];
@@ -1152,8 +1140,7 @@ export class GameScene extends Phaser.Scene {
 
   /**
    * A `=` cell drawn as part of one whole platform: a wooden branch where
-   * the platforms are branches, a stone shelf where they are shelves. A
-   * city girder stays a girder, tile by tile.
+   * the platforms are branches, a stone shelf where they are shelves.
    */
   private isWood(solid: Solid): boolean {
     const style = THEMES[this.level.theme].platformStyle;
@@ -1579,8 +1566,8 @@ export class GameScene extends Phaser.Scene {
    * the floor sit at `-1`, well behind. Charms are at `7`, in front of it, so a
    * heart in the leaves is still a heart you can see.
    *
-   * Only where the place actually has leaves. A cave shelf and a city girder
-   * use the same tiles underneath, and neither of them sprouts.
+   * Only where the place actually has leaves. A cave shelf
+   * uses the same tiles underneath, and does not sprout.
    */
   private buildFoliage(): void {
     const palette = THEMES[this.level.theme];

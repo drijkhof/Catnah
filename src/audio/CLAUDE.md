@@ -34,7 +34,7 @@ The mute button cycles `silent -> sfxOnly -> all -> silent`, so muting is a
 rather than one: `sfxGain`, which every voice (`blip`, `hiss`, `growl`)
 connects through, and `bedGain`, which only `setAmbience`'s bed connects
 through. `silent` zeroes both; `sfxOnly` zeroes only `bedGain`, so jumping,
-collecting and getting hurt still sound while the wind and rain do not; `all`
+collecting and getting hurt still sound while the wind does not; `all`
 zeroes neither.
 
 Checked twice for the same reason as before: once on `sfxGain` (or `bedGain`),
@@ -54,21 +54,18 @@ move to three states rather than silently resetting to `all`.
 ## The bed under each level
 
 `setAmbience(kind)` puts one continuous layer under everything: filtered noise
-with a slow oscillator on the gain, which is what wind and rain actually are.
+with a slow oscillator on the gain, which is what wind actually is.
 The swell is what gives it a pulse without ever being a rhythm you could tap to.
 
-Four kinds -- `wind`, `rain`, `rumble`, `hush` -- picked in `GameScene` off the
+Three kinds -- `wind`, `rumble`, `hush` -- picked in `GameScene` off the
 **theme**, not the level, because it is what the *place* sounds like. Asking for
 the bed you already have does nothing, so two swamp levels do not restart the
 wind between them.
 
-**A bed is never broadband.** The city's rain was white noise through a highpass
-at 1900Hz, which is not the sound of rain, it is the sound of sweeping a floor --
-and at any level you could hear it at all, it was the loudest thing in the city.
-Rain is *drops*: the bed is now a very soft low wash for them to land in, and
-the rain itself is `patter`, scheduled five to fourteen times a second with the
-pitch thrown all over the place, because drops hit slate, brick, a car roof and
-a puddle and they do not agree.
+**A bed is never broadband.** Noise through a highpass is the sound of sweeping a
+floor, and at any level you can hear it, it is the loudest thing in the room.
+Keep beds low-passed and very quiet; anything with more character goes on top
+as sparse events scheduled in `GameScene`.
 
 **The sparse noises on top are scheduled by the scene**, not here. Birds and
 drips are a decision about a level's pacing, and the audio has no business

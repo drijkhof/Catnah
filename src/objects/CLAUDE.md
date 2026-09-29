@@ -437,7 +437,7 @@ calls `doze()` on it otherwise. Two separate reasons, and they pull in opposite
 directions:
 
 - **Sound.** Nothing in this game is positional, so a rat scurrying at the far
-  end of a 176-tile city is heard at exactly the volume of one standing next to
+  end of a long level is heard at exactly the volume of one standing next to
   you. A level full of rats was every rat in it at once.
 - **Seeing something start.** A creature caught standing still and *then*
   beginning to walk is worse than one that was never moving, so the range is a

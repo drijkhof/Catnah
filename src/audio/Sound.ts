@@ -28,21 +28,20 @@ export type Voice =
   | 'ratLeap'
   | 'chirp'
   | 'drip'
-  | 'patter'
   | 'checkpoint';
 
 /**
  * The bed a level sits on: one continuous, almost-inaudible layer.
  *
  * Not music, and not a loop of a recording either -- filtered noise with a slow
- * swell on it, which is what wind and rain actually are. The swell is what makes
+ * swell on it, which is what wind actually is. The swell is what makes
  * it feel like it has a pulse without ever being a rhythm you could tap to.
  */
-export type Ambience = 'none' | 'wind' | 'rain' | 'rumble' | 'hush';
+export type Ambience = 'none' | 'wind' | 'rumble' | 'hush';
 
 /**
  * The three states the mute button cycles through, in order: nothing at all,
- * then just the bed (wind, rain, the level's own hum) held back while every
+ * then just the bed (wind, the level's own hum) held back while every
  * one-shot still plays, then everything.
  */
 export type SoundMode = 'silent' | 'sfxOnly' | 'all';
@@ -181,7 +180,7 @@ class SoundBoard {
    *
    * Switching apps stops the game loop -- the browser stops handing out frames
    * -- but it does not stop an `AudioContext`. Without this, walking away from
-   * the game leaves the wind, the rain and the beetle playing out of a phone
+   * the game leaves the wind and the beetle playing out of a phone
    * in somebody's pocket.
    *
    * Suspending rather than muting, so nothing is being computed either.
@@ -304,12 +303,6 @@ class SoundBoard {
 
       case 'drip':
         this.blip(at, 1400, 420, 0.13, 'sine', 0.16);
-        break;
-
-      case 'patter':
-        // One raindrop landing. Pitched all over the place on purpose: drops
-        // hit slate, brick, a car roof and a puddle, and they do not agree.
-        this.blip(at, 900 + Math.random() * 1800, 300 + Math.random() * 400, 0.045, 'sine', 0.035);
         break;
 
       case 'caw':
@@ -506,11 +499,6 @@ class SoundBoard {
     const shape = {
       // Mid, wandering: leaves in it.
       wind: { type: 'bandpass' as BiquadFilterType, hz: 620, q: 0.7, level: 0.085, breath: 0.09 },
-      // **Not a hiss.** Broadband noise through a highpass is the sound of
-      // sweeping a floor, and at any level you can hear it, it is the loudest
-      // thing in the city. What is left is a very soft low wash for the rain to
-      // land in; the rain itself is the drops scheduled over the top.
-      rain: { type: 'lowpass' as BiquadFilterType, hz: 480, q: 0.5, level: 0.018, breath: 0.05 },
       // Under everything, felt more than heard.
       rumble: { type: 'lowpass' as BiquadFilterType, hz: 150, q: 0.9, level: 0.16, breath: 0.13 },
       // Almost nothing: the sound of a big room with nobody in it.
@@ -534,9 +522,9 @@ class SoundBoard {
     gain.gain.setValueAtTime(0.0001, this.ctx.currentTime);
     gain.gain.linearRampToValueAtTime(shape.level, this.ctx.currentTime + 2.5);
 
-    // The swell. Slow, and different per bed, so rain patters and wind breathes.
+    // The swell. Slow, and different per bed, so wind breathes.
     lfo.type = 'sine';
-    lfo.frequency.value = kind === 'rain' ? 0.9 : 0.16;
+    lfo.frequency.value = 0.16;
     depth.gain.value = shape.breath;
     lfo.connect(depth).connect(gain.gain);
 

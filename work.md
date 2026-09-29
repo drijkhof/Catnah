@@ -50,7 +50,7 @@ walk's (12 fps against 8), or it read as a stutter.
 ## Nothing can kill you before you move
 
 Every level starts somewhere nothing can reach. Measured by standing perfectly
-still for forty-five seconds on each one: the forest, the city and the volcano
+still for forty-five seconds on each one: the forest and the volcano
 put the cat out of everything's way already, and the swamp and the canopy did
 not — a hedgehog simply walked into it. Both now start the cat on **a small
 boulder**, which a hedgehog turns at and cannot climb.
@@ -162,15 +162,14 @@ Wall jumping has no button of its own: in mid-air against a wall, jump does it.
 
 The **crown of any climbable column** is a ledge — climb a tree and you end up
 standing on top of it. So is a **nest**, which is drawn as a bowl of woven straw
-because it is somewhere to be rather than something to look at. In the city,
-**parked cars** are solid and can be clambered onto.
+because it is somewhere to be rather than something to look at.
 
 Both ledges are one-way, so climbing up the inside of a trunk still passes
 through and leaves you standing on the crown.
 
 ### Climbing trunks
 
-**A tree cannot be climbed.** Lianas, ropes, drainpipes and chains can; a tree
+**A tree cannot be climbed.** Lianas, ropes and chains can; a tree
 trunk is a tree. The trunks are still drawn, still walked straight through and
 their crowns are still something to stand on — the way *up* a tree is its
 branches, which is why every branch in the forest grows out of one. The great
@@ -181,7 +180,7 @@ from the last of them.
 level: an actual tree, unclimbable, with a liana hanging from nothing right
 next to it. A liana looks the same wherever it hangs — jungle, swamp, or
 anywhere else — the same way a little heart does, rather than taking on
-whatever a rope, drainpipe or chain would have looked like in that place. And
+whatever a rope or chain would have looked like in that place. And
 unlike a tree, a liana is **never something to stand on**, not even at the
 very top of it — it hangs from nothing, so there is nothing up there to land
 on either.
@@ -395,9 +394,9 @@ heart on its own is nothing but a heart, and a heart written directly above a
 nest is what makes it read as sitting in one. Nothing about where either goes
 is random, and none of them is needed to finish a level.
 
-The forest, the city and the cave each keep one in a proper nest, at the point
-that guards it: the crow's nest at the top of the forest's great tree, the
-rooftop nest in the city, and the back of the cave's longest dead end. The
+The forest and the cave each keep one in a proper nest, at the point
+that guards it: the crow's nest at the top of the forest's great tree, and the
+back of the cave's longest dead end. The
 swamp and the canopy have their own now too, guarded the same way. A heart
 placed with nothing around it -- in open water, say -- is simply that: a heart,
 floating where it is, no nest implied.
@@ -447,7 +446,6 @@ and touching an **earlier** one after passing a later one moves the point back
 | Level | Tiles |
 | --- | --- |
 | Forest | 90 |
-| City | 176 |
 | Swamp | 248 |
 | Canopy | 78 |
 | Cave | 240 wide, 64 deep |
@@ -461,9 +459,9 @@ level: what they lost was the reason to walk through them. The cave is the one
 exception, and it was never stretched — it is long because it was designed long,
 as a descent.
 
-## The six levels
+## The five levels
 
-**Forest, city, swamp, canopy, cave, volcano.** Each one starts at one end and
+**Forest, canopy, swamp, cave, volcano.** Each one starts at one end and
 ends at a **glowing door**, which takes you to the next; the volcano leads back
 to the forest. Little hearts are optional everywhere.
 
@@ -489,24 +487,7 @@ to it. Trees to climb by their branches, boulders to wall-jump between, a pool
 with a piranha in it, hedgehogs on the floor, and near the end **the great
 tree** — with the crow's nest at the top of it and the spare heart in the nest.
 
-### 2 — City
-
-176 tiles, at night, and built at the scale of the thing walking through it: a
-block of flats is sixteen storeys of brick, an awning is four tiles of steel and
-a parked car is two tiles tall and five long.
-
-A building stands on the pavement and blocks it, so each one is either **gone
-through** — an arcade at street level — or **gone over**, and the four that are
-gone over have one drainpipe, on the side you arrive at. Coming down the far
-side needs nothing: falling is free. The only columns standing on their own are
-the **lampposts**.
-
-Between the buildings are awnings to jump between, parked cars to clamber on,
-rats on the pavement and a **canal** eleven tiles wide. Nothing swims in this
-city — two awnings span it with five tiles of nothing between them. The spare
-heart is in a crow's nest on the tallest building.
-
-### 3 — Swamp
+### 2 — Swamp
 
 By far the longest level — 248 tiles, three times any other — and all of it is
 one question: how do you get over the water? Overcast sky going brown at the
@@ -548,7 +529,7 @@ The lianas here are five tiles long, hang low over the water and **hang from
 nothing**. That is on purpose: all you can do with one is cross, there is no
 climbing up out of the level on them, and the swamp has sky overhead rather than
 a roof.
-### 4 — Canopy
+### 3 — Canopy
 
 78 tiles and one idea all the way through: **jumping off a liana onto a platform
 out of its reach**. The lianas hang from the roof rather than standing on the
@@ -559,7 +540,7 @@ does not involve letting go in mid-air.
 In the middle, **five lianas hang side by side**: holding on is not pinned to
 one rope, so that stretch is crossed sideways as much as it is climbed.
 
-### 5 — Cave
+### 4 — Cave
 
 **Long, and all the way down.** 240 tiles end to end like everywhere else, but
 the way out is forty rows lower than the way in, so the level reads as a descent
@@ -588,7 +569,7 @@ chamber with the **spare heart** in it — and hanging over the doorway, a spide
 ceiling like the rest of them and drops like the rest of them, slowly, and there
 is no getting past it except by timing it.
 
-### 6 — Volcano
+### 5 — Volcano
 
 The floor is a **lava lake** and only the islands are safe, so the level reads
 as somewhere not to land rather than somewhere to walk. Chains hang over the
@@ -643,7 +624,7 @@ are image files. A **speaker button** sits top right, just under the hearts,
 and `M` does the same thing; the setting is remembered between visits.
 
 **Three taps, not two.** One press cycles silent → effects only → everything →
-silent again, so the bed (wind, rain, that hum) can be turned off on its own
+silent again, so the bed (wind and that hum) can be turned off on its own
 while the cat's own sounds — jumping, collecting, getting hurt — keep playing.
 
 **Every place has a bed**: one continuous layer under everything, filtered noise
@@ -652,12 +633,9 @@ rumble in the volcano; and in the cave a hush, which is the sound of a big room
 with nobody in it. Over the top, sparsely and never on a beat: **birds** in the
 forest and the jungle, **drips** in the cave.
 
-**The city is raindrops**, not a hiss — many of them a second, each landing at
-its own pitch, over a wash so quiet you would not notice it alone.
-
 - **The cat** blips going up, and a wall jump is sharper than a plain jump.
 - **The crow** caws once, as it breaks off its circle to come at you. Calling
-  the whole way in would be a car alarm rather than a bird.
+  the whole way in would be an alarm rather than a bird.
 - **The lava** bloops every time it throws a gobbet.
 - **The beetle** growls as it commits to a dive: two saws a few cents apart,
   beating against each other.
@@ -696,15 +674,7 @@ walk the floor are behind them — but a cat sitting in the foliage looks like a
 cat in a tree rather than a cat on a shelf.
 
 For now only where a place actually has leaves: the forest, the jungle and the
-swamp. A cave shelf and a city girder are the same tile underneath and neither
-of them sprouts.
-
-## Weather
-
-**It rains in the city**, over the whole screen, and nothing interacts with it.
-Rain is between you and the game rather than somewhere in the level, so it is
-pinned to the viewport and every drop wraps around the screen. Faster drops are
-drawn longer and a little brighter, which is all the depth it needs.
+swamp. A cave shelf is the same tile as a branch underneath and does not sprout.
 
 ## Thorns
 
@@ -721,7 +691,7 @@ you past -- a stalk is worth something, not only a way through a gap.
 ## Everything sleeps until you get there
 
 Nothing in a level is doing anything until you are within a screen and a half of
-it. A rat at the far end of the city is not pacing, a crow is not circling, a
+it. A rat at the far end of a level is not pacing, a crow is not circling, a
 piranha is not patrolling — and none of them is making any noise.
 
 The distance is the point of it. Half a screen of it is the screen you are
@@ -730,10 +700,10 @@ you never catch something standing still and then watch it decide to walk.
 
 Being *heard* stops sooner than that, at one screen, because the two are not the
 same question. Sound here is not positional — a rat scurrying at the other end
-of a hundred-and-seventy-tile city is exactly as loud as one beside you — so
+of a hundred-and-seventy-tile level is exactly as loud as one beside you — so
 before this, a level full of rats sounded like every rat in it at once.
 
-The weather and the lava are not creatures. They are the place, and they carry
+The lava is not a creature. It is the place, and it carries
 on whether or not anybody is looking.
 
 ## The creatures
@@ -749,6 +719,7 @@ on whether or not anybody is looking.
   game that comes from something trying to get away, and the only sound in the
   game meant to make you jump. Measured: cornered against a wall, the leap
   carries it fifty pixels and lands it exactly where the cat is standing.
+  No level has a rat at the moment, but the creature and its `r` are kept.
 - **Spiders** own the cave's ceilings the way a hedgehog owns a floor. One
   walks the underside of the rock, upside down, turning wherever the rock stops,
   and drops the length of its thread on any cat that passes under it — then

@@ -12,14 +12,14 @@ import type { GroundEnemyKind } from '../config';
  *        not solid, and no picture at all beyond one flat dark fill. Use it
  *        for the mass behind the walls of a cave, with `#` for the rock
  *        near the surface that shows its texture
- *   `=`  one-way platform — a branch, a stone shelf, a girder
+ *   `=`  one-way platform — a branch, a stone shelf
  *   `B`  full-height solid used for low overhangs
  *   `R`  boulder / brick — solid rock, and what wall jumps are taken from
  *   `G`  the same rock, and so is `Q`. The letter is a seam: touching rock
  *        cells of one letter are drawn as one boulder, so `RRRGGG` is two
  *        boulders side by side and `RR` over `GG` is one stacked on another,
  *        where `RRRRRR` would be a single stone. Nothing else differs
- *   `T`  climbable column, in most places — a rope, a drainpipe, a chain, or
+ *   `T`  climbable column, in most places — a rope, a chain, or
  *        (`climbableColumns: false`) a real tree, which cannot be climbed at
  *        all. The way up a tree is its own branches, exactly like the
  *        forest's great tree
@@ -37,8 +37,7 @@ import type { GroundEnemyKind } from '../config';
  *   `P`  cat spawn (exactly one)
  *   `E`  the way out, to the next level
  *   `h`  hedgehog, pacing the floor it stands on
- *   `r`  rat, the same but faster — the city's version
- *   `A`  parked car, solid and climbable
+ *   `r`  rat, the same but faster — the faster, more frightened one
  *   `f`  piranha — water *with* a piranha in it, so placing one never
  *        punches a hole in the pool it is meant to be swimming in
  *   `C`  crocodile — likewise water, with a crocodile lying at the surface of
@@ -74,21 +73,14 @@ export interface LevelDefinition {
   /**
    * Whether every `=` run must touch a `T`.
    *
-   * True in the forest, where a branch belongs to a tree. The cave and the city
-   * have no trees, so their ledges stand on their own.
+   * True in the forest, where a branch belongs to a tree. The cave has no trees,
+   * so its ledges stand on their own.
    */
   branchesNeedTrunks: boolean;
   /**
-   * Whether `=` platforms are solid from every side rather than one-way.
-   *
-   * The forest and the cave grow theirs out of the world, so you pass up
-   * through them. A city girder is a girder.
-   */
-  solidPlatforms?: boolean;
-  /**
    * Whether the `T` columns here can be climbed.
    *
-   * True everywhere but the forest. A liana, a rope, a drainpipe and a chain
+   * True everywhere but the forest. A liana, a rope and a chain
    * are things you go up; a tree trunk is a tree. Turning it off leaves the
    * trunks drawn and walk-through exactly as they were, and their crowns still
    * something to stand on -- it takes away only the climb, so the way up a tree
@@ -173,9 +165,8 @@ export interface ClimbZone extends Point {
   /**
    * Whether the column is bolted to something.
    *
-   * A column with a wall beside it is a drainpipe running down a building; one
-   * standing on its own in the open is a lamppost. They are drawn differently
-   * at the top, and nothing else about them differs.
+   * A column with a wall beside it is drawn differently at the top from one
+   * standing on its own, and nothing else about them differs.
    */
   againstWall: boolean;
 }
@@ -204,7 +195,7 @@ export interface ParsedLevel {
   pools: WaterZone[][];
   /** Lava. Shaped like water, but touching it kills. */
   lavaZones: WaterZone[];
-  /** Creatures that pace the floor: hedgehogs, and rats in the city. */
+  /** Creatures that pace the floor: hedgehogs, and rats. */
   walkers: Walker[];
   /** Where each piranha lurks, and which pool it belongs to. */
   piranhas: Piranha[];
@@ -332,10 +323,6 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           block(x, y, variantOf(ROCK.has(at(column, row - 1)) ? 'rock-fill' : 'rock-top', column, row), column, row);
           break;
 
-        case 'M':
-          block(x, y, houseTexture(at, column, row), column, row);
-          break;
-
         case 'B':
           block(x, y, 'bough', column, row);
           break;
@@ -360,12 +347,10 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
             // exactly the surface something lands on.
             height: BRANCH_THICKNESS,
             textureKey: branchTexture(at(column - 1, row), at(column + 1, row)),
-            isBranch: !definition.solidPlatforms,
-            faces: definition.solidPlatforms
-              ? exposedFaces(at, column, row)
-              // One-way: solid underfoot and nothing else. You pass up through
-              // one from below and land on it coming down.
-              : { up: true, down: false, left: false, right: false },
+            isBranch: true,
+            // One-way: solid underfoot and nothing else. You pass up through
+            // one from below and land on it coming down.
+            faces: { up: true, down: false, left: false, right: false },
             glyph: '=',
           });
           break;
@@ -458,10 +443,6 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
 
         case 'r':
           walkers.push({ x: x + TILE / 2, y: y + TILE, kind: 'rat' });
-          break;
-
-        case 'A':
-          block(x, y, carTexture(at, column, row), column, row);
           break;
 
         case 's':
@@ -849,7 +830,7 @@ const ROCK = new Set(['R', 'G', 'Q']);
  * and `Q` were missed by three of them when they were added, and a level
  * with thorns on a `G` refused to load.)
  */
-const SOLID_LETTERS = [...FULL_CELL, 'M'].join('');
+const SOLID_LETTERS = [...FULL_CELL].join('');
 
 /**
  * Works out which sides of a tile anything could ever touch.
@@ -883,72 +864,6 @@ function exposedFaces(
     left: !covered(at(column - 1, row), true),
     right: !covered(at(column + 1, row), true),
   };
-}
-
-/**
- * Picks which part of a house a tile is.
- *
- * The top of a column is its roof. Everything under it is wall, and **one wall
- * tile in nine has a window in it** -- picked off the tile's own place in the
- * grid, so the windows line up in courses the way a house's do. Putting one in
- * every tile, which is what this did first, turns a terrace into graph paper.
- */
-function houseTexture(
-  at: (column: number, row: number) => string,
-  column: number,
-  row: number,
-): string {
-  if (at(column, row - 1) !== 'M') {
-    return 'house-top';
-  }
-
-  return column % 3 === 1 && row % 3 === 1 ? 'house-window' : 'house-fill';
-}
-
-/**
- * Picks which part of a car a tile is, so a block of them reads as one vehicle.
- *
- * A car is written as two rows: a long lower one and a shorter upper one over
- * the middle of it, which is a bonnet, a cabin and a boot.
- *
- *     .AAA.
- *     AAAAA
- *
- * The tile works out where it sits from its neighbours alone, so a car can be
- * any length and still come out with one nose, one tail and a cabin between
- * them.
- */
-function carTexture(
-  at: (column: number, row: number) => string,
-  column: number,
-  row: number,
-): string {
-  const leftEnd = at(column - 1, row) !== 'A';
-  const rightEnd = at(column + 1, row) !== 'A';
-
-  // Something below means this is the cabin rather than the body.
-  if (at(column, row + 1) === 'A') {
-    if (leftEnd) {
-      return 'car-windscreen';
-    }
-
-    if (rightEnd) {
-      return 'car-rear-window';
-    }
-
-    return 'car-roof';
-  }
-
-  if (leftEnd) {
-    return 'car-nose';
-  }
-
-  if (rightEnd) {
-    return 'car-tail';
-  }
-
-  // Under the cabin is a door; the rest is the sill between wheel and cabin.
-  return at(column, row - 1) === 'A' ? 'car-door' : 'car-sill';
 }
 
 /** Picks the end-cap so a platform is rounded off rather than sawn through. */

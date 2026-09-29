@@ -14,7 +14,7 @@ binary assets and runs straight after clone.
   over them, placed by `GameScene.dressGround`.
 - `forest.ts` — the forest's own scenery: sky, sun, trees, bushes, grass. And
   the little heart, which is the same everywhere.
-- `backdrops.ts` — cave and city scenery: stalactites, crystals, skylines, moon.
+- `backdrops.ts` — cave, swamp and volcano scenery: stalactites, crystals, cones.
 - `creatures.ts` — hedgehog, piranha, crow.
 - `ui.ts` — the touch-button glyphs.
 - `index.ts` — `generatePlaceholderArt`, called once by `BootScene`.
@@ -161,7 +161,7 @@ behind. `GameScene.buildFoliage` places both.
 
 ## The liana is baked once per theme, not switched by `columnStyle`
 
-Every other column shape (trunk, rope, pipe, chain) is one texture per theme,
+Every other column shape (trunk, rope, chain) is one texture per theme,
 picked by that theme's `columnStyle`. The liana is not: it is baked
 unconditionally, always from its own shape, because a level can have `T` trees
 and `V` lianas standing side by side and each needs to look like what it is

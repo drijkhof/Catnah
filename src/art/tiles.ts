@@ -444,17 +444,17 @@ function drawMossCap(
  * The colours a level's tiles are drawn in.
  *
  * Every level uses the same tile *shapes* and differs by palette, which is what
- * lets a cave and a city reuse the whole tile format -- a girder and a branch
+ * lets a cave and a volcano reuse the whole tile format -- a stone shelf and a branch
  * are the same one-way platform underneath. Character comes from the backdrop.
  */
 /**
  * What a `T` column is made of, in this place. Not a liana -- `l` draws the
  * same liana everywhere, on its own, regardless of this.
  */
-export type ColumnStyle = 'trunk' | 'rope' | 'pipe' | 'chain';
+export type ColumnStyle = 'trunk' | 'rope' | 'chain';
 
 /** What a one-way platform is made of. */
-export type PlatformStyle = 'branch' | 'shelf' | 'girder';
+export type PlatformStyle = 'branch' | 'shelf';
 
 /**
  * What grows -- or lies -- on a surface. Grass where there is sun; dust and
@@ -493,15 +493,6 @@ export interface TilePalette {
   nestStraw: number;
   nestStrawLight: number;
   nestShadow: number;
-  carBody: number;
-  carGlass: number;
-  carTrim: number;
-  carLight: number;
-  houseWall: number;
-  houseWallDark: number;
-  houseRoof: number;
-  houseRoofDark: number;
-  houseWindow: number;
   lava: number;
   lavaDeep: number;
   lavaBright: number;
@@ -511,9 +502,6 @@ export interface TilePalette {
 export function tileKey(theme: string, name: string): string {
   return `${theme}:${name}`;
 }
-
-/** Width of a climbable column within its tile. */
-const TRUNK_WIDTH = 12;
 
 export function generateTileset(
   scene: Phaser.Scene,
@@ -570,10 +558,9 @@ export function generateTileset(
   });
 
   // --- climbable columns -------------------------------------------------
-  const inset = (TILE - TRUNK_WIDTH) / 2;
 
   /**
-   * Columns differ in shape, not just colour. A drainpipe is not a tree with
+   * Columns differ in shape, not just colour. A rope is not a tree with
    * different paint on it, and this is most of what makes a place feel like
    * itself once you are standing in it.
    */
@@ -610,19 +597,6 @@ export function generateTileset(
         break;
       }
 
-      case 'pipe': {
-        // A drainpipe, with a bracket bolted to the wall.
-        g.fillStyle(palette.trunkDark, 1);
-        g.fillRect(inset, 0, TRUNK_WIDTH, TILE);
-        g.fillStyle(palette.trunk, 1);
-        g.fillRect(inset + 1, 0, TRUNK_WIDTH - 3, TILE);
-        g.fillStyle(palette.trunkLight, 1);
-        g.fillRect(inset + 3, 0, 2, TILE);
-        g.fillStyle(palette.trunkDark, 1);
-        g.fillRect(inset - 2, 5, TRUNK_WIDTH + 4, 3);
-        break;
-      }
-
       default: {
         // Bark, the full width of the tile: ridges in four tones, lit from the
         // left, with the odd notch so the edge is not a ruler. The climb zone
@@ -656,44 +630,18 @@ export function generateTileset(
 
   bakeTexture(scene, key('trunk'), TILE, TILE, drawColumn);
 
-  /**
-   * The top of a column that is bolted to a wall.
-   *
-   * Only the city has anything to say here: a drainpipe ends in a hopper under
-   * the gutter, not in a lamp. Everywhere else a column against a wall looks
-   * exactly like one standing on its own.
-   */
+  /** The top of a column that is bolted to a wall: foliage, as anywhere else. */
   bakeTexture(scene, key('trunk-head'), TILE, TILE, (g) => {
     drawColumn(g);
-
-    if (palette.columnStyle !== 'pipe') {
-      g.fillStyle(palette.leaf, 1);
-      g.fillCircle(3, 3, 4);
-      g.fillCircle(13, 4, 4);
-      g.fillStyle(palette.leafLight, 1);
-      g.fillCircle(8, 1, 3);
-      return;
-    }
-
-    g.fillStyle(palette.trunkDark, 1);
-    g.fillRect(2, 0, 12, 6);
-    g.fillStyle(palette.trunk, 1);
-    g.fillRect(3, 1, 10, 4);
-    g.fillStyle(palette.trunkLight, 1);
-    g.fillRect(4, 1, 8, 1);
+    g.fillStyle(palette.leaf, 1);
+    g.fillCircle(3, 3, 4);
+    g.fillCircle(13, 4, 4);
+    g.fillStyle(palette.leafLight, 1);
+    g.fillCircle(8, 1, 3);
   });
 
   bakeTexture(scene, key('trunk-top'), TILE, TILE, (g) => {
     drawColumn(g);
-
-    if (palette.columnStyle === 'pipe') {
-      // A lamp head, rather than foliage.
-      g.fillStyle(palette.branchDark, 1);
-      g.fillRect(2, 0, 12, 5);
-      g.fillStyle(palette.leafLight, 1);
-      g.fillRect(4, 4, 8, 3);
-      return;
-    }
 
     if (palette.columnStyle === 'chain') {
       // A ring bolted into the rock above.
@@ -748,7 +696,7 @@ export function generateTileset(
   bakeTexture(scene, key('liana'), TILE, TILE, drawLiana);
 
   // Top and anchor point are the same picture: a liana has nothing like the
-  // city's lamp or the cave's bolted ring to be instead, only ever leaves.
+  // cave's bolted ring to be instead, only ever leaves.
   const drawLianaAnchor = (g: Phaser.GameObjects.Graphics): void => {
     drawLiana(g);
     g.fillStyle(palette.leaf, 1);
@@ -775,16 +723,6 @@ export function generateTileset(
 
     g.fillStyle(palette.branch, 1);
     g.fillRect(0, 0, TILE, BRANCH_THICKNESS - 3);
-
-    if (palette.platformStyle === 'girder') {
-      // An I-beam: a web between two flanges, and a rivet.
-      g.fillStyle(palette.branchDark, 1);
-      g.fillRect(0, 3, TILE, 2);
-      g.fillStyle(palette.leafLight, 1);
-      g.fillRect(3, 1, 2, 1);
-      g.fillRect(11, 1, 2, 1);
-      return;
-    }
 
     if (palette.platformStyle === 'shelf') {
       // Layered rock, bedded flat.
@@ -920,8 +858,8 @@ export function generateTileset(
    * Thorns: the one hazard that is neither alive nor a liquid.
    *
    * What they are made of follows the place, the same way a column does. Reeds
-   * where there are leaves, stalagmites where there is rock, a spiked railing
-   * where there are girders -- one shape, three materials, and in every case
+   * where there are leaves, stalagmites where there is rock -- one shape, two
+   * materials, and in every case
    * something you would not put a paw on.
    *
    * They are drawn as four spikes of different heights. Even spikes read as a
@@ -941,15 +879,11 @@ export function generateTileset(
     const body =
       palette.platformStyle === 'shelf'
         ? palette.rockDark
-        : palette.platformStyle === 'girder'
-          ? palette.trunkDark
-          : shade(palette.leaf, 58);
+        : shade(palette.leaf, 58);
     const tip =
       palette.platformStyle === 'shelf'
         ? palette.rockLight
-        : palette.platformStyle === 'girder'
-          ? palette.rockLight
-          : palette.leafLight;
+        : palette.leafLight;
 
     for (const spike of spikes) {
       const top = TILE - spike.height;
@@ -1099,252 +1033,6 @@ export function generateTileset(
     g.fillRect(0, 0, TILE, 2);
     g.fillRect(3, 2, 4, 1);
     g.fillRect(11, 2, 3, 1);
-  });
-
-  // --- houses -------------------------------------------------------------
-  // A house is not a block of flats, and in a city made only of flats every
-  // building is the same building. Plastered wall under a tiled roof, with the
-  // roof drawn on whichever tile happens to be the top of its column -- so a
-  // stepped roof line comes out as a pitched roof.
-  /** Plain plastered wall. Most of a house is this. */
-  const plaster = (g: Phaser.GameObjects.Graphics): void => {
-    g.fillStyle(palette.houseWall, 1);
-    g.fillRect(0, 0, TILE, TILE);
-
-    // Render, in patches rather than lines: plaster is not brick.
-    g.fillStyle(palette.houseWallDark, 0.35);
-    g.fillRect(2, 3, 4, 2);
-    g.fillRect(9, 8, 5, 2);
-    g.fillRect(4, 12, 3, 2);
-  };
-
-  bakeTexture(scene, key('house-fill'), TILE, TILE, plaster);
-
-  bakeTexture(scene, key('house-window'), TILE, TILE, (g) => {
-    plaster(g);
-
-    // A shuttered window with a rounded head, because a square hole in a wall
-    // is a hole and a rounded one is a window.
-    g.fillStyle(palette.houseWallDark, 1);
-    g.fillRect(3, 5, 10, 8);
-    g.fillCircle(8, 5, 5);
-
-    g.fillStyle(palette.houseWindow, 1);
-    g.fillRect(4, 5, 8, 6);
-    g.fillCircle(8, 5, 4);
-
-    // Glazing bars.
-    g.fillStyle(palette.houseWallDark, 1);
-    g.fillRect(7, 2, 2, 9);
-    g.fillRect(4, 6, 8, 1);
-
-    // A sill under it.
-    g.fillRect(2, 11, 12, 2);
-  });
-
-  bakeTexture(scene, key('house-top'), TILE, TILE, (g) => {
-    g.fillStyle(palette.houseWall, 1);
-    g.fillRect(0, 6, TILE, TILE - 6);
-
-    // Pantiles: a scalloped course, which is what makes a roof read as a roof.
-    g.fillStyle(palette.houseRoofDark, 1);
-    g.fillRect(0, 0, TILE, 7);
-    g.fillStyle(palette.houseRoof, 1);
-    g.fillRect(0, 1, TILE, 4);
-
-    for (let x = 1; x < TILE; x += 4) {
-      g.fillStyle(palette.houseRoofDark, 1);
-      g.fillRect(x, 1, 1, 4);
-      g.fillStyle(0xffffff, 0.14);
-      g.fillCircle(x + 2, 3, 1.6);
-    }
-
-    // The eaves, overhanging a little.
-    g.fillStyle(palette.houseRoofDark, 1);
-    g.fillRect(0, 5, TILE, 2);
-  });
-
-  // --- parked cars -------------------------------------------------------
-  // A car is two tiles tall and five long, with the cabin over the middle
-  // three: a low bonnet, a raised cabin, a low boot. It faces left.
-  //
-  // Each tile is drawn for the place it holds in that shape, and every drawing
-  // starts at the top of its tile, because the top of the tile is what the cat
-  // actually stands on.
-  const TYRE = 0x15161a;
-  const HUB = 0x9aa3ad;
-  const CHROME = 0xb9c4cf;
-  const SHADOW = 0x000000;
-
-  /** A wheel in its arch, sat on the road. */
-  const wheel = (g: Phaser.GameObjects.Graphics, x: number): void => {
-    g.fillStyle(TYRE, 1);
-    g.fillCircle(x, TILE - 5, 5);
-    g.fillStyle(HUB, 1);
-    g.fillCircle(x, TILE - 5, 2);
-    g.fillStyle(TYRE, 1);
-    g.fillRect(x - 1, TILE - 6, 2, 2);
-  };
-
-  /** The dark under-body and the shadow it throws on the road. */
-  const underneath = (g: Phaser.GameObjects.Graphics): void => {
-    g.fillStyle(palette.carTrim, 1);
-    g.fillRect(0, TILE - 8, TILE, 3);
-    g.fillStyle(SHADOW, 0.25);
-    g.fillRect(0, TILE - 1, TILE, 1);
-  };
-
-  /** The chrome rubbing strip that runs the whole length of the car. */
-  const trimLine = (g: Phaser.GameObjects.Graphics): void => {
-    g.fillStyle(CHROME, 1);
-    g.fillRect(0, TILE - 10, TILE, 1);
-  };
-
-  bakeTexture(scene, key('car-nose'), TILE, TILE, (g) => {
-    g.fillStyle(palette.carBody, 1);
-    // The bonnet drops away towards the front.
-    g.fillRect(4, 2, TILE - 4, TILE - 8);
-    g.fillRect(2, 4, TILE - 2, TILE - 10);
-    g.fillRect(1, 5, TILE - 1, TILE - 11);
-
-    // A lit edge along the top of the bonnet.
-    g.fillStyle(0xffffff, 0.22);
-    g.fillRect(5, 2, TILE - 6, 1);
-
-    // Headlight and a sliver of grille under it.
-    g.fillStyle(palette.carLight, 1);
-    g.fillRect(1, 5, 3, 3);
-    g.fillStyle(palette.carTrim, 1);
-    g.fillRect(1, 9, 5, 1);
-
-    trimLine(g);
-    underneath(g);
-
-    // Chrome bumper, wrapped round the nose.
-    g.fillStyle(CHROME, 1);
-    g.fillRect(0, TILE - 7, 6, 2);
-
-    wheel(g, 11);
-  });
-
-  bakeTexture(scene, key('car-sill'), TILE, TILE, (g) => {
-    g.fillStyle(palette.carBody, 1);
-    g.fillRect(0, 1, TILE, TILE - 7);
-    g.fillStyle(0xffffff, 0.18);
-    g.fillRect(0, 1, TILE, 1);
-    trimLine(g);
-    underneath(g);
-  });
-
-  bakeTexture(scene, key('car-door'), TILE, TILE, (g) => {
-    g.fillStyle(palette.carBody, 1);
-    g.fillRect(0, 0, TILE, TILE - 6);
-
-    // A shut line and a handle, which is all it takes to read as a door.
-    g.fillStyle(palette.carTrim, 1);
-    g.fillRect(2, 0, 1, TILE - 9);
-    g.fillStyle(CHROME, 1);
-    g.fillRect(8, 2, 4, 1);
-
-    g.fillStyle(0xffffff, 0.16);
-    g.fillRect(0, 0, TILE, 1);
-
-    trimLine(g);
-    underneath(g);
-  });
-
-  bakeTexture(scene, key('car-tail'), TILE, TILE, (g) => {
-    g.fillStyle(palette.carBody, 1);
-    g.fillRect(0, 1, TILE - 2, TILE - 7);
-    g.fillRect(0, 3, TILE - 1, TILE - 9);
-
-    g.fillStyle(0xffffff, 0.2);
-    g.fillRect(0, 1, TILE - 3, 1);
-
-    // Tail light, and a number plate on the back.
-    g.fillStyle(0xd0463a, 1);
-    g.fillRect(TILE - 4, 4, 3, 3);
-    g.fillStyle(0xe8e2cf, 1);
-    g.fillRect(TILE - 6, 8, 5, 2);
-
-    trimLine(g);
-    underneath(g);
-
-    g.fillStyle(CHROME, 1);
-    g.fillRect(TILE - 6, TILE - 7, 6, 2);
-
-    wheel(g, 5);
-  });
-
-  /** The upper row: the cabin, which is roof, glass and pillars. */
-  const roof = (g: Phaser.GameObjects.Graphics): void => {
-    g.fillStyle(palette.carBody, 1);
-    g.fillRect(0, 0, TILE, 4);
-    g.fillStyle(0xffffff, 0.22);
-    g.fillRect(0, 0, TILE, 1);
-    g.fillStyle(CHROME, 1);
-    g.fillRect(0, 4, TILE, 1);
-  };
-
-  /** Where the cabin meets the body, at the bottom of the upper tile. */
-  const waist = (g: Phaser.GameObjects.Graphics): void => {
-    g.fillStyle(palette.carBody, 1);
-    g.fillRect(0, TILE - 3, TILE, 3);
-    g.fillStyle(CHROME, 1);
-    g.fillRect(0, TILE - 3, TILE, 1);
-  };
-
-  bakeTexture(scene, key('car-windscreen'), TILE, TILE, (g) => {
-    roof(g);
-
-    // The A-pillar, and glass raked forward off it.
-    g.fillStyle(palette.carBody, 1);
-    g.fillRect(0, 0, 3, TILE);
-
-    g.fillStyle(palette.carGlass, 1);
-    g.fillTriangle(3, 5, TILE, 5, TILE, TILE - 3);
-    g.fillRect(3, 5, TILE - 3, 3);
-
-    // A highlight across the glass, and a wing mirror on the pillar.
-    g.fillStyle(0xffffff, 0.25);
-    g.fillRect(5, 6, TILE - 7, 1);
-    g.fillStyle(palette.carTrim, 1);
-    g.fillRect(0, 8, 2, 2);
-
-    waist(g);
-  });
-
-  bakeTexture(scene, key('car-roof'), TILE, TILE, (g) => {
-    roof(g);
-
-    g.fillStyle(palette.carGlass, 1);
-    g.fillRect(0, 5, TILE, TILE - 8);
-
-    // The B-pillar between the two side windows.
-    g.fillStyle(palette.carBody, 1);
-    g.fillRect(7, 5, 2, TILE - 8);
-
-    g.fillStyle(0xffffff, 0.22);
-    g.fillRect(1, 6, 5, 1);
-    g.fillRect(10, 6, 5, 1);
-
-    waist(g);
-  });
-
-  bakeTexture(scene, key('car-rear-window'), TILE, TILE, (g) => {
-    roof(g);
-
-    g.fillStyle(palette.carBody, 1);
-    g.fillRect(TILE - 3, 0, 3, TILE);
-
-    g.fillStyle(palette.carGlass, 1);
-    g.fillTriangle(0, 5, TILE - 3, 5, TILE - 3, TILE - 3);
-    g.fillRect(0, 5, TILE - 3, 3);
-
-    g.fillStyle(0xffffff, 0.25);
-    g.fillRect(1, 6, TILE - 7, 1);
-
-    waist(g);
   });
 
   // --- lava ---------------------------------------------------------------

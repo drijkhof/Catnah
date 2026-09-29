@@ -26,14 +26,9 @@ off the display list with only their bodies, costing nothing per frame.
   passage. Stalactites hang from real ceilings and stalagmites and crystals
   stand on real floors, read off the level's own cells. All static, so the
   scenery bake flattens the lot.
-- `CityBackdrop` — night sky, moon, two ranks of buildings with lit windows.
 
 The backdrop is where a level's character lives, because the tiles themselves
-are shared across all three and differ only by palette.
-
-**The city inverts the forest's depth rule.** Outdoors, haze lightens distance,
-so far trees are paler. At night, distance is where the *lights* are and the
-near thing is what blocks them, so the near buildings are darker.
+are shared across all of them and differ only by palette.
 
 ## Depth and parallax
 

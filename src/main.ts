@@ -93,7 +93,7 @@ if (import.meta.hot) {
  *
  * The browser stops handing out frames when a tab is hidden or an app is
  * switched away from, so the *game* stops on its own. An `AudioContext` does
- * not: without this, walking away leaves the wind, the rain and the beetle
+ * not: without this, walking away leaves the wind and the beetle
  * playing out of a phone in somebody's pocket.
  *
  * Both events are listened for, and they are not the same thing. `hidden` is

@@ -1027,3 +1027,18 @@ Asked for: the duck level, after it had been emptied, deleted outright. The
 file and its entry in `LEVELS` are gone; the notes above stay as history. The
 `if (import.meta.env.DEV)` block in `levels/index.ts` went with it, since it
 had nothing left to push, and `level/CLAUDE.md` says how to bring one back.
+
+## The city is gone
+
+Asked for: the whole city level removed, the car included, the letter `A`
+freed, and the rat kept with its logic.
+
+- **Removed with the level:** its theme, backdrop, the rain and its sound, and
+  the parked-car art. Also the pieces that only the city used: `M` houses (the
+  letter is free too), the drainpipe and lamp column, the girder platform, and
+  the `solidPlatforms` option. I read "complete" as meaning these, not only the
+  level file. If any should come back, they are in git history.
+- **Kept:** the rat, `r`, its leap and its sound. Nothing places one now, so it
+  is untested until a level does.
+- **The game is five levels**: forest, canopy, swamp, cave, volcano. The
+  volcano's door leads back to the forest.

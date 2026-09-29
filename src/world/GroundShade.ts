@@ -151,11 +151,9 @@ export function addGroundShade(
  *   its grass, as if the rock had been set down on the lawn. The same `R`
  *   with earth on every side is a stone *in* the ground, there to break up
  *   the earth, and it darkens with it -- see `buriedRocks`;
- * - a building, a wall with a room behind it -- darkening its inside made a
- *   house read as a tunnel.
  *
  * Everything that is not mass counts as air for the distance field too, so
- * the ground beside a boulder or a house is lit from that side.
+ * the ground beside a boulder is lit from that side.
  */
 function isMass(solid: Solid, isBuried: boolean): boolean {
   if (solid.isBranch || solid.width !== TILE || solid.height !== TILE) {
@@ -168,7 +166,7 @@ function isMass(solid: Solid, isBuried: boolean): boolean {
 
   // A fallen tree is a thing lying on the ground, like a boulder, not part
   // of it.
-  return !solid.textureKey.startsWith('house-') && solid.textureKey !== 'bough';
+  return solid.textureKey !== 'bough';
 }
 
 function isRock(solid: Solid): boolean {

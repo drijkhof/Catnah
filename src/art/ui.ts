@@ -56,7 +56,7 @@ export function generateUiTextures(scene: Phaser.Scene): void {
   });
 
   // The middle state: sound effects still play, only the level's own bed
-  // (wind, rain, that hum) is held back. One arc rather than two, reading as
+  // (wind, that hum) is held back. One arc rather than two, reading as
   // quieter without being confused for fully off.
   bakeTexture(scene, 'ui-sound-quiet', SPEAKER, SPEAKER, (g) => {
     drawSpeaker(g);
