@@ -40,10 +40,12 @@ sprites, which go on colliding). The canopy is one seamless strip in a
 tiling sprite. When a thing looks like a grid, that is the drawing's fault,
 not the level's.
 
-`drawStoneMass` (`stone.ts`) draws a cave's ground as whole stones taken
-from the level: `GameScene.buildStoneMass` cuts each row of ground cells
-into runs of one to three cells, marks which sides meet air, and the drawing
-nudges each stone's corners out on those sides and in on the others. The
+`packStones` and `drawStoneMass` (`stone.ts`) draw a cave's ground as
+whole stones taken from the level: the mass is packed greedily on a grid of
+half-cells with stones of random size shrunk to fit inside the ground, so
+big stones come with small ones between them; each knows which sides meet
+air, and the drawing nudges its corners out on those sides and in on the
+others. The
 silhouette of the mass is therefore stone outlines, never a cut -- an
 earlier version clipped a periodic wall texture at the cell edge with a
 wobble, and the clipped stones were what gave it away. One `Graphics` per

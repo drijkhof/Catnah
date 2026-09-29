@@ -13,7 +13,7 @@ import { Spider } from '../objects/Spider';
 import { addGroundShade, bakeScenery, createBackdrop } from '../world';
 import { parseLevel, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
-import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, LOG_BULGE, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, createRandom, drawStoneMass, roundedTileKey, tileKey, type Corners, type Stone } from '../art';
+import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, LOG_BULGE, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, createRandom, drawStoneMass, packStones, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { installGodMode, isGodMode } from '../dev/godMode';
@@ -1043,63 +1043,37 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    const random = createRandom(9277);
-    const stones: Stone[] = [];
-    const rows = Math.ceil(this.level.heightInPixels / TILE);
     const columns = Math.ceil(this.level.widthInPixels / TILE);
+    const rows = Math.ceil(this.level.heightInPixels / TILE);
+    const isGround = (c: number, r: number): boolean => ground.has(`${c},${r}`);
+    const stones = packStones(
+      columns,
+      rows,
+      isGround,
+      (c, r) => (ground.get(`${c},${r}`)?.textureKey ?? '').startsWith('ground-top'),
+      9277,
+    );
 
-    for (let row = 0; row < rows; row += 1) {
-      let column = 0;
-      while (column < columns) {
-        if (!ground.has(`${column},${row}`)) {
-          column += 1;
+    // Inner corners, for the dust: an open cell with ground below and ground
+    // to one side (and in the corner between). The dust sits on the floor
+    // against the wall.
+    const corners: Array<{ x: number; y: number; side: 1 | -1 }> = [];
+    for (let r = 0; r < rows; r += 1) {
+      for (let c = 0; c < columns; c += 1) {
+        if (isGround(c, r) || !isGround(c, r + 1)) {
           continue;
         }
-
-        // The run of ground in this row from here.
-        let run = 1;
-        while (ground.has(`${column + run},${row}`)) {
-          run += 1;
+        if (isGround(c - 1, r) && isGround(c - 1, r + 1)) {
+          corners.push({ x: c * TILE, y: (r + 1) * TILE, side: -1 });
         }
-
-        // Split it into stones. Rows alternate between starting with a full
-        // stone and a short one, which staggers the joints.
-        let at = 0;
-        let first = row % 2 === 1 && random() < 0.7;
-        while (at < run) {
-          const left = run - at;
-          let cells = first ? 1 : 2 + (random() < 0.3 ? 1 : 0);
-          first = false;
-          if (cells > left) cells = left;
-          // Never leave a lone cell at the end: fold it in.
-          if (left - cells === 1 && cells < 3) cells += 1;
-
-          const start = ground.get(`${column + at},${row}`) as Solid;
-          const end = ground.get(`${column + at + cells - 1},${row}`) as Solid;
-          let up = false;
-          let down = false;
-          for (let c = 0; c < cells; c += 1) {
-            const cell = ground.get(`${column + at + c},${row}`) as Solid;
-            up ||= cell.faces.up;
-            down ||= cell.faces.down;
-          }
-
-          stones.push({
-            column: column + at,
-            row,
-            cells,
-            exposed: { up, down, left: start.faces.left, right: end.faces.right },
-            top: start.textureKey.startsWith('ground-top'),
-          });
-          at += cells;
+        if (isGround(c + 1, r) && isGround(c + 1, r + 1)) {
+          corners.push({ x: (c + 1) * TILE, y: (r + 1) * TILE, side: 1 });
         }
-
-        column += run;
       }
     }
 
     const graphics = this.add.graphics().setDepth(-0.2);
-    drawStoneMass(graphics, stones, THEMES[this.level.theme]);
+    drawStoneMass(graphics, stones, corners, THEMES[this.level.theme]);
   }
 
   /** Earth: a `#` cell, whatever palette it wears. */
@@ -1727,10 +1701,23 @@ export class GameScene extends Phaser.Scene {
 
       // The surface sits a little below the bank, so the grass always stands
       // above the water rather than meeting it edge to edge. The zone the
-      // cat swims in is unchanged; only the picture is lower.
+      // cat swims in is unchanged; only the picture is lower. And where the
+      // water touches stone, the translucent water is trimmed back the few
+      // pixels a stone may bulge past its cell, so the stone shows over the
+      // water, not under it.
+      const stone = THEMES[this.level.theme].groundStyle === 'stone';
+      const bulge = (dx: number, dy: number): number =>
+        stone && this.level.solids.some((s) => this.isGround(s) && s.x === zone.x + dx && s.y === zone.y + dy) ? 3 : 0;
+      const cropTop = zone.isSurface ? WATER_DROP : 0;
+      const cropL = bulge(-TILE, 0);
+      const cropR = bulge(TILE, 0);
+      const cropB = bulge(0, TILE);
+
       if (zone.isSurface) {
         bed.setCrop(0, WATER_DROP, TILE, TILE - WATER_DROP);
-        tile.setCrop(0, WATER_DROP, TILE, TILE - WATER_DROP);
+      }
+      if (cropTop || cropL || cropR || cropB) {
+        tile.setCrop(cropL, cropTop, TILE - cropL - cropR, TILE - cropTop - cropB);
       }
 
       if (zone.isSurface) {
