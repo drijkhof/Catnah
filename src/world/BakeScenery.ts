@@ -25,7 +25,7 @@ const CHUNK = 512;
  */
 export function bakeScenery(scene: Phaser.Scene, widthInPixels: number, heightInPixels: number): void {
   const list = scene.children.list;
-  const candidates: Array<{ object: Phaser.GameObjects.Image; index: number; bounds: Phaser.Geom.Rectangle }> = [];
+  const candidates: Array<{ object: Bakeable; index: number; bounds: Phaser.Geom.Rectangle }> = [];
 
   // Everything a tween is moving, found once. Asking the tween manager per
   // object scans every tween every time, and there are thousands of objects.
@@ -41,7 +41,7 @@ export function bakeScenery(scene: Phaser.Scene, widthInPixels: number, heightIn
       return;
     }
 
-    const image = object as Phaser.GameObjects.Image;
+    const image = object as Bakeable;
     // Nothing static is rotated, so its bounds are plain arithmetic.
     const bounds = new Phaser.Geom.Rectangle(
       image.x - image.displayWidth * image.originX,
@@ -103,10 +103,17 @@ export function bakeScenery(scene: Phaser.Scene, widthInPixels: number, heightIn
   }
 }
 
+/** What the bake can flatten: anything with a texture, a position and a size. */
+type Bakeable = Phaser.GameObjects.Image | Phaser.GameObjects.Sprite | Phaser.GameObjects.TileSprite;
+
 function isStaticScenery(object: Phaser.GameObjects.GameObject, tweened: Set<object>): boolean {
-  // Images and Sprites both; a Sprite is not an Image in Phaser's hierarchy,
-  // and the colliding tiles are Sprites.
-  const drawable = object instanceof Phaser.GameObjects.Image || object instanceof Phaser.GameObjects.Sprite;
+  // Images, Sprites and TileSprites: none is a subclass of another in
+  // Phaser's hierarchy. The colliding tiles are physics Images, the void
+  // fills are TileSprites.
+  const drawable =
+    object instanceof Phaser.GameObjects.Image ||
+    object instanceof Phaser.GameObjects.Sprite ||
+    object instanceof Phaser.GameObjects.TileSprite;
 
   if (!drawable || object instanceof Phaser.GameObjects.RenderTexture) {
     return false;

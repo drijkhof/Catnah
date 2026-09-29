@@ -13,7 +13,7 @@ import { Spider } from '../objects/Spider';
 import { addGroundShade, bakeScenery, createBackdrop } from '../world';
 import { parseLevel, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
-import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, LOG_BULGE, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
+import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, LOG_BULGE, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTrunk, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { installGodMode, isGodMode } from '../dev/godMode';
@@ -984,19 +984,17 @@ export class GameScene extends Phaser.Scene {
     const key = `${this.level.theme}:void-fill`;
 
     if (!this.textures.exists(key)) {
-      // What the deepest shade looks like over earth: the shade colour at its
-      // full strength over the dirt, so a `_` next to a deep `#` is the same
-      // dark.
-      const mix = Phaser.Display.Color.Interpolate.ColorWithColor(
-        Phaser.Display.Color.ValueToColor(palette.dirt),
-        Phaser.Display.Color.ValueToColor(palette.shade),
-        100,
-        Math.round(GROUND_SHADE.max * 100),
-      );
-      bakeTexture(this, key, TILE, TILE, (g) => {
-        g.fillStyle(Phaser.Display.Color.GetColor(mix.r, mix.g, mix.b), 1);
-        g.fillRect(0, 0, TILE, TILE);
-      });
+      // Exactly what a `#` deep in a mass looks like: the fill tile with the
+      // shade at its full strength over it. Then `_` beside deep `#` is the
+      // same picture, stones and all, and there is no seam.
+      const source = this.textures.get(this.tile('ground-fill')).getSourceImage() as CanvasImageSource;
+      const canvas = this.textures.createCanvas(key, TILE, TILE) as Phaser.Textures.CanvasTexture;
+      const ctx = canvas.context;
+      const shade = Phaser.Display.Color.IntegerToRGB(palette.shade);
+      ctx.drawImage(source, 0, 0);
+      ctx.fillStyle = `rgba(${shade.r}, ${shade.g}, ${shade.b}, ${GROUND_SHADE.max})`;
+      ctx.fillRect(0, 0, TILE, TILE);
+      canvas.refresh();
     }
 
     for (const cell of this.level.voids) {
@@ -1012,7 +1010,9 @@ export class GameScene extends Phaser.Scene {
         length += 1;
       }
 
-      this.add.image(cell.x, cell.y, key).setOrigin(0, 0).setDisplaySize(length * TILE, TILE);
+      // A tile sprite repeats the texture along the run rather than
+      // stretching it. Static, so the scenery bake flattens it like the rest.
+      this.add.tileSprite(cell.x, cell.y, length * TILE, TILE, key).setOrigin(0, 0);
     }
   }
 

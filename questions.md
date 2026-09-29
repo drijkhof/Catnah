@@ -1003,3 +1003,14 @@ and `_` beside it meet without a seam.
 - **The bottom row of a level is always shell**, because outside the level
   counts as air for a tile's faces. Harmless: a body per cell along one
   row.
+- **A `#` under a `_` is fill, not grass-top.** The grass-top rule was "grass
+  unless `#` above", which put a grass top -- and with it the fringe and
+  rounded corners -- on every `#` sitting under void: the underside of every
+  shell around a cave ceiling. Void above now counts as rock above.
+- **The void's fill is the deep rock itself**, the fill tile with the shade
+  at full strength over it, repeated along each run, so `_` beside a deep
+  `#` is pixel-identical and there is no seam. A flat colour was tried
+  first and drew a hard line three cells in.
+- **The cave was converted by script**: every `#` at least four cells from
+  anything not solid became `_`, keeping three cells of textured rock
+  round every opening. 10,113 of 13,036 cells.

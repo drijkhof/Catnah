@@ -320,8 +320,10 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
       switch (tiles[column]) {
         case '#':
           // Grass only where the earth is actually exposed to the sky. This is
-          // what stops a stack of tiles reading as stripes.
-          block(x, y, variantOf(at(column, row - 1) === '#' ? 'ground-fill' : 'ground-top', column, row), column, row);
+          // what stops a stack of tiles reading as stripes. Void above is
+          // rock above: no grass under it, and so no fringe and no rounded
+          // corners either -- those follow the grass-top texture.
+          block(x, y, variantOf('#_'.includes(at(column, row - 1)) ? 'ground-fill' : 'ground-top', column, row), column, row);
           break;
 
         case 'R':
