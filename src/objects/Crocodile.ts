@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { CROCODILE_SIZE } from '../art';
-import { CROCODILE } from '../config';
+import { CROCODILE, WATER_DROP } from '../config';
 
 /** How much of the crocodile is back rather than snout and belly, px. */
 const BACK_HEIGHT = 8;
@@ -80,7 +80,8 @@ export class Crocodile extends Phaser.Physics.Arcade.Sprite {
 
   /**
    * @param x Centre of the crocodile.
-   * @param surfaceY Top of the water it lies in. Its back rests there.
+   * @param surfaceY Top of the water's swimmable zone. It rides on the drawn
+   * surface, which sits `WATER_DROP` lower, so it drops with the picture.
    */
   constructor(
     scene: Phaser.Scene,
@@ -88,7 +89,7 @@ export class Crocodile extends Phaser.Physics.Arcade.Sprite {
     surfaceY: number,
     pool: Phaser.Geom.Rectangle[] = [],
   ) {
-    super(scene, x, surfaceY - BACK_TOP - FLOAT_LIFT, 'crocodile');
+    super(scene, x, surfaceY + WATER_DROP - BACK_TOP - FLOAT_LIFT, 'crocodile');
 
     this.homeX = x;
     this.pool = pool;

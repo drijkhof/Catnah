@@ -1042,3 +1042,11 @@ freed, and the rat kept with its logic.
   is untested until a level does.
 - **The game is five levels**: forest, canopy, swamp, cave, volcano. The
   volcano's door leads back to the forest.
+
+## Crocodiles lowered with the water
+
+The water's picture sits `WATER_DROP` (3px) below the swimmable zone, and the
+crocodiles were still placed off the zone, so they rode 3px too high. They now
+sit `WATER_DROP` lower. Their backs are still 4px above the swimmable surface,
+so a cat standing on one is not counted as swimming. The piranhas were left
+alone: they lurk under the surface, where 3px does not show.
