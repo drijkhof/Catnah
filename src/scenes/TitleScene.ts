@@ -179,7 +179,7 @@ export class TitleScene extends Phaser.Scene {
     // Sized off the viewport rather than fixed, because a phone renders fewer
     // game pixels and a fixed size would fill the screen there.
     const title = this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.26, 'Catnah Baksteen', {
+      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.26, 'Catnah', {
         fontFamily: 'monospace',
         fontSize: `${Math.round(GAME_WIDTH * 0.09)}px`,
         color: '#ffffff',

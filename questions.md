@@ -1065,9 +1065,3 @@ alone: they lurk under the surface, where 3px does not show.
   every half turn. The last stretch is now a straight glide, it snaps on
   arrival, and it only turns to look at something more than 4px to one side.
   Not watched in a browser; checked by reading the code and by typecheck only.
-
-## "Baksteen" on the title screen
-
-The title reads "Catnah Baksteen" on one line, at the same size as before; it
-still fits, at about 80% of the screen width. The page title, install name and
-version text were left as "Catnah". Say if you want the installed app renamed too.
