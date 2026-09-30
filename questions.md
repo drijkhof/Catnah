@@ -1050,3 +1050,18 @@ crocodiles were still placed off the zone, so they rode 3px too high. They now
 sit `WATER_DROP` lower. Their backs are still 4px above the swimmable surface,
 so a cat standing on one is not counted as swimming. The piranhas were left
 alone: they lurk under the surface, where 3px does not show.
+
+## Crocodiles: two pixels lower, varied facing, no shaking on the way home
+
+- **Lower by 2px**, not 3. The back now rests 2px above the swimmable surface
+  and dips to 0.5px above it at the bottom of the bob. At 3px it would touch
+  the surface, a cat standing on it would count as swimming and sink off.
+- **Facing is now per crocodile**, from a hash of its home x, so the same ones
+  face left on every device. Turning the picture also moves the back collider
+  to the tail end. Say so if you would rather choose the direction per crocodile
+  in the level file.
+- **The shaking** was the swim home orbiting the spot: its turning circle was
+  wider than the arrival tolerance, so it circled and flipped left and right
+  every half turn. The last stretch is now a straight glide, it snaps on
+  arrival, and it only turns to look at something more than 4px to one side.
+  Not watched in a browser; checked by reading the code and by typecheck only.

@@ -22,7 +22,7 @@ const BACK_TOP = 2;
  * player can aim a jump at, so it rides high and looks like the stepping stone
  * it is.
  */
-const FLOAT_LIFT = 7;
+const FLOAT_LIFT = 5;
 
 /**
  * A crocodile lying in the swamp.
@@ -54,6 +54,9 @@ export class Crocodile extends Phaser.Physics.Arcade.Sprite {
 
   /** The spot in the water it lies at, and swims back to. */
   private readonly homeX: number;
+
+  /** Which way it lies. Picked from where it is, so the row is not all facing right. */
+  private readonly homeFlip: boolean;
 
   /** The tiles of this crocodile's own pool. Nothing else counts as water. */
   private readonly pool: Phaser.Geom.Rectangle[];
@@ -92,6 +95,7 @@ export class Crocodile extends Phaser.Physics.Arcade.Sprite {
     super(scene, x, surfaceY + WATER_DROP - BACK_TOP - FLOAT_LIFT, 'crocodile');
 
     this.homeX = x;
+    this.homeFlip = ((Math.imul(Math.round(x), 2654435761) >>> 16) & 1) === 1;
     this.pool = pool;
     this.bounds = pool.reduce(
       (box, tile) => Phaser.Geom.Rectangle.Union(box, tile),
@@ -114,9 +118,29 @@ export class Crocodile extends Phaser.Physics.Arcade.Sprite {
     // The back only, stopping short of the head. The jaws are wide open and
     // standing in them would be an odd thing to be able to do.
     this.body.setSize(BACK_WIDTH, BACK_HEIGHT, false);
-    this.body.setOffset(2, BACK_TOP);
-
     this.floatY = this.y;
+    this.face(this.homeFlip);
+  }
+
+  /**
+   * Which way it looks. The back is the collider, and it sits at the tail end of
+   * the picture, so turning the picture round has to move the collider with it.
+   */
+  private face(flip: boolean): void {
+    this.setFlipX(flip);
+    const backX = flip ? CROCODILE_SIZE.width - 2 - BACK_WIDTH : 2;
+    this.body.setOffset(backX, BACK_TOP);
+  }
+
+  /**
+   * Turns to look at something, unless it is almost straight above or below.
+   * Without the dead zone a cat at the same x flips it every frame, and it
+   * shakes.
+   */
+  private faceToward(x: number): void {
+    if (Math.abs(x - this.x) > 4) {
+      this.face(x < this.x);
+    }
   }
 
   /** True while its back is a floor. */
@@ -235,24 +259,42 @@ export class Crocodile extends Phaser.Physics.Arcade.Sprite {
     this.body.enable = false;
 
     this.swimTowards(cat.x, cat.y, CROCODILE.chaseSpeed, dt);
-    this.setFlipX(cat.x < this.x);
+    this.faceToward(cat.x);
   }
 
   /** Back to its place, and back to being something to stand on. */
   private goHome(dt: number): void {
-    this.setFlipX(this.homeX < this.x);
-    this.swimTowards(this.homeX, this.floatY, CROCODILE.returnSpeed, dt);
+    const dx = this.homeX - this.x;
+    const dy = this.floatY - this.y;
+    const distance = Math.hypot(dx, dy);
+    const step = CROCODILE.returnSpeed * dt;
 
-    if (
-      Math.abs(this.x - this.homeX) < 2 &&
-      Math.abs(this.y - this.floatY) < 2
-    ) {
-      this.setPosition(this.homeX, this.floatY);
-      this.setFlipX(false);
-      this.phase = 'afloat';
-      this.timer = 0;
-      this.body.enable = true;
+    if (distance <= step) {
+      this.arriveHome();
+      return;
     }
+
+    this.faceToward(this.homeX);
+
+    // Inside its own turning circle it can never line up on home by steering:
+    // it orbits the spot, flipping to face it every half turn. So the last
+    // stretch is a straight glide.
+    if (distance < (2 * CROCODILE.returnSpeed) / CROCODILE.turnRate) {
+      this.heading = Math.atan2(dy, dx);
+      this.setPosition(this.x + (dx / distance) * step, this.y + (dy / distance) * step);
+      return;
+    }
+
+    this.swimTowards(this.homeX, this.floatY, CROCODILE.returnSpeed, dt);
+  }
+
+  private arriveHome(): void {
+    this.setPosition(this.homeX, this.floatY);
+    this.face(this.homeFlip);
+    this.bobClock = 0;
+    this.phase = 'afloat';
+    this.timer = 0;
+    this.body.enable = true;
   }
 
   /**
@@ -313,13 +355,9 @@ export class Crocodile extends Phaser.Physics.Arcade.Sprite {
    * in its pool hunting a thing that is no longer there.
    */
   settle(): void {
-    this.setPosition(this.homeX, this.floatY);
-    this.setFlipX(false);
     this.setTexture('crocodile');
-    this.phase = 'afloat';
-    this.timer = 0;
     this.heading = 0;
-    this.body.enable = true;
+    this.arriveHome();
     this.body.updateFromGameObject();
   }
 

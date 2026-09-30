@@ -270,6 +270,15 @@ is meant to land on.
 - **While hunting its body is off.** A crocodile in the water is in the water
   like everything else there, so there is nothing to stand on until it has swum
   home and settled.
+- **It turns round, and the collider turns with it.** Each crocodile lies
+  facing a way picked from its home x (`homeFlip`), and `face` moves the back
+  to the tail end of the picture, since `flipX` does not mirror body offsets.
+  Chasing and swimming home use `faceToward`, which ignores a target within
+  4px of its own x: a cat straight above otherwise flips it every frame.
+- **The last stretch home is a straight glide.** The turn limit gives a
+  turning circle of about 18px, wider than any arrival tolerance, so steering
+  onto the spot orbited it for ever, flipping and shaking. `goHome` glides once
+  within two turning diameters and snaps on arrival.
 - **The back stops short of the head**, because being able to stand in an open
   mouth would undo what the drawing is saying.
 - **`jaws` is a separate, larger rectangle**, tested from `GameScene.update`
