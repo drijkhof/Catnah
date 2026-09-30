@@ -61,7 +61,7 @@ A player who has not touched the controls yet should not be able to lose.
 
 The game opens on a **title screen**: the forest of level 1 with nobody playing
 it, a cat pacing the floor, a crow crossing overhead, a hedgehog trundling the
-other way and a piranha coming out of a puddle now and then. **Catnah**, and
+other way and a piranha coming out of a puddle now and then. **Catnah Baksteen**, and
 under it *A Hannah Milatovic Rijkhof Game*. Any key starts it; on a phone, a tap.
 
 Bottom right, small, sits the **version**: `v0.1.` followed by the build
