@@ -1081,6 +1081,10 @@ alone: they lurk under the surface, where 3px does not show.
   and back, 70 px/s, bobbing 10 px over 1.9 s, 40 px past each end. All four
   numbers are in `config.ts` (`CROW.flyby*`). It never attacks, and the title
   has no collisions that could hurt anyone anyway.
+- **The crow's height** was raised two tiles at your request. On a short screen
+  (a phone) that would be above the picture, so in title mode the crow's height
+  is held to one tile below the top of the view: on a phone it flies a little
+  lower than on a laptop, but is always seen.
 - **Behaviour per level** is `crowBehaviour` on the level definition, default
   `'attack'`, so no other level changed.
 - **Hedgehogs drawn behind bushes (fixed along the way).** They sat at depth

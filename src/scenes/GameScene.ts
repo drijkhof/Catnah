@@ -288,10 +288,12 @@ export class GameScene extends Phaser.Scene {
   private frameTitle(): void {
     const camera = this.cameras.main;
 
-    camera.setScroll(
-      Math.round(this.level.spawn.x - GAME_WIDTH / 2),
-      this.level.groundLine + TILE * 2 - GAME_HEIGHT,
-    );
+    camera.setScroll(Math.round(this.level.spawn.x - GAME_WIDTH / 2), this.titleViewTop());
+  }
+
+  /** The world y at the top of the title's view: two ground tiles at the bottom. */
+  private titleViewTop(): number {
+    return this.level.groundLine + TILE * 2 - GAME_HEIGHT;
   }
 
   /**
@@ -577,7 +579,7 @@ export class GameScene extends Phaser.Scene {
     });
     this.crows = this.level.crows.map(
       (at) =>
-        new Crow(this, at.x, at.y, this.level.crowBehaviour, {
+        new Crow(this, at.x, this.titleMode ? Math.max(at.y, this.titleViewTop() + TILE) : at.y, this.level.crowBehaviour, {
           left: 0,
           right: this.level.widthInPixels,
         }),
