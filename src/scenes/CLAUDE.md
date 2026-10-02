@@ -33,12 +33,23 @@ exists to say depend on a tween having run.
 
 ## The title screen is the game, not a picture of it
 
-`TitleScene` uses the first level's own backdrop and the real cat, crow,
-hedgehog and piranha textures, all of them moving. It costs a handful of tweens
-and says more about what this is than an arrangement of static sprites would.
+`TitleScene` draws only the words. Under them it launches `GameScene` with
+`{ title: true }`, which runs the `TITLE` level (`level/levels/title.ts`, a cut
+from the forest) in **title mode**: `IdleControls` instead of `Controls`, a fixed
+camera (`frameTitle`: the cat horizontally centred, two ground tiles at the
+bottom), and no HUD, weather, charms, checkpoints, kill overlaps, lava or
+game-over. The hedgehog, piranhas and crow are the real classes, so the picture
+cannot drift from the game it advertises.
 
-Nothing in it has a physics body and it has no `update` at all -- everything is
-on a tween -- so it cannot drift out of step with the game it advertises.
+`scene.launch` draws above the launcher, so `TitleScene` calls `bringToTop`.
+Starting the game is `scene.start('Game', ...)`, which restarts the running
+title-mode scene as level 1; `GameOverScene.leave` stops `Game` and starts
+`Title` again, which relaunches it in title mode. `captureState` returns nothing
+in title mode, so hot reload never saves the title as a game in progress.
+
+The title words are sized from the room above the cat, because on a phone there
+is little of it. Change where the cat stands and `TitleScene.addWords` has to
+follow.
 
 ## Checkpoints move the respawn point, nothing else
 

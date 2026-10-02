@@ -242,6 +242,15 @@ down. The row to use is always the spawn row plus one, or plus two when a
 boulder sits directly under the spawn tile (`P` sits on top of it, not on the
 floor beneath).
 
+## The title level
+
+`levels/title.ts` is not in `LEVELS`; `GameScene` runs it in title mode (see
+`scenes/CLAUDE.md`). It is a hand-cut copy of forest columns 36-89, rows 7-33,
+around the cat's spot on the lowest branch of the great tree, with a crow `c`
+added and `crowBehaviour: 'flyby'`. It is a copy, not a view of the forest, so
+editing the forest does not move it. The spawn `P` stands on a branch, which
+`assertSpawnHasFooting` accepts.
+
 ## Dev-only test levels
 
 There are none at the moment. To add one, push it onto `LEVELS` in

@@ -13,6 +13,33 @@ interface TouchButton {
   height: number;
 }
 
+/** What the cat asks of whoever is steering it. */
+export interface PlayerInput {
+  readonly left: boolean;
+  readonly right: boolean;
+  readonly up: boolean;
+  readonly sneak: boolean;
+  readonly jumpJustPressed: boolean;
+  readonly jumpHeld: boolean;
+  readonly directionJustPressed: boolean;
+}
+
+/**
+ * Nobody at the controls. The title screen's cat stands where it was put, and
+ * this is how: no keyboard listeners, and no touch buttons on a phone.
+ */
+export class IdleControls implements PlayerInput {
+  readonly left = false;
+  readonly right = false;
+  readonly up = false;
+  readonly sneak = false;
+  readonly jumpJustPressed = false;
+  readonly jumpHeld = false;
+  readonly directionJustPressed = false;
+
+  update(): void {}
+}
+
 const BUTTON_MARGIN = 12;
 
 /**
@@ -44,7 +71,7 @@ const RIGHT_BUTTON_REACH = 24;
  * `update()` must be called once at the top of the scene's update, before
  * anything reads the edge-triggered `jumpJustPressed` or `directionJustPressed`.
  */
-export class Controls {
+export class Controls implements PlayerInput {
   private readonly scene: Phaser.Scene;
   private readonly cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private readonly keys: Record<string, Phaser.Input.Keyboard.Key>;

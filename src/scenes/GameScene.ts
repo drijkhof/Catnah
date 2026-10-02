@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { AWAKE_RANGE, CHARMS_PER_LIFE, CHECKPOINT, GAME_HEIGHT, GAME_WIDTH, LIVES, MAX_LIVES, TILE, WATER_DROP } from '../config';
-import { Controls } from '../input/Controls';
+import { Controls, IdleControls, type PlayerInput } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
 import { Crocodile } from '../objects/Crocodile';
@@ -12,6 +12,7 @@ import { Spider } from '../objects/Spider';
 import { addGroundShade, bakeScenery, createBackdrop } from '../world';
 import { parseLevel, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
+import { TITLE } from '../level/levels/title';
 import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, LOG_BULGE, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
@@ -52,7 +53,7 @@ function soundTexture(mode: SoundMode): string {
 }
 
 export class GameScene extends Phaser.Scene {
-  private controls!: Controls;
+  private controls!: PlayerInput & { update(): void };
   private player!: Player;
   private level!: ParsedLevel;
   private scoreText!: Phaser.GameObjects.Text;
@@ -108,6 +109,14 @@ export class GameScene extends Phaser.Scene {
   /** Which level is being played, as an index into LEVELS. */
   private levelIndex = 0;
 
+  /**
+   * True when this is the title screen's backdrop rather than a game: the
+   * title level, nobody at the controls, nothing that can hurt the cat or be
+   * collected, and a camera that stays put. `TitleScene` runs it underneath
+   * its own words.
+   */
+  private titleMode = false;
+
   /** True while the level is being left, so the exit cannot fire twice. */
   private leaving = false;
   private walkers: GroundEnemy[] = [];
@@ -136,7 +145,15 @@ export class GameScene extends Phaser.Scene {
   }
 
   /** Phaser hands this whatever `scene.start` was given. */
-  init(data: { levelIndex?: number; lives?: number; maxLives?: number; collected?: number }): void {
+  init(data: {
+    levelIndex?: number;
+    lives?: number;
+    maxLives?: number;
+    collected?: number;
+    title?: boolean;
+  }): void {
+    this.titleMode = data.title ?? false;
+
     const carried = this.registry.get(SNAPSHOT_KEY) as GameSnapshot | undefined;
 
     this.levelIndex = data.levelIndex ?? carried?.levelIndex ?? 0;
@@ -153,7 +170,7 @@ export class GameScene extends Phaser.Scene {
     // clears it, and a new run starting in black and white is a haunting bug.
     this.cameras.main.filters.internal.clear();
 
-    this.level = parseLevel(LEVELS[this.levelIndex]);
+    this.level = parseLevel(this.titleMode ? TITLE : LEVELS[this.levelIndex]);
     this.crocodiles = [];
     this.spiders = [];
     this.lifeIcons = [];
@@ -219,14 +236,16 @@ export class GameScene extends Phaser.Scene {
       undefined,
       (_cat, branch) => this.canLandOn(branch as Phaser.Physics.Arcade.Sprite),
     );
-    this.physics.add.overlap(this.player, this.charms, (_cat, charm) => {
-      this.collectCharm(charm as Phaser.Physics.Arcade.Sprite);
-    });
-    this.physics.add.overlap(this.player, this.checkpoints, (_cat, checkpoint) => {
-      this.activateCheckpoint(checkpoint as Phaser.Physics.Arcade.Sprite);
-    });
+    if (!this.titleMode) {
+      this.physics.add.overlap(this.player, this.charms, (_cat, charm) => {
+        this.collectCharm(charm as Phaser.Physics.Arcade.Sprite);
+      });
+      this.physics.add.overlap(this.player, this.checkpoints, (_cat, checkpoint) => {
+        this.activateCheckpoint(checkpoint as Phaser.Physics.Arcade.Sprite);
+      });
 
-    this.buildWeather();
+      this.buildWeather();
+    }
 
     this.cameras.main.setBounds(
       0,
@@ -234,11 +253,15 @@ export class GameScene extends Phaser.Scene {
       this.level.widthInPixels,
       this.level.heightInPixels,
     );
-    // The level is taller than the viewport, so the view has somewhere to go
-    // when the cat climbs. A narrow vertical deadzone keeps it in frame on the
-    // way up the great tree without the view bobbing on every small hop.
-    this.cameras.main.startFollow(this.player, true, 0.12, 0.14);
-    this.cameras.main.setDeadzone(140, 44);
+    if (this.titleMode) {
+      this.frameTitle();
+    } else {
+      // The level is taller than the viewport, so the view has somewhere to go
+      // when the cat climbs. A narrow vertical deadzone keeps it in frame on the
+      // way up the great tree without the view bobbing on every small hop.
+      this.cameras.main.startFollow(this.player, true, 0.12, 0.14);
+      this.cameras.main.setDeadzone(140, 44);
+    }
 
     this.buildCreatures(blocks, branches);
     this.buildExit();
@@ -247,9 +270,28 @@ export class GameScene extends Phaser.Scene {
     // textures. See `world/BakeScenery.ts` for what counts as static.
     bakeScenery(this, this.level.widthInPixels, this.level.heightInPixels);
 
+    if (this.titleMode) {
+      this.controls = new IdleControls();
+      return;
+    }
+
     this.controls = new Controls(this);
     this.buildHud();
     this.resumeFromHotReload();
+  }
+
+  /**
+   * Fixes the title screen's camera: centred on the cat, and low enough that
+   * exactly two rows of ground show under it, whatever the screen's size.
+   * Everything above that is whatever the screen has room for.
+   */
+  private frameTitle(): void {
+    const camera = this.cameras.main;
+
+    camera.setScroll(
+      Math.round(this.level.spawn.x - GAME_WIDTH / 2),
+      this.level.groundLine + TILE * 2 - GAME_HEIGHT,
+    );
   }
 
   /**
@@ -258,7 +300,7 @@ export class GameScene extends Phaser.Scene {
    * Called from the hot-reload hook in `src/dev/hot.ts`, never during play.
    */
   captureState(): GameSnapshot | undefined {
-    if (!this.player) {
+    if (!this.player || this.titleMode) {
       return undefined;
     }
 
@@ -403,6 +445,10 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
+    if (this.titleMode) {
+      return;
+    }
+
     // Weather and lava are the place rather than things living in it: they
     // carry on whether or not anybody is looking. What the lava does *not* do
     // off screen is be heard -- that is handled where it spits.
@@ -529,7 +575,13 @@ export class GameScene extends Phaser.Scene {
 
       return new Piranha(this, at.x, at.y, pool, index * 700);
     });
-    this.crows = this.level.crows.map((at) => new Crow(this, at.x, at.y));
+    this.crows = this.level.crows.map(
+      (at) =>
+        new Crow(this, at.x, at.y, this.level.crowBehaviour, {
+          left: 0,
+          right: this.level.widthInPixels,
+        }),
+    );
     this.spiders = this.level.spiders.map((at) => new Spider(this, at.x, at.y, at.size));
     this.crocodiles = this.level.crocodiles.map((at) => {
       // Each crocodile gets only the pool it lies in, never all the water --
@@ -590,7 +642,9 @@ export class GameScene extends Phaser.Scene {
     }
 
     for (const creature of everything) {
-      this.physics.add.overlap(this.player, creature, () => this.kill());
+      if (!this.titleMode) {
+        this.physics.add.overlap(this.player, creature, () => this.kill());
+      }
     }
   }
 

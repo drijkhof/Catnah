@@ -206,6 +206,13 @@ rectangles that kill. Three things, none of which is a new hazard:
 
 ## Crows
 
+A crow has a **behaviour**, set per level by `LevelDefinition.crowBehaviour`:
+`'attack'` (the default, everything below) or `'flyby'`, used by the title
+level. A fly-by crow never looks for the cat: it crosses the level from edge to
+edge, `flybyOvershoot` past each end, and turns round, bobbing gently. It is
+still a `Crow`, so it flips, sleeps and wakes like the rest, but its `step`
+returns before any of the attack code.
+
 Every crow used to share one starting angle and one circling speed, both
 literally zero and a constant. Two of them awake at once -- easy, in a level
 with eight -- traced the exact same circle in perfect lockstep from the moment

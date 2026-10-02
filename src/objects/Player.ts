@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { CAT } from '../config';
-import type { Controls } from '../input/Controls';
+import type { PlayerInput } from '../input/Controls';
 import { isSolidTile } from './solid';
 import { sound } from '../audio/Sound';
 
@@ -121,7 +121,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
    *
    * @param delta Frame time in milliseconds, as handed to `Scene.update`.
    */
-  step(controls: Controls, delta: number): void {
+  step(controls: PlayerInput, delta: number): void {
     const dt = delta / 1000;
     const onGround = this.body.blocked.down || this.body.touching.down;
     const wall = this.findWall(onGround);
@@ -222,7 +222,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
    * Water is a place to move about in rather than something to struggle out of,
    * which is the point of it not being dangerous.
    */
-  private swim(controls: Controls, dt: number, onGround: boolean): void {
+  private swim(controls: PlayerInput, dt: number, onGround: boolean): void {
     // A cat cannot swim flattened out.
     if (this.isSneaking) {
       this.resolvePose(false);
@@ -273,7 +273,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
    * being asked for bleeds off rather than being written over, or the burst
    * that lifts the cat out of a pool would last exactly one frame.
    */
-  private applyBuoyancy(controls: Controls, dt: number): void {
+  private applyBuoyancy(controls: PlayerInput, dt: number): void {
     const vertical = (controls.sneak ? 1 : 0) - (controls.up ? 1 : 0);
 
     if (vertical === 0) {
@@ -334,7 +334,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
    * @returns true if the cat is climbing, in which case it has moved itself and
    *   nothing else in `step` should run.
    */
-  private updateClimb(controls: Controls, onGround: boolean): boolean {
+  private updateClimb(controls: PlayerInput, onGround: boolean): boolean {
     const trunk = this.findTrunk();
 
     if (this.isClimbing) {
@@ -396,7 +396,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
    * standing at the foot of a liana and pressing up climbs it rather than
    * hopping, and holding up on the way past one catches it.
    */
-  private wantsToGrab(controls: Controls, onGround: boolean): boolean {
+  private wantsToGrab(controls: PlayerInput, onGround: boolean): boolean {
     if (this.climbCooldownTimer > 0) {
       return false;
     }
@@ -421,7 +421,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
    * held, or catching a rope in mid-run -- direction held, up held for jump
    * height -- would fling the cat straight back off the rope it just caught.
    */
-  private wantsToLeap(controls: Controls): boolean {
+  private wantsToLeap(controls: PlayerInput): boolean {
     const sideways = (controls.right ? 1 : 0) - (controls.left ? 1 : 0);
 
     if (sideways === 0 || !controls.up) {
@@ -688,7 +688,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     return !bodies.some((body) => isSolidTile(body));
   }
 
-  private applyHorizontal(controls: Controls, dt: number, onGround: boolean): void {
+  private applyHorizontal(controls: PlayerInput, dt: number, onGround: boolean): void {
     const direction = (controls.right ? 1 : 0) - (controls.left ? 1 : 0);
     const topSpeed = this.isSneaking
       ? CAT.speed * CAT.sneakSpeedMultiplier
@@ -719,7 +719,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   private applyJump(
-    controls: Controls,
+    controls: PlayerInput,
     canJump: boolean,
     wall: number,
     dt: number,
@@ -756,7 +756,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
    * Applied as a heavier gravity rather than a cut to the velocity, so the cat
    * coasts on a little instead of stopping dead the instant the button comes up.
    */
-  private applyJumpRelease(controls: Controls, dt: number): void {
+  private applyJumpRelease(controls: PlayerInput, dt: number): void {
     if (!this.isJumping) {
       return;
     }
@@ -801,7 +801,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
    * Pressing towards the wall is required rather than merely touching it, so
    * brushing past a rock in mid-air does not silently brake the cat.
    */
-  private applyWallSlide(controls: Controls, wall: number, onGround: boolean): void {
+  private applyWallSlide(controls: PlayerInput, wall: number, onGround: boolean): void {
     if (onGround || wall === 0) {
       return;
     }
@@ -813,7 +813,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  private updateFacing(controls: Controls): void {
+  private updateFacing(controls: PlayerInput): void {
     if (controls.left && !controls.right) {
       this.setFlipX(true);
     } else if (controls.right && !controls.left) {

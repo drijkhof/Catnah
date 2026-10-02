@@ -1,22 +1,18 @@
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH, LIVES, TILE } from '../config';
-import { Backdrop } from '../world/Backdrop';
-import { tileKey } from '../art';
 import { sound } from '../audio/Sound';
 
-/** Height of the strip of forest floor along the bottom, in pixels. */
-const GROUND_HEIGHT = TILE * 2;
-
 /**
- * The title screen.
+ * The title screen's words, over a level of the game.
  *
- * Not a picture of the game: the game itself, with nobody playing it. The same
- * forest backdrop the first level uses, the same cat, crow, hedgehog and
- * piranha textures, all of them moving. It costs a few tweens and it says more
- * about what this is than any arrangement of static sprites would.
+ * Not a picture of the game: the game itself, with nobody playing it. The scene
+ * under these words is `GameScene` in title mode, running `TITLE` -- a cut from
+ * level 1 with the cat standing on a branch, the real hedgehog and piranhas,
+ * and a crow that flies by. This scene owns only the name, the prompt and what
+ * happens when a key is pressed.
  *
- * Nothing here has a physics body. Everything is on a tween, so the scene has
- * no `update` at all and cannot drift out of step with the game it advertises.
+ * It has no `update` and nothing in it moves except the title bobbing and the
+ * prompt pulsing, both on tweens.
  */
 export class TitleScene extends Phaser.Scene {
   /** True once the game has been asked for, so a second key cannot ask again. */
@@ -29,159 +25,31 @@ export class TitleScene extends Phaser.Scene {
   create(): void {
     this.starting = false;
 
-    const groundY = GAME_HEIGHT - GROUND_HEIGHT;
+    // The picture is the real forest, played by `GameScene` with nobody at the
+    // controls. It is launched alongside rather than drawn here, so the
+    // hedgehog, the piranhas and the crow are the game's own and cannot drift
+    // from it. Launched scenes draw above the one that launched them, so this
+    // one is lifted back on top.
+    this.scene.launch('Game', { title: true });
+    this.scene.bringToTop();
 
-    new Backdrop(this, GAME_WIDTH, groundY);
-    this.addGround(groundY);
-    this.addPool(groundY);
-    this.addCast(groundY);
     this.addWords();
     this.waitForAnyInput();
   }
 
-  /** A strip of forest floor for the cast to stand on. */
-  private addGround(groundY: number): void {
-    for (let x = 0; x < GAME_WIDTH; x += TILE) {
-      this.add
-        .image(x, groundY, tileKey('forest', 'ground-top'))
-        .setOrigin(0, 0)
-        .setDepth(-5);
-
-      this.add
-        .image(x, groundY + TILE, tileKey('forest', 'ground-fill'))
-        .setOrigin(0, 0)
-        .setDepth(-5);
-    }
-  }
-
-  /**
-   * A puddle in the floor with something in it.
-   *
-   * Cut into the left-hand end, well away from the cat, so the piranha's jump
-   * reads as a threat rather than as part of the cat's walk.
-   */
-  private addPool(groundY: number): void {
-    const left = TILE * 2;
-    const width = TILE * 3;
-
-    for (let x = left; x < left + width; x += TILE) {
-      this.add
-        .image(x, groundY, tileKey('forest', 'water-bed'))
-        .setOrigin(0, 0)
-        .setDepth(-5);
-
-      this.add
-        .image(x, groundY, tileKey('forest', 'water-surface'))
-        .setOrigin(0, 0)
-        .setAlpha(0.62)
-        .setDepth(6);
-
-      this.add
-        .image(x, groundY+TILE, tileKey('forest', 'water-bed'))
-        .setOrigin(0, 0)
-        .setDepth(-5);
-
-      this.add
-        .image(x, groundY+TILE, tileKey('forest', 'water'))
-        .setOrigin(0, 0)
-        .setAlpha(0.62)
-        .setDepth(6);
-
-      this.add
-        .image(x, groundY+1.5*TILE, tileKey('forest', 'ground-top'))
-        .setOrigin(0, 0)
-        .setDepth(-5);
-
-    }
-
-    const fish = this.add
-      .image(left + width / 2, groundY + TILE, 'piranha')
-      .setDepth(5)
-      .setAngle(-70);
-
-    // Out of the water and back, then a long wait. The pause is most of the
-    // effect: a fish that leaps constantly is a decoration, one that leaps now
-    // and then is a fish.
-    this.tweens.add({
-      targets: fish,
-      y: groundY - TILE,
-      angle: { from: -70, to: -110 },
-      duration: 520,
-      ease: 'Sine.easeOut',
-      yoyo: true,
-      repeat: -1,
-      repeatDelay: 2200,
-    });
-  }
-
-  /** The cat, a hedgehog it is ignoring, and a crow overhead. */
-  private addCast(groundY: number): void {
-    const cat = this.add
-      .image(GAME_WIDTH * 0.35, groundY + 1, 'cat')
-      .setOrigin(0.5, 1)
-      .setDepth(10);
-
-    this.tweens.add({
-      targets: cat,
-      x: GAME_WIDTH * 0.7,
-      duration: 4200,
-      ease: 'Sine.easeInOut',
-      yoyo: true,
-      repeat: -1,
-      // The cat has to turn round at each end, or it moonwalks back.
-      onYoyo: () => cat.setFlipX(true),
-      onRepeat: () => cat.setFlipX(false),
-    });
-
-    const hedgehog = this.add
-      .image(GAME_WIDTH * 0.9, groundY + 1, 'hedgehog')
-      .setOrigin(0.5, 1)
-      .setFlipX(true)
-      .setDepth(9);
-
-    this.tweens.add({
-      targets: hedgehog,
-      x: GAME_WIDTH * 0.62,
-      duration: 5600,
-      yoyo: true,
-      repeat: -1,
-      onYoyo: () => hedgehog.setFlipX(false),
-      onRepeat: () => hedgehog.setFlipX(true),
-    });
-
-    const crow = this.add
-      .image(-TILE, GAME_HEIGHT * 0.3, 'crow')
-      .setDepth(11);
-
-    // Two tweens on one bird: a steady crossing and a slower rise and fall.
-    // Their periods do not divide into each other, so the path never repeats
-    // exactly and the crow looks like it is flying rather than sliding.
-    this.tweens.add({
-      targets: crow,
-      x: GAME_WIDTH + TILE,
-      duration: 7000,
-      repeat: -1,
-      onRepeat: () => crow.setX(-TILE),
-    });
-
-    this.tweens.add({
-      targets: crow,
-      y: GAME_HEIGHT * 0.16,
-      duration: 1900,
-      ease: 'Sine.easeInOut',
-      yoyo: true,
-      repeat: -1,
-    });
-  }
-
   /** The name, whose game it is, and how to begin. */
   private addWords(): void {
-    // Sized off the viewport rather than fixed, because a phone renders fewer
-    // game pixels and a fixed size would fill the screen there.
+    // The cat stands 8 tiles over the ground, which shows two tiles of itself,
+    // and is 18 tall: that leaves `room` above its head. A phone has little of
+    // it, so the name is sized to fit there instead of landing on the cat.
+    const room = GAME_HEIGHT - TILE * 10 - 18 - 8;
+    const titleSize = Math.round(Math.min(GAME_WIDTH * 0.09, room * 0.45));
+    const titleY = Math.round(titleSize * 0.7 + 6);
+
     const title = this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.26, 'Catnah', {
+      .text(GAME_WIDTH / 2, titleY, 'Catnah', {
         fontFamily: 'monospace',
-        fontSize: `${Math.round(GAME_WIDTH * 0.09)}px`,
+        fontSize: `${titleSize}px`,
         color: '#ffffff',
         stroke: '#2a1d14',
         strokeThickness: 6,
@@ -199,7 +67,7 @@ export class TitleScene extends Phaser.Scene {
     });
 
     this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.26 + Math.round(GAME_WIDTH * 0.08), 'A Hannah Milatovic Rijkhof Game', {
+      .text(GAME_WIDTH / 2, titleY + Math.round(titleSize * 0.5) + 8, 'A Hannah Milatovic Rijkhof Game', {
         fontFamily: 'monospace',
         fontSize: `${Math.round(GAME_WIDTH * 0.022)}px`,
         color: '#ffffff',

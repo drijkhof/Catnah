@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { CROW } from '../config';
 import { createRandom } from '../art';
 import { sound } from '../audio/Sound';
+import type { CrowBehaviour } from '../level/Level';
 
 /**
  * The crow that lives in the great tree.
@@ -11,6 +12,10 @@ import { sound } from '../audio/Sound';
  * points: the velocity is turned gradually towards wherever it is heading, so
  * it banks into curves and overshoots on an attack run instead of tracking the
  * cat like a homing missile -- which is what makes it dodgeable.
+ *
+ * What it does is the level's choice (`CrowBehaviour`). A `flyby` crow ignores
+ * the cat altogether: it sweeps across the level and back, rising and falling
+ * a little on the way, and never attacks. The title screen uses it.
  */
 export class Crow extends Phaser.Physics.Arcade.Sprite {
   declare body: Phaser.Physics.Arcade.Body;
@@ -36,8 +41,34 @@ export class Crow extends Phaser.Physics.Arcade.Sprite {
 
   private attacking = false;
 
-  constructor(scene: Phaser.Scene, nestX: number, nestY: number) {
+  private readonly behaviour: CrowBehaviour;
+
+  /** A `flyby` crow's sweep: the x it turns round at on each side. */
+  private readonly sweepLeft: number;
+  private readonly sweepRight: number;
+
+  /** 1 sweeping right, -1 sweeping left. */
+  private sweepDirection = 1;
+
+  /** Where in its rise and fall it is, ms. */
+  private bobClock = 0;
+
+  /**
+   * @param sweep Where a `flyby` crow turns round, left and right. Ignored by
+   *   an attacking one.
+   */
+  constructor(
+    scene: Phaser.Scene,
+    nestX: number,
+    nestY: number,
+    behaviour: CrowBehaviour = 'attack',
+    sweep: { left: number; right: number } = { left: nestX, right: nestX },
+  ) {
     super(scene, nestX, nestY, 'crow');
+
+    this.behaviour = behaviour;
+    this.sweepLeft = sweep.left - CROW.flybyOvershoot;
+    this.sweepRight = sweep.right + CROW.flybyOvershoot;
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
@@ -76,6 +107,11 @@ export class Crow extends Phaser.Physics.Arcade.Sprite {
   }
 
   step(target: Phaser.Math.Vector2, delta: number): void {
+    if (this.behaviour === 'flyby') {
+      this.flyBy(delta);
+      return;
+    }
+
     const dt = delta / 1000;
     const toCat = target.distance(this.nest);
 
@@ -98,6 +134,30 @@ export class Crow extends Phaser.Physics.Arcade.Sprite {
     this.steerTowards(aim, dt);
 
     this.setFlipX(this.body.velocity.x < 0);
+  }
+
+  /**
+   * Across and back, forever. The bob is a sine on the height, driven by
+   * velocity (the slope of that sine) rather than by writing the position, so
+   * `doze` still stops it dead like any other crow.
+   *
+   * It turns round beyond each end of the sweep, which the level makes wider
+   * than any screen, so the turn happens out of sight.
+   */
+  private flyBy(delta: number): void {
+    this.bobClock += delta;
+
+    if (this.x >= this.sweepRight) {
+      this.sweepDirection = -1;
+    } else if (this.x <= this.sweepLeft) {
+      this.sweepDirection = 1;
+    }
+
+    const angular = (Math.PI * 2) / CROW.flybyBobPeriodMs;
+    const rise = CROW.flybyBob * angular * 1000 * Math.cos(this.bobClock * angular);
+
+    this.setVelocity(this.sweepDirection * CROW.flybySpeed, rise);
+    this.setFlipX(this.sweepDirection < 0);
   }
 
   /** The point on its patrol circle it is currently heading for. */

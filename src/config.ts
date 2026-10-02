@@ -738,6 +738,14 @@ export const CROW = {
   attackSpeed: 180,
   /** How quickly the velocity turns towards where it is heading, per second. */
   turnRate: 2.6,
+  /** A `flyby` crow: speed along its sweep, px/sec. */
+  flybySpeed: 70,
+  /** A `flyby` crow: how far it rises and falls on the way, px. */
+  flybyBob: 10,
+  /** A `flyby` crow: how long one rise and fall takes, ms. */
+  flybyBobPeriodMs: 1900,
+  /** A `flyby` crow: how far past each end of its sweep it goes before turning, px. */
+  flybyOvershoot: 40,
 } as const;
 
 /**

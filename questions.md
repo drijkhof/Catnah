@@ -1065,3 +1065,27 @@ alone: they lurk under the surface, where 3px does not show.
   every half turn. The last stretch is now a straight glide, it snaps on
   arrival, and it only turns to look at something more than 4px to one side.
   Not watched in a browser; checked by reading the code and by typecheck only.
+
+## Title screen: a cut of the real forest
+
+- **"66/67"** I read as the editor's column numbers, which are the file's tile
+  columns plus 4 (three characters of indent and quote, one-based). That makes
+  forest columns 62/63: the last two tiles of the lowest `=====` branch of the
+  great tree, with a hedgehog on the ground beneath. The cat stands on the tip
+  of that branch. If you meant other columns, only `P` in `levels/title.ts`
+  moves (and the camera follows it).
+- **The map** is a copy of forest columns 36-89 and rows 7-33 (54 x 27 tiles),
+  so the widest screen (21:9, 53 tiles) is still covered. It is a copy: later
+  forest edits do not change it.
+- **The crow** is placed in the sky left of the tree and flies the whole width
+  and back, 70 px/s, bobbing 10 px over 1.9 s, 40 px past each end. All four
+  numbers are in `config.ts` (`CROW.flyby*`). It never attacks, and the title
+  has no collisions that could hurt anyone anyway.
+- **Behaviour per level** is `crowBehaviour` on the level definition, default
+  `'attack'`, so no other level changed.
+- **Hedgehogs drawn behind bushes (fixed along the way).** They sat at depth
+  -1 while the baked scenery, bushes included, sits at -0.5, so a hedgehog
+  walking past a bush disappeared. They are at -0.4 now, in every level.
+- **A spawn on a branch** no longer trips the "no floor under the spawn" check.
+- **Not tried:** a real phone. Checked in a desktop browser at laptop size and
+  with `?phone`.

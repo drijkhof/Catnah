@@ -3,6 +3,9 @@ import { BRANCH_THICKNESS, TILE_VARIANTS } from '../art';
 import type { ThemeName } from './themes';
 import type { GroundEnemyKind } from '../config';
 
+/** What a crow does. See `LevelDefinition.crowBehaviour`. */
+export type CrowBehaviour = 'attack' | 'flyby';
+
 /**
  * One level, as a grid of characters.
  *
@@ -87,6 +90,13 @@ export interface LevelDefinition {
    * is its branches.
    */
   climbableColumns?: boolean;
+  /**
+   * What the crows here do. `attack`, the default, is the forest's: circle the
+   * nest and dive at a cat that comes near. `flyby` sweeps back and forth
+   * across the level and never attacks; the title screen uses it, where the
+   * point of a crow is to be seen flying.
+   */
+  crowBehaviour?: CrowBehaviour;
   rows: string[];
 }
 
@@ -191,6 +201,7 @@ export interface ParsedLevel {
   waterZones: WaterZone[];
   /** Whether the columns above can be climbed, or are only scenery to stand on. */
   columnsAreClimbable: boolean;
+  crowBehaviour: CrowBehaviour;
   /** Water, grouped into connected pools. A piranha never leaves its own. */
   pools: WaterZone[][];
   /** Lava. Shaped like water, but touching it kills. */
@@ -549,6 +560,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     lianaZones,
     deadVineZones,
     columnsAreClimbable: definition.climbableColumns ?? true,
+    crowBehaviour: definition.crowBehaviour ?? 'attack',
     waterZones,
     pools,
     crocodiles,
@@ -653,9 +665,11 @@ function assertSpawnHasFooting(
   const column = Math.floor(spawn.x / TILE);
   const row = Math.floor(spawn.y / TILE) - 1;
 
-  // Something to stand on, within a few tiles.
+  // Something to stand on, within a few tiles. A branch counts: the cat can
+  // stand on one, and the title screen starts it on one.
   for (let below = row + 1; below < rows.length && below <= row + 4; below += 1) {
-    if (FULL_CELL.has(rows[below]?.[column] ?? '.')) {
+    const cell = rows[below]?.[column] ?? '.';
+    if (FULL_CELL.has(cell) || cell === '=') {
       return;
     }
   }

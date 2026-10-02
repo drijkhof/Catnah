@@ -59,10 +59,18 @@ A player who has not touched the controls yet should not be able to lose.
 
 ## Starting, and starting over
 
-The game opens on a **title screen**: the forest of level 1 with nobody playing
-it, a cat pacing the floor, a crow crossing overhead, a hedgehog trundling the
-other way and a piranha coming out of a puddle now and then. **Catnah**, and
-under it *A Hannah Milatovic Rijkhof Game*. Any key starts it; on a phone, a tap.
+The game opens on a **title screen**: a cut from the real forest of level 1,
+played with nobody at the controls. The cat sits on the tip of the lowest branch
+of the great tree, a hedgehog trundles along the ground below it, piranhas leap
+from the puddles either side, and a crow flies by -- across the whole picture
+and back, without ever attacking. Two blocks of ground show at the bottom.
+**Catnah**, and under it *A Hannah Milatovic Rijkhof Game*. Any key starts it;
+on a phone, a tap.
+
+The cut is wider and taller than any one screen needs, so a wider phone or a
+taller window just sees more forest instead of a gap. The crow's behaviour is a
+property of the level: the title's crow *flies by*, every other level's crow
+*attacks* as before.
 
 Bottom right, small, sits the **version**: `v0.1.` followed by the build
 number -- on the live game the number of the deploy that built it, going up by
