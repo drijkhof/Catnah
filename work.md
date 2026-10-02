@@ -720,6 +720,9 @@ on whether or not anybody is looking.
   drop, and at the edge of the level, so they never fall off. They keep to plain
   ground: never on platforms, never on boulders, never in water. They are slow,
   and cannot be defeated — touching one is fatal from any direction.
+  **They hide behind bushes** (and the swamp's reeds), in every level: for a
+  moment you cannot see them, so you have to remember where they were. Trees
+  and rocks never hide them.
 - **Rats are afraid of you.** They pace like anything else until the cat comes
   close, then turn and **run** — half again as fast as they walk. And when a
   running rat meets a wall or the end of its ledge, it stops, holds for a

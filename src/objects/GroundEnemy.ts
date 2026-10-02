@@ -72,8 +72,9 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
     this.body.setSize(size.width, size.height, false);
     this.body.setOffset(0, 0);
     this.body.setCollideWorldBounds(true);
-    // Just above the baked scenery (-0.5), which holds the backdrop's bushes:
-    // at -1 a hedgehog walking past one was drawn behind it and vanished.
+    // Above the baked scenery (-0.5), so trees and rocks never hide it, and
+    // below the bushes and reeds (-0.3), which are kept live so that it can
+    // walk behind them. That is on purpose: it makes a player remember.
     this.setDepth(-0.4);
   }
 

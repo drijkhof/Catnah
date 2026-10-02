@@ -49,6 +49,14 @@ which is what reads as depth:
 | Canopy | 0.35 sideways, 0 vertically: pinned to the top of the viewport |
 | Bushes, grass tufts | 1 |
 
+**Bushes (and the swamp's reeds) are live objects, not baked.** They sit at
+depth -0.3 with `setData(KEEP_LIVE, true)`, which `bakeScenery` honours. The
+rest of the static scenery is flattened into one layer at -0.5, and hedgehogs
+walk at -0.4: above that layer (trees and rocks never hide them) and below the
+bushes (which do, on purpose). A bush therefore also draws over the foot of a
+trunk or boulder beside it, which looks natural. Anything new that must pass in
+front of or behind the creatures needs the same treatment.
+
 **Anything touching the forest floor must stay at scroll factor 1.** Bushes sit
 on the ground the cat walks on; parallaxing them would make them visibly slide
 across it. Only things clearly far away can afford to move at a different rate.

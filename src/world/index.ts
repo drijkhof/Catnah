@@ -7,7 +7,7 @@ import { SwampBackdrop } from './SwampBackdrop';
 import { VolcanoBackdrop } from './VolcanoBackdrop';
 
 export { addGroundShade } from './GroundShade';
-export { bakeScenery } from './BakeScenery';
+export { KEEP_LIVE, bakeScenery } from './BakeScenery';
 
 /**
  * Builds the scenery for a place.

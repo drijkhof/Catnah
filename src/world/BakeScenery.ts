@@ -1,5 +1,12 @@
 import Phaser from 'phaser';
 
+/**
+ * Data key that keeps a picture out of the bake. Baked scenery all lands in one
+ * layer at depth -0.5, so anything that must draw *between* it and the cat -- a
+ * bush a hedgehog can hide behind -- has to stay a live object.
+ */
+export const KEEP_LIVE = 'keepLive';
+
 /** The side of one baked chunk, px. A power of two, for the GPU's sake. */
 const CHUNK = 512;
 
@@ -130,6 +137,10 @@ function isStaticScenery(object: Phaser.GameObjects.GameObject, tweened: Set<obj
     object instanceof Phaser.GameObjects.TileSprite;
 
   if (!drawable || object instanceof Phaser.GameObjects.RenderTexture) {
+    return false;
+  }
+
+  if (object.getData(KEEP_LIVE)) {
     return false;
   }
 

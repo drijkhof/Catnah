@@ -1087,9 +1087,13 @@ alone: they lurk under the surface, where 3px does not show.
   lower than on a laptop, but is always seen.
 - **Behaviour per level** is `crowBehaviour` on the level definition, default
   `'attack'`, so no other level changed.
-- **Hedgehogs drawn behind bushes (fixed along the way).** They sat at depth
-  -1 while the baked scenery, bushes included, sits at -0.5, so a hedgehog
-  walking past a bush disappeared. They are at -0.4 now, in every level.
+- **Hedgehogs hide behind bushes, not trees.** Baking the scenery had put the
+  bushes in front of them by accident, and trees and rocks too. Now the
+  hedgehog is in front of the baked layer (-0.4) and the bushes and swamp
+  reeds are live objects in front of it (-0.3). The bushes sit 2px higher, as
+  they now draw over the grass instead of under it, and they also overlap the
+  foot of a tree or boulder beside them. Say so if a bush in front of a trunk
+  bothers you.
 - **A spawn on a branch** no longer trips the "no floor under the spawn" check.
 - **Not tried:** a real phone. Checked in a desktop browser at laptop size and
   with `?phone`.

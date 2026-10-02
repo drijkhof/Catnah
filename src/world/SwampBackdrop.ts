@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../config';
+import { KEEP_LIVE } from './BakeScenery';
 import { DEAD_TREE_SIZE, createRandom } from '../art';
 
 /**
@@ -48,7 +49,8 @@ export class SwampBackdrop {
       scene.add
         .image(x + (random() - 0.5) * 30, groundLine + 4, 'reed')
         .setOrigin(0.5, 1)
-        .setDepth(random() < 0.3 ? 40 : -10);
+        .setDepth(random() < 0.3 ? 40 : -0.3)
+        .setData(KEEP_LIVE, true);
     }
 
     // Two bands of mist, drifting at different speeds so the air moves.

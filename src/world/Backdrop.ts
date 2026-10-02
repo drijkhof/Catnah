@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { COLORS, GAME_HEIGHT, GAME_WIDTH } from '../config';
+import { KEEP_LIVE } from './BakeScenery';
 import { BUSH_SIZE, CANOPY_SIZE, SUN_SIZE, TREE_SIZES, createRandom } from '../art';
 
 /**
@@ -16,7 +17,9 @@ const DEPTH = {
   treesMid: -70,
   fogNear: -66,
   canopy: -60,
-  bushes: -10,
+  // In front of the hedgehogs (-0.4), so one can hide behind a bush, and
+  // behind the cat (0). Not baked: see `KEEP_LIVE`.
+  bushes: -0.3,
   foreground: 50,
 } as const;
 
@@ -209,10 +212,11 @@ export class Backdrop {
       // Bushes sit on the floor the cat walks on, so they scroll with it.
       // Parallaxing them would make them slide across the ground.
       this.scene.add
-        .image(x + jitterX, this.groundLine + 3, 'bush')
+        .image(x + jitterX, this.groundLine + 1, 'bush')
         .setOrigin(0.5, 1)
         .setDisplaySize(BUSH_SIZE.width * scale, BUSH_SIZE.height * scale)
-        .setDepth(DEPTH.bushes);
+        .setDepth(DEPTH.bushes)
+        .setData(KEEP_LIVE, true);
 
       // A few tufts right at the camera edge, in front of everything, to give
       // the floor some thickness.
