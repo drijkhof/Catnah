@@ -1,27 +1,18 @@
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH, COLORS } from '../config';
-import { BUTTON_SIZE } from '../art';
+import { COLORS, GAME_HEIGHT, GAME_WIDTH, TOUCH, TOUCH_PREVIEW } from '../config';
+import { BUTTON_SIZE, STICK_SIZE } from '../art';
 
-type ControlName = 'left' | 'right' | 'jump' | 'sneak';
-
-/** A rectangular on-screen touch target, in game-pixel coordinates. */
-interface TouchButton {
-  name: ControlName;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
+const BUTTON_MARGIN = 12;
 
 /** What the cat asks of whoever is steering it. */
 export interface PlayerInput {
   readonly left: boolean;
   readonly right: boolean;
   readonly up: boolean;
+  /** Down: sneaking on the ground, climbing down, swimming down. */
   readonly sneak: boolean;
   readonly jumpJustPressed: boolean;
   readonly jumpHeld: boolean;
-  readonly directionJustPressed: boolean;
 }
 
 /**
@@ -35,53 +26,40 @@ export class IdleControls implements PlayerInput {
   readonly sneak = false;
   readonly jumpJustPressed = false;
   readonly jumpHeld = false;
-  readonly directionJustPressed = false;
 
   update(): void {}
 }
-
-const BUTTON_MARGIN = 12;
-
-/**
- * Extra hit-width given to the "right" button on its own right-hand side,
- * beyond its drawn glyph, px.
- *
- * Forward is the direction held longest and hardest under a moving thumb, so
- * it is the one worth widening. The glyph itself is untouched -- only the
- * rectangle `isButtonDown` tests against grows, invisibly, so a thumb that
- * has drifted a little past the visible edge still counts.
- */
-const RIGHT_BUTTON_REACH = 24;
 
 /**
  * One input surface for both platforms.
  *
  * Gameplay code never asks "is this a phone?" -- it reads `left`, `right`, `up`,
- * `sneak`, `jumpJustPressed` and `jumpHeld`, and this class merges keyboard and
- * touch into those answers.
+ * `sneak` (down), `jumpJustPressed` and `jumpHeld`, and this class merges
+ * keyboard and touch into those answers.
  *
- * **Up and jump are one input.** Space, the up arrow and W all do the same
- * thing, and there is one button for it on a phone. They were split once so
- * that a climbing cat could jump off what it was holding, and that cost more
- * than it bought: two buttons for one intention is not something a hand does
- * well, least of all a thumb. What "up" means is decided by where the cat is --
- * on the ground it jumps, on a rope it climbs, in water it swims up -- and
- * `Player` is what decides it.
+ * **Up and jump are separate.** Keyboard: arrows or WASD steer, Space jumps.
+ * Touch: a stick under the left thumb steers in four directions, a jump button
+ * sits under the right. That is what lets a climbing cat jump straight up off a
+ * rope, and just climb without leaping -- see `input/CLAUDE.md`.
  *
  * `update()` must be called once at the top of the scene's update, before
- * anything reads the edge-triggered `jumpJustPressed` or `directionJustPressed`.
+ * anything reads the edge-triggered `jumpJustPressed`.
  */
 export class Controls implements PlayerInput {
   private readonly scene: Phaser.Scene;
   private readonly cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private readonly keys: Record<string, Phaser.Input.Keyboard.Key>;
-  private readonly buttons: TouchButton[] = [];
+
+  private touchUi = false;
+  private stickX = 0;
+  private stickY = 0;
+  private stickCenterX = 0;
+  private stickCenterY = 0;
+  private stickKnob?: Phaser.GameObjects.Image;
+  private jumpTouched = false;
 
   private jumpHeldNow = false;
   private jumpHeldLastFrame = false;
-
-  private directionHeldNow = 0;
-  private directionHeldLastFrame = 0;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -97,37 +75,37 @@ export class Controls implements PlayerInput {
       Phaser.Input.Keyboard.Key
     >;
 
-    if (scene.game.device.input.touch) {
-      // Four extra pointers so a player can hold a direction, sneak and jump at
-      // once. Phaser tracks only one by default.
+    if (scene.game.device.input.touch || TOUCH_PREVIEW) {
+      // Four extra pointers so a player can steer and jump at once. Phaser
+      // tracks only one by default.
       scene.input.addPointer(4);
+      this.touchUi = true;
       this.createTouchUi();
     }
   }
 
   /** True while the player wants to move backwards. */
   get left(): boolean {
-    return this.cursors.left.isDown || this.keys.A.isDown || this.isButtonDown('left');
+    return this.cursors.left.isDown || this.keys.A.isDown || this.stickX < -TOUCH.stickDeadZone;
   }
 
   /** True while the player wants to move forwards. */
   get right(): boolean {
-    return this.cursors.right.isDown || this.keys.D.isDown || this.isButtonDown('right');
+    return this.cursors.right.isDown || this.keys.D.isDown || this.stickX > TOUCH.stickDeadZone;
   }
 
-  /**
-   * True while the player is asking to go up.
-   *
-   * The same input as `jumpHeld`, deliberately -- read it by this name where
-   * what is meant is "upwards" (climbing a rope, swimming) rather than "jump".
-   */
+  /** True while the player is pointing upwards: climbing, swimming up. Not jumping. */
   get up(): boolean {
-    return this.jumpHeldNow;
+    return (
+      this.cursors.up.isDown || this.keys.W.isDown || this.stickY < -TOUCH.stickVerticalDeadZone
+    );
   }
 
-  /** True while the player wants to sneak: low, flat and slow. */
+  /** True while the player is pointing down: sneaking, climbing down, swimming down. */
   get sneak(): boolean {
-    return this.cursors.down.isDown || this.keys.S.isDown || this.isButtonDown('sneak');
+    return (
+      this.cursors.down.isDown || this.keys.S.isDown || this.stickY > TOUCH.stickVerticalDeadZone
+    );
   }
 
   /** True on the single frame the jump input goes from released to pressed. */
@@ -140,97 +118,103 @@ export class Controls implements PlayerInput {
     return this.jumpHeldNow;
   }
 
-  /**
-   * True on the single frame a horizontal direction goes from none to pressed,
-   * or from one side straight to the other.
-   *
-   * Only climbing needs this: leaping off a rope is "up plus a direction", and
-   * that has to fire whichever of the two the hand happens to press second.
-   */
-  get directionJustPressed(): boolean {
-    return this.directionHeldNow !== 0 && this.directionHeldNow !== this.directionHeldLastFrame;
-  }
-
-  /** Samples edge-triggered state. Call once per frame, before reading. */
+  /** Samples touch and edge-triggered state. Call once per frame, before reading. */
   update(): void {
-    this.jumpHeldLastFrame = this.jumpHeldNow;
-    this.jumpHeldNow =
-      this.cursors.space.isDown ||
-      this.keys.SPACE.isDown ||
-      this.cursors.up.isDown ||
-      this.keys.W.isDown ||
-      this.isButtonDown('jump');
+    this.sampleTouch();
 
-    this.directionHeldLastFrame = this.directionHeldNow;
-    this.directionHeldNow = (this.right ? 1 : 0) - (this.left ? 1 : 0);
+    this.jumpHeldLastFrame = this.jumpHeldNow;
+    this.jumpHeldNow = this.cursors.space.isDown || this.keys.SPACE.isDown || this.jumpTouched;
   }
 
   /**
-   * Hit-tests every active pointer against a button rectangle, rather than
-   * relying on per-object pointerdown/pointerup handlers.
+   * Hit-tests every active pointer against the stick and jump zones, rather
+   * than relying on per-object pointerdown/pointerup handlers.
    *
    * On a small screen fingers slide while pressed. With pointer events, sliding
-   * a thumb a few pixels off the button fires `pointerout` and silently drops
+   * a thumb a few pixels off the stick fires `pointerout` and silently drops
    * the input, so the cat keeps running or stops dead. Testing every frame
-   * means the input reflects where the finger actually is.
+   * means the input reflects where the finger actually is, and the zones are
+   * far bigger than the drawn controls, so a drifting thumb stays on them.
    */
-  private isButtonDown(name: ControlName): boolean {
-    const button = this.buttons.find((candidate) => candidate.name === name);
-    if (!button) {
-      return false;
+  private sampleTouch(): void {
+    if (!this.touchUi) {
+      return;
     }
 
-    for (const pointer of this.scene.input.manager.pointers) {
-      if (!pointer.isDown) {
+    const manager = this.scene.input.manager;
+    const pointers = manager.mousePointer ? [manager.mousePointer, ...manager.pointers] : manager.pointers;
+
+    const zoneTop = GAME_HEIGHT * TOUCH.zoneTop;
+    const stickRight = GAME_WIDTH * TOUCH.stickZoneWidth;
+    const jumpLeft = GAME_WIDTH * (1 - TOUCH.stickZoneWidth);
+
+    let stick: Phaser.Input.Pointer | undefined;
+    this.jumpTouched = false;
+
+    for (const pointer of pointers) {
+      if (!pointer.isDown || pointer.y < zoneTop) {
         continue;
       }
 
       // The touch UI is pinned to the viewport (scroll factor 0), so pointer
       // positions can be compared directly without the camera scroll.
-      if (
-        pointer.x >= button.x &&
-        pointer.x <= button.x + button.width &&
-        pointer.y >= button.y &&
-        pointer.y <= button.y + button.height
-      ) {
-        return true;
+      if (pointer.x <= stickRight) {
+        stick ??= pointer;
+      } else if (pointer.x >= jumpLeft) {
+        this.jumpTouched = true;
       }
     }
 
-    return false;
+    if (!stick) {
+      this.stickX = 0;
+      this.stickY = 0;
+      this.stickKnob?.setPosition(this.stickCenterX, this.stickCenterY);
+      return;
+    }
+
+    const radius = TOUCH.stickRadius;
+    let dx = stick.x - this.stickCenterX;
+    let dy = stick.y - this.stickCenterY;
+    const length = Math.hypot(dx, dy);
+
+    if (length > radius) {
+      dx = (dx / length) * radius;
+      dy = (dy / length) * radius;
+    }
+
+    this.stickX = dx / radius;
+    this.stickY = dy / radius;
+    this.stickKnob?.setPosition(this.stickCenterX + dx, this.stickCenterY + dy);
   }
 
   private createTouchUi(): void {
-    const bottom = GAME_HEIGHT - BUTTON_SIZE - BUTTON_MARGIN;
+    this.stickCenterX = BUTTON_MARGIN + STICK_SIZE / 2 + 8;
+    this.stickCenterY = GAME_HEIGHT - BUTTON_MARGIN - STICK_SIZE / 2;
 
-    // Movement under the left thumb, actions under the right. Three buttons,
-    // not four: jump and climb share one, which is the whole point of them
-    // being one input.
-    const layout: Array<{ name: ControlName; x: number; y: number }> = [
-      { name: 'left', x: BUTTON_MARGIN, y: bottom },
-      { name: 'right', x: BUTTON_MARGIN * 2 + BUTTON_SIZE, y: bottom },
-      { name: 'sneak', x: GAME_WIDTH - BUTTON_MARGIN * 2 - BUTTON_SIZE * 2, y: bottom },
-      { name: 'jump', x: GAME_WIDTH - BUTTON_MARGIN - BUTTON_SIZE, y: bottom },
-    ];
+    this.scene.add
+      .image(this.stickCenterX, this.stickCenterY, 'ui-stick')
+      .setScrollFactor(0)
+      .setDepth(1000)
+      .setAlpha(0.35)
+      .setTint(COLORS.uiButton);
 
-    for (const { name, x, y } of layout) {
-      this.buttons.push({
-        name,
-        x,
-        y,
-        // See `RIGHT_BUTTON_REACH` -- only the hit rect grows, not the glyph
-        // drawn below.
-        width: name === 'right' ? BUTTON_SIZE + RIGHT_BUTTON_REACH : BUTTON_SIZE,
-        height: BUTTON_SIZE,
-      });
+    this.stickKnob = this.scene.add
+      .image(this.stickCenterX, this.stickCenterY, 'ui-stick-knob')
+      .setScrollFactor(0)
+      .setDepth(1001)
+      .setAlpha(0.5)
+      .setTint(COLORS.uiButton);
 
-      this.scene.add
-        .image(x, y, `ui-${name}`)
-        .setOrigin(0, 0)
-        .setScrollFactor(0)
-        .setDepth(1000)
-        .setAlpha(0.35)
-        .setTint(COLORS.uiButton);
-    }
+    this.scene.add
+      .image(
+        GAME_WIDTH - BUTTON_MARGIN - BUTTON_SIZE,
+        GAME_HEIGHT - BUTTON_MARGIN - BUTTON_SIZE,
+        'ui-jump',
+      )
+      .setOrigin(0, 0)
+      .setScrollFactor(0)
+      .setDepth(1000)
+      .setAlpha(0.35)
+      .setTint(COLORS.uiButton);
   }
 }

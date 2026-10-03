@@ -4,30 +4,35 @@ One class, `Controls`, and one rule:
 
 > **Gameplay code never asks whether this is a phone.**
 
-It asks `controls.left`, `controls.right`, `controls.up`, `controls.sneak`,
-`controls.jumpJustPressed`, `controls.jumpHeld` and
-`controls.directionJustPressed`. `Controls` merges keyboard and touch behind
-those answers. Adding a device or a key rebinding should touch this folder only.
+It asks `controls.left`, `controls.right`, `controls.up`, `controls.sneak`
+(down), `controls.jumpJustPressed` and `controls.jumpHeld`. `Controls` merges
+keyboard and touch behind those answers. Adding a device or a key rebinding
+should touch this folder only.
 
-Bindings today: arrows / WASD / Space on a keyboard, and four on-screen buttons
-on a touch device — back, forward, sneak, jump. Movement sits under the left
-thumb, actions under the right.
+Bindings today: arrows / WASD steer and `Space` jumps on a keyboard; on a touch
+device a **stick** under the left thumb (four directions, diagonals) and a jump
+button under the right.
 
-## Up and jump are one input
+## Up and jump are separate
 
-`Space`, `↑` and `W` all do the same thing, and there is one button for it on a
-phone. `controls.up` and `controls.jumpHeld` return the same boolean; read
-whichever name says what you mean.
+`up` is `↑`, `W` or the stick pushed up; `jumpHeld` / `jumpJustPressed` are
+`Space` or the jump button. `Player` decides what up means from where the cat
+is (rope: climb; water: swim up; ground: nothing, bar grabbing a rope), and
+what jump means (ground jump, wall jump, swim stroke, leap off a rope). Keeping
+them apart is what allows a straight jump off a rope, and climbing without
+leaping. They used to be one input; see git history if that is wanted back.
 
-They were split once, because both are things you do upwards and sharing a
-button appeared to mean you could **never jump off the thing you are climbing**.
-Two buttons for one intention turned out to cost more than that bought —
-especially for a thumb — so the conflict is resolved further down instead:
-`Player` decides what "up" means from where the cat is (ground: jump; rope:
-climb; water: swim up), and leaping off a rope is **up plus a direction**.
+## The stick is a zone, not a button
 
-`directionJustPressed` exists only for that leap. It has to fire whichever of
-the two the hand happens to press second, so both edges are watched.
+Touch in the left 40% of the screen (below `TOUCH.zoneTop`) is the stick; the
+vector from the drawn stick's centre to the finger, clamped to
+`TOUCH.stickRadius`, gives left/right past `stickDeadZone` and up/down past the
+larger `stickVerticalDeadZone`. The right 40% is the jump button. Both zones are
+much bigger than what is drawn, so a drifting thumb stays on them.
+
+`?touch` (`TOUCH_PREVIEW` in `config.ts`) builds the touch UI on a laptop and
+includes the mouse pointer in the hit-test, so the controls can be tried with
+a mouse.
 
 ## `update()` must run first, once per frame
 
@@ -47,17 +52,7 @@ the input reflects where the finger *is*, which is what the player expects.
 
 `scene.input.addPointer(4)` is required and easy to forget: Phaser tracks a
 single pointer by default, so without it a player cannot hold a direction,
-sneak and jump at once.
-
-## The "right" button's hit zone is wider than its glyph
-
-Because the hit rect pushed into `this.buttons` and the `Image` drawn for a
-button are computed from the same `x`/`y`/`BUTTON_SIZE` in `createTouchUi()`,
-they can be pulled apart without touching `isButtonDown` at all: the "right"
-entry gets `BUTTON_SIZE + RIGHT_BUTTON_REACH` for its `width` while its `Image`
-still gets exactly `BUTTON_SIZE`. Forward is the direction held longest under
-a drifting thumb, so it is the one button worth a bigger target -- invisibly,
-since only the number fed to the hit-test changed.
+steer and jump at once.
 
 ## Adding a control
 
@@ -66,5 +61,5 @@ since only the number fed to the hit-test changed.
    in `BootScene.generateButtonTextures()` under the key `ui-<name>`.
 3. Touch UI is pinned with `setScrollFactor(0)` and a high `setDepth`.
 
-Button rects are in game-pixel coordinates (the fixed 640x360 space), so they
-land in the same place on every screen.
+Touch zones are in game-pixel coordinates, so they land in the same place
+relative to the screen on every device.

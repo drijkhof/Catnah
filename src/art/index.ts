@@ -12,7 +12,7 @@ export { bakeTexture, createRandom } from './canvas';
 export { CORNER_RADIUS, FILLET_RADIUS, bakeFillet, roundedTileKey, type Corners } from './corners';
 export { bakeRockMass, type RockPiece } from './stone';
 export { BUSH_SIZE, CANOPY_SIZE, CHECKPOINT_SIZE, FOG_HEIGHT, SUN_SIZE, TREE_SIZES, TUFT_SIZE } from './forest';
-export { BUTTON_SIZE } from './ui';
+export { BUTTON_SIZE, STICK_KNOB_SIZE, STICK_SIZE } from './ui';
 export { CAVE_WALL_SIZE, CONE_SIZE, DEAD_TREE_SIZE, STALACTITE_SIZE, STALAGMITE_SIZE } from './backdrops';
 export {
   BRANCH_LEAF_DROP,

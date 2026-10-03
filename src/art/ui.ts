@@ -4,6 +4,10 @@ import { bakeTexture } from './canvas';
 /** Edge length of an on-screen touch button, in game pixels. */
 export const BUTTON_SIZE = 56;
 
+/** Edge length of the touch stick's base, and of its knob, in game pixels. */
+export const STICK_SIZE = 88;
+export const STICK_KNOB_SIZE = 36;
+
 /**
  * Glyphs for the touch controls, drawn plain white. The Controls class tints
  * and fades them, so they carry no colour of their own.
@@ -19,14 +23,28 @@ export function generateUiTextures(scene: Phaser.Scene): void {
     g.fillStyle(0xffffff, 1);
   };
 
-  bakeTexture(scene, 'ui-left', BUTTON_SIZE, BUTTON_SIZE, (g) => {
-    drawBase(g);
-    g.fillTriangle(half + 8, half - 11, half + 8, half + 11, half - 10, half);
+  // The stick: a ring with an arrow at each of the four directions, and a knob
+  // that is moved over it by the thumb.
+  const stickHalf = STICK_SIZE / 2;
+
+  bakeTexture(scene, 'ui-stick', STICK_SIZE, STICK_SIZE, (g) => {
+    g.fillStyle(0xffffff, 0.2);
+    g.fillCircle(stickHalf, stickHalf, stickHalf - 1);
+    g.lineStyle(2, 0xffffff, 0.9);
+    g.strokeCircle(stickHalf, stickHalf, stickHalf - 2);
+    g.fillStyle(0xffffff, 1);
+    const reach = stickHalf - 8;
+    g.fillTriangle(stickHalf - 6, stickHalf - reach + 9, stickHalf + 6, stickHalf - reach + 9, stickHalf, stickHalf - reach);
+    g.fillTriangle(stickHalf - 6, stickHalf + reach - 9, stickHalf + 6, stickHalf + reach - 9, stickHalf, stickHalf + reach);
+    g.fillTriangle(stickHalf - reach + 9, stickHalf - 6, stickHalf - reach + 9, stickHalf + 6, stickHalf - reach, stickHalf);
+    g.fillTriangle(stickHalf + reach - 9, stickHalf - 6, stickHalf + reach - 9, stickHalf + 6, stickHalf + reach, stickHalf);
   });
 
-  bakeTexture(scene, 'ui-right', BUTTON_SIZE, BUTTON_SIZE, (g) => {
-    drawBase(g);
-    g.fillTriangle(half - 8, half - 11, half - 8, half + 11, half + 10, half);
+  bakeTexture(scene, 'ui-stick-knob', STICK_KNOB_SIZE, STICK_KNOB_SIZE, (g) => {
+    g.fillStyle(0xffffff, 0.6);
+    g.fillCircle(STICK_KNOB_SIZE / 2, STICK_KNOB_SIZE / 2, STICK_KNOB_SIZE / 2 - 1);
+    g.lineStyle(2, 0xffffff, 1);
+    g.strokeCircle(STICK_KNOB_SIZE / 2, STICK_KNOB_SIZE / 2, STICK_KNOB_SIZE / 2 - 2);
   });
 
   bakeTexture(scene, 'ui-jump', BUTTON_SIZE, BUTTON_SIZE, (g) => {
@@ -34,8 +52,6 @@ export function generateUiTextures(scene: Phaser.Scene): void {
     g.fillTriangle(half - 11, half + 8, half + 11, half + 8, half, half - 10);
   });
 
-  // Sneak: an arrow down onto a floor line, to read as "get low" rather than
-  // "go down", which an arrow on its own would suggest.
   // The mute button. Small: it lives in the HUD, not under a thumb with the
   // movement controls, so it is sized to be read rather than to be hit hard.
   const SPEAKER = 14;
@@ -71,11 +87,5 @@ export function generateUiTextures(scene: Phaser.Scene): void {
       g.fillRect(10 + i, 4 + i, 1, 1);
       g.fillRect(14 - i, 4 + i, 1, 1);
     }
-  });
-
-  bakeTexture(scene, 'ui-sneak', BUTTON_SIZE, BUTTON_SIZE, (g) => {
-    drawBase(g);
-    g.fillTriangle(half - 11, half - 6, half + 11, half - 6, half, half + 6);
-    g.fillRect(half - 12, half + 9, 24, 3);
   });
 }

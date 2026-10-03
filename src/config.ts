@@ -14,6 +14,14 @@
  * once, at load, to pick a resolution -- gameplay code works in game pixels and
  * never asks again. See CLAUDE.md.
  */
+/**
+ * `?touch` shows the on-screen touch controls on a laptop, driven by the mouse,
+ * and with them the phone-sized view they were laid out for. A test aid for
+ * looking at the controls without a phone.
+ */
+export const TOUCH_PREVIEW =
+  typeof window !== 'undefined' && window.location.search.includes('touch');
+
 function isPhoneSized(): boolean {
   if (typeof window === 'undefined') {
     return false;
@@ -22,7 +30,7 @@ function isPhoneSized(): boolean {
   // `?phone` forces it, so the phone view can be looked at on a laptop without
   // reaching for a phone. Harmless in the built game: it changes nothing but
   // how much of the level fits on the screen.
-  if (window.location.search.includes('phone')) {
+  if (window.location.search.includes('phone') || TOUCH_PREVIEW) {
     return true;
   }
 
@@ -754,6 +762,20 @@ export const CROW = {
  * Kept as one palette so the generated placeholder art already reads as a
  * single scene, and so real art has a colour reference to match.
  */
+/** The on-screen stick and jump zone, in game pixels. */
+export const TOUCH = {
+  /** Radius of the stick's base, how far the knob can travel. */
+  stickRadius: 44,
+  /** Fraction of the radius the thumb must leave the centre before left or right count. */
+  stickDeadZone: 0.28,
+  /** Up and down ask for more, so a thumb drifting while running does not climb. */
+  stickVerticalDeadZone: 0.45,
+  /** The stick answers to any touch in this left share of the screen's width... */
+  stickZoneWidth: 0.4,
+  /** ...and the jump button to the same share on the right, both below this share of its height. */
+  zoneTop: 0.3,
+} as const;
+
 export const COLORS = {
   // Sky, from the top of the screen down to the treeline.
   skyTop: 0x5f9fc4,

@@ -120,29 +120,30 @@ connection. It still updates — the page itself is always fetched fresh when
 there is a connection, so opening the installed game after a new version is
 pushed gets the new version.
 
-## Moving## Moving
+## Moving
 
 | Action | Keyboard | Touch |
 | --- | --- | --- |
-| Forward / back | `→` `←` or `D` `A` | two buttons, bottom left |
-| **Jump / climb up / swim up** | `Space`, `↑` or `W` | button, bottom right |
-| Sneak / climb down / swim down | `↓` or `S` | button, left of jump |
+| Forward / back | `→` `←` or `D` `A` | stick, bottom left |
+| Up: climb up / swim up | `↑` or `W` | stick up |
+| Down: sneak / climb down / swim down | `↓` or `S` | stick down |
+| **Jump** (also off a rope, and the swim stroke) | `Space` | button, bottom right |
 
-The **forward** button's touch target reaches a little further right than it
-looks, since that is the direction held longest under a thumb that drifts
-while running. Nothing changes on screen — only how far past the drawn edge a
-finger still counts.
+The left thumb has a four-way **stick**
+(left, right, up, down, diagonals too) and the right thumb a jump button. Any
+touch in the left 40% of the screen steers, any touch in the right 40% jumps
+(both below the top third, where the HUD is), so a drifting thumb is not lost.
+Up and down need a bigger push than left and right (`TOUCH` in `config.ts`),
+so running with a slightly wandering thumb does not climb.
 
-**Up and jump are one button.** `Space`, `↑` and `W` do exactly the same thing,
-and there are three buttons on a phone, not four. What it does depends on where
-the cat is: on the ground it jumps, on a rope it climbs, in water it swims up.
+**Up and jump are separate inputs.** Up never jumps: on the ground it does
+nothing (except take hold of a rope, if one is there), on a rope it climbs, in
+water it swims up. Jump is Space or the button. That is what makes a **straight
+jump off a rope** possible, and lets you just climb without leaping: jump
+alone throws the cat off upwards, jump plus a direction throws it that way.
 
-They were two buttons once, because you cannot jump off the thing you are
-climbing with only one. Two buttons for one intention turned out to be worse,
-especially under a thumb, so the answer moved into the game instead: **leaping
-off a rope is up *and* a direction**, together. Up alone climbs it, a direction
-alone slides along it, and the two at once throw the cat off towards where you
-are pointing.
+Add `?touch` to the address to see the touch controls on a laptop; the mouse
+acts as a finger. It also shows the phone-sized view.
 
 Wall jumping has no button of its own: in mid-air against a wall, jump does it.
 
@@ -205,9 +206,8 @@ one in mid-air and it catches you: that is the automatic grip, with no button to
 hold.
 
 Once attached, the cat stays put with nothing pressed. Up climbs, down descends,
-and it stops at the top rather than climbing off into the air. Reaching out
-left or right lets go — and **up together with a direction leaps off**, in
-whichever order you press them.
+and it stops at the top rather than climbing off into the air. Left and right slide along it, and **jump leaps off** — straight up, or towards
+a direction held.
 
 A climbing cat is drawn clinging to the rope from behind, **head up**, and stays
 that way climbing down: a cat comes down a rope backwards, and head-first would

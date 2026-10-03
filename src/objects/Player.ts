@@ -392,9 +392,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
    * Whether the cat takes hold of a trunk it is overlapping.
    *
    * Falling onto one catches it -- that is the automatic grip, with no button
-   * to hold. Otherwise holding up takes hold, which is the same input as jump:
-   * standing at the foot of a liana and pressing up climbs it rather than
-   * hopping, and holding up on the way past one catches it.
+   * to hold. Otherwise holding up (or down) takes hold: standing at the foot of
+   * a liana and pressing up climbs it, and holding up on the way past one
+   * catches it. Jump is a separate input and never grabs.
    */
   private wantsToGrab(controls: PlayerInput, onGround: boolean): boolean {
     if (this.climbCooldownTimer > 0) {
@@ -411,24 +411,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   /**
    * Whether the cat is being asked to leap off the thing it is holding.
    *
-   * Up and a direction together, in whichever order the hand presses them.
-   * With up and jump sharing one input this is the whole answer to "how do you
-   * jump off a rope": up on its own climbs it, a direction on its own moves
-   * along it, and the two together throw the cat off it towards where you are
-   * pointing.
+   * The jump input, pressed afresh -- straight up, or towards whichever
+   * direction is held. Up and down only climb, so a player who just wants to
+   * climb never leaps by accident, and one who wants to jump straight up off a
+   * rope can.
    *
-   * It asks for a *fresh* press of one of the two rather than merely both being
-   * held, or catching a rope in mid-run -- direction held, up held for jump
-   * height -- would fling the cat straight back off the rope it just caught.
+   * It is the *press* that counts, not the button being held, or catching a
+   * rope in mid-air with jump still down would fling the cat straight back off.
    */
   private wantsToLeap(controls: PlayerInput): boolean {
-    const sideways = (controls.right ? 1 : 0) - (controls.left ? 1 : 0);
-
-    if (sideways === 0 || !controls.up) {
-      return false;
-    }
-
-    return controls.jumpJustPressed || controls.directionJustPressed;
+    return controls.jumpJustPressed;
   }
 
   /** Lets go and jumps in one move. Horizontal speed is left to the player. */

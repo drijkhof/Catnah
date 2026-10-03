@@ -321,18 +321,14 @@ There is no grab button and no release button:
   up climbs, it does not hop.
 - **Reaching out sideways lets go.**
 
-### Leaping off is up plus a direction
+### Leaping off is the jump input
 
-Up and jump are one input now (see `../input/CLAUDE.md`), so "jump off the rope"
-needs an answer that is not a second button. It is up *and* a direction: up
-alone climbs, a direction alone moves along, and the two together throw the cat
-off towards where you are pointing.
+Up and down only climb. Jump (a fresh press) throws the cat off the rope,
+straight up or towards a held direction, so a player can climb without leaping
+and leap without steering.
 
-`wantsToLeap` asks for a **fresh press of one of the two**, not merely both
-being held. Without that, catching a rope in mid-run — direction held, up held
-for jump height — flings the cat straight back off the rope it just caught.
-Measured: with both held throughout, the cat catches a liana and holds it for 23
-frames before shimmying off the end, rather than bouncing off it on frame one.
+`wantsToLeap` asks for the *press*, not the button being held, so catching a
+rope in mid-air with jump still down does not fling the cat straight back off.
 
 `leapFromTrunk` clears the coyote window `releaseTrunk` just handed out, or the
 same press would buy a second jump on the very next frame.

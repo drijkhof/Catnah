@@ -1097,3 +1097,9 @@ alone: they lurk under the surface, where 3px does not show.
 - **A spawn on a branch** no longer trips the "no floor under the spawn" check.
 - **Not tried:** a real phone. Checked in a desktop browser at laptop size and
   with `?phone`.
+- **Controller change.** Stick on the left, jump on the right,
+  `Space` = jump, `↑` = up. Judgement calls: `↑`/`W` no longer jump on the
+  ground; the stick is a fixed one with big zones rather than a floating one;
+  down on the stick keeps the name `sneak` in code; the old forward button's
+  wider hit area is gone with the buttons. Say if you want a floating stick
+  or `W` to jump as well.
