@@ -1152,3 +1152,15 @@ the portal". Three calls made putting it in:
 
 > **Still open:** where the picture comes from. If it is stock art, check it
 > may be used in a game that is published; `main` deploys to GitHub Pages.
+
+## Water under stone fills its cell
+
+**A `w` directly under a `#` left a strip of sky between the rock and the
+water.** Every water tile with no water above it counted as a surface, and a
+surface is drawn `WATER_DROP` pixels down with a swell on it. Under stone
+there is no surface: the parser now marks water as one only when the cell
+above is open air (not water, not any solid letter), so covered water fills
+its cell, flat and still, and the rounded-corner fillets follow the same flag.
+
+> **Still open:** lava has the same rule and the same potential strip under
+> a `#`. Not touched -- say so if the volcano shows it.

@@ -752,8 +752,9 @@ export const EXIT = {
   warp: 0.08,
   /** One swell-and-shrink, ms. */
   warpMs: 900,
-  /** How far the picture fades at the bottom of a pulse, and one pulse, ms. */
-  pulseAlpha: 0.6,
+  /** The picture's alpha at the top and the bottom of a pulse, and one pulse, ms. */
+  pulseAlphaHigh: 0.8,
+  pulseAlphaLow: 0.4,
   pulseMs: 1100,
   /**
    * Drawn over all the scenery and every creature, and just under the cat

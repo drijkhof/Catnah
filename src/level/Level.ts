@@ -424,13 +424,18 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
         case 'w':
         case 'f':
         case 'C':
-        case 'W':
+        case 'W': {
+          // A surface is water with open air above it. Water under more water
+          // is not one, and neither is water under stone: that is drawn
+          // filling its cell, with no swell and no `WATER_DROP`, or a strip
+          // of sky shows between the rock and the water.
+          const above = at(column, row - 1);
           waterZones.push({
             x,
             y,
             width: TILE,
             height: TILE,
-            isSurface: !'wfCW'.includes(at(column, row - 1)),
+            isSurface: !'wfCW'.includes(above) && !SOLID_LETTERS.includes(above),
           });
 
           if (tiles[column] === 'f') {
@@ -447,6 +452,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
             extraLives.push({ x: x + TILE / 2, y: y + TILE / 2 });
           }
           break;
+        }
 
         case 'h':
           walkers.push({ x: x + TILE / 2, y: y + TILE, kind: 'hedgehog' });

@@ -612,7 +612,7 @@ export class GameScene extends Phaser.Scene {
     // pace of its own, so the light in it seems to surge.
     this.tweens.add({
       targets: hole,
-      alpha: { from: 1, to: EXIT.pulseAlpha },
+      alpha: { from: EXIT.pulseAlphaHigh, to: EXIT.pulseAlphaLow },
       duration: EXIT.pulseMs,
       yoyo: true,
       repeat: -1,
