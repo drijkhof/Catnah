@@ -756,6 +756,14 @@ export const EXIT = {
   warpMs: 900,
   /** One breath of the glow, ms. */
   breatheMs: 1600,
+  /** How far the picture fades at the bottom of a pulse, and one pulse, ms. */
+  pulseAlpha: 0.6,
+  pulseMs: 1100,
+  /**
+   * Drawn over everything in the world, the cat included (0), and under the
+   * HUD (1000). Above the spare hearts (7) and nest rims (6).
+   */
+  depth: 9,
   /** How long the cat takes to be drawn into the centre, ms. */
   drawInMs: 420,
   /** How long the fade to the next level takes once the cat is in, ms. */

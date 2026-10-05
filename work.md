@@ -476,8 +476,10 @@ to the forest. Little hearts are optional everywhere.
 The portal is a **wormhole**: a round picture three tiles across, a blue
 spiral of light curling into a black centre, with a gold glow behind it. It
 spins, slowly, and warps as it
-spins — a little wider, a little taller, never quite the same twice — and its
-foot is sunk into the ground. It is **entered, not touched**: nothing happens
+spins — a little wider, a little taller, never quite the same twice — and
+pulses, the light in it fading and surging back. Its foot is sunk into the
+ground, and it is drawn over everything, the cat included: you walk *into*
+it, not in front of it. It is **entered, not touched**: nothing happens
 until the cat's middle is inside the hole, so brushing past the rim does
 nothing and neither does a jump that clears it. A jump *through* it counts.
 The moment the cat is in, it stops dead — no more steering, no gravity — and

@@ -1125,8 +1125,10 @@ glow, and sink its foot into the ground. All done, with a few calls of my own:
   a hedgehog teleported onto a leaving cat was the test, and it used to kill.
 - **A sound.** Three rising notes, the last one long, played once on entry.
   Nothing else in the game marks the moment and it felt like it wanted one.
-- **It draws over bushes.** In the forest a bush sat on the exit tile and hid
-  half the disc, so the portal sits above scenery and below the cat.
+- **It draws over everything,** the cat included, under only the HUD. It
+  started out above the scenery and below the cat; you asked for it on top,
+  and the cat walking into it rather than in front of it is the better
+  picture anyway.
 - **The sunk foot is a mask, not a shorter picture.** The disc turns and
   warps, and a texture with its bottom cut off would turn with it; a mask
   along the ground line clips whatever is below it, whatever the disc is doing.

@@ -571,18 +571,18 @@ export class GameScene extends Phaser.Scene {
       exit.y - (radius - EXIT.sink),
     );
 
-    // In front of the bushes and grass (down at -0.2 and below), behind the
-    // cat (at 0): a bush that happened to be scattered on the last tile hid
-    // half the portal.
+    // On top of everything in the world -- the cat, the creatures, the
+    // scenery -- and under only the HUD. The cat walks *into* it rather than
+    // in front of it, and nothing scattered on the exit tile can hide it.
     const glow = this.add
       .image(this.exitCentre.x, this.exitCentre.y, PORTAL_GLOW_KEY)
-      .setDepth(-0.12);
+      .setDepth(EXIT.depth - 0.01);
     this.exitGlow = glow;
     // The picture is bigger than the portal is shown; everything that scales
     // it below works from this base.
     const hole = this.add
       .image(this.exitCentre.x, this.exitCentre.y, PORTAL_KEY)
-      .setDepth(-0.1);
+      .setDepth(EXIT.depth);
     const base = EXIT.diameter / hole.width;
     hole.setScale(base);
 
@@ -618,6 +618,16 @@ export class GameScene extends Phaser.Scene {
       targets: hole,
       scaleY: { from: base * (1 + EXIT.warp * 0.6), to: base * (1 - EXIT.warp * 0.6) },
       duration: EXIT.warpMs * 1.37,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+    // And it pulses: the picture itself fades a little and comes back, at a
+    // pace of its own, so the light in it seems to surge.
+    this.tweens.add({
+      targets: hole,
+      alpha: { from: 1, to: EXIT.pulseAlpha },
+      duration: EXIT.pulseMs,
       yoyo: true,
       repeat: -1,
       ease: 'Sine.easeInOut',
