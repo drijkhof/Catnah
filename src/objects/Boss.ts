@@ -72,6 +72,9 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
   /** Where the cat was last frame, so the beetle can work out where it is going. */
   private lastCatX: number | null = null;
 
+  /** Time since the wings were last heard, ms. */
+  private wingClock = 0;
+
   /** The cat's own speed, smoothed, px/sec. What the aim is led by. */
   private catSpeed = 0;
 
@@ -126,6 +129,7 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
   step(delta: number, cat: Phaser.Math.Vector2): void {
     this.timer += delta;
     this.watchTheCat(delta, cat);
+    this.buzz(delta);
 
     switch (this.phase) {
       case 'drop':
@@ -175,6 +179,18 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
     // It faces the way it is going, and rears up as it climbs back out.
     this.setFlipX(this.body.velocity.x > 0);
     this.setAngle(Phaser.Math.Clamp(this.body.velocity.y * 0.04, -18, 18));
+  }
+
+  /**
+   * The wings. A low buzz every `wingBuzzMs` while it has someone to fly at,
+   * from where it is, so you hear it coming round before you see it.
+   */
+  private buzz(delta: number): void {
+    this.wingClock += delta;
+    if (this.engaged && this.wingClock >= BOSS.wingBuzzMs) {
+      this.wingClock = 0;
+      sound.playAt('wings', this.x, this.y);
+    }
   }
 
   /**
@@ -275,7 +291,12 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
     this.setVelocityX(Phaser.Math.Clamp(gap * 6, -BOSS.aimSpeed, BOSS.aimSpeed));
     this.setVelocityY((this.lair.y - this.y) * 3);
 
-    if (Math.abs(gap) < 4) {
+    // Over the column, or as near as it is going to get: a wall in the way
+    // (the arena's slope, now that rock stops it) or a line-up that has gone
+    // on too long both mean "dive from here" rather than "keep sliding".
+    // Without that it stood against the wall aiming for ever.
+    const stuck = this.body.blocked.left || this.body.blocked.right;
+    if (Math.abs(gap) < 4 || stuck || this.timer > BOSS.aimTimeoutMs) {
       this.phase = 'drop';
       this.setVelocity(0, BOSS.diveSpeed);
       sound.playAt('boss', this.x, this.y);
@@ -303,7 +324,12 @@ export class Boss extends Phaser.Physics.Arcade.Sprite {
       ),
     );
 
-    if (this.y >= this.guardY + BOSS.diveDepth * 0.4) {
+    // The dive ends on the floor. It used to end at a depth *below* the
+    // floor, which it reached by diving through it; now that rock stops it,
+    // that depth never came and the beetle sat pressed into the ground for
+    // ever, still "diving". Hitting the floor, or getting as low as its
+    // guarding height plus the clearance under it, is the bottom.
+    if (this.body.blocked.down || this.y >= this.guardY + BOSS.guardClearance) {
       this.phase = 'sweep';
       this.timer = 0;
       this.setVelocityY(-BOSS.riseSpeed);

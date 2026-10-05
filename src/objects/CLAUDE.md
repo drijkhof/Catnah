@@ -177,6 +177,23 @@ before it:
   cat will be; it trailed sixty pixels back the whole way and blocked nothing.
 - **It is faster than the cat.** 215 against 190. Below that, a cat that simply
   ran at the door overtook it.
+- **It does not pass through rock.** `GameScene` gives it a collider against
+  the level's blocks, the same as the walkers. It steers by setting a velocity
+  every frame, so a wall holds it where it presses. Two things followed from
+  that and are easy to reintroduce: a dive used to end at a depth *below* the
+  floor, reached by diving through it, and with rock in the way the beetle
+  sat pressed into the ground "diving" for ever -- a dive ends on the floor
+  now (`blocked.down`); and a line-up aimed past a wall never arrived, so it
+  stood against the wall aiming for ever -- a blocked or overlong line-up
+  (`aimTimeoutMs`) dives from where it is.
+- **It flies, audibly.** `guardClearance` is 36px, so it hovers where a cat
+  can run under it and be dived on, and `buzz` plays the `wings` voice every
+  `wingBuzzMs` while it has someone to fly at, from where it is.
+- **Its floor is the first solid straight below the `X`**, found by
+  `GameScene.buildBoss`, not the level's `groundLine`. The arena's floor need
+  not be the level's, and when it was not, the beetle held station inside the
+  rock under the arena. Below only, never nearest-in-any-direction, or an `X`
+  written low in its arena finds the row it stands in.
 - **It will not give ground past the door.** Backing off for ever meant a cat
   that ran was escorted to the exit by a beetle politely keeping its distance.
   It retreats until its back is to the exit, and then it stands.

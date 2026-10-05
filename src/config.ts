@@ -663,7 +663,7 @@ export const BOSS = {
    * is on your belly -- which is exactly what the game has been teaching since
    * the fallen bough in level one.
    */
-  guardClearance: 14,
+  guardClearance: 36,
 
   /**
    * How hard it corrects sideways on the way down, px/sec.
@@ -684,6 +684,10 @@ export const BOSS = {
 
   /** How long it hovers between dives, ms, the first time. */
   restMs: 1500,
+  /** How often the wings are heard while it is flying at someone, ms. */
+  wingBuzzMs: 420,
+  /** The longest it will spend lining up a dive before diving anyway, ms. */
+  aimTimeoutMs: 1400,
 
   /**
    * How much shorter each rest gets, and the shortest it will ever be, ms.

@@ -299,6 +299,18 @@ Instead it is a pattern: sweep, line up directly overhead, drop.
 **The line-up is the whole warning**, and it is deliberately slower than the
 drop. A fast one is not a pattern, it is a coin toss.
 
+**It cannot pass through rock.** It flies, and it used to fly through the
+arena's walls and roof when its sweep or its rise took it there. It has a
+collider against the level's blocks now, like the walkers; its steering sets a
+velocity every frame, so a wall simply holds it where it presses until it
+wants to go elsewhere.
+
+**It holds station above the arena's own floor.** Its guard height came from
+the level's `groundLine`; with the arena's floor on another row -- which the
+rebuilt volcano has -- the beetle came down to a floor that was not there and
+sat in the rock, and with the collider, against it. The floor is now the first
+solid straight below the `X`, whatever row the arena is on.
+
 Two things the testing forced, both worth knowing:
 
 - **It needs a floor to fight on.** The arena was four-tile islands at first,
@@ -1374,3 +1386,19 @@ proud now, the lip reaches 5px over the bank.
 **Your taller map:** four rows went in above, and `groundRow` is still 28
 while the spawn is on row 31 -- the backdrop plants on it, so the mountains
 hang 64px too high. That is your file; the number wants to be 32.
+
+## The beetle flies again
+
+**It sat on the ground waiting.** Two of my own doing, both from giving it a
+collider against rock: a dive used to end 70px *below* the floor, reached by
+diving through it, so with rock in the way that depth never came and it
+stayed in the dive, pressed into the ground; and a line-up aimed at a column
+behind the arena's slope could never get over it, so it stood against the
+wall aiming. A dive ends on the floor now, and a line-up that is blocked or
+has gone on for more than 1.4s dives from where it is.
+
+**And it hovers higher** -- 36px over the floor instead of 14. It was placed
+low on purpose, so a standing cat could not pass under it; you wanted it to
+fly, and a beetle you can run under but which comes down on you is the
+better fight. **Its wings are heard** while it is after you: a short low buzz
+every 0.42s, from where it is. Not heard by me; say if it is too much.

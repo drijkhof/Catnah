@@ -29,7 +29,8 @@ export type Voice =
   | 'chirp'
   | 'drip'
   | 'checkpoint'
-  | 'portal';
+  | 'portal'
+  | 'wings';
 
 /**
  * The bed a level sits on: one continuous, almost-inaudible layer.
@@ -324,6 +325,13 @@ class SoundBoard {
 
       case 'boss':
         this.growl(at);
+        break;
+
+      // The beetle's wings: a short low buzz, quiet, repeated while it flies.
+      // Two saws a few cents apart like the growl, much shorter and softer.
+      case 'wings':
+        this.blip(at, 92, 84, 0.16, 'sawtooth', 0.09);
+        this.blip(at, 95, 86, 0.16, 'sawtooth', 0.07);
         break;
 
       case 'scurry':

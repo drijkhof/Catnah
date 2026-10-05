@@ -820,6 +820,12 @@ export class GameScene extends Phaser.Scene {
       );
     }
     this.boss = this.level.boss ? this.buildBoss(this.level.boss) : undefined;
+    if (this.boss) {
+      // It flies, but not through rock: the arena's walls and roof are
+      // walls to it too. Its steering sets a velocity every frame, so a wall
+      // simply holds it where it is pressing until it wants to go elsewhere.
+      this.physics.add.collider(this.boss, blocks);
+    }
 
     for (const nest of this.level.nests) {
       // Two halves with the cat between them, which is what puts it *in* the
@@ -895,9 +901,17 @@ export class GameScene extends Phaser.Scene {
    * arena does not silently leave the beetle hovering in the wrong place.
    */
   private buildBoss(at: { x: number; y: number }): Boss {
-    // `groundLine` rather than a search for the nearest solid underneath: the
-    // beetle is placed low in its arena, so half the floor is *above* it and a
-    // search finds the second row down and hangs the beetle in the ground.
+    // The floor is the first solid straight *below* the `X`, in its own
+    // column. Not the level's `groundLine`: the arena's floor need not be
+    // the level's, and when it was not, the beetle held station inside the
+    // rock under the arena. Below only, never the nearest in any direction,
+    // or an `X` written low in its arena finds the row it stands in.
+    const floorY =
+      this.level.solids
+        .filter((solid) => !solid.isBranch && solid.x <= at.x && solid.x + solid.width > at.x && solid.y > at.y)
+        .reduce<number | null>((top, solid) => (top === null || solid.y < top ? solid.y : top), null) ??
+      this.level.groundLine;
+
     return new Boss(
       this,
       at.x,
@@ -908,7 +922,7 @@ export class GameScene extends Phaser.Scene {
         (best, exit) => (best === null || Math.abs(exit.x - at.x) < Math.abs(best - at.x) ? exit.x : best),
         null,
       ) ?? at.x + 1,
-      this.level.groundLine,
+      floorY,
     );
   }
 
