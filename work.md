@@ -163,9 +163,11 @@ Wall jumping has no button of its own: in mid-air against a wall, jump does it.
   and you can jump again from it, as if it were a step. Hearts placed in open
   air are placed with that in mind.
 - **Sneaking takes you under thorns.** Crawl and the points pass over you;
-  stand up among them and you die. It is the pose that counts, and the pose
-  drops the moment you leave the ground, so falling into thorns still kills.
-  Lava and the creatures on the ground are not fooled by it.
+  stand up among them and you die. It is the pose that counts. **Jumping out
+  of them is allowed**: crawl in, jump, and on the way up you are safe — but
+  coming down into thorns kills, whether you fell from above or are dropping
+  back into the patch you jumped from. Lava and the creatures on the ground
+  are not fooled by any of it.
 - **Sneaking hides you from the crow.** A crow never starts an attack on a
   sneaking cat — something low and slow in the grass is not worth a dive —
   though one already diving does not let you off just for dropping flat. For
@@ -715,9 +717,14 @@ being a liquid. What kills is smaller than the tile it stands in: the spikes are
 nine to fifteen pixels of sixteen and the rest is air, so clearing the points is
 clearing them, and brushing the edge of the tile on the way past is not a death.
 
-**A sneaking cat crawls under them.** Standing, walking, jumping or falling into
-thorns kills; low on your belly you pass. This is the one hazard sneaking gets
-you past -- a stalk is worth something, not only a way through a gap.
+**A sneaking cat crawls under them.** Standing or walking in thorns kills, and
+so does falling into them; low on your belly you pass, and from your belly you
+may jump: on the way up you are safe, on the way down you are not. This is the
+one hazard sneaking gets you past -- a stalk is worth something, not only a
+way through a gap. And it
+looks like it: of the four spikes in a tile, the first and third are drawn
+behind the cat and the second and fourth in front, so a crawling cat threads
+between them rather than sliding across a picture of them.
 
 ## Everything sleeps until you get there
 

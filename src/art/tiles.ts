@@ -865,30 +865,34 @@ export function generateTileset(
    * They are drawn as four spikes of different heights. Even spikes read as a
    * comb, and a comb reads as decoration.
    */
-  bakeTexture(scene, key('thorns'), TILE, TILE, (g) => {
-    const spikes = [
-      { x: 1, width: 4, height: 11 },
-      { x: 5, width: 3, height: 15 },
-      { x: 8, width: 4, height: 9 },
-      { x: 12, width: 3, height: 13 },
-    ];
+  // Two textures, not one: the first and third spike go behind the cat and
+  // the second and fourth in front of it, so a cat sneaking under them
+  // passes *between* the thorns rather than in front of a picture of them.
+  const spikes = [
+    { x: 1, width: 4, height: 11 },
+    { x: 5, width: 3, height: 15 },
+    { x: 8, width: 4, height: 9 },
+    { x: 12, width: 3, height: 13 },
+  ];
 
-    // Dark body, pale point. A hazard has to read at a glance and from across
-    // a bank, and the thing that does that is the silhouette, not the colour --
-    // reeds drawn in the same green as the grass they stand in are scenery.
-    const body =
-      palette.platformStyle === 'shelf'
-        ? palette.rockDark
-        : shade(palette.leaf, 58);
-    const tip =
-      palette.platformStyle === 'shelf'
-        ? palette.rockLight
-        : palette.leafLight;
+  // Dark body, pale point. A hazard has to read at a glance and from across
+  // a bank, and the thing that does that is the silhouette, not the colour --
+  // reeds drawn in the same green as the grass they stand in are scenery.
+  const thornBody =
+    palette.platformStyle === 'shelf'
+      ? palette.rockDark
+      : shade(palette.leaf, 58);
+  const thornTip =
+    palette.platformStyle === 'shelf'
+      ? palette.rockLight
+      : palette.leafLight;
 
-    for (const spike of spikes) {
+  const drawSpikes = (g: Phaser.GameObjects.Graphics, which: number[]): void => {
+    for (const i of which) {
+      const spike = spikes[i];
       const top = TILE - spike.height;
 
-      g.fillStyle(body, 1);
+      g.fillStyle(thornBody, 1);
       g.fillTriangle(
         spike.x, TILE,
         spike.x + spike.width, TILE,
@@ -896,10 +900,13 @@ export function generateTileset(
       );
 
       // A lit point, so the top of each one is the part the eye lands on.
-      g.fillStyle(tip, 1);
+      g.fillStyle(thornTip, 1);
       g.fillRect(spike.x + spike.width / 2 - 1, top, 2, 3);
     }
-  });
+  };
+
+  bakeTexture(scene, key('thorns'), TILE, TILE, (g) => drawSpikes(g, [0, 2]));
+  bakeTexture(scene, key('thorns-front'), TILE, TILE, (g) => drawSpikes(g, [1, 3]));
 
   bakeTexture(scene, key('bough'), TILE, TILE, (g) => {
     // A fallen log: lit along the top, grain along its length, dark under.

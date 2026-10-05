@@ -1217,3 +1217,17 @@ exactly where they were.
 
 > Only the forest and canopy backdrop does this; the swamp's reeds stand in
 > the water on purpose.
+
+## Thorns: two layers, and you may jump out of them
+
+**Two of the four spikes are drawn in front of the cat** (the second and the
+fourth, at depth 0.5) and two behind, so a crawling cat threads between them.
+Same drawing, split into two textures; you looked and approved it.
+
+**Jumping out of thorns is allowed.** The pose drops the moment the cat
+leaves the ground, so until now a cat could crawl into a patch but never jump
+out of it -- the first airborne frame was a standing cat in thorns, and dead.
+Now a cat that is airborne and moving *up* is spared; one moving down is not,
+whether it fell from above or is dropping back into the patch it jumped from.
+"Rising" is the body's velocity, so the apex of a jump inside a tall patch is
+where safety ends.

@@ -877,14 +877,17 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
-   * Is any part of the cat in the lava, or -- unless it is sneaking -- on the
-   * thorns?
+   * Is any part of the cat in the lava, or -- unless it is sneaking or on
+   * its way up -- on the thorns?
    *
    * A sneaking cat crawls under the points. That is a rule of the game rather
    * than geometry (the 9px body does still overlap the thorn rectangle), and
    * it is deliberately about the *pose*, not the height: the pose is what the
-   * player chose, and it drops the moment the cat leaves the ground, so a
-   * fall into thorns still kills. Lava spares nothing.
+   * player chose. The pose drops the moment the cat leaves the ground, and
+   * that used to mean a cat could crawl into thorns but never jump out of
+   * them; now a cat *rising* through thorns is spared too -- it is on its way
+   * out. Coming down is not: falling into thorns, or back into the ones you
+   * jumped from, still kills. Lava spares nothing.
    */
   private touchingSomethingDeadly(): boolean {
     const body = this.player.body;
@@ -898,7 +901,13 @@ export class GameScene extends Phaser.Scene {
       return true;
     }
 
-    return !this.player.sneaking && this.thornRects.some(inside);
+    // Velocity alone, not "airborne and rising": on the frame the jump is
+    // pressed the body is still flagged as standing on the ground from the
+    // last physics step, and that frame is exactly the one that killed a cat
+    // jumping out of a sneak.
+    const leaving = body.velocity.y < 0;
+
+    return !this.player.sneaking && !leaving && this.thornRects.some(inside);
   }
 
   /**
@@ -1961,12 +1970,17 @@ export class GameScene extends Phaser.Scene {
    */
   private buildThorns(): Phaser.Geom.Rectangle[] {
     return this.level.thorns.map((thorn) => {
+      // Two of the four spikes behind the cat and two in front, so a cat
+      // sneaking under them is seen threading between the thorns, and one
+      // dying on them is seen falling into them.
       this.add
         .image(thorn.x, thorn.y, this.tile('thorns'))
         .setOrigin(0, 0)
-        // In front of the ground they grow out of, behind the cat, so a cat
-        // dying on them is seen falling into them.
         .setDepth(-1);
+      this.add
+        .image(thorn.x, thorn.y, this.tile('thorns-front'))
+        .setOrigin(0, 0)
+        .setDepth(0.5);
 
       return new Phaser.Geom.Rectangle(thorn.x + 2, thorn.y + 5, TILE - 4, TILE - 5);
     });
