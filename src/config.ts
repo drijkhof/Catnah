@@ -738,14 +738,14 @@ export const CHECKPOINT = {
  */
 export const EXIT = {
   /** The disc as shown, px. Round, so it can simply be turned. */
-  diameter: 48,
+  diameter: 32,
   /** How much of the bottom of the disc is below ground and never seen, px. */
-  sink: 8,
+  sink: 6,
   /**
    * Radius of the hole the cat's centre must be inside, px. Under half a cat,
    * so it is in the hole and not just leaning on it.
    */
-  openingRadius: 10,
+  openingRadius: 8,
   /** One full turn, ms. */
   spinMs: 3600,
   /** How far the disc swells and shrinks either way while it spins, as a fraction. */

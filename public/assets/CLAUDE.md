@@ -10,7 +10,7 @@ look*; it is drawn, not placeholder, but every drawing is still one function
 that a file can replace.
 
 The one file so far is `portal.png`: the level exit, a 78px picture of a
-blue spiral with transparent corners, shown at 48px and spun by `GameScene`.
+blue spiral with transparent corners, shown at 32px and spun by `GameScene`.
 It is the one texture given `LINEAR` filtering, because a photo-like image
 turning under nearest-neighbour sampling shimmers.
 

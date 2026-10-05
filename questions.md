@@ -1117,8 +1117,8 @@ round: it is one uniform scale now.) All done, with a few calls of my own:
   `E` tile's ground, centred on it; if an `E` is ever in the very last column
   it is nudged inwards so the disc stays inside the world.
 - **Entered, not touched.** Phaser's overlap fired when a paw brushed the rim.
-  Now the level is left when the cat's centre is within ten pixels of the
-  portal's centre -- under half a cat, so it is really in the hole. A jump
+  Now the level is left when the cat's centre is within eight pixels of the
+  portal's centre -- about half a cat, so it is really in the hole. A jump
   through the hole counts as entering; a jump that clears it does not.
 - **The cat is drawn in.** It stops dead and tweens into the centre,
   shrinking to nothing, while the glow flares and the screen fades. Its
@@ -1139,8 +1139,10 @@ round: it is one uniform scale now.) All done, with a few calls of my own:
 only binary file in the project -- the no-binary-assets rule now reads "except
 the portal". Three calls made putting it in:
 
-- **Shown at 48px, not 44.** The spiral's arms are ragged at the edge, so it
-  needed a little more room than the drawn disc to read as the same size.
+- **Shown at 32px.** It was 48 -- three tiles -- which you found too big;
+  two tiles now, with the foot sunk six pixels instead of eight so enough of
+  the disc stays above ground, and the hole you have to reach eight pixels
+  across instead of ten.
 - **Filtered smoothly.** The game samples textures nearest-neighbour, which
   is right for pixel art and wrong for a photo-like spiral turning at a third
   of its size: it shimmered. This one texture is set to `LINEAR`.
