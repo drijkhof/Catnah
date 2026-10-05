@@ -590,8 +590,10 @@ export class GameScene extends Phaser.Scene {
     lid.fillRect(this.exitCentre.x - reach, this.exitCentre.y - reach, reach * 2, reach + radius - EXIT.sink);
     hole.setMask(lid.createGeometryMask());
 
-    // It spins, and on top of that it warps -- wider and narrower and taller
-    // and shorter at two different speeds, so it never quite repeats.
+    // It spins, and on top of that it swells and shrinks. The same amount
+    // in both directions: it was wider-and-narrower against
+    // taller-and-shorter at two speeds once, and a round picture came out
+    // oval.
     this.tweens.add({
       targets: hole,
       angle: 360,
@@ -600,16 +602,8 @@ export class GameScene extends Phaser.Scene {
     });
     this.tweens.add({
       targets: hole,
-      scaleX: { from: base * (1 - EXIT.warp), to: base * (1 + EXIT.warp) },
+      scale: { from: base * (1 - EXIT.warp), to: base * (1 + EXIT.warp) },
       duration: EXIT.warpMs,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut',
-    });
-    this.tweens.add({
-      targets: hole,
-      scaleY: { from: base * (1 + EXIT.warp * 0.6), to: base * (1 - EXIT.warp * 0.6) },
-      duration: EXIT.warpMs * 1.37,
       yoyo: true,
       repeat: -1,
       ease: 'Sine.easeInOut',

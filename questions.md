@@ -1108,8 +1108,10 @@ alone: they lurk under the surface, where 3px does not show.
 
 **Two complaints: the door was ugly, and you could keep walking -- and die --
 after it had already fired.** Then, while it was being built: make it a
-magical spinning wormhole, round not oval, warping as it spins, and sink its
-foot into the ground. All done, with a few calls of my own:
+magical spinning wormhole, round not oval, swelling and shrinking as it
+spins, and sink its foot into the ground. (The first swell scaled x and y at
+different speeds, which is a fine warp and a terrible way to keep a circle
+round: it is one uniform scale now.) All done, with a few calls of my own:
 
 - **It is wider than the grid.** A 44px disc on a 16px tile, standing on the
   `E` tile's ground, centred on it; if an `E` is ever in the very last column

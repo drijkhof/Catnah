@@ -748,9 +748,9 @@ export const EXIT = {
   openingRadius: 10,
   /** One full turn, ms. */
   spinMs: 3600,
-  /** How far the disc warps either way while it spins, as a fraction. */
+  /** How far the disc swells and shrinks either way while it spins, as a fraction. */
   warp: 0.08,
-  /** One warp cycle, ms. The vertical one runs a little slower than this. */
+  /** One swell-and-shrink, ms. */
   warpMs: 900,
   /** How far the picture fades at the bottom of a pulse, and one pulse, ms. */
   pulseAlpha: 0.6,
