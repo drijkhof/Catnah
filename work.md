@@ -486,9 +486,10 @@ The portal is a **wormhole**: a round picture two tiles across, a blue
 spiral of light curling into a black centre, its rim fading out. It sits *in* the
 world: in front of the backdrop — the cave wall, the sky, the leaves behind
 the trees — and behind everything you stand on, so the ground and the rocks
-cut across its foot. It spins, slowly, swells and shrinks a little as it spins — always round — and
-pulses, the light in it fading and surging back. Its foot is sunk into the
-ground. The cat is drawn in front of it, so you see it being pulled in. It is **entered, not touched**: nothing happens
+cut across its foot. It spins, slowly, and swells and shrinks a little as it
+spins — always round. Its foot is sunk into the ground. The cat is drawn in
+front of it, so you see it being pulled in, and as it goes the portal fades
+out with it. It is **entered, not touched**: nothing happens
 until the cat's middle is inside the hole, so brushing past the rim does
 nothing and neither does a jump that clears it. A jump *through* it counts.
 The moment the cat is in, it stops dead — no more steering, no gravity — and

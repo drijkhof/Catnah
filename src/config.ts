@@ -757,10 +757,8 @@ export const EXIT = {
    * radius: untouched inside this, eased to fully transparent at the edge.
    */
   fadeFrom: 0.45,
-  /** The picture's alpha at the top and the bottom of a pulse, and one pulse, ms. */
-  pulseAlphaHigh: 0.8,
-  pulseAlphaLow: 0.4,
-  pulseMs: 1100,
+  /** The picture's alpha while it stands there; the world shows through a little. */
+  alpha: 0.8,
   /**
    * In front of the backdrop -- the cave wall, the leaf masses behind the
    * trees, the sky -- and behind everything else: ground, rock, branches,

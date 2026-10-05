@@ -126,6 +126,8 @@ export class GameScene extends Phaser.Scene {
   private leaving = false;
   /** The centre of the portal's opening, if this level has one. */
   private exitCentre: Phaser.Math.Vector2 | null = null;
+  /** The portal picture, so leaving can fade it out with the cat. */
+  private exitHole?: Phaser.GameObjects.Image;
   private walkers: GroundEnemy[] = [];
   private piranhas: Piranha[] = [];
   private crows: Crow[] = [];
@@ -609,8 +611,9 @@ export class GameScene extends Phaser.Scene {
     const hole = this.add
       .image(this.exitCentre.x, this.exitCentre.y, PORTAL_KEY)
       .setDepth(EXIT.depth);
+    this.exitHole = hole;
     const base = EXIT.diameter / hole.width;
-    hole.setScale(base);
+    hole.setScale(base).setAlpha(EXIT.alpha);
 
     // The foot is sunk into the ground, and the ground is drawn *under* the
     // portal, so the sunk part is clipped off instead: everything below the
@@ -639,23 +642,15 @@ export class GameScene extends Phaser.Scene {
       repeat: -1,
       ease: 'Sine.easeInOut',
     });
-    // And it pulses: the picture itself fades a little and comes back, at a
-    // pace of its own, so the light in it seems to surge.
-    this.tweens.add({
-      targets: hole,
-      alpha: { from: EXIT.pulseAlphaHigh, to: EXIT.pulseAlphaLow },
-      duration: EXIT.pulseMs,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut',
-    });
   }
 
   /**
    * The cat has stepped into the portal.
    *
-   * It stops dead and is drawn into the centre, shrinking and fading, while
-   * the screen fades to the next level. Its body is
+   * It stops dead and is drawn into the centre, shrinking and fading, and
+   * the portal fades out with it -- both to nothing over the same
+   * `drawInMs` -- while the whole screen fades to black (`fadeMs`) and the
+   * next level starts on the far side of that. Its body is
    * switched off: it is no longer in the physical world, so no collider or
    * overlap -- a hedgehog arriving a step behind it -- fires for it again.
    * `update` stops stepping it and checking it for the same reason.
@@ -679,6 +674,14 @@ export class GameScene extends Phaser.Scene {
       duration: EXIT.drawInMs,
       ease: 'Sine.easeIn',
     });
+    if (this.exitHole) {
+      this.tweens.add({
+        targets: this.exitHole,
+        alpha: { from: EXIT.alpha, to: 0 },
+        duration: EXIT.drawInMs,
+        ease: 'Sine.easeIn',
+      });
+    }
     this.cameras.main.fade(EXIT.fadeMs, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => {
       this.scene.start('Game', {

@@ -1231,3 +1231,11 @@ Now a cat that is airborne and moving *up* is spared; one moving down is not,
 whether it fell from above or is dropping back into the patch it jumped from.
 "Rising" is the body's velocity, so the apex of a jump inside a tall patch is
 where safety ends.
+
+## The portal no longer pulses
+
+**The alpha pulse (0.8 to 0.4) is gone,** at your word; the fade towards the
+rim stays. The only alpha animation left is the exit itself: the moment the
+cat steps in, the portal fades from its resting alpha to nothing over the same
+420ms as the cat shrinking into it, so the two go out together. That resting
+alpha is 0.8 (`EXIT.alpha`), so the world shows through it a little.
