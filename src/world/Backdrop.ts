@@ -221,10 +221,10 @@ export class Backdrop {
 
       // Bushes sit on the floor the cat walks on, so they scroll with it.
       // Parallaxing them would make them slide across the ground. Their foot
-      // is a few pixels into the ground, so the grass fringe grows over it.
+      // is exactly on the ground line.
       if (!onWater) {
         this.scene.add
-          .image(bushX, this.groundLine + 3, 'bush')
+          .image(bushX, this.groundLine, 'bush')
           .setOrigin(0.5, 1)
           .setDisplaySize(BUSH_SIZE.width * scale, BUSH_SIZE.height * scale)
           .setDepth(DEPTH.bushes)
