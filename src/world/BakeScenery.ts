@@ -1,11 +1,23 @@
 import Phaser from 'phaser';
 
 /**
- * Data key that keeps a picture out of the bake. Baked scenery all lands in one
- * layer at depth -0.5, so anything that must draw *between* it and the cat -- a
- * bush a hedgehog can hide behind -- has to stay a live object.
+ * Data key that keeps a picture out of the bake. Baked scenery lands in two
+ * flat layers, so anything that must draw *between* the front one and the cat
+ * -- a bush a hedgehog can hide behind -- has to stay a live object.
  */
 export const KEEP_LIVE = 'keepLive';
+
+/**
+ * The two baked layers. Everything static at or behind `BACKDROP_LIMIT` --
+ * the cave wall, the leaf masses behind the trees, the water bed -- is the
+ * backdrop and bakes to `BAKED_BACK_DEPTH`; everything static in front of
+ * it -- ground, rock, branches, boulders, their shade and grass -- bakes to
+ * `BAKED_FRONT_DEPTH`. The split exists so that something can sit *between*
+ * the backdrop and the terrain: the portal does, at `EXIT.depth`.
+ */
+export const BACKDROP_LIMIT = -5.5;
+export const BAKED_BACK_DEPTH = -20;
+export const BAKED_FRONT_DEPTH = -0.5;
 
 /** The side of one baked chunk, px. A power of two, for the GPU's sake. */
 const CHUNK = 512;
@@ -28,7 +40,8 @@ const CHUNK = 512;
  * Static means: scrolls with the world, at or behind the cat's depth, no
  * tween on it, no animation, no moving body. The order inside a chunk is
  * the same the display list had -- depth, then age -- so nothing changes
- * but the number of things drawn.
+ * but the number of things drawn. Two sets of chunks, split at
+ * `BACKDROP_LIMIT`: see the constants above.
  */
 export function bakeScenery(scene: Phaser.Scene, widthInPixels: number, heightInPixels: number): void {
   const list = scene.children.list;
@@ -68,34 +81,38 @@ export function bakeScenery(scene: Phaser.Scene, widthInPixels: number, heightIn
 
   candidates.sort((a, b) => a.object.depth - b.object.depth || a.index - b.index);
 
-  for (let cy = 0; cy < heightInPixels; cy += CHUNK) {
-    for (let cx = 0; cx < widthInPixels; cx += CHUNK) {
-      const width = Math.min(CHUNK, widthInPixels - cx);
-      const height = Math.min(CHUNK, heightInPixels - cy);
-      const chunkRect = new Phaser.Geom.Rectangle(cx, cy, width, height);
-      const inChunk = candidates
-        .filter((entry) => Phaser.Geom.Intersects.RectangleToRectangle(entry.bounds, chunkRect))
-        .map((entry) => entry.object);
+  const layers: Array<{ depth: number; entries: typeof candidates }> = [
+    { depth: BAKED_BACK_DEPTH, entries: candidates.filter((entry) => entry.object.depth <= BACKDROP_LIMIT) },
+    // Just behind the cat's depth: everything baked was at or behind it,
+    // and everything left live at depth 0 was added after the scenery
+    // anyway.
+    { depth: BAKED_FRONT_DEPTH, entries: candidates.filter((entry) => entry.object.depth > BACKDROP_LIMIT) },
+  ];
 
-      if (inChunk.length === 0) {
-        continue;
+  for (const layer of layers) {
+    for (let cy = 0; cy < heightInPixels; cy += CHUNK) {
+      for (let cx = 0; cx < widthInPixels; cx += CHUNK) {
+        const width = Math.min(CHUNK, widthInPixels - cx);
+        const height = Math.min(CHUNK, heightInPixels - cy);
+        const chunkRect = new Phaser.Geom.Rectangle(cx, cy, width, height);
+        const inChunk = layer.entries
+          .filter((entry) => Phaser.Geom.Intersects.RectangleToRectangle(entry.bounds, chunkRect))
+          .map((entry) => entry.object);
+
+        if (inChunk.length === 0) {
+          continue;
+        }
+
+        const chunk = scene.add.renderTexture(cx, cy, width, height).setOrigin(0, 0).setDepth(layer.depth);
+
+        // The chunk's own camera does the offset: objects draw at their world
+        // position, seen from the chunk's corner.
+        chunk.camera.setScroll(cx, cy);
+        chunk.draw(inChunk);
+        // Phaser 4 buffers draw commands; nothing is on the texture until
+        // this runs, and it has to run while the originals still exist.
+        chunk.render();
       }
-
-      const chunk = scene.add
-        .renderTexture(cx, cy, width, height)
-        .setOrigin(0, 0)
-        // Just behind the cat's depth: everything baked was at or behind
-        // it, and everything left live at depth 0 was added after the
-        // scenery anyway.
-        .setDepth(-0.5);
-
-      // The chunk's own camera does the offset: objects draw at their world
-      // position, seen from the chunk's corner.
-      chunk.camera.setScroll(cx, cy);
-      chunk.draw(inChunk);
-      // Phaser 4 buffers draw commands; nothing is on the texture until
-      // this runs, and it has to run while the originals still exist.
-      chunk.render();
     }
   }
 

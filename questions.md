@@ -1138,12 +1138,16 @@ round: it is one uniform scale now.) All done, with a few calls of my own:
   does what sinking it behind the rocks was meant to do, in every level,
   without the bake getting in the way. The outer arms of the spiral go with
   the rim; if you want more of them back, `fadeFrom` is the knob.
-- **Behind the scenery did not work out.** Tried at -9, -0.6 and -0.45: the
-  ground and rock tiles are in the baked scenery layer at -0.5 together with
-  the canopy's foliage and the cave wall, so anything behind -0.5 is
-  invisible in the canopy and the cave, and -0.45 is only behind bushes and
-  grass, not rock. Truly behind the ground means baking the ground apart
-  from the rest; not done.
+- **It sits between the backdrop and the terrain.** You wanted it in front
+  of the backgrounds -- the cave wall, the sky -- and behind everything
+  else: ground, rock, branches, boulders, bushes, creatures. The bake made
+  that impossible at first, because it flattened the cave wall and the leaf
+  masses into the same single layer as the ground, so a portal behind the
+  ground vanished in the cave and the canopy. The bake now makes two layers,
+  split at depth -5.5 (`BACKDROP_LIMIT` in `world/BakeScenery.ts`): the
+  backdrop at -20 and the terrain at -0.5, with the portal at -10 between
+  them. Nothing else changed its depth. The faded rim stays; it reads as a
+  hole in the world now.
 - **The sunk foot is a mask, not a shorter picture.** The disc turns and
   warps, and a texture with its bottom cut off would turn with it; a mask
   along the ground line clips whatever is below it, whatever the disc is doing.

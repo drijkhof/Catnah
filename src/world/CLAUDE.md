@@ -12,7 +12,12 @@ One backdrop per place, chosen by `createBackdrop`:
 - `BakeScenery` — run last, once a level is built: flattens every static
   picture (tiles, shade, grass, boulders, trees, fillets, beds, thorns...)
   into 512px chunk textures and throws the originals away. The cave had
-  27,000 pictures and drew them all every frame; it has 16 chunks now. Read
+  27,000 pictures and drew them all every frame; it has 32 chunks now, in
+  two layers: the backdrop (anything at or behind `BACKDROP_LIMIT`, -5.5:
+  the cave wall, the leaf masses behind the trees, the water bed) at -20,
+  and the terrain (ground, rock, branches, boulders, shade, grass) at -0.5.
+  The gap between them exists for the portal, which sits at -10: in front of
+  the backdrop, behind everything you stand on. Read
   the file before adding scenery: anything static at depth 0 or behind, at
   scroll factor 1, with no tween and no animation, gets baked; anything
   else stays live. **Phaser 4 buffers `draw()` -- `render()` must follow, and
@@ -51,8 +56,9 @@ which is what reads as depth:
 
 **Bushes (and the swamp's reeds) are live objects, not baked.** They sit at
 depth -0.3 with `setData(KEEP_LIVE, true)`, which `bakeScenery` honours. The
-rest of the static scenery is flattened into one layer at -0.5, and hedgehogs
-walk at -0.4: above that layer (trees and rocks never hide them) and below the
+rest of the static scenery is flattened into two layers, the terrain one at
+-0.5, and hedgehogs walk at -0.4: above that layer (trees and rocks never hide
+them) and below the
 bushes (which do, on purpose). A bush therefore also draws over the foot of a
 trunk or boulder beside it, which looks natural. Anything new that must pass in
 front of or behind the creatures needs the same treatment.

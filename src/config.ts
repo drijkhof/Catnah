@@ -762,11 +762,13 @@ export const EXIT = {
   pulseAlphaLow: 0.4,
   pulseMs: 1100,
   /**
-   * Drawn over all the scenery and every creature, and just under the cat
-   * (0): the cat walks in front of it, and being drawn into it is something
-   * you see. It was above the cat for a while, and the cat vanished behind it.
+   * In front of the backdrop -- the cave wall, the leaf masses behind the
+   * trees, the sky -- and behind everything else: ground, rock, branches,
+   * boulders, bushes, creatures, the cat. The baked scenery is split into
+   * two layers for exactly this (see `world/BakeScenery.ts`), and this sits
+   * between them.
    */
-  depth: -0.05,
+  depth: -10,
   /** How long the cat takes to be drawn into the centre, ms. */
   drawInMs: 420,
   /** How long the fade to the next level takes once the cat is in, ms. */
