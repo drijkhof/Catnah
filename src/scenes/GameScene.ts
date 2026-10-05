@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { AWAKE_RANGE, CHARMS_PER_LIFE, CHECKPOINT, GAME_HEIGHT, GAME_WIDTH, LIVES, MAX_LIVES, TILE, WATER_DROP } from '../config';
+import { AWAKE_RANGE, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LIVES, MAX_LIVES, TILE, WATER_DROP } from '../config';
 import { Controls, IdleControls, type PlayerInput } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -13,7 +13,7 @@ import { addGroundShade, bakeScenery, createBackdrop } from '../world';
 import { parseLevel, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
 import { TITLE } from '../level/levels/title';
-import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, LOG_BULGE, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
+import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, LOG_BULGE, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_GLOW_KEY, PORTAL_KEY, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { installGodMode, isGodMode } from '../dev/godMode';
@@ -117,8 +117,16 @@ export class GameScene extends Phaser.Scene {
    */
   private titleMode = false;
 
-  /** True while the level is being left, so the exit cannot fire twice. */
+  /**
+   * True while the level is being left: the cat is being drawn into the
+   * portal and the screen is fading. Nothing moves it and nothing can hurt it
+   * from here on -- a run that ended in the doorway used to be able to die in
+   * the half-second before the next level, and lose a heart for it.
+   */
   private leaving = false;
+  /** The centre of the portal's opening, if this level has one. */
+  private exitCentre: Phaser.Math.Vector2 | null = null;
+  private exitGlow?: Phaser.GameObjects.Image;
   private walkers: GroundEnemy[] = [];
   private piranhas: Piranha[] = [];
   private crows: Crow[] = [];
@@ -400,7 +408,7 @@ export class GameScene extends Phaser.Scene {
     // are consistent for everything that runs this frame.
     this.controls.update();
 
-    if (!this.dying) {
+    if (!this.dying && !this.leaving) {
       this.player.step(this.controls, delta);
     }
 
@@ -466,15 +474,21 @@ export class GameScene extends Phaser.Scene {
 
     this.godCooldown = Math.max(0, this.godCooldown - delta);
 
-    if (!this.dying && this.touchingSomethingDeadly()) {
+    // A cat that is dying is already dead, and one in the portal is out of
+    // reach: nothing below here looks at either.
+    if (this.dying || this.leaving) {
+      return;
+    }
+
+    if (this.touchingSomethingDeadly()) {
       this.kill();
     }
 
-    if (!this.dying && this.player.swimming && this.inReachOfACrocodile()) {
+    if (this.player.swimming && this.inReachOfACrocodile()) {
       this.kill();
     }
 
-    if (!this.dying && this.player.y > this.level.heightInPixels + FALL_OUT_MARGIN) {
+    if (this.player.y > this.level.heightInPixels + FALL_OUT_MARGIN) {
       // Falling out is the one thing god mode cannot simply shrug off: there is
       // no floor down there to carry on standing on. It puts the cat back and
       // charges nothing for it.
@@ -486,6 +500,27 @@ export class GameScene extends Phaser.Scene {
         this.kill();
       }
     }
+
+    if (this.insideExit()) {
+      this.leaveLevel();
+    }
+  }
+
+  /**
+   * Whether the cat is *in* the portal, not merely touching it.
+   *
+   * The test is the cat's centre against the hole in the middle. Phaser's
+   * overlap fired the moment a paw brushed the stone rim, so a cat running at
+   * the door was gone before it visibly reached it, and one jumping over the
+   * portal left the level by accident.
+   */
+  private insideExit(): boolean {
+    if (!this.exitCentre) {
+      return false;
+    }
+    const dx = this.player.body.center.x - this.exitCentre.x;
+    const dy = this.player.body.center.y - this.exitCentre.y;
+    return dx * dx + dy * dy <= EXIT.openingRadius * EXIT.openingRadius;
   }
 
   /**
@@ -509,41 +544,132 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
-   * Places the way out, if the level has one.
+   * Places the way out, if the level has one: a wormhole standing on the `E`
+   * tile's ground with its foot sunk into it, drawn just behind the cat so it
+   * walks in front of the rim and then into the light.
    *
-   * Reaching it starts the next level. The last level loops back to the first,
-   * which is a placeholder for whatever finishing the game should actually do.
+   * No physics body. Whether the cat is inside is `insideExit`'s question,
+   * asked every frame, because a body fires on a touch and a portal has to be
+   * entered. Walking in starts the next level; the last level loops back to
+   * the first, which is a placeholder for whatever finishing the game should
+   * actually do.
    */
   private buildExit(): void {
     const exit = this.level.exit;
     if (!exit) {
+      this.exitCentre = null;
       return;
     }
 
-    const door = this.physics.add
-      .staticImage(exit.x, exit.y, this.tile('exit'))
-      .setOrigin(0.5, 1);
-    door.refreshBody();
+    const radius = EXIT.diameter / 2;
 
+    // Wider than its tile, so an `E` in the last column would hang over the
+    // edge of the world: the disc is kept a sliver inside it.
+    const margin = radius + 2;
+    this.exitCentre = new Phaser.Math.Vector2(
+      Phaser.Math.Clamp(exit.x, margin, this.level.widthInPixels - margin),
+      exit.y - (radius - EXIT.sink),
+    );
+
+    // In front of the bushes and grass (down at -0.2 and below), behind the
+    // cat (at 0): a bush that happened to be scattered on the last tile hid
+    // half the portal.
+    const glow = this.add
+      .image(this.exitCentre.x, this.exitCentre.y, PORTAL_GLOW_KEY)
+      .setDepth(-0.12);
+    this.exitGlow = glow;
+    const hole = this.add
+      .image(this.exitCentre.x, this.exitCentre.y, PORTAL_KEY)
+      .setDepth(-0.1);
+
+    // The foot is sunk into the ground, and the ground is drawn *under* the
+    // portal, so the sunk part is clipped off instead: everything below the
+    // ground line is masked away. A mask rather than a cropped texture
+    // because the disc turns and warps, and a crop would turn with it.
+    const lid = this.make.graphics({ x: 0, y: 0 }, false);
+    const reach = EXIT.glowDiameter;
+    lid.fillRect(this.exitCentre.x - reach, this.exitCentre.y - reach, reach * 2, reach + radius - EXIT.sink);
+    const aboveGround = lid.createGeometryMask();
+    glow.setMask(aboveGround);
+    hole.setMask(aboveGround);
+
+    // It spins, and on top of that it warps -- wider and narrower and taller
+    // and shorter at two different speeds, so it never quite repeats. The
+    // glow breathes with it, bigger and slower.
     this.tweens.add({
-      targets: door,
-      alpha: { from: 0.75, to: 1 },
-      duration: 900,
+      targets: hole,
+      angle: 360,
+      duration: EXIT.spinMs,
+      repeat: -1,
+    });
+    this.tweens.add({
+      targets: hole,
+      scaleX: { from: 1 - EXIT.warp, to: 1 + EXIT.warp },
+      duration: EXIT.warpMs,
       yoyo: true,
       repeat: -1,
       ease: 'Sine.easeInOut',
     });
-
-    this.physics.add.overlap(this.player, door, () => this.leaveLevel());
+    this.tweens.add({
+      targets: hole,
+      scaleY: { from: 1 + EXIT.warp * 0.6, to: 1 - EXIT.warp * 0.6 },
+      duration: EXIT.warpMs * 1.37,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+    this.tweens.add({
+      targets: glow,
+      scaleX: { from: 0.85, to: 1.15 },
+      scaleY: { from: 0.85, to: 1.15 },
+      alpha: { from: 0.7, to: 1 },
+      duration: EXIT.breatheMs,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
   }
 
+  /**
+   * The cat has stepped into the portal.
+   *
+   * It stops dead and is drawn into the centre, shrinking and fading, while
+   * the glow flares and the screen fades to the next level. Its body is
+   * switched off: it is no longer in the physical world, so no collider or
+   * overlap -- a hedgehog arriving a step behind it -- fires for it again.
+   * `update` stops stepping it and checking it for the same reason.
+   */
   private leaveLevel(): void {
-    if (this.leaving || this.dying) {
+    if (this.leaving || !this.exitCentre) {
       return;
     }
 
     this.leaving = true;
-    this.cameras.main.fade(450, 0, 0, 0);
+    this.player.setVelocity(0, 0);
+    this.player.body.enable = false;
+    sound.play('portal');
+
+    this.tweens.add({
+      targets: this.player,
+      x: this.exitCentre.x,
+      y: this.exitCentre.y,
+      scale: 0.15,
+      alpha: 0,
+      duration: EXIT.drawInMs,
+      ease: 'Sine.easeIn',
+    });
+    if (this.exitGlow) {
+      this.tweens.killTweensOf(this.exitGlow);
+      this.tweens.add({
+        targets: this.exitGlow,
+        scale: 1.8,
+        alpha: 1,
+        duration: EXIT.drawInMs,
+        ease: 'Sine.easeOut',
+      });
+    }
+
+    this.cameras.main.fade(EXIT.fadeMs, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => {
       this.scene.start('Game', {
         levelIndex: (this.levelIndex + 1) % LEVELS.length,

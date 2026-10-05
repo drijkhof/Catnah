@@ -1086,20 +1086,6 @@ export function generateTileset(
     g.fillStyle(palette.lava, 1);
     g.fillCircle(3.6, 3.6, 2);
   });
-
-  // --- the way out -------------------------------------------------------
-  bakeTexture(scene, key('exit'), TILE, TILE * 2, (g) => {
-    g.fillStyle(palette.rockDark, 1);
-    g.fillRoundedRect(0, 0, TILE, TILE * 2, 5);
-
-    g.fillStyle(palette.waterFoam, 0.85);
-    g.fillRoundedRect(2, 3, TILE - 4, TILE * 2 - 5, 4);
-
-    g.fillStyle(palette.leafLight, 1);
-    g.fillRect(4, 10, TILE - 8, 2);
-    g.fillRect(6, 6, 4, 2);
-    g.fillRect(6, 18, 4, 2);
-  });
 }
 
 /** How far a whole trunk bulges past its column of cells, px, each side. */

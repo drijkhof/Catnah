@@ -470,8 +470,20 @@ as a descent.
 ## The five levels
 
 **Forest, canopy, swamp, cave, volcano.** Each one starts at one end and
-ends at a **glowing door**, which takes you to the next; the volcano leads back
+ends at a **portal**, which takes you to the next; the volcano leads back
 to the forest. Little hearts are optional everywhere.
+
+The portal is a **wormhole**: a round disc nearly three tiles across, deep
+blue with three arms of light spiralling into a black centre, a thread of gold
+round the rim and a gold glow behind it. It spins, slowly, and warps as it
+spins — a little wider, a little taller, never quite the same twice — and its
+foot is sunk into the ground. It is **entered, not touched**: nothing happens
+until the cat's middle is inside the hole, so brushing past the rim does
+nothing and neither does a jump that clears it. A jump *through* it counts.
+The moment the cat is in, it stops dead — no more steering, no gravity — and
+is drawn into the centre, shrinking and fading, while the screen fades to the
+next level. From that moment nothing can hurt it: a hedgehog arriving a step
+behind, or lava a tile away, no longer costs a heart.
 
 The cave comes second to last rather than second. It is the descent, and what it
 descends into is the volcano, so it has to be the thing you do immediately
@@ -481,7 +493,7 @@ While developing, **Ctrl-clicking the level name** goes to the next level and
 **Cmd-clicking** goes back one, both wrapping round. Neither is in the built
 game.
 
-**Every door always opens.** Nothing in a level has to be collected to leave it.
+**Every portal always opens.** Nothing in a level has to be collected to leave it.
 
 
 

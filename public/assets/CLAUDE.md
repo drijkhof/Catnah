@@ -15,7 +15,8 @@ one function that a file can replace.
 2. Load it in `BootScene.preload()` under the **same texture key** the
    placeholder used (`cat`, `cat-sneak`, `ground-top`, `ground-fill`,
    `branch-*`, `bough`, `little heart`, `tree-*`, `bush`, `grass-tuft`, `sun`, `sky`,
-   `ui-*`).
+   `ui-*`, `exit` — the portal, a square picture the scene spins, so anything
+   outside its circle must be transparent).
 3. Delete the matching generator in `src/art`.
 
 Nothing else changes: the rest of the game only ever refers to textures by key.

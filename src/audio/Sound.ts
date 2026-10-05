@@ -28,7 +28,8 @@ export type Voice =
   | 'ratLeap'
   | 'chirp'
   | 'drip'
-  | 'checkpoint';
+  | 'checkpoint'
+  | 'portal';
 
 /**
  * The bed a level sits on: one continuous, almost-inaudible layer.
@@ -283,6 +284,14 @@ class SoundBoard {
       case 'checkpoint':
         this.blip(at, 700, 1180, 0.09, 'sine', 0.4);
         this.blip(at + 0.09, 980, 1620, 0.12, 'sine', 0.42);
+        break;
+
+      // Stepping into the portal: three notes climbing out of earshot, the
+      // last one long, like something being pulled upwards.
+      case 'portal':
+        this.blip(at, 520, 780, 0.1, 'sine', 0.36);
+        this.blip(at + 0.1, 780, 1170, 0.1, 'sine', 0.36);
+        this.blip(at + 0.2, 1170, 2200, 0.2, 'triangle', 0.3);
         break;
 
       case 'hurt':

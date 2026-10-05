@@ -727,6 +727,41 @@ export const CHECKPOINT = {
   colourMs: 1400,
 } as const;
 
+/**
+ * The way out of a level: a wormhole standing on the ground where the `E`
+ * tile is, its foot sunk a little into the earth.
+ *
+ * Wider than a tile on purpose -- a 16px doorway next to a 22px cat read as a
+ * cupboard -- and it is not touched but *entered*: the cat's centre has to be
+ * inside the hole before anything happens, so brushing the rim on the way
+ * past does nothing, and neither does jumping over it.
+ */
+export const EXIT = {
+  /** The disc, px. Round, so it can simply be turned. */
+  diameter: 44,
+  /** How much of the bottom of the disc is below ground and never seen, px. */
+  sink: 8,
+  /** The glow behind it, px -- a good deal bigger, and mostly transparent. */
+  glowDiameter: 72,
+  /**
+   * Radius of the hole the cat's centre must be inside, px. Under half a cat,
+   * so it is in the hole and not just leaning on it.
+   */
+  openingRadius: 10,
+  /** One full turn, ms. */
+  spinMs: 3600,
+  /** How far the disc warps either way while it spins, as a fraction. */
+  warp: 0.08,
+  /** One warp cycle, ms. The vertical one runs a little slower than this. */
+  warpMs: 900,
+  /** One breath of the glow, ms. */
+  breatheMs: 1600,
+  /** How long the cat takes to be drawn into the centre, ms. */
+  drawInMs: 420,
+  /** How long the fade to the next level takes once the cat is in, ms. */
+  fadeMs: 450,
+} as const;
+
 export const CROW = {
   /** Radius of its patrol circle around the nest, px. */
   circleRadius: 70,

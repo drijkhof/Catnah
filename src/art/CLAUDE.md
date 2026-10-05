@@ -17,6 +17,10 @@ binary assets and runs straight after clone.
 - `backdrops.ts` — cave, swamp and volcano scenery: stalactites, crystals, cones.
 - `creatures.ts` — hedgehog, piranha, crow.
 - `ui.ts` — the touch-button glyphs.
+- `portal.ts` — the way out of a level: one round disc the scene spins, and
+  the gold glow behind it. Round on purpose: a circle can be turned at runtime
+  and stays a circle, so one texture does where an oval would need a frame per
+  angle.
 - `index.ts` — `generatePlaceholderArt`, called once by `BootScene`.
 
 ## The rules that keep this swappable

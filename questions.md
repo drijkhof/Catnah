@@ -1103,3 +1103,39 @@ alone: they lurk under the surface, where 3px does not show.
   down on the stick keeps the name `sneak` in code; the old forward button's
   wider hit area is gone with the buttons. Say if you want a floating stick
   or `W` to jump as well.
+
+## The exit is a wormhole you walk into
+
+**Two complaints: the door was ugly, and you could keep walking -- and die --
+after it had already fired.** Then, while it was being built: make it a
+magical spinning wormhole, round not oval, warping as it spins, with a gold
+glow, and sink its foot into the ground. All done, with a few calls of my own:
+
+- **It is wider than the grid.** A 44px disc on a 16px tile, standing on the
+  `E` tile's ground, centred on it; if an `E` is ever in the very last column
+  it is nudged inwards so the disc stays inside the world.
+- **Entered, not touched.** Phaser's overlap fired when a paw brushed the rim.
+  Now the level is left when the cat's centre is within ten pixels of the
+  portal's centre -- under half a cat, so it is really in the hole. A jump
+  through the hole counts as entering; a jump that clears it does not.
+- **The cat is drawn in.** It stops dead and tweens into the centre,
+  shrinking to nothing, while the glow flares and the screen fades. Its
+  physics body is switched off at that moment, so nothing can touch it: not
+  the hazard checks, which no longer run for it, and not a collider either --
+  a hedgehog teleported onto a leaving cat was the test, and it used to kill.
+- **A sound.** Three rising notes, the last one long, played once on entry.
+  Nothing else in the game marks the moment and it felt like it wanted one.
+- **It draws over bushes.** In the forest a bush sat on the exit tile and hid
+  half the disc, so the portal sits above scenery and below the cat.
+- **The sunk foot is a mask, not a shorter picture.** The disc turns and
+  warps, and a texture with its bottom cut off would turn with it; a mask
+  along the ground line clips whatever is below it, whatever the disc is doing.
+
+> **Still open:** you asked for the actual picture you sent -- the blue
+> spiral on black. I cannot take an image out of the chat, so it needs to be
+> saved as a file: `public/assets/portal.png`, square, with the spiral filling
+> it. Once it is there, loading it under the `exit` key in `BootScene` is the
+> whole change, and the drawn one goes. Two things to know first: the project
+> has had no binary assets so far, and that would be the first; and the
+> picture's origin -- if it is stock art, check it may be used in a game that
+> is published.

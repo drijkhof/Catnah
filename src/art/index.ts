@@ -5,6 +5,7 @@ import { generateBackdropTextures } from './backdrops';
 import { generateCreatureTextures } from './creatures';
 import { generateForestTextures } from './forest';
 import { generateUiTextures } from './ui';
+import { generatePortalTextures } from './portal';
 import { generateTileset } from './tiles';
 import { THEMES } from '../level/themes';
 
@@ -13,6 +14,7 @@ export { CORNER_RADIUS, FILLET_RADIUS, bakeFillet, roundedTileKey, type Corners 
 export { bakeRockMass, type RockPiece } from './stone';
 export { BUSH_SIZE, CANOPY_SIZE, CHECKPOINT_SIZE, FOG_HEIGHT, SUN_SIZE, TREE_SIZES, TUFT_SIZE } from './forest';
 export { BUTTON_SIZE, STICK_KNOB_SIZE, STICK_SIZE } from './ui';
+export { PORTAL_GLOW_KEY, PORTAL_KEY } from './portal';
 export { CAVE_WALL_SIZE, CONE_SIZE, DEAD_TREE_SIZE, STALACTITE_SIZE, STALAGMITE_SIZE } from './backdrops';
 export {
   BRANCH_LEAF_DROP,
@@ -57,6 +59,7 @@ export function generatePlaceholderArt(scene: Phaser.Scene): void {
   generateCreatureTextures(scene);
   generateBackdropTextures(scene);
   generateCaveWall(scene);
+  generatePortalTextures(scene);
 
   // All three tilesets are baked up front. They are a few dozen small textures
   // in total, and it means changing level never waits on drawing.
