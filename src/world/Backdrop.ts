@@ -220,13 +220,14 @@ export class Backdrop {
       const onWater = this.pools.some((pool) => bushX + halfWidth > pool.x && bushX - halfWidth < pool.x + pool.width);
 
       // Bushes sit on the floor the cat walks on, so they scroll with it.
-      // Parallaxing them would make them slide across the ground. Their foot
-      // is where the grass fringe's foot is: `GameScene` stands the fringe
-      // at `groundLine - GRASS_FRINGE_HEIGHT + 1`, so its blades end one
-      // pixel into the turf, and the bush is rooted at that same pixel.
+      // Parallaxing them would make them slide across the ground. The foot
+      // sits six pixels into the turf, down at the seam under the grass: a
+      // bush drawn in front of the grass with its foot at the top of the
+      // turf lay *on* the lawn, with the blades beside it standing higher
+      // than its base. Settled by eye against +1, +4 and +8.
       if (!onWater) {
         this.scene.add
-          .image(bushX, this.groundLine + 1, 'bush')
+          .image(bushX, this.groundLine + 6, 'bush')
           .setOrigin(0.5, 1)
           .setDisplaySize(BUSH_SIZE.width * scale, BUSH_SIZE.height * scale)
           .setDepth(DEPTH.bushes)
