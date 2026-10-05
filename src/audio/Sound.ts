@@ -80,7 +80,7 @@ class SoundBoard {
   private soundMode = SoundBoard.readMode();
 
   /** The level's bed, and what it currently is. */
-  private bed?: { source: AudioBufferSourceNode; gain: GainNode; lfo: OscillatorNode };
+  private bed?: { source: AudioBufferSourceNode; gain: GainNode; lfo: OscillatorNode; drones: OscillatorNode[] };
 
   private bedKind: Ambience = 'none';
 
@@ -541,7 +541,42 @@ class SoundBoard {
     source.start();
     lfo.start();
 
-    this.bed = { source, gain, lfo };
+    // The volcano's bed has something under the noise: two sines a hair
+    // apart, far down, beating against each other once every couple of
+    // seconds, and a third an octave up. A drone, not a note -- the kind of
+    // sound a mountain makes. Its own slow surge, out of step with the
+    // noise's swell, so the two never settle into a rhythm.
+    const drones: OscillatorNode[] = [];
+    if (kind === 'rumble') {
+      const droneGain = this.ctx.createGain();
+      droneGain.gain.value = 0.11;
+      const surge = this.ctx.createOscillator();
+      const surgeDepth = this.ctx.createGain();
+      surge.type = 'sine';
+      surge.frequency.value = 0.071;
+      surgeDepth.gain.value = 0.06;
+      surge.connect(surgeDepth).connect(droneGain.gain);
+
+      for (const [hz, level] of [
+        [36, 1],
+        [36.7, 0.8],
+        [73, 0.25],
+      ] as const) {
+        const osc = this.ctx.createOscillator();
+        const part = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = hz;
+        part.gain.value = level;
+        osc.connect(part).connect(droneGain);
+        osc.start();
+        drones.push(osc);
+      }
+      surge.start();
+      drones.push(surge);
+      droneGain.connect(gain);
+    }
+
+    this.bed = { source, gain, lfo, drones };
   }
 
   /** Takes the bed away, fading it rather than cutting it. */
@@ -551,13 +586,16 @@ class SoundBoard {
       return;
     }
 
-    const { source, gain, lfo } = this.bed;
+    const { source, gain, lfo, drones } = this.bed;
     const at = this.ctx.currentTime;
 
     gain.gain.cancelScheduledValues(at);
     gain.gain.setTargetAtTime(0.0001, at, 0.3);
     source.stop(at + 1.5);
     lfo.stop(at + 1.5);
+    for (const drone of drones) {
+      drone.stop(at + 1.5);
+    }
 
     this.bed = undefined;
     this.bedKind = 'none';

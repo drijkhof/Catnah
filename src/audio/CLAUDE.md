@@ -62,6 +62,13 @@ Three kinds -- `wind`, `rumble`, `hush` -- picked in `GameScene` off the
 the bed you already have does nothing, so two swamp levels do not restart the
 wind between them.
 
+**The volcano's bed has a drone under the noise**: two sines at 36 and 36.7Hz
+beating once every second and a half, a third an octave up at a quarter the
+level, with a surge of their own at 0.07Hz so they never line up with the
+noise's swell. Still quiet (`droneGain` 0.11 into the bed gain); the point is
+to be felt as something large and slow underneath, not heard as a note. The
+oscillators ride in the bed record so `stopAmbience` can stop them too.
+
 **A bed is never broadband.** Noise through a highpass is the sound of sweeping a
 floor, and at any level you can hear it, it is the loudest thing in the room.
 Keep beds low-passed and very quiet; anything with more character goes on top

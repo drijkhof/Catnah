@@ -614,13 +614,30 @@ gaps where there is nothing living left to climb, bolted to rings in the roof of
 nothing.
 
 Lava is shaped exactly like water and behaves nothing like it: not solid, and
-**fatal to touch**. It is also alive: the surface **boils**, cycling through
-four frames with every tile out of step with its neighbours so the lake churns
-rather than blinking as one; **heat stands over it** in a haze that breathes;
-and every half-second or so a **gobbet jumps out** of a random tile, arcs, and
-falls back in. None of that is a new way to die — touching lava already kills.
-It is there so the lake looks like something that would. Cones on the skyline have lava running down them, and embers
-drift up through the whole level.
+**fatal to touch**. And unlike water it does not sit in its basin: the surface
+**stands three pixels proud of the land** beside it, heaped up under a domed
+crust, and **spills over the edges** — a tongue of lava lies on every ground
+tile that borders the lake. The line that kills is the line you see: the
+crust burns to within a pixel of the bank, so a cat with a toe over the edge
+of an island is dead — quick, and the point of a lava level. It is
+also alive, and **each lake is drawn as one thing**, the way a run of rock
+is one boulder — not a repeat of tiles: a crust that heaps up across the
+whole width, plates of dark skin drifting along it with white-hot cracks
+between them, cooled lumps riding the rim, bubbles swelling and bursting
+where the lake decides, and below the surface long **veins of hot lava**
+wandering through dark cooled plates. Eight frames, and lakes out of step
+with each other. **Heat stands over it** in soft columns that breathe and
+sway, with **wisps** lifting off and thinning away; and every half-second or
+so a **gobbet jumps out** of a random spot, arcs, and falls back in. None of that is a new way to die — touching lava already kills. It
+is there so the lake looks like something that would.
+
+Behind it all, **three ranks of mountains** on a sky that goes from black
+overhead to deep red at a hot horizon: far ones wide, low and hazy, near ones
+tall and dark, each with a jagged ridge, lit red from below as if by the lava
+at its feet, a glowing crater at the summit, and — on the near ones — thin
+streams of lava creeping down the slopes to a pool at the foot. Smoke stands
+over the near craters, ash falls through the whole level, and embers rise.
+The ground is basalt with a crust of ash and cinder; nothing grows here.
 
 The level ends at the **volcano itself**: a cone of rock with a crater notch at
 the top and a mouth at ground level. Walk in through the mouth and you are in an
@@ -666,7 +683,9 @@ while the cat's own sounds — jumping, collecting, getting hurt — keep playin
 
 **Every place has a bed**: one continuous layer under everything, filtered noise
 with a slow swell on it. Wind in the forest, the jungle and the swamp; a low
-rumble in the volcano; and in the cave a hush, which is the sound of a big room
+rumble in the volcano — with, under the noise, a drone of two deep sines a hair
+apart beating against each other, surging on its own slow clock, the sound
+a mountain makes; and in the cave a hush, which is the sound of a big room
 with nobody in it. Over the top, sparsely and never on a beat: **birds** in the
 forest and the jungle, **drips** in the cave.
 

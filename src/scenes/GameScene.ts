@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { AWAKE_RANGE, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LIVES, MAX_LIVES, TILE, WATER_DROP } from '../config';
+import { AWAKE_RANGE, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, WATER_DROP } from '../config';
 import { Controls, IdleControls, type PlayerInput } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -2032,11 +2032,41 @@ export class GameScene extends Phaser.Scene {
       return [];
     }
 
-    this.lava = new LavaLake(this, this.level.theme, this.level.lavaZones);
+    // Whole tiles of ground and rock, for the lake to find its banks.
+    const solid = new Set<string>();
+    for (const s of this.level.solids) {
+      if (!s.isBranch && s.width === TILE && s.height === TILE) {
+        solid.add(`${s.x},${s.y}`);
+      }
+    }
+    for (const cell of this.level.voids) {
+      solid.add(`${cell.x},${cell.y}`);
+    }
 
-    return this.level.lavaZones.map(
-      (zone) => new Phaser.Geom.Rectangle(zone.x, zone.y, zone.width, zone.height),
-    );
+    this.lava = new LavaLake(this, this.level.theme, this.level.lavaZones, (x, y) => solid.has(`${x},${y}`));
+
+    // A surface stands `LAVA.rise` above its cell, and so does the line that
+    // kills: the band above the cell burns to `bankMercy` (one pixel) from
+    // the bank. A cat standing at the very edge of an island with its body
+    // more than a pixel over the lava cell is dead -- quick, and the point of
+    // a lava level. The tongue of lava drawn over the bank is a picture only:
+    // the body is narrower than the drawing, so by the time a paw *looks* to
+    // be in the tongue the body is still on the island. Wider mercy, a toe's
+    // and a body's width, was tried and was too kind. The cell itself kills
+    // to its full width, so stepping off is as fatal as ever.
+    const rects: Phaser.Geom.Rectangle[] = [];
+    for (const zone of this.level.lavaZones) {
+      rects.push(new Phaser.Geom.Rectangle(zone.x, zone.y, zone.width, zone.height));
+      if (!zone.isSurface) {
+        continue;
+      }
+      const from = zone.x + (solid.has(`${zone.x - TILE},${zone.y}`) ? LAVA.bankMercy : 0);
+      const to = zone.x + zone.width - (solid.has(`${zone.x + TILE},${zone.y}`) ? LAVA.bankMercy : 0);
+      if (to > from) {
+        rects.push(new Phaser.Geom.Rectangle(from, zone.y - LAVA.rise, to - from, LAVA.rise));
+      }
+    }
+    return rects;
   }
 
   /**

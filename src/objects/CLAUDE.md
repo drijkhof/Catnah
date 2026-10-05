@@ -193,13 +193,28 @@ The climb back after a dive is the slow part on purpose. That is the window.
 ## The lava lake
 
 `LavaLake` owns everything the lava *does*; `GameScene` keeps only the
-rectangles that kill. Three things, none of which is a new hazard:
+rectangles that kill. The surface stands `LAVA.rise` above its cell -- lava
+heaps up over its basin rather than sitting in it -- so the surface textures
+are that much taller than a tile and drawn that much higher, the vents and the
+haze sit on the raised crust, and `GameScene.buildLava` raises the kill
+rectangle of every surface tile to match. Where the surface meets a whole tile
+of ground on the same row, a `lava-lip` is laid over that tile's edge; the lake
+is handed a `groundAt` lookup for exactly that. Then three things, none of
+which is a new hazard:
 
-- **The boil.** Four baked frames per theme, and each tile is given a phase from
-  its own grid position. A shared clock makes the whole lake blink at once,
-  which reads as a lighting bug rather than as boiling.
-- **The heat.** One additive rectangle per surface tile, breathing on a tween,
-  with a delay taken from the tile's column so the haze ripples along the lake.
+- **The boil.** Each connected pool is one picture, baked whole in eight
+  frames by `art/lava.ts` the first time a level needs it (keyed by theme and
+  position), and cycled by `boil`. Drawn per tile, lava was a repeat of the
+  same sixteen pixels and read as a grid of orange blocks; drawn per pool it
+  has a crust that heaps up across the whole width, plates and lumps
+  scattered rather than striped, veins that wander its length, and bubbles
+  where the lake decides. Pools start at different points in the cycle so two
+  on one screen do not blink in step.
+- **The heat.** One additive `heat` column per surface tile -- brightest at
+  the foot, ragged at the top -- breathing and swaying on two tweens, with a
+  delay taken from the tile's column so the haze ripples along the lake. And
+  **wisps**: `drift` lifts one off a random vent every `wispEveryMs`, rising,
+  swelling and thinning, moved by hand like the gobbets and capped at 18.
 - **The gobbets.** Plain images moved by hand rather than physics bodies: there
   are a lot of them, nothing may ever collide with one, and a body nothing
   touches is a body the physics step walks over for no reason.

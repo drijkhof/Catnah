@@ -1,11 +1,10 @@
 import Phaser from 'phaser';
 import { LAVA, TILE } from '../config';
-import { tileKey } from '../art';
+import { POOL_FRAMES, bakeLavaPool, groupLavaPools, POOL_HEADROOM, tileKey } from '../art';
+import { THEMES, type ThemeName } from '../level/themes';
 import type { WaterZone } from '../level/Level';
 import { sound } from '../audio/Sound';
 
-/** How many frames the boil cycles through. Matches what `tiles.ts` bakes. */
-const BOIL_FRAMES = 4;
 
 /**
  * The lava, and everything it does besides kill you.
@@ -24,8 +23,17 @@ export class LavaLake {
 
   private readonly theme: string;
 
-  /** The surface tiles, which are the ones that boil and spit. */
-  private readonly surface: Phaser.GameObjects.Image[] = [];
+  /**
+   * One picture per connected pool, cycling through `POOL_FRAMES` baked
+   * frames. A pool is drawn whole -- see `art/lava.ts` -- so its crust, its
+   * plates and its veins are features of the lake, not of a tile.
+   */
+  private readonly pools: Array<{ image: Phaser.GameObjects.Image; keys: string[]; phase: number }> = [];
+
+  /** Wisps of heat in the air, with the time each has left, ms. */
+  private readonly wisps: Array<{ sprite: Phaser.GameObjects.Image; life: number; vx: number }> = [];
+
+  private wispClock = 0;
 
   /** Where a gobbet may be thrown from: the top of each surface tile. */
   private readonly vents: Phaser.Math.Vector2[] = [];
@@ -37,9 +45,38 @@ export class LavaLake {
 
   private spitClock = 0;
 
-  constructor(scene: Phaser.Scene, theme: string, zones: WaterZone[]) {
+  /**
+   * @param groundAt Whether a full tile of something solid stands at this
+   *   world position. The lake uses it to find the ground beside its surface
+   *   and spill over the edge of it.
+   */
+  constructor(scene: Phaser.Scene, theme: string, zones: WaterZone[], groundAt: (x: number, y: number) => boolean) {
     this.scene = scene;
     this.theme = theme;
+
+    // Each connected group of cells is one pool, baked whole in eight
+    // frames the first time a level needs it, and drawn as one picture over
+    // its own opaque bed. The surface stands `LAVA.rise` above the top cells
+    // -- lava heaps up over its basin rather than sitting in it -- and the
+    // picture is placed `POOL_HEADROOM` above them to leave room for that.
+    // The rectangle that kills rises with it: see `GameScene.buildLava`.
+    const palette = THEMES[theme as ThemeName];
+    groupLavaPools(zones).forEach((pool, index) => {
+      const keys: string[] = [];
+      for (let frame = 0; frame < POOL_FRAMES; frame += 1) {
+        const key = `${theme}:lava-pool:${pool.x},${pool.y}:${frame}`;
+        if (!scene.textures.exists(key)) {
+          bakeLavaPool(scene, key, pool, palette, frame, 7000 + pool.x * 7 + pool.y * 13);
+        }
+        keys.push(key);
+      }
+      const image = scene.add
+        .image(pool.x, pool.y - POOL_HEADROOM, keys[0])
+        .setOrigin(0, 0)
+        .setAlpha(0.93)
+        .setDepth(20);
+      this.pools.push({ image, keys, phase: (index * 3) % POOL_FRAMES });
+    });
 
     for (const zone of zones) {
       // The bed, behind the cat, so nothing shows through the lava.
@@ -49,27 +86,24 @@ export class LavaLake {
         .setDepth(-8);
 
       if (!zone.isSurface) {
-        scene.add
-          .image(zone.x, zone.y, tileKey(theme, 'lava'))
-          .setOrigin(0, 0)
-          .setAlpha(0.9)
-          .setDepth(20);
         continue;
       }
 
-      const tile = scene.add
-        .image(zone.x, zone.y, tileKey(theme, 'lava-surface-0'))
-        .setOrigin(0, 0)
-        .setAlpha(0.92)
-        .setDepth(20);
+      // Where the surface meets ground on the same row, a tongue of lava has
+      // crept over the edge onto it.
+      for (const side of [-1, 1] as const) {
+        if (groundAt(zone.x + side * TILE, zone.y)) {
+          const x = side < 0 ? zone.x : zone.x + TILE;
+          scene.add
+            .image(x, zone.y - LAVA.rise, tileKey(theme, 'lava-lip'))
+            .setOrigin(side < 0 ? 1 : 0, 0)
+            .setFlipX(side < 0)
+            .setAlpha(0.95)
+            .setDepth(20);
+        }
+      }
 
-      // Each tile starts at its own point in the cycle, from its own position.
-      // A shared clock would make the whole lake blink at once, which reads as
-      // a lighting bug rather than as boiling.
-      tile.setData('phase', ((zone.x / TILE) * 3 + (zone.y / TILE) * 5) % BOIL_FRAMES);
-
-      this.surface.push(tile);
-      this.vents.push(new Phaser.Math.Vector2(zone.x + TILE / 2, zone.y));
+      this.vents.push(new Phaser.Math.Vector2(zone.x + TILE / 2, zone.y - LAVA.rise));
 
       this.addHaze(zone);
     }
@@ -78,51 +112,93 @@ export class LavaLake {
   /**
    * The heat standing over one tile of surface.
    *
-   * A pale, almost transparent column that breathes in and out. Drawn *under*
-   * the lava's own depth so the crust stays the brightest thing, and given the
-   * tile's own delay so the haze ripples along the lake rather than throbbing.
+   * A soft column, brightest at the foot and ragged at the top, that
+   * breathes in and out and sways a little. Drawn *under* the lava's own
+   * depth so the crust stays the brightest thing, and given the tile's own
+   * delay so the haze ripples along the lake rather than throbbing. The
+   * wisps that lift off it are `spit`'s cousin: see `step`.
    */
   private addHaze(zone: WaterZone): void {
     const haze = this.scene.add
-      .rectangle(
-        zone.x + TILE / 2,
-        zone.y,
-        TILE,
-        LAVA.hazeHeight,
-        0xff8a3c,
-        0.14,
-      )
+      .image(zone.x + TILE / 2, zone.y - LAVA.rise + 1, tileKey(this.theme, 'heat'))
       .setOrigin(0.5, 1)
+      .setScale(1, LAVA.hazeHeight / 32)
       .setDepth(19)
+      .setAlpha(0.5)
       .setBlendMode(Phaser.BlendModes.ADD);
 
+    const delay = ((zone.x / TILE) % 7) * 180;
     this.scene.tweens.add({
       targets: haze,
-      scaleY: { from: 0.6, to: 1.15 },
-      alpha: { from: 0.07, to: 0.2 },
+      scaleY: { from: (LAVA.hazeHeight / 32) * 0.7, to: (LAVA.hazeHeight / 32) * 1.25 },
+      alpha: { from: 0.3, to: 0.7 },
       duration: LAVA.hazeBreathMs,
       yoyo: true,
       repeat: -1,
       ease: 'Sine.easeInOut',
-      delay: ((zone.x / TILE) % 7) * 180,
+      delay,
+    });
+    this.scene.tweens.add({
+      targets: haze,
+      x: { from: zone.x + TILE / 2 - 1.5, to: zone.x + TILE / 2 + 1.5 },
+      duration: LAVA.hazeBreathMs * 0.77,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+      delay: delay * 0.6,
     });
   }
 
-  /** Advances the boil and the gobbets. Called from the scene each frame. */
+  /** Advances the boil, the gobbets and the wisps. Called from the scene each frame. */
   step(delta: number): void {
     this.boil(delta);
     this.spit(delta);
+    this.drift(delta);
   }
 
   private boil(delta: number): void {
     this.boilClock += delta;
 
-    for (const tile of this.surface) {
-      const phase = tile.getData('phase') as number;
-      const frame =
-        Math.floor(this.boilClock / LAVA.boilFrameMs + phase) % BOIL_FRAMES;
+    // Pools start at different points in the cycle, so two lakes on one
+    // screen do not blink in step.
+    for (const pool of this.pools) {
+      const frame = Math.floor(this.boilClock / LAVA.boilFrameMs + pool.phase) % POOL_FRAMES;
+      pool.image.setTexture(pool.keys[frame]);
+    }
+  }
 
-      tile.setTexture(tileKey(this.theme, `lava-surface-${frame}`));
+  /**
+   * Wisps of heat: every so often one lifts off a random vent, rises, swells
+   * and thins to nothing. Moved by hand like the gobbets, for the same
+   * reason, and capped so a long lake does not fill the air.
+   */
+  private drift(delta: number): void {
+    this.wispClock += delta;
+
+    if (this.vents.length > 0 && this.wispClock >= LAVA.wispEveryMs && this.wisps.length < 18) {
+      this.wispClock = 0;
+      const vent = Phaser.Utils.Array.GetRandom(this.vents);
+      const sprite = this.scene.add
+        .image(vent.x + Phaser.Math.Between(-5, 5), vent.y - 2, tileKey(this.theme, 'wisp'))
+        .setDepth(19)
+        .setAlpha(0.6)
+        .setBlendMode(Phaser.BlendModes.ADD);
+      this.wisps.push({ sprite, life: LAVA.wispLifeMs, vx: Phaser.Math.Between(-6, 6) });
+    }
+
+    for (let i = this.wisps.length - 1; i >= 0; i -= 1) {
+      const wisp = this.wisps[i];
+      wisp.life -= delta;
+      const t = 1 - wisp.life / LAVA.wispLifeMs;
+      wisp.sprite.y -= LAVA.wispRise * (delta / 1000);
+      wisp.sprite.x += wisp.vx * (delta / 1000);
+      wisp.sprite.setScale(1 + t * 0.9);
+      wisp.sprite.setAlpha(0.6 * (1 - t));
+
+      if (wisp.life <= 0) {
+        wisp.sprite.destroy();
+        this.wisps.splice(i, 1);
+      }
     }
   }
 

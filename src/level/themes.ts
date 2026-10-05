@@ -150,19 +150,23 @@ export const THEMES: Record<ThemeName, TilePalette> = {
 
   // Black rock and open lava. Chains hang where there is nothing living to
   // climb, and the only greens left are the glow of the stuff below.
+  // Basalt and ash. Nothing grows: the surface is `dust`, like the cave's,
+  // but grey-brown cinder rather than pale cave dust, with the odd pebble
+  // of lit rock. The ground beneath is near-black basalt, so the lava is
+  // the only warm thing in the picture.
   volcano: {
-    surfaceStyle: 'grass',
+    surfaceStyle: 'dust',
     groundStyle: 'earth',
-    shade: 0x1a0d0d,
+    shade: 0x120a0a,
     columnStyle: 'chain',
     platformStyle: 'shelf',
-    grass: 0x6b4038,
-    grassDark: 0x4a2a25,
-    dirt: 0x3a2f2c,
-    dirtDark: 0x271f1d,
-    rock: 0x453a38,
-    rockDark: 0x2c2422,
-    rockLight: 0x6a5a56,
+    grass: 0x6a5a5b,
+    grassDark: 0x463a3c,
+    dirt: 0x2f2628,
+    dirtDark: 0x1f1819,
+    rock: 0x3d3335,
+    rockDark: 0x261f20,
+    rockLight: 0x6b5c5e,
     branch: 0x5a4a45,
     branchDark: 0x392f2c,
     leaf: 0xe8622a,

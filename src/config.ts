@@ -380,8 +380,33 @@ export const MAX_CHARMS_PER_LEVEL = 60;
  * it is there so the lake reads as molten rather than as an orange floor.
  */
 export const LAVA = {
-  /** How long one frame of the boil lasts, ms. Four frames make a cycle. */
+  /**
+   * How far the surface stands *above* its own cell, px. Lava is not water:
+   * it does not sit in its basin but heaps up over it, so a lake level with
+   * the land stands proud of it, and spills over the edges (see `lipWidth`).
+   * The rectangle that kills rises with it.
+   */
+  rise: 3,
+  /**
+   * How far a tongue of lava creeps onto a ground tile beside the surface,
+   * px, and how thick it lies on it.
+   */
+  lipWidth: 4,
+  lipThickness: 5,
+  /**
+   * How far from a bank the raised crust stops killing, px. One pixel: a
+   * body exactly on the edge lives, a body over it does not. A toe's width
+   * and a body's width were both tried and were too kind.
+   */
+  bankMercy: 1,
+
+  /** How long one frame of a pool's boil lasts, ms. Eight frames make a cycle. */
   boilFrameMs: 180,
+  /** Average time between wisps of heat lifting off the surface, ms, across the lake. */
+  wispEveryMs: 260,
+  /** How long a wisp lives, ms, and how fast it rises, px/sec. */
+  wispLifeMs: 1800,
+  wispRise: 22,
 
   /** How high the heat haze stands over the surface, px. */
   hazeHeight: 26,

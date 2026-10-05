@@ -1285,3 +1285,92 @@ next level in the same breath, but `scene.start` is only carried out at the
 top of the following frame, so the old level drew once more with nothing
 over it. The fade out's black now stays until the scene switch takes it; only
 the fade in's black is thrown away when it is done.
+
+## The volcano, made to look like one
+
+**Lava stands above the land.** You asked for it higher than the ground
+around it, flowing over. The surface is drawn `LAVA.rise` (5px) above its own
+cell under a domed crust, the vents and heat haze ride on that crust, and the
+rectangle that kills rises with it so the line you see is the line that burns.
+Where a surface tile has a whole tile of ground beside it on the same row, a
+tongue of lava (`lava-lip`, 7px long, 5px thick) lies over that tile's edge.
+Ground a row *higher* than the lava gets no lip -- the lava is below it, there
+is nothing to spill onto -- so a lake that should overflow its banks has to be
+written on the banks' own row, which is what you did.
+
+**The backdrop is rebuilt.** The flat dark cones with a lit tip are gone.
+Three ranks of mountains, two silhouettes each, flipped at random: a jagged
+single-peaked ridge drawn as a function of x, which is what lets the rest be
+cheap -- the red underlight is two-pixel bands trimmed to the mountain's
+width at each height, and a lava stream is kept on the slope by the same
+question. Streams are thin, smooth, slanting lines (a steady drift plus a
+slow sine); the first version was a random walk per row and read as scratches
+on the picture. Only the near rank has streams. Craters glow with a halo;
+smoke rises from the near ones on tweens; ash falls and embers rise.
+
+**Basalt and ash instead of brown grass.** The volcano's palette uses the
+cave's `dust` surface style -- a cinder crust with the odd lit pebble -- over
+near-black basalt, so the lava is the only warm thing in the picture.
+
+> **Still open:** the mountains' lava streams are baked into the picture and
+> do not move. A slow glow pulse on them, or a shimmer, is a tween away if
+> the backdrop wants life beyond the smoke and the ash.
+
+## Lava, heat and the volcano's drone
+
+**The lava is drawn finer, in more colours, and it moves.** Eight surface
+frames instead of four: plates of dark skin drift right two pixels a frame
+with white-hot cracks between them, cooled lumps ride the rim at half that
+speed, two bubbles swell and burst out of step, and the orange body has
+warmer patches in it. The body below the surface is animated now too, four
+slow frames of hot veins creeping down through dark cooled lava. All in the
+tile's own 16 pixels: more detail and more tones, not bigger tiles -- the
+game is pixel art, and a lake drawn at another resolution than the ground it
+sits in would read as pasted on.
+
+**The heat is a column, not a rectangle.** A baked `heat` texture, brightest
+at the foot and ragged at the top, breathing and swaying on two tweens, and
+wisps lifting off random vents, rising and thinning, capped at 18 in the air.
+
+**The rumble is ominous now, still subtle.** Under the low-passed noise sit
+two deep sines a hair apart (36 / 36.7Hz) beating against each other, with an
+octave above at a quarter the level, surging on a slow clock of their own.
+Not a note, a presence. Mute cycles it with the rest of the bed.
+
+## Lava is drawn per lake, like a boulder
+
+**You wanted boulder logic for lava, and that is what it is now.** My first
+pass kept drawing per tile and only made the tile busier, which is not what
+you asked. `art/lava.ts` joins connected `L` cells into pools and bakes each
+pool whole, in eight frames, keyed by theme and position: a crust that heaps
+up across the whole width (a dome plus a slow waver), plates and lumps
+scattered by a seed rather than repeating every sixteen pixels, two or three
+veins wandering the length of the body, bubbles where the seed puts them,
+large cooled plates with a hot rim, and glow specks that come and go. The
+tile-level surface and body textures are gone. The lips over the banks, the
+heat columns and the wisps stay as they were, per surface cell.
+
+A pool need not be a rectangle: the crater's V is one pool, and every feature
+is clipped to the cells that are actually lava.
+
+**The lava lip is six pixels now, not seven,** at your word.
+
+## The lava's raised crust kills almost to the bank, on purpose
+
+**The kill rectangle of a surface tile rises with the crust,** and stops one
+pixel (`LAVA.bankMercy`) short of the bank: a cat at the very edge of an
+island with its body more than a pixel over the lava cell dies. That felt
+"very precise" at first, and I tried mercy at the banks -- a body's width,
+then a toe's -- and you set me straight: dying fast there was the good part,
+it had only been a hair too extreme. Settled at one pixel of mercy, the rise
+at 3px and the lip at 4px. The tongue of lava over the bank is a picture
+only; what you saw as "standing in the crust and dying" was the body over the
+cell edge while the drawing, 4.5px wider each side, still looked to be on
+the land.
+
+**Rise and lip each lost a pixel** at your word: the surface stands 4px
+proud now, the lip reaches 5px over the bank.
+
+**Your taller map:** four rows went in above, and `groundRow` is still 28
+while the spawn is on row 31 -- the backdrop plants on it, so the mountains
+hang 64px too high. That is your file; the number wants to be 32.

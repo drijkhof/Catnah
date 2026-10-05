@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { TILE } from '../config';
+import { LAVA, TILE } from '../config';
 import { bakeTexture, createRandom } from './canvas';
 
 /** Height of the solid wooden part of a branch, in game pixels. */
@@ -1043,48 +1043,62 @@ export function generateTileset(
   });
 
   // --- lava ---------------------------------------------------------------
+  const lavaHot = 0xfff0b0;
+
+  /** The opaque bed drawn behind every lava tile, so nothing shows through. */
   bakeTexture(scene, key('lava'), TILE, TILE, (g) => {
     g.fillStyle(palette.lavaDeep, 1);
     g.fillRect(0, 0, TILE, TILE);
+  });
 
-    g.fillStyle(palette.lava, 1);
-    g.fillRect(2, 3, 6, 2);
-    g.fillRect(9, 9, 5, 2);
+  // The lake itself is not drawn per tile at all: `art/lava.ts` bakes each
+  // connected pool as one picture, the way a run of rock is one boulder.
+
+  /**
+   * The heat standing over the surface: a column that is brightest at the
+   * foot and gone at a ragged top. The scene stretches and breathes it.
+   */
+  bakeTexture(scene, key('heat'), TILE, 32, (g) => {
+    const random = createRandom(6100);
+    for (let x = 0; x < TILE; x += 1) {
+      const h = 18 + Math.floor(random() * 12);
+      for (let y = 32 - h; y < 32; y += 1) {
+        const t = (y - (32 - h)) / h;
+        g.fillStyle(palette.lavaBright, t * t * 0.4);
+        g.fillRect(x, y, 1, 1);
+      }
+    }
+  });
+
+  /** A wisp of heat that lifts off the surface and thins to nothing. */
+  bakeTexture(scene, key('wisp'), 6, 10, (g) => {
+    g.fillStyle(palette.lavaBright, 0.35);
+    g.fillEllipse(3, 5, 6, 10);
+    g.fillStyle(lavaHot, 0.3);
+    g.fillEllipse(3, 6, 3, 5);
   });
 
   /**
-   * The surface, in four frames that cycle.
-   *
-   * Lava that sits still is a floor painted orange. What makes it read as
-   * molten is that the crust keeps breaking: each frame moves the bright
-   * patches and the dark skin about, and the scene runs the tiles out of step
-   * with each other so the whole lake churns rather than pulsing as one.
+   * A tongue of lava that has crept over the edge of the ground beside the
+   * lake: drawn for lava on the left spilling rightwards, flipped by the
+   * scene for the other side. Its top is level with the surface's crust and
+   * it lies on the ground tile's top, `LAVA.rise` lower.
    */
-  const BOIL_FRAMES = 4;
-
-  for (let frame = 0; frame < BOIL_FRAMES; frame += 1) {
-    bakeTexture(scene, key(`lava-surface-${frame}`), TILE, TILE, (g) => {
-      g.fillStyle(palette.lava, 1);
-      g.fillRect(0, 0, TILE, TILE);
-
-      // The bright crust along the top, so the line not to touch is
-      // unmistakable. It boils unevenly: the lit run shifts each frame.
-      g.fillStyle(palette.lavaBright, 1);
-      g.fillRect(0, 0, TILE, 3);
-      g.fillRect((frame * 5) % TILE, 3, 5, 1);
-      g.fillRect((frame * 7 + 9) % TILE, 3, 3, 1);
-
-      // Bubbles rising through it, each frame a little further up and a little
-      // bigger, so a tile left running looks like it is coming to the boil.
-      g.fillStyle(palette.lavaBright, 0.9);
-      g.fillCircle(4 + frame, 11 - frame * 2, 1 + frame * 0.4);
-      g.fillCircle(12 - frame, 13 - frame, 1 + frame * 0.3);
-
-      // And the dark skin between them.
-      g.fillStyle(palette.lavaDeep, 1);
-      g.fillRect((frame * 3 + 4) % (TILE - 5), 8, 5, 1);
-    });
-  }
+  bakeTexture(scene, key('lava-lip'), LAVA.lipWidth, LAVA.rise + LAVA.lipThickness, (g) => {
+    const w = LAVA.lipWidth;
+    const top = LAVA.rise - 2;
+    g.fillStyle(palette.lava, 1);
+    g.fillRoundedRect(0, top, w, LAVA.lipThickness + 2, { tl: 0, tr: 3, bl: 0, br: 3 });
+    // Joined to the lake: solid lava up to the crust on the lake side.
+    g.fillRect(0, 0, 2, LAVA.rise + 2);
+    g.fillStyle(palette.lavaBright, 1);
+    g.fillRect(0, 0, 2, 2);
+    g.fillRect(0, top, w - 2, 1);
+    g.fillStyle(lavaHot, 1);
+    g.fillRect(1, top, 2, 1);
+    g.fillStyle(palette.lavaDeep, 1);
+    g.fillRect(1, LAVA.rise + LAVA.lipThickness - 1, w - 3, 1);
+  });
 
   /** A gobbet of lava, for the ones that jump out. */
   bakeTexture(scene, key('lava-blob'), 6, 6, (g) => {

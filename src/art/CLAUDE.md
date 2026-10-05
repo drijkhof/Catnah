@@ -14,7 +14,11 @@ binary assets but the portal picture and runs straight after clone.
   over them, placed by `GameScene.dressGround`.
 - `forest.ts` — the forest's own scenery: sky, sun, trees, bushes, grass. And
   the little heart, which is the same everywhere.
-- `backdrops.ts` — cave, swamp and volcano scenery: stalactites, crystals, cones.
+- `lava.ts` — a lava lake as one picture: `groupLavaPools` joins connected `L`
+  cells, `bakeLavaPool` bakes each pool whole in eight frames, the way a run
+  of rock is one boulder. Nothing about lava is drawn per tile any more.
+- `backdrops.ts` — cave, swamp and volcano scenery: stalactites, crystals,
+  and the volcano's ridged mountains with lava running down them (`drawMountain`).
 - `creatures.ts` — hedgehog, piranha, crow.
 - `ui.ts` — the touch-button glyphs.
 - `portal.ts` — the way out of a level. The portal is a picture,
