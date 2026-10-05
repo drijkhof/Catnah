@@ -473,9 +473,9 @@ as a descent.
 ends at a **portal**, which takes you to the next; the volcano leads back
 to the forest. Little hearts are optional everywhere.
 
-The portal is a **wormhole**: a round disc nearly three tiles across, deep
-blue with three arms of light spiralling into a black centre, a thread of gold
-round the rim and a gold glow behind it. It spins, slowly, and warps as it
+The portal is a **wormhole**: a round picture three tiles across, a blue
+spiral of light curling into a black centre, with a gold glow behind it. It
+spins, slowly, and warps as it
 spins — a little wider, a little taller, never quite the same twice — and its
 foot is sunk into the ground. It is **entered, not touched**: nothing happens
 until the cat's middle is inside the hole, so brushing past the rim does

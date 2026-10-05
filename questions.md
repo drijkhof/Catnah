@@ -1131,11 +1131,16 @@ glow, and sink its foot into the ground. All done, with a few calls of my own:
   warps, and a texture with its bottom cut off would turn with it; a mask
   along the ground line clips whatever is below it, whatever the disc is doing.
 
-> **Still open:** you asked for the actual picture you sent -- the blue
-> spiral on black. I cannot take an image out of the chat, so it needs to be
-> saved as a file: `public/assets/portal.png`, square, with the spiral filling
-> it. Once it is there, loading it under the `exit` key in `BootScene` is the
-> whole change, and the drawn one goes. Two things to know first: the project
-> has had no binary assets so far, and that would be the first; and the
-> picture's origin -- if it is stock art, check it may be used in a game that
-> is published.
+**It is your picture.** `public/assets/portal.png`, 128px, the first and
+only binary file in the project -- the no-binary-assets rule now reads "except
+the portal". Three calls made putting it in:
+
+- **Shown at 48px, not 44.** The spiral's arms are ragged at the edge, so it
+  needed a little more room than the drawn disc to read as the same size.
+- **Filtered smoothly.** The game samples textures nearest-neighbour, which
+  is right for pixel art and wrong for a photo-like spiral turning at a third
+  of its size: it shimmered. This one texture is set to `LINEAR`.
+- **The gold rim went with the drawn disc;** the gold glow behind stays.
+
+> **Still open:** where the picture comes from. If it is stock art, check it
+> may be used in a game that is published; `main` deploys to GitHub Pages.

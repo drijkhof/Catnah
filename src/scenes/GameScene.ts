@@ -578,9 +578,13 @@ export class GameScene extends Phaser.Scene {
       .image(this.exitCentre.x, this.exitCentre.y, PORTAL_GLOW_KEY)
       .setDepth(-0.12);
     this.exitGlow = glow;
+    // The picture is bigger than the portal is shown; everything that scales
+    // it below works from this base.
     const hole = this.add
       .image(this.exitCentre.x, this.exitCentre.y, PORTAL_KEY)
       .setDepth(-0.1);
+    const base = EXIT.diameter / hole.width;
+    hole.setScale(base);
 
     // The foot is sunk into the ground, and the ground is drawn *under* the
     // portal, so the sunk part is clipped off instead: everything below the
@@ -604,7 +608,7 @@ export class GameScene extends Phaser.Scene {
     });
     this.tweens.add({
       targets: hole,
-      scaleX: { from: 1 - EXIT.warp, to: 1 + EXIT.warp },
+      scaleX: { from: base * (1 - EXIT.warp), to: base * (1 + EXIT.warp) },
       duration: EXIT.warpMs,
       yoyo: true,
       repeat: -1,
@@ -612,7 +616,7 @@ export class GameScene extends Phaser.Scene {
     });
     this.tweens.add({
       targets: hole,
-      scaleY: { from: 1 + EXIT.warp * 0.6, to: 1 - EXIT.warp * 0.6 },
+      scaleY: { from: base * (1 + EXIT.warp * 0.6), to: base * (1 - EXIT.warp * 0.6) },
       duration: EXIT.warpMs * 1.37,
       yoyo: true,
       repeat: -1,

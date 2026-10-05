@@ -1,7 +1,7 @@
 # Art
 
 Every texture in the game is drawn here in code at boot, so the project has no
-binary assets and runs straight after clone.
+binary assets but the portal picture and runs straight after clone.
 
 - `canvas.ts` — `bakeTexture` (draw once, register under a key) and
   `createRandom` (seeded scatter).
@@ -17,10 +17,9 @@ binary assets and runs straight after clone.
 - `backdrops.ts` — cave, swamp and volcano scenery: stalactites, crystals, cones.
 - `creatures.ts` — hedgehog, piranha, crow.
 - `ui.ts` — the touch-button glyphs.
-- `portal.ts` — the way out of a level: one round disc the scene spins, and
-  the gold glow behind it. Round on purpose: a circle can be turned at runtime
-  and stays a circle, so one texture does where an oval would need a frame per
-  angle.
+- `portal.ts` — the gold glow behind the way out of a level. The portal
+  itself is a picture, `public/assets/portal.png`, the one real asset; the
+  scene spins it, which works because it is round.
 - `index.ts` — `generatePlaceholderArt`, called once by `BootScene`.
 
 ## The rules that keep this swappable

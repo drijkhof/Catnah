@@ -737,12 +737,12 @@ export const CHECKPOINT = {
  * past does nothing, and neither does jumping over it.
  */
 export const EXIT = {
-  /** The disc, px. Round, so it can simply be turned. */
-  diameter: 44,
+  /** The disc as shown, px. Round, so it can simply be turned. */
+  diameter: 48,
   /** How much of the bottom of the disc is below ground and never seen, px. */
   sink: 8,
   /** The glow behind it, px -- a good deal bigger, and mostly transparent. */
-  glowDiameter: 72,
+  glowDiameter: 84,
   /**
    * Radius of the hole the cat's centre must be inside, px. Under half a cat,
    * so it is in the hole and not just leaning on it.

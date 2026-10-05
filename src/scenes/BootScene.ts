@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { generatePlaceholderArt } from '../art';
+import { PORTAL_KEY, generatePlaceholderArt } from '../art';
 import { SNAPSHOT_KEY } from '../dev/hot';
 
 /**
@@ -17,11 +17,19 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload(): void {
-    // Real asset loading goes here, e.g.
+    // The one piece of real art so far: the portal, a 128px picture the game
+    // scene spins. Everything else is drawn in `generatePlaceholderArt`; more
+    // files go here under the key their generator used, e.g.
     // this.load.spritesheet('cat', 'assets/cat.png', { frameWidth: 22, frameHeight: 16 });
+    this.load.image(PORTAL_KEY, 'assets/portal.png');
   }
 
   create(): void {
+    // The portal is shown at under half its size and turning, and under the
+    // game's nearest-neighbour sampling that shimmered: a photo-like spiral
+    // is not pixel art, so this one texture is filtered smoothly.
+    this.textures.get(PORTAL_KEY).setFilter(Phaser.Textures.FilterMode.LINEAR);
+
     generatePlaceholderArt(this);
 
     // A hot reload carries a game in progress, and dropping the player back on

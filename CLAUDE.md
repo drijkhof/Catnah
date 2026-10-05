@@ -125,7 +125,8 @@ Vite puts a content hash in every filename, so a changed file is a different
 file and a hit can never be stale. `skipWaiting` plus a reload on `updatefound`
 stops an installed copy sitting on an old build until every tab is closed.
 
-The icons are SVG, not PNG, to keep the no-binary-assets rule.
+The icons are SVG, not PNG: the only bitmap in the project is the portal
+(`public/assets/portal.png`), and that is a deliberate exception.
 
 **Tunables live in `config.ts`.** Jump heights, speeds and colours do not belong
 inline in a scene. If you find yourself typing a number twice, it goes there.
