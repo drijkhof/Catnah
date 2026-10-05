@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { PORTAL_KEY, generatePlaceholderArt } from '../art';
+import { PORTAL_SOURCE_KEY, generatePlaceholderArt, shadePortal } from '../art';
 import { SNAPSHOT_KEY } from '../dev/hot';
 
 /**
@@ -21,14 +21,12 @@ export class BootScene extends Phaser.Scene {
     // scene spins. Everything else is drawn in `generatePlaceholderArt`; more
     // files go here under the key their generator used, e.g.
     // this.load.spritesheet('cat', 'assets/cat.png', { frameWidth: 22, frameHeight: 16 });
-    this.load.image(PORTAL_KEY, 'assets/portal.png');
+    this.load.image(PORTAL_SOURCE_KEY, 'assets/portal.png');
   }
 
   create(): void {
-    // The portal is shown at under half its size and turning, and under the
-    // game's nearest-neighbour sampling that shimmered: a photo-like spiral
-    // is not pixel art, so this one texture is filtered smoothly.
-    this.textures.get(PORTAL_KEY).setFilter(Phaser.Textures.FilterMode.LINEAR);
+    // The portal's rim is faded out before anything draws it.
+    shadePortal(this);
 
     generatePlaceholderArt(this);
 

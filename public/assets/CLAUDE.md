@@ -11,8 +11,10 @@ that a file can replace.
 
 The one file so far is `portal.png`: the level exit, a 78px picture of a
 blue spiral with transparent corners, shown at 32px and spun by `GameScene`.
-It is the one texture given `LINEAR` filtering, because a photo-like image
-turning under nearest-neighbour sampling shimmers.
+It is loaded as `exit-source`; `shadePortal` in `src/art/portal.ts` makes
+the `exit` texture from it with the rim faded out. That is the one texture
+given `LINEAR` filtering, because a photo-like image turning under
+nearest-neighbour sampling shimmers.
 
 ## Replacing placeholders with real art
 

@@ -752,6 +752,11 @@ export const EXIT = {
   warp: 0.08,
   /** One swell-and-shrink, ms. */
   warpMs: 900,
+  /**
+   * Where the picture starts to fade towards its rim, as a fraction of its
+   * radius: untouched inside this, eased to fully transparent at the edge.
+   */
+  fadeFrom: 0.45,
   /** The picture's alpha at the top and the bottom of a pulse, and one pulse, ms. */
   pulseAlphaHigh: 0.8,
   pulseAlphaLow: 0.4,

@@ -1131,6 +1131,19 @@ round: it is one uniform scale now.) All done, with a few calls of my own:
   and below the cat, went above the cat at your word, and came back under it
   when that hid the cat being drawn in -- which is the point of the drawing
   in. Above every bush and creature still, so nothing can hide it.
+- **Its rim fades out.** You asked whether the alpha could depend on the
+  distance from the centre, after trying it behind the scenery: it can, once,
+  at boot -- the picture is copied to a canvas and every pixel's alpha is
+  eased down from `fadeFrom` (45% of the radius) to nothing at the edge. That
+  does what sinking it behind the rocks was meant to do, in every level,
+  without the bake getting in the way. The outer arms of the spiral go with
+  the rim; if you want more of them back, `fadeFrom` is the knob.
+- **Behind the scenery did not work out.** Tried at -9, -0.6 and -0.45: the
+  ground and rock tiles are in the baked scenery layer at -0.5 together with
+  the canopy's foliage and the cave wall, so anything behind -0.5 is
+  invisible in the canopy and the cave, and -0.45 is only behind bushes and
+  grass, not rock. Truly behind the ground means baking the ground apart
+  from the rest; not done.
 - **The sunk foot is a mask, not a shorter picture.** The disc turns and
   warps, and a texture with its bottom cut off would turn with it; a mask
   along the ground line clips whatever is below it, whatever the disc is doing.
