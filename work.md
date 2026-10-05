@@ -474,8 +474,7 @@ ends at a **portal**, which takes you to the next; the volcano leads back
 to the forest. Little hearts are optional everywhere.
 
 The portal is a **wormhole**: a round picture three tiles across, a blue
-spiral of light curling into a black centre, with a gold glow behind it. It
-spins, slowly, and warps as it
+spiral of light curling into a black centre. It spins, slowly, and warps as it
 spins — a little wider, a little taller, never quite the same twice — and
 pulses, the light in it fading and surging back. Its foot is sunk into the
 ground, and it is drawn over everything, the cat included: you walk *into*

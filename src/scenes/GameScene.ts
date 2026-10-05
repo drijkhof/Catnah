@@ -13,7 +13,7 @@ import { addGroundShade, bakeScenery, createBackdrop } from '../world';
 import { parseLevel, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
 import { TITLE } from '../level/levels/title';
-import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, LOG_BULGE, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_GLOW_KEY, PORTAL_KEY, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
+import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, LOG_BULGE, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { installGodMode, isGodMode } from '../dev/godMode';
@@ -126,7 +126,6 @@ export class GameScene extends Phaser.Scene {
   private leaving = false;
   /** The centre of the portal's opening, if this level has one. */
   private exitCentre: Phaser.Math.Vector2 | null = null;
-  private exitGlow?: Phaser.GameObjects.Image;
   private walkers: GroundEnemy[] = [];
   private piranhas: Piranha[] = [];
   private crows: Crow[] = [];
@@ -574,10 +573,6 @@ export class GameScene extends Phaser.Scene {
     // On top of everything in the world -- the cat, the creatures, the
     // scenery -- and under only the HUD. The cat walks *into* it rather than
     // in front of it, and nothing scattered on the exit tile can hide it.
-    const glow = this.add
-      .image(this.exitCentre.x, this.exitCentre.y, PORTAL_GLOW_KEY)
-      .setDepth(EXIT.depth - 0.01);
-    this.exitGlow = glow;
     // The picture is bigger than the portal is shown; everything that scales
     // it below works from this base.
     const hole = this.add
@@ -591,15 +586,12 @@ export class GameScene extends Phaser.Scene {
     // ground line is masked away. A mask rather than a cropped texture
     // because the disc turns and warps, and a crop would turn with it.
     const lid = this.make.graphics({ x: 0, y: 0 }, false);
-    const reach = EXIT.glowDiameter;
+    const reach = EXIT.diameter;
     lid.fillRect(this.exitCentre.x - reach, this.exitCentre.y - reach, reach * 2, reach + radius - EXIT.sink);
-    const aboveGround = lid.createGeometryMask();
-    glow.setMask(aboveGround);
-    hole.setMask(aboveGround);
+    hole.setMask(lid.createGeometryMask());
 
     // It spins, and on top of that it warps -- wider and narrower and taller
-    // and shorter at two different speeds, so it never quite repeats. The
-    // glow breathes with it, bigger and slower.
+    // and shorter at two different speeds, so it never quite repeats.
     this.tweens.add({
       targets: hole,
       angle: 360,
@@ -632,23 +624,13 @@ export class GameScene extends Phaser.Scene {
       repeat: -1,
       ease: 'Sine.easeInOut',
     });
-    this.tweens.add({
-      targets: glow,
-      scaleX: { from: 0.85, to: 1.15 },
-      scaleY: { from: 0.85, to: 1.15 },
-      alpha: { from: 0.7, to: 1 },
-      duration: EXIT.breatheMs,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut',
-    });
   }
 
   /**
    * The cat has stepped into the portal.
    *
    * It stops dead and is drawn into the centre, shrinking and fading, while
-   * the glow flares and the screen fades to the next level. Its body is
+   * the screen fades to the next level. Its body is
    * switched off: it is no longer in the physical world, so no collider or
    * overlap -- a hedgehog arriving a step behind it -- fires for it again.
    * `update` stops stepping it and checking it for the same reason.
@@ -672,17 +654,6 @@ export class GameScene extends Phaser.Scene {
       duration: EXIT.drawInMs,
       ease: 'Sine.easeIn',
     });
-    if (this.exitGlow) {
-      this.tweens.killTweensOf(this.exitGlow);
-      this.tweens.add({
-        targets: this.exitGlow,
-        scale: 1.8,
-        alpha: 1,
-        duration: EXIT.drawInMs,
-        ease: 'Sine.easeOut',
-      });
-    }
-
     this.cameras.main.fade(EXIT.fadeMs, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => {
       this.scene.start('Game', {

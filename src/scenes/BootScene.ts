@@ -17,7 +17,7 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload(): void {
-    // The one piece of real art so far: the portal, a 128px picture the game
+    // The one piece of real art so far: the portal, a 78px picture the game
     // scene spins. Everything else is drawn in `generatePlaceholderArt`; more
     // files go here under the key their generator used, e.g.
     // this.load.spritesheet('cat', 'assets/cat.png', { frameWidth: 22, frameHeight: 16 });

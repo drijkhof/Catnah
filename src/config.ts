@@ -741,8 +741,6 @@ export const EXIT = {
   diameter: 48,
   /** How much of the bottom of the disc is below ground and never seen, px. */
   sink: 8,
-  /** The glow behind it, px -- a good deal bigger, and mostly transparent. */
-  glowDiameter: 84,
   /**
    * Radius of the hole the cat's centre must be inside, px. Under half a cat,
    * so it is in the hole and not just leaning on it.
@@ -754,8 +752,6 @@ export const EXIT = {
   warp: 0.08,
   /** One warp cycle, ms. The vertical one runs a little slower than this. */
   warpMs: 900,
-  /** One breath of the glow, ms. */
-  breatheMs: 1600,
   /** How far the picture fades at the bottom of a pulse, and one pulse, ms. */
   pulseAlpha: 0.6,
   pulseMs: 1100,

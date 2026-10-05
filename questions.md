@@ -1108,8 +1108,8 @@ alone: they lurk under the surface, where 3px does not show.
 
 **Two complaints: the door was ugly, and you could keep walking -- and die --
 after it had already fired.** Then, while it was being built: make it a
-magical spinning wormhole, round not oval, warping as it spins, with a gold
-glow, and sink its foot into the ground. All done, with a few calls of my own:
+magical spinning wormhole, round not oval, warping as it spins, and sink its
+foot into the ground. All done, with a few calls of my own:
 
 - **It is wider than the grid.** A 44px disc on a 16px tile, standing on the
   `E` tile's ground, centred on it; if an `E` is ever in the very last column
@@ -1133,7 +1133,7 @@ glow, and sink its foot into the ground. All done, with a few calls of my own:
   warps, and a texture with its bottom cut off would turn with it; a mask
   along the ground line clips whatever is below it, whatever the disc is doing.
 
-**It is your picture.** `public/assets/portal.png`, 128px, the first and
+**It is your picture.** `public/assets/portal.png`, 78px, the first and
 only binary file in the project -- the no-binary-assets rule now reads "except
 the portal". Three calls made putting it in:
 
@@ -1142,7 +1142,9 @@ the portal". Three calls made putting it in:
 - **Filtered smoothly.** The game samples textures nearest-neighbour, which
   is right for pixel art and wrong for a photo-like spiral turning at a third
   of its size: it shimmered. This one texture is set to `LINEAR`.
-- **The gold rim went with the drawn disc;** the gold glow behind stays.
+- **The gold rim went with the drawn disc,** and later the gold glow behind
+  it went too, at your word: the second picture (78px, a clean round disc
+  rather than a ragged one) stands on its own.
 
 > **Still open:** where the picture comes from. If it is stock art, check it
 > may be used in a game that is published; `main` deploys to GitHub Pages.

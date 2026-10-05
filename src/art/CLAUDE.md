@@ -17,9 +17,9 @@ binary assets but the portal picture and runs straight after clone.
 - `backdrops.ts` — cave, swamp and volcano scenery: stalactites, crystals, cones.
 - `creatures.ts` — hedgehog, piranha, crow.
 - `ui.ts` — the touch-button glyphs.
-- `portal.ts` — the gold glow behind the way out of a level. The portal
-  itself is a picture, `public/assets/portal.png`, the one real asset; the
-  scene spins it, which works because it is round.
+- `portal.ts` — only the key of the way out of a level. The portal is a
+  picture, `public/assets/portal.png`, the one real asset; the scene spins
+  it, which works because it is round.
 - `index.ts` — `generatePlaceholderArt`, called once by `BootScene`.
 
 ## The rules that keep this swappable
