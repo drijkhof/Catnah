@@ -213,6 +213,14 @@ edge, `flybyOvershoot` past each end, and turns round, bobbing gently. It is
 still a `Crow`, so it flips, sleeps and wakes like the rest, but its `step`
 returns before any of the attack code.
 
+`step` also takes what the crow can tell about the cat, worked out by the
+scene (`CatCover`): a **sneaking** cat is never the start of an attack, and a
+**hidden** one -- sneaking with the middle of its body inside the rectangle of
+a bush, a reed or a `foliage-near` clump -- ends one. `GameScene.gatherCover`
+collects those rectangles once the level is built; all three kinds are live
+objects (the foliage is in front of the cat, bushes and reeds are `KEEP_LIVE`),
+so they survive the scenery bake and can be asked.
+
 Every crow used to share one starting angle and one circling speed, both
 literally zero and a constant. Two of them awake at once -- easy, in a level
 with eight -- traced the exact same circle in perfect lockstep from the moment

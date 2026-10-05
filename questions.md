@@ -455,15 +455,39 @@ headlight, a tail light, a number plate and a shadow on the road.
 > **Still open:** every car in the game is the same car. A second body colour
 > per level, or per car, would cost one number.
 
-## Hiding in the leaves is only a picture
+## Hiding from the crow
 
-The foliage in front of the branches hides the cat from *you*, not from anything
-in the game. A crow still dives at a cat standing in a clump of leaves.
+**Used to be only a picture:** the leaves hid the cat from you, not from the
+game. Now it is a rule, for the one creature that hunts by sight. You asked
+for the crow to stop attacking when you sneak, best of all behind bushes or
+leaves; I split that in two, so the cover means something:
 
-Made it that way because the alternative is a stealth mechanic, and there is
-nothing in the game that hunts by sight -- a crow circles a nest, a rat runs
-from you. Turning cover into a rule would need all of that rewritten. Say the
-word if hiding should actually work.
+- **A sneaking cat is never attacked.** The crow does not start a dive at
+  something low and slow. A dive already under way goes on, though -- going
+  flat in the open does not shake it off.
+- **A sneaking cat behind cover is lost.** Behind a bush, a reed or in the
+  leaves on a branch, the crow breaks off and returns to its circle. Cover is
+  the rectangle of the picture, and it is the middle of the cat's body that
+  has to be inside it; standing up in a bush does not count, the ears and the
+  tail are out.
+
+Nothing else hunts by sight, so nothing else changed: hedgehogs, piranhas,
+spiders and the beetle are as deadly to a sneaking cat as before.
+
+**Bushes are drawn in front of the cat now** (depth 0.5; they were behind it
+at -0.3), at your word, so the cat walks behind them and a cat sneaking
+behind one is out of sight as well as out of the crow's. Hedgehogs still hide
+behind them; hearts still draw in front.
+
+**Where this actually comes up:** only the forest's great tree has cover
+within a crow's attack range (150px of the nest) -- the leaves on the branches
+around the nest. The swamp's eight crows have no reeds or leaves closer than
+160px to any nest, so there a sneaking cat is simply never attacked, and one
+already being dived at has to get out of range. Worth knowing when placing
+the next crow.
+
+> **Still open:** whether sneaking in the open should also shake off a dive.
+> It would make sneaking a panic button; as it stands you have to reach cover.
 
 ## How far away a creature stops living
 

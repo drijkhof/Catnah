@@ -54,8 +54,9 @@ which is what reads as depth:
 | Canopy | 0.35 sideways, 0 vertically: pinned to the top of the viewport |
 | Bushes, grass tufts | 1 |
 
-**Bushes (and the swamp's reeds) are live objects, not baked.** They sit at
-depth -0.3 with `setData(KEEP_LIVE, true)`, which `bakeScenery` honours. The
+**Bushes (and the swamp's reeds) are live objects, not baked.** Bushes sit at
+depth 0.5 -- in front of the cat, which walks behind them -- with
+`setData(KEEP_LIVE, true)`, which `bakeScenery` honours. The
 rest of the static scenery is flattened into two layers, the terrain one at
 -0.5, and hedgehogs walk at -0.4: above that layer (trees and rocks never hide
 them) and below the

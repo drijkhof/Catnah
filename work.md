@@ -165,7 +165,14 @@ Wall jumping has no button of its own: in mid-air against a wall, jump does it.
 - **Sneaking takes you under thorns.** Crawl and the points pass over you;
   stand up among them and you die. It is the pose that counts, and the pose
   drops the moment you leave the ground, so falling into thorns still kills.
-  Lava and creatures are not fooled by it.
+  Lava and the creatures on the ground are not fooled by it.
+- **Sneaking hides you from the crow.** A crow never starts an attack on a
+  sneaking cat — something low and slow in the grass is not worth a dive —
+  though one already diving does not let you off just for dropping flat. For
+  that you need cover: sneak **behind a bush, a reed or into the leaves on a
+  branch** and the crow loses you, breaks off and goes back to its circle.
+  It is the middle of your body that has to be behind the cover, and you have
+  to be sneaking: standing in a bush, your ears and tail are out.
 
 ### Standing on things
 
@@ -545,7 +552,8 @@ longer a rest. None of what is on it is another set of teeth:
   higher than every other crossing in the level.
 - **Crows**, over two of the liana crossings. A bird coming at you while you
   hang over piranhas is the most dangerous thing here, and the only one that
-  comes looking for you.
+  comes looking for you. It does not look for a sneaking cat, and it loses one
+  that sneaks into the leaves.
 
 The lianas here are five tiles long, hang low over the water and **hang from
 nothing**. That is on purpose: all you can do with one is cross, there is no
@@ -690,10 +698,11 @@ the crown, never from the trunk, because that is where a tree actually carries
 its leaves: the canopy sits on the branches and the bare trunk runs up into it
 from the ground. And **in
 front of you**, growing up off the branches: walk into one and you are hidden to
-the shoulders, with your ears and your tail still out. It hides nothing that
-matters — the hearts are drawn in front of the leaves, and the creatures that
-walk the floor are behind them — but a cat sitting in the foliage looks like a
-cat in a tree rather than a cat on a shelf.
+the shoulders, with your ears and your tail still out. Sneak into one and you
+are hidden from the crow (see *Moving*). It hides nothing else — the hearts
+are drawn in front of the leaves, and the creatures that walk the floor are
+behind them — but a cat sitting in the foliage looks like a cat in a tree
+rather than a cat on a shelf.
 
 For now only where a place actually has leaves: the forest, the jungle and the
 swamp. A cave shelf is the same tile as a branch underneath and does not sprout.

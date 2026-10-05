@@ -129,6 +129,13 @@ export class GameScene extends Phaser.Scene {
   private walkers: GroundEnemy[] = [];
   private piranhas: Piranha[] = [];
   private crows: Crow[] = [];
+  /**
+   * Everything a sneaking cat can hide behind: bushes, reeds, the leaves in
+   * front of a branch. Their screen rectangles, gathered once the level is
+   * built. All three are live objects (drawn in front of the cat or kept
+   * live so a hedgehog can hide too), so they are still there to be asked.
+   */
+  private cover: Phaser.Geom.Rectangle[] = [];
   private crocodiles: Crocodile[] = [];
   private spiders: Spider[] = [];
   private boss?: Boss;
@@ -272,6 +279,7 @@ export class GameScene extends Phaser.Scene {
 
     this.buildCreatures(blocks, branches);
     this.buildExit();
+    this.gatherCover();
 
     // Last, once everything static exists: flatten it into a few big
     // textures. See `world/BakeScenery.ts` for what counts as static.
@@ -434,9 +442,10 @@ export class GameScene extends Phaser.Scene {
         piranha.doze();
       }
     }
+    const catCover = { sneaking: this.player.sneaking, hidden: this.hidden() };
     for (const crow of this.crows) {
       if (this.awake(crow)) {
-        crow.step(cat, delta);
+        crow.step(cat, delta, catCover);
       } else {
         crow.doze();
       }
@@ -520,6 +529,28 @@ export class GameScene extends Phaser.Scene {
     const dx = this.player.body.center.x - this.exitCentre.x;
     const dy = this.player.body.center.y - this.exitCentre.y;
     return dx * dx + dy * dy <= EXIT.openingRadius * EXIT.openingRadius;
+  }
+
+  /** Collects the rectangles of everything a sneaking cat can hide behind. */
+  private gatherCover(): void {
+    const keys = new Set(['bush', 'reed', this.tile('foliage-near')]);
+    this.cover = this.children.list
+      .filter((object): object is Phaser.GameObjects.Image => object instanceof Phaser.GameObjects.Image && keys.has(object.texture.key))
+      .map((image) => image.getBounds());
+  }
+
+  /**
+   * Whether the cat is hidden: sneaking, with the middle of its body behind
+   * a bush, a reed or a clump of leaves. Standing up in a bush is not
+   * hiding -- the ears and the tail are out -- and sneaking in the open is
+   * not either.
+   */
+  private hidden(): boolean {
+    if (!this.player.sneaking) {
+      return false;
+    }
+    const { x, y } = this.player.body.center;
+    return this.cover.some((rect) => rect.contains(x, y));
   }
 
   /**

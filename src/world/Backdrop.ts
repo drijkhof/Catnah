@@ -18,9 +18,10 @@ const DEPTH = {
   treesMid: -70,
   fogNear: -66,
   canopy: -60,
-  // In front of the hedgehogs (-0.4), so one can hide behind a bush, and
-  // behind the cat (0). Not baked: see `KEEP_LIVE`.
-  bushes: -0.3,
+  // In front of the hedgehogs (-0.4) and of the cat (0), so either can hide
+  // behind a bush -- the cat walks behind them, and a sneaking cat behind one
+  // is hidden from the crow. Behind the hearts (7). Not baked: see `KEEP_LIVE`.
+  bushes: 0.5,
   foreground: 50,
 } as const;
 

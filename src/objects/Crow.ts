@@ -17,6 +17,15 @@ import type { CrowBehaviour } from '../level/Level';
  * the cat altogether: it sweeps across the level and back, rising and falling
  * a little on the way, and never attacks. The title screen uses it.
  */
+/** What a crow can tell about the cat, worked out by the scene. */
+export interface CatCover {
+  sneaking: boolean;
+  /** Sneaking *and* behind something: a bush, a reed, the leaves on a branch. */
+  hidden: boolean;
+}
+
+const IN_THE_OPEN: CatCover = { sneaking: false, hidden: false };
+
 export class Crow extends Phaser.Physics.Arcade.Sprite {
   declare body: Phaser.Physics.Arcade.Body;
 
@@ -106,7 +115,15 @@ export class Crow extends Phaser.Physics.Arcade.Sprite {
     return this.attacking;
   }
 
-  step(target: Phaser.Math.Vector2, delta: number): void {
+  /**
+   * @param cat How the cat is carrying itself. A *sneaking* cat is never
+   *   attacked -- a crow does not go for something low and slow in the
+   *   grass -- but one already being dived at is not let off just by
+   *   dropping flat. A *hidden* cat (sneaking behind a bush or in the
+   *   leaves, the scene's call) is lost sight of: the crow breaks off and
+   *   goes back to its circle.
+   */
+  step(target: Phaser.Math.Vector2, delta: number, cat: CatCover = IN_THE_OPEN): void {
     if (this.behaviour === 'flyby') {
       this.flyBy(delta);
       return;
@@ -120,9 +137,13 @@ export class Crow extends Phaser.Physics.Arcade.Sprite {
     // flicker in and out.
     const wasAttacking = this.attacking;
 
-    this.attacking = this.attacking
-      ? toCat < CROW.releaseRange
-      : toCat < CROW.attackRange;
+    if (cat.hidden) {
+      this.attacking = false;
+    } else if (this.attacking) {
+      this.attacking = toCat < CROW.releaseRange;
+    } else {
+      this.attacking = toCat < CROW.attackRange && !cat.sneaking;
+    }
 
     // It calls once, as it breaks off the circle. Calling the whole way in
     // would be an alarm rather than a bird.
