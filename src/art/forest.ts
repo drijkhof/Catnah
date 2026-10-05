@@ -253,8 +253,10 @@ function generateBush(scene: Phaser.Scene): void {
         2,
       );
     }
+    // One pixel, like the heap at a boulder's foot: three read as the bush
+    // floating on a dark slab.
     g.fillStyle(shadeOf(COLORS.bushDark, 22), 1);
-    g.fillRect(width * 0.14, height - 3, width * 0.72, 3);
+    g.fillRect(width * 0.14, height - 1, width * 0.72, 1);
   });
 }
 

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { COLORS, GAME_HEIGHT, GAME_WIDTH } from '../config';
+import { COLORS, GAME_HEIGHT, GAME_WIDTH, TILE } from '../config';
+import type { WaterZone } from '../level/Level';
 import { KEEP_LIVE } from './BakeScenery';
 import { BUSH_SIZE, CANOPY_SIZE, SUN_SIZE, TREE_SIZES, createRandom } from '../art';
 
@@ -39,11 +40,14 @@ export class Backdrop {
   private readonly scene: Phaser.Scene;
   private readonly levelWidth: number;
   private readonly groundLine: number;
+  /** The pools at the ground line, which no bush is put on. */
+  private readonly pools: WaterZone[];
 
-  constructor(scene: Phaser.Scene, levelWidth: number, groundLine: number) {
+  constructor(scene: Phaser.Scene, levelWidth: number, groundLine: number, water: WaterZone[] = []) {
     this.scene = scene;
     this.levelWidth = levelWidth;
     this.groundLine = groundLine;
+    this.pools = water.filter((zone) => Math.abs(zone.y - groundLine) <= TILE);
 
     this.addSky();
     this.addSun();
@@ -208,15 +212,23 @@ export class Backdrop {
     for (let x = 0; x < this.levelWidth; x += spacing) {
       const jitterX = (random() - 0.5) * spacing * 0.6;
       const scale = 0.8 + random() * 0.5;
+      const bushX = x + jitterX;
+      const halfWidth = (BUSH_SIZE.width * scale) / 2;
+
+      // Not on water. The random draws above happen regardless, so skipping
+      // a bush does not move every bush after it.
+      const onWater = this.pools.some((pool) => bushX + halfWidth > pool.x && bushX - halfWidth < pool.x + pool.width);
 
       // Bushes sit on the floor the cat walks on, so they scroll with it.
       // Parallaxing them would make them slide across the ground.
-      this.scene.add
-        .image(x + jitterX, this.groundLine + 1, 'bush')
-        .setOrigin(0.5, 1)
-        .setDisplaySize(BUSH_SIZE.width * scale, BUSH_SIZE.height * scale)
-        .setDepth(DEPTH.bushes)
-        .setData(KEEP_LIVE, true);
+      if (!onWater) {
+        this.scene.add
+          .image(bushX, this.groundLine + 1, 'bush')
+          .setOrigin(0.5, 1)
+          .setDisplaySize(BUSH_SIZE.width * scale, BUSH_SIZE.height * scale)
+          .setDepth(DEPTH.bushes)
+          .setData(KEEP_LIVE, true);
+      }
 
       // A few tufts right at the camera edge, in front of everything, to give
       // the floor some thickness.

@@ -34,6 +34,6 @@ export function createBackdrop(
       new VolcanoBackdrop(scene, levelWidth, groundLine);
       break;
     default:
-      new Backdrop(scene, levelWidth, groundLine);
+      new Backdrop(scene, levelWidth, groundLine, level.waterZones);
   }
 }

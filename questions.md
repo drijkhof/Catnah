@@ -1181,3 +1181,15 @@ its cell, flat and still, and the rounded-corner fillets follow the same flag.
 
 > **Still open:** lava has the same rule and the same potential strip under
 > a `#`. Not touched -- say so if the volcano shows it.
+
+## Bushes: a thinner shadow, and none on the water
+
+**The dark strip under a bush was three pixels, and read as a slab.** One
+pixel now, like the heap at a boulder's foot. And the forest's bushes were
+scattered along the whole ground line, pools included, so a bush could stand
+on the water; a bush whose foot would overlap a pool at the ground line is
+skipped. The random draws are made before the skip, so the other bushes stay
+exactly where they were.
+
+> Only the forest and canopy backdrop does this; the swamp's reeds stand in
+> the water on purpose.
