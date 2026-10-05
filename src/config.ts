@@ -769,8 +769,26 @@ export const EXIT = {
   depth: -10,
   /** How long the cat takes to be drawn into the centre, ms. */
   drawInMs: 420,
-  /** How long the fade to the next level takes once the cat is in, ms. */
-  fadeMs: 450,
+  /**
+   * How long the fade to black takes once the cat is in, ms. The same 650 as
+   * the pause after a death before the respawn, so leaving and dying take
+   * the same breath.
+   */
+  fadeMs: 650,
+  /** How long the next level takes to come up out of black, ms. */
+  fadeInMs: 650,
+  /**
+   * On arrival a portal stands where the cat appears, fully opaque while the
+   * screen is still black, and fades to nothing over this, ms.
+   */
+  arriveMs: 650,
+  /**
+   * Depth of the black a level fades out into and comes up out of; the
+   * arrival portal sits just above it. Under the HUD (1000), so the hearts
+   * stay put through both fades; the level name sits one under the black
+   * and goes with its level.
+   */
+  fadeDepth: 999,
 } as const;
 
 export const CROW = {

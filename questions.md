@@ -1239,3 +1239,49 @@ rim stays. The only alpha animation left is the exit itself: the moment the
 cat steps in, the portal fades from its resting alpha to nothing over the same
 420ms as the cat shrinking into it, so the two go out together. That resting
 alpha is 0.8 (`EXIT.alpha`), so the world shows through it a little.
+
+## A level may have several exits
+
+**Every `E` is a portal, and all of them do the same thing** -- the next
+level, with everything you carry. The parser collects them as `exits`; the
+scene builds one portal per `E` and asks each one whether the cat is in it.
+The beetle, which keeps itself between the cat and the way out, takes the
+portal nearest its own start as the one it guards. No level uses more than
+one yet.
+
+## Leaving fades out over 650ms, and the next level fades in
+
+**The fade to black on leaving is 650ms now** (was 450), the same length as
+the pause after a death before the respawn, so leaving and dying take the
+same breath. **And there is a fade in**: there was none -- the next level
+simply appeared -- so now every level arrived at, from the title or through a
+portal, comes up out of black over 650ms -- it was 220 for a moment, and
+went back. A hot reload does not fade, because the player never left.
+
+**An arrival portal** stands where the cat appears, opaque from the first
+frame while the screen is still black, and fades to nothing over 650ms with
+a quarter turn. It is seen through the black because the black is not the
+camera's fade (which paints over everything) but a screen-pinned rectangle,
+with the portal just above it. Purely a picture: it has no opening and
+nothing happens if you walk back into it.
+
+**Neither fade touches the hearts.** The black sits at depth 999, just under
+the hearts (1000), on the way out as well as on the way in: it is the world
+that goes dark, not the screen. The level name is the exception, at 998 just
+under the black, so it fades with the level it names. The camera's own fade
+could not do any of that; it paints over everything the camera draws.
+
+**The arrival portal starts at 0.8,** like a standing one, and is centred on
+the cat: measured in all five levels, it stands within a pixel of the cat's
+middle, and the cat does not drop after spawning anywhere. If it ever looks
+off, it was the first version, which read the body's centre before the
+physics had placed it.
+
+## The flash between the fades
+
+**One fully lit frame showed between the fade out and the fade in.** The
+fade out destroyed its black the moment the tween finished and asked for the
+next level in the same breath, but `scene.start` is only carried out at the
+top of the following frame, so the old level drew once more with nothing
+over it. The fade out's black now stays until the scene switch takes it; only
+the fade in's black is thrown away when it is done.

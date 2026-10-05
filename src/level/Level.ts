@@ -237,8 +237,8 @@ export interface ParsedLevel {
   extraLives: Point[];
   /** Where the cat starts, and returns to after dying. */
   spawn: Point;
-  /** Where the level is left, if it has a way out. */
-  exit: Point | null;
+  /** The ways out, if the level has any. Every `E` is a portal, and every portal does the same. */
+  exits: Point[];
   groundLine: number;
   widthInPixels: number;
   heightInPixels: number;
@@ -276,7 +276,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   let spawn: Point | null = null;
   let boss: Point | null = null;
   const extraLives: Point[] = [];
-  let exit: Point | null = null;
+  const exits: Point[] = [];
 
   /**
    * A thin one-way ledge, used for the tops of trees and for nests. Invisible
@@ -520,7 +520,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           break;
 
         case 'E':
-          exit = { x: x + TILE / 2, y: y + TILE };
+          exits.push({ x: x + TILE / 2, y: y + TILE });
           break;
 
         default:
@@ -583,7 +583,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     checkpoints,
     extraLives,
     spawn,
-    exit,
+    exits,
     groundLine: definition.groundRow * TILE,
     widthInPixels: width * TILE,
     heightInPixels: rows.length * TILE,

@@ -38,7 +38,7 @@ its platforms must attach to a column. Everything else is derived.
 | `s` | spider — walks the ceiling above it, so it needs rock directly above |
 | `X` | the evil lord beetle |
 | `P` | cat spawn (exactly one) |
-| `E` | the way out |
+| `E` | a way out. A level may have several; every one is the same portal to the next level |
 | `.` | empty |
 
 Rows may be written **short** — `parseLevel` pads them to
@@ -267,7 +267,7 @@ both read the array's current length each time rather than assuming six, and
 nothing persists a level *index* across a build (see `questions.md`).
 
 A dev test level is one idea, small, named `Dev <n>: <what>` so it reads as
-what it is if it is ever seen out of context, and does not need an exit (`E`)
+what it is if it is ever seen out of context, and does not need any exit (`E`)
 -- `buildExit` does nothing at all when a level has none.
 
 ## Falling out of the world

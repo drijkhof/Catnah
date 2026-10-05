@@ -482,7 +482,8 @@ as a descent.
 ends at a **portal**, which takes you to the next; the volcano leads back
 to the forest. Little hearts are optional everywhere.
 
-The portal is a **wormhole**: a round picture two tiles across, a blue
+A level may have **more than one portal**; every one leads on to the next
+level, and none is special. The portal is a **wormhole**: a round picture two tiles across, a blue
 spiral of light curling into a black centre, its rim fading out. It sits *in* the
 world: in front of the backdrop — the cave wall, the sky, the leaves behind
 the trees — and behind everything you stand on, so the ground and the rocks
@@ -493,8 +494,11 @@ out with it. It is **entered, not touched**: nothing happens
 until the cat's middle is inside the hole, so brushing past the rim does
 nothing and neither does a jump that clears it. A jump *through* it counts.
 The moment the cat is in, it stops dead — no more steering, no gravity — and
-is drawn into the centre, shrinking and fading, while the screen fades to the
-next level. From that moment nothing can hurt it: a hedgehog arriving a step
+is drawn into the centre, shrinking and fading, while the world and the
+level name fade to black under the hearts, which stay. The next level comes
+up out of black with a portal standing where you appear — there from the
+first frame, while the world is still dark — that fades away as you take your
+first steps. From that moment nothing can hurt it: a hedgehog arriving a step
 behind, or lava a tile away, no longer costs a heart.
 
 The cave comes second to last rather than second. It is the descent, and what it

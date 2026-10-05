@@ -124,10 +124,11 @@ export class GameScene extends Phaser.Scene {
    * the half-second before the next level, and lose a heart for it.
    */
   private leaving = false;
-  /** The centre of the portal's opening, if this level has one. */
-  private exitCentre: Phaser.Math.Vector2 | null = null;
-  /** The portal picture, so leaving can fade it out with the cat. */
-  private exitHole?: Phaser.GameObjects.Image;
+  /**
+   * The portals, one per `E`: the centre of each opening, and its picture so
+   * leaving can fade it out with the cat. Every one does the same thing.
+   */
+  private exits: Array<{ centre: Phaser.Math.Vector2; hole: Phaser.GameObjects.Image }> = [];
   private walkers: GroundEnemy[] = [];
   private piranhas: Piranha[] = [];
   private crows: Crow[] = [];
@@ -294,7 +295,78 @@ export class GameScene extends Phaser.Scene {
 
     this.controls = new Controls(this);
     this.buildHud();
+
+    // A level arrived at -- from the title, or through a portal -- comes up
+    // out of black, the way the last one went down into it. A hot reload
+    // does not: the player never left.
+    if (!this.registry.has(SNAPSHOT_KEY)) {
+      this.arrive();
+    }
     this.resumeFromHotReload();
+  }
+
+  /**
+   * The black a level goes down into and comes up out of.
+   *
+   * Not the camera's own fade: that paints over everything the camera draws,
+   * HUD included, and two things have to stay visible through it -- the
+   * hearts, which are not part of the world that is being left, and the
+   * arrival portal, which has to be seen *while* the screen is still black.
+   * So the black is a rectangle of our own, pinned to the screen at
+   * `fadeDepth`, just under the HUD; the level name sits just under the
+   * black, so it fades with its level.
+   *
+   * A fade *in* throws its black away when done. A fade *out* does not: its
+   * `onComplete` starts the next level, and `scene.start` is only carried
+   * out at the top of the next frame, so this scene draws once more first.
+   * Destroying the black before that showed the level, fully lit, for one
+   * frame between the two fades. The scene switch takes the black with it.
+   */
+  private blackout(from: number, to: number, duration: number, onComplete?: () => void): void {
+    const black = this.add
+      .rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x000000)
+      .setOrigin(0, 0)
+      .setScrollFactor(0)
+      .setDepth(EXIT.fadeDepth)
+      .setAlpha(from);
+    this.tweens.add({
+      targets: black,
+      alpha: to,
+      duration,
+      onComplete: () => {
+        if (to === 0) {
+          black.destroy();
+        }
+        onComplete?.();
+      },
+    });
+  }
+
+  /**
+   * Coming up out of black, with a portal standing where the cat appears.
+   *
+   * The black goes in `fadeInMs`; the portal, opaque from the first frame,
+   * sits just above the black, fades to nothing over `arriveMs` and is then
+   * thrown away.
+   */
+  private arrive(): void {
+    this.blackout(1, 0, EXIT.fadeInMs);
+
+    // Standing where an exit portal would stand on this ground: the cat's
+    // feet are at `player.y`, and the disc's foot is sunk the same `sink`.
+    const portal = this.add
+      .image(this.player.x, this.player.y - (EXIT.diameter / 2 - EXIT.sink), PORTAL_KEY)
+      .setDepth(EXIT.fadeDepth + 0.5)
+      .setAlpha(EXIT.alpha);
+    portal.setScale(EXIT.diameter / portal.width);
+    this.tweens.add({
+      targets: portal,
+      alpha: 0,
+      angle: 90,
+      duration: EXIT.arriveMs,
+      ease: 'Sine.easeIn',
+      onComplete: () => portal.destroy(),
+    });
   }
 
   /**
@@ -511,8 +583,9 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    if (this.insideExit()) {
-      this.leaveLevel();
+    const entered = this.insideExit();
+    if (entered) {
+      this.leaveLevel(entered);
     }
   }
 
@@ -524,13 +597,15 @@ export class GameScene extends Phaser.Scene {
    * the door was gone before it visibly reached it, and one jumping over the
    * portal left the level by accident.
    */
-  private insideExit(): boolean {
-    if (!this.exitCentre) {
-      return false;
-    }
-    const dx = this.player.body.center.x - this.exitCentre.x;
-    const dy = this.player.body.center.y - this.exitCentre.y;
-    return dx * dx + dy * dy <= EXIT.openingRadius * EXIT.openingRadius;
+  private insideExit(): { centre: Phaser.Math.Vector2; hole: Phaser.GameObjects.Image } | null {
+    const { x, y } = this.player.body.center;
+    return (
+      this.exits.find((exit) => {
+        const dx = x - exit.centre.x;
+        const dy = y - exit.centre.y;
+        return dx * dx + dy * dy <= EXIT.openingRadius * EXIT.openingRadius;
+      }) ?? null
+    );
   }
 
   /** Collects the rectangles of everything a sneaking cat can hide behind. */
@@ -587,18 +662,17 @@ export class GameScene extends Phaser.Scene {
    * actually do.
    */
   private buildExit(): void {
-    const exit = this.level.exit;
-    if (!exit) {
-      this.exitCentre = null;
-      return;
-    }
+    this.exits = this.level.exits.map((exit) => this.buildPortal(exit));
+  }
 
+  /** One portal, standing on one `E` tile's ground. */
+  private buildPortal(exit: { x: number; y: number }): { centre: Phaser.Math.Vector2; hole: Phaser.GameObjects.Image } {
     const radius = EXIT.diameter / 2;
 
     // Wider than its tile, so an `E` in the last column would hang over the
     // edge of the world: the disc is kept a sliver inside it.
     const margin = radius + 2;
-    this.exitCentre = new Phaser.Math.Vector2(
+    const centre = new Phaser.Math.Vector2(
       Phaser.Math.Clamp(exit.x, margin, this.level.widthInPixels - margin),
       exit.y - (radius - EXIT.sink),
     );
@@ -609,9 +683,8 @@ export class GameScene extends Phaser.Scene {
     // The picture is bigger than the portal is shown; everything that scales
     // it below works from this base.
     const hole = this.add
-      .image(this.exitCentre.x, this.exitCentre.y, PORTAL_KEY)
+      .image(centre.x, centre.y, PORTAL_KEY)
       .setDepth(EXIT.depth);
-    this.exitHole = hole;
     const base = EXIT.diameter / hole.width;
     hole.setScale(base).setAlpha(EXIT.alpha);
 
@@ -621,7 +694,7 @@ export class GameScene extends Phaser.Scene {
     // because the disc turns and warps, and a crop would turn with it.
     const lid = this.make.graphics({ x: 0, y: 0 }, false);
     const reach = EXIT.diameter;
-    lid.fillRect(this.exitCentre.x - reach, this.exitCentre.y - reach, reach * 2, reach + radius - EXIT.sink);
+    lid.fillRect(centre.x - reach, centre.y - reach, reach * 2, reach + radius - EXIT.sink);
     hole.setMask(lid.createGeometryMask());
 
     // It spins, and on top of that it swells and shrinks. The same amount
@@ -642,6 +715,8 @@ export class GameScene extends Phaser.Scene {
       repeat: -1,
       ease: 'Sine.easeInOut',
     });
+
+    return { centre, hole };
   }
 
   /**
@@ -649,14 +724,14 @@ export class GameScene extends Phaser.Scene {
    *
    * It stops dead and is drawn into the centre, shrinking and fading, and
    * the portal fades out with it -- both to nothing over the same
-   * `drawInMs` -- while the whole screen fades to black (`fadeMs`) and the
-   * next level starts on the far side of that. Its body is
+   * `drawInMs` -- while the world fades to black (`fadeMs`, under the HUD)
+   * and the next level starts on the far side of that. Its body is
    * switched off: it is no longer in the physical world, so no collider or
    * overlap -- a hedgehog arriving a step behind it -- fires for it again.
    * `update` stops stepping it and checking it for the same reason.
    */
-  private leaveLevel(): void {
-    if (this.leaving || !this.exitCentre) {
+  private leaveLevel(exit: { centre: Phaser.Math.Vector2; hole: Phaser.GameObjects.Image }): void {
+    if (this.leaving) {
       return;
     }
 
@@ -667,23 +742,22 @@ export class GameScene extends Phaser.Scene {
 
     this.tweens.add({
       targets: this.player,
-      x: this.exitCentre.x,
-      y: this.exitCentre.y,
+      x: exit.centre.x,
+      y: exit.centre.y,
       scale: 0.15,
       alpha: 0,
       duration: EXIT.drawInMs,
       ease: 'Sine.easeIn',
     });
-    if (this.exitHole) {
-      this.tweens.add({
-        targets: this.exitHole,
-        alpha: { from: EXIT.alpha, to: 0 },
-        duration: EXIT.drawInMs,
-        ease: 'Sine.easeIn',
-      });
-    }
-    this.cameras.main.fade(EXIT.fadeMs, 0, 0, 0);
-    this.cameras.main.once('camerafadeoutcomplete', () => {
+    this.tweens.add({
+      targets: exit.hole,
+      alpha: { from: EXIT.alpha, to: 0 },
+      duration: EXIT.drawInMs,
+      ease: 'Sine.easeIn',
+    });
+    // The world goes to black under the HUD; the hearts stay. The level name
+    // sits under the fade and goes with the level it names.
+    this.blackout(0, 1, EXIT.fadeMs, () => {
       this.scene.start('Game', {
         levelIndex: (this.levelIndex + 1) % LEVELS.length,
         lives: this.lives,
@@ -828,7 +902,12 @@ export class GameScene extends Phaser.Scene {
       this,
       at.x,
       at.y,
-      this.level.exit?.x ?? at.x + 1,
+      // The way out it guards: the nearest portal, or a step to the right if
+      // the level has none.
+      this.level.exits.reduce<number | null>(
+        (best, exit) => (best === null || Math.abs(exit.x - at.x) < Math.abs(best - at.x) ? exit.x : best),
+        null,
+      ) ?? at.x + 1,
       this.level.groundLine,
     );
   }
@@ -2152,7 +2231,9 @@ export class GameScene extends Phaser.Scene {
         strokeThickness: 3,
       })
       .setScrollFactor(0)
-      .setDepth(1000)
+      // Just under the fade (999), unlike the rest of the HUD above it: the
+      // name belongs to the level, so it goes dark and comes up with it.
+      .setDepth(EXIT.fadeDepth - 1)
       .setAlpha(0.75);
 
     if (import.meta.env.DEV) {
