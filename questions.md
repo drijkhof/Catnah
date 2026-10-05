@@ -1127,10 +1127,10 @@ round: it is one uniform scale now.) All done, with a few calls of my own:
   a hedgehog teleported onto a leaving cat was the test, and it used to kill.
 - **A sound.** Three rising notes, the last one long, played once on entry.
   Nothing else in the game marks the moment and it felt like it wanted one.
-- **It draws over everything,** the cat included, under only the HUD. It
-  started out above the scenery and below the cat; you asked for it on top,
-  and the cat walking into it rather than in front of it is the better
-  picture anyway.
+- **It draws over everything but the cat.** It started out above the scenery
+  and below the cat, went above the cat at your word, and came back under it
+  when that hid the cat being drawn in -- which is the point of the drawing
+  in. Above every bush and creature still, so nothing can hide it.
 - **The sunk foot is a mask, not a shorter picture.** The disc turns and
   warps, and a texture with its bottom cut off would turn with it; a mask
   along the ground line clips whatever is below it, whatever the disc is doing.

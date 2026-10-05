@@ -756,10 +756,11 @@ export const EXIT = {
   pulseAlpha: 0.6,
   pulseMs: 1100,
   /**
-   * Drawn over everything in the world, the cat included (0), and under the
-   * HUD (1000). Above the spare hearts (7) and nest rims (6).
+   * Drawn over all the scenery and every creature, and just under the cat
+   * (0): the cat walks in front of it, and being drawn into it is something
+   * you see. It was above the cat for a while, and the cat vanished behind it.
    */
-  depth: 9,
+  depth: -0.05,
   /** How long the cat takes to be drawn into the centre, ms. */
   drawInMs: 420,
   /** How long the fade to the next level takes once the cat is in, ms. */

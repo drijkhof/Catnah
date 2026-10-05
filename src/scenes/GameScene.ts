@@ -570,9 +570,9 @@ export class GameScene extends Phaser.Scene {
       exit.y - (radius - EXIT.sink),
     );
 
-    // On top of everything in the world -- the cat, the creatures, the
-    // scenery -- and under only the HUD. The cat walks *into* it rather than
-    // in front of it, and nothing scattered on the exit tile can hide it.
+    // Over all the scenery and the creatures, and just under the cat, so
+    // nothing scattered on the exit tile can hide it and the cat is seen
+    // being drawn in rather than disappearing behind it.
     // The picture is bigger than the portal is shown; everything that scales
     // it below works from this base.
     const hole = this.add
