@@ -61,6 +61,16 @@ it is pushed onto `LEVELS` from inside `import.meta.env.DEV`, past the real
 game, so level-skip past the last level lands on it in a dev build -- see
 `level/CLAUDE.md`'s "Dev-only test levels".
 
+## The beetle respawn shortcut
+
+Shift-click the level name to put the evil lord beetle back, spots and all,
+and the cat back at its respawn point (the start, or the last checkpoint).
+It can die now -- four stings on the thorns -- and fighting it again from the
+top should not cost a walk through the level or a death of your own. Same module shape
+and the same `import.meta.env.DEV` guard as the level skip (`bossRespawn.ts`),
+and it goes through `GameScene.spawnBoss`, the same code the level build
+uses, so a respawned beetle is a real one: collider, kill-on-touch and all.
+
 ## Restoring is allowed to refuse
 
 The level can change between builds. `GameScene.restoreState` checks the saved

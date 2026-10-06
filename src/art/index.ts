@@ -41,6 +41,7 @@ export {
 export type { TilePalette } from './tiles';
 export {
   BOSS_SIZE,
+  bossKey,
   CROCODILE_SIZE,
   CROW_SIZE,
   GROUND_ENEMY_SIZES,

@@ -30,7 +30,9 @@ export type Voice =
   | 'drip'
   | 'checkpoint'
   | 'portal'
-  | 'wings';
+  | 'wings'
+  | 'bossHurt'
+  | 'bossDie';
 
 /**
  * The bed a level sits on: one continuous, almost-inaudible layer.
@@ -325,6 +327,19 @@ class SoundBoard {
 
       case 'boss':
         this.growl(at);
+        break;
+
+      // The beetle stung: the growl's two saws, but short and falling.
+      case 'bossHurt':
+        this.blip(at, 180, 70, 0.22, 'sawtooth', 0.4);
+        this.blip(at, 186, 74, 0.22, 'sawtooth', 0.3);
+        break;
+
+      // The beetle done for: a long fall of the same, and a thud at the end.
+      case 'bossDie':
+        this.blip(at, 160, 40, 0.9, 'sawtooth', 0.4);
+        this.blip(at + 0.05, 166, 42, 0.9, 'sawtooth', 0.3);
+        this.thud(at + 1.0, 0.12, 0.6);
         break;
 
       // The beetle's wings: a short low buzz, quiet, repeated while it flies.

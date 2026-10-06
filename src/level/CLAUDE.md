@@ -36,7 +36,7 @@ its platforms must attach to a column. Everything else is derived.
 | `c` | crow |
 | `^` | thorns — deadly to touch, and needs something solid directly under it |
 | `s` | spider — walks the ceiling above it, so it needs rock directly above |
-| `X` | the evil lord beetle |
+| `X` | the evil lord beetle. A level with one has no portal until it is dead: every `E` stays hidden and cannot be entered until the beetle falls |
 | `P` | cat spawn (exactly one) |
 | `E` | a way out. A level may have several; every one is the same portal to the next level |
 | `.` | empty |

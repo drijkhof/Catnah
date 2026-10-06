@@ -648,28 +648,32 @@ in this level is what waits at the end of it.
 
 Inside waits the **evil lord beetle**, a ladybird with the sweetness taken out,
 three times the cat in every direction. It does not patrol and hope you walk
-under it. It **stands in the way**:
+under it. It **hunts you**:
 
-- It keeps itself **between you and the door**, aiming at where you are going
-  rather than where you are, and it will not give ground past the door — it
-  backs up until its back is to the exit and then holds there. Measured: it is
-  in front of the cat all but a few frames of the fight, and simply running at
-  the door kills you in under two seconds.
-- It holds station **low**, with about fifteen pixels of daylight under it. A
-  standing cat is eighteen and does not fit; a sneaking one is nine and does.
-- It **drops on you**, correcting sideways as it comes, so stepping aside at the
-  last instant does not work and moving early does.
-- It **gets angrier**: every dive shortens the next wait from a second and a
-  half towards six tenths. Walking out of the arena cools it off.
+- When you come near it **stalks**: hangs a little way off to the side and
+  above your head, wings buzzing, for as long as its patience lasts.
+- Then it **charges**: it locks where you are *at that instant* and
+  accelerates at that spot in a straight line — not tracking, so moving
+  early means it goes past you, and standing still means it hits. It carries
+  on a little past the spot, brakes, picks a new spot near you, and comes
+  again.
+- It **gets angrier**: every charge shortens the next wait, from about a
+  second towards half of one. Walking out of the arena cools it off.
+- It **flies, but not through rock**: a charge into the arena's wall ends
+  there.
+- **The four spots on its back are its lives.** Every time it hits thorns it
+  loses one — thrown back, squealing, flashing red — and with the last one
+  gone it falls out of the sky and is gone. The back is the health bar; there
+  is no other. A charge is a straight line at where you *were*, so stand with
+  thorns behind you and step aside.
 
-Standing still kills you in about three seconds. The way past is the **window**:
-while it is down and hauling itself back up, the gap under it opens from fifteen
-pixels to more than a hundred — measured — and that is when you go. Under it on
-your belly, or over the top: a jump reaches 90px and the top of it sits 64px up,
-so both work if the timing does.
+It is the one thing in the game that can be beaten, and the one way to do it
+is to make it hurt itself. Or just get past: every charge is a moment it is
+not between you and the door.
 
-It cannot be beaten, only got past, and the way out is at the far end of the
-arena.
+**The way out only appears once it is dead.** There is no portal in the
+arena until the beetle has fallen; then it comes up out of nothing at the far
+end, with the checkpoint's two notes. The fight is not optional.
 
 ## Sound
 

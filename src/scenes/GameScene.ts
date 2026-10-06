@@ -17,6 +17,7 @@ import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { installGodMode, isGodMode } from '../dev/godMode';
+import { installBossRespawn } from '../dev/bossRespawn';
 import { sound, type Ambience, type SoundMode } from '../audio/Sound';
 import { SNAPSHOT_KEY, type GameSnapshot } from '../dev/hot';
 
@@ -129,6 +130,12 @@ export class GameScene extends Phaser.Scene {
    * leaving can fade it out with the cat. Every one does the same thing.
    */
   private exits: Array<{ centre: Phaser.Math.Vector2; hole: Phaser.GameObjects.Image }> = [];
+
+  /**
+   * Whether the portals are there to be entered. In a level with a beetle
+   * they are not until it is dead: the way out opens when the boss falls.
+   */
+  private exitsOpen = true;
   private walkers: GroundEnemy[] = [];
   private piranhas: Piranha[] = [];
   private crows: Crow[] = [];
@@ -142,6 +149,8 @@ export class GameScene extends Phaser.Scene {
   private crocodiles: Crocodile[] = [];
   private spiders: Spider[] = [];
   private boss?: Boss;
+  /** The solid blocks, kept so a creature spawned later can collide with them. */
+  private blocks!: Phaser.Physics.Arcade.StaticGroup;
   /**
    * Lava: kills on contact, whatever the cat is doing. A rectangle it must not
    * be inside.
@@ -546,9 +555,21 @@ export class GameScene extends Phaser.Scene {
     // off screen is be heard -- that is handled where it spits.
     this.lava?.step(delta);
 
+    // A beetle that has fallen and gone is forgotten, and the way out opens.
+    if (this.boss && !this.boss.active) {
+      this.boss = undefined;
+      this.openExits();
+    }
     if (this.boss) {
-      if (this.awake(this.boss)) {
+      // A dying beetle is stepped wherever it is: its fall takes it out of
+      // the awake range, and dozed there it would hang, faded, for ever.
+      if (this.awake(this.boss) || this.boss.defeated) {
         this.boss.step(delta, cat);
+        // The thorns are the one thing that hurts it: a spot off its back
+        // per sting, and the last one is the end of it.
+        if (!this.boss.defeated && this.thornRects.some((thorns) => this.overlapsBody(this.boss as Boss, thorns))) {
+          this.boss.sting();
+        }
       } else {
         this.boss.doze();
       }
@@ -598,6 +619,9 @@ export class GameScene extends Phaser.Scene {
    * portal left the level by accident.
    */
   private insideExit(): { centre: Phaser.Math.Vector2; hole: Phaser.GameObjects.Image } | null {
+    if (!this.exitsOpen) {
+      return null;
+    }
     const { x, y } = this.player.body.center;
     return (
       this.exits.find((exit) => {
@@ -606,6 +630,12 @@ export class GameScene extends Phaser.Scene {
         return dx * dx + dy * dy <= EXIT.openingRadius * EXIT.openingRadius;
       }) ?? null
     );
+  }
+
+  /** Whether a creature's body overlaps a rectangle. */
+  private overlapsBody(creature: Phaser.Physics.Arcade.Sprite, rect: Phaser.Geom.Rectangle): boolean {
+    const body = creature.body as Phaser.Physics.Arcade.Body;
+    return body.right > rect.x && body.x < rect.right && body.bottom > rect.y && body.y < rect.bottom;
   }
 
   /** Collects the rectangles of everything a sneaking cat can hide behind. */
@@ -663,6 +693,35 @@ export class GameScene extends Phaser.Scene {
    */
   private buildExit(): void {
     this.exits = this.level.exits.map((exit) => this.buildPortal(exit));
+    if (this.level.boss) {
+      this.closeExits();
+    }
+  }
+
+  /** Takes the portals away until the beetle is dead. */
+  private closeExits(): void {
+    this.exitsOpen = false;
+    for (const exit of this.exits) {
+      exit.hole.setVisible(false);
+    }
+  }
+
+  /** The beetle has fallen: the portals come up out of nothing, and can be entered. */
+  private openExits(): void {
+    if (this.exitsOpen) {
+      return;
+    }
+    this.exitsOpen = true;
+    sound.play('checkpoint');
+    for (const exit of this.exits) {
+      exit.hole.setVisible(true).setAlpha(0);
+      this.tweens.add({
+        targets: exit.hole,
+        alpha: EXIT.alpha,
+        duration: EXIT.openMs,
+        ease: 'Sine.easeOut',
+      });
+    }
   }
 
   /** One portal, standing on one `E` tile's ground. */
@@ -819,13 +878,8 @@ export class GameScene extends Phaser.Scene {
         () => landsOnBranch(this.player, crocodile),
       );
     }
-    this.boss = this.level.boss ? this.buildBoss(this.level.boss) : undefined;
-    if (this.boss) {
-      // It flies, but not through rock: the arena's walls and roof are
-      // walls to it too. Its steering sets a velocity every frame, so a wall
-      // simply holds it where it is pressing until it wants to go elsewhere.
-      this.physics.add.collider(this.boss, blocks);
-    }
+    this.blocks = blocks;
+    this.boss = this.level.boss ? this.spawnBoss(this.level.boss) : undefined;
 
     for (const nest of this.level.nests) {
       // Two halves with the cat between them, which is what puts it *in* the
@@ -858,15 +912,43 @@ export class GameScene extends Phaser.Scene {
       ...this.spiders,
     ];
 
-    if (this.boss) {
-      everything.push(this.boss);
-    }
-
     for (const creature of everything) {
       if (!this.titleMode) {
         this.physics.add.overlap(this.player, creature, () => this.kill());
       }
     }
+  }
+
+  /**
+   * The beetle, with everything it needs to be in the world: a collider
+   * against the blocks (it flies, but not through rock), and the touch that
+   * kills the cat. One place for it, so the dev respawn and the level's own
+   * build cannot drift apart.
+   */
+  private spawnBoss(at: { x: number; y: number }): Boss {
+    const boss = this.buildBoss(at);
+    this.physics.add.collider(boss, this.blocks);
+    if (!this.titleMode) {
+      this.physics.add.overlap(this.player, boss, () => this.kill());
+    }
+    return boss;
+  }
+
+  /**
+   * Puts the beetle back, spots and all, and the cat back at its respawn
+   * point -- the level's start, or the last checkpoint. Development only,
+   * off the level name: a boss that can die needs a way to be fought again
+   * from the top, without walking the whole level.
+   */
+  respawnBoss(): void {
+    if (!this.level.boss) {
+      return;
+    }
+    this.boss?.destroy();
+    this.boss = this.spawnBoss(this.level.boss);
+    this.closeExits();
+    this.player.respawnAt(this.respawnPoint.x, this.respawnPoint.y);
+    this.cameras.main.centerOn(this.player.x, this.player.y);
   }
 
   /**
@@ -892,13 +974,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
-   * The beetle, told two things about the room it is in.
-   *
-   * **Which way the way out is**, because it keeps itself between the cat and
-   * that, and **where the floor is**, because it holds station just above it --
-   * close enough that a standing cat does not fit under and a sneaking one
-   * does. Both are read off the level rather than tuned by hand, so moving the
-   * arena does not silently leave the beetle hovering in the wrong place.
+   * The beetle, told the one thing it needs to know about the room it is
+   * in: **where the floor is**, so it never flies lower than its clearance
+   * above it. Read off the level rather than tuned by hand, so moving the
+   * arena does not silently leave the beetle scraping the wrong floor.
    */
   private buildBoss(at: { x: number; y: number }): Boss {
     // The floor is the first solid straight *below* the `X`, in its own
@@ -912,18 +991,7 @@ export class GameScene extends Phaser.Scene {
         .reduce<number | null>((top, solid) => (top === null || solid.y < top ? solid.y : top), null) ??
       this.level.groundLine;
 
-    return new Boss(
-      this,
-      at.x,
-      at.y,
-      // The way out it guards: the nearest portal, or a step to the right if
-      // the level has none.
-      this.level.exits.reduce<number | null>(
-        (best, exit) => (best === null || Math.abs(exit.x - at.x) < Math.abs(best - at.x) ? exit.x : best),
-        null,
-      ) ?? at.x + 1,
-      floorY,
-    );
+    return new Boss(this, at.x, at.y, floorY);
   }
 
   /**
@@ -2286,6 +2354,9 @@ export class GameScene extends Phaser.Scene {
 
       // A development cheat, same reasoning. See `dev/godMode.ts`.
       installGodMode(this, levelName);
+
+      // Puts the beetle back. See `dev/bossRespawn.ts`.
+      installBossRespawn(this, levelName);
     }
 
     this.refreshLives();

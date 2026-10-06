@@ -604,141 +604,58 @@ export const CROCODILE = {
 } as const;
 
 /**
- * The boss: the evil lord beetle at the end of the volcano.
+ * The evil lord beetle: a hunter, not a gatekeeper. It flies at you.
  *
- * It has no health and cannot be beaten, because nothing in this game can. It
- * is a pattern to be read and slipped past, which is what the rest of the game
- * has taught by the time it appears.
+ * Near the cat it *stalks* -- hangs a little way off and above, building up
+ * to the next attack -- then *charges*: it locks where the cat is at that
+ * moment and accelerates at it in a straight line, past the point and
+ * through, then brakes, finds a new spot near the cat, and does it again.
+ * Every charge shortens the next rest, down to a floor.
  */
 export const BOSS = {
-  /**
-   * How far either side of its lair it sweeps, px.
-   *
-   * The whole arena, on purpose. At 150 there were sixty pixels of floor at
-   * each end the beetle could not reach, and simply running laps between them
-   * survived a full minute.
-   */
-  sweepRadius: 210,
-  /**
-   * Speed of holding station, px/sec.
-   *
-   * Above the cat's 190 on purpose. Below it, a cat that simply ran at the door
-   * overtook the beetle and was through in two seconds -- it has to be able to
-   * stay in front of you.
-   */
-  sweepSpeed: 215,
-
-  /**
-   * How far in front of the cat it plants itself, px.
-   *
-   * In front meaning *towards the way out*. It does not patrol a beat and hope
-   * you walk under it -- it stands between you and the door, so getting past is
-   * something you have to do rather than something that happens.
-   */
-  guardOffset: 74,
-
-  /**
-   * How much of the cat's own speed it allows for when taking station, seconds.
-   *
-   * Without it the beetle aims at where the cat *is*, which for a cat running
-   * at the door is always behind where the cat will be -- it trailed sixty
-   * pixels back the whole way and never blocked anything.
-   */
-  guardLeadSeconds: 0.55,
-
-  /**
-   * How fast it hauls itself back up after a dive, px/sec.
-   *
-   * Slow, and that is the whole fight: while it is down and climbing it is not
-   * blocking the way. Bait the drop, then go past it.
-   */
-  riseSpeed: 150,
-
-  /**
-   * How far above the arena floor it holds station, px, measured to the bottom
-   * of its body.
-   *
-   * Fourteen: a standing cat is 18 tall and does not fit, a sneaking one is 9
-   * and does. So it is literally in the way, and the way past it at floor level
-   * is on your belly -- which is exactly what the game has been teaching since
-   * the fallen bough in level one.
-   */
+  /** How far from its lair it will roam, px, either side. */
+  reach: 210,
+  /** How far from the lair the cat has to be, px, to be its business at all. */
+  engageRange: 330,
+  /** The least daylight it keeps under its body, px, so it never scrapes the floor. */
   guardClearance: 36,
 
-  /**
-   * How hard it corrects sideways on the way down, px/sec.
-   *
-   * Enough that stepping aside at the last instant does not work, little enough
-   * that moving early does. It is trying to land *on* you.
-   */
-  diveTrack: 60,
+  /** Stalking: how fast it moves to its station, px/sec, and how quickly it turns, per second. */
+  stalkSpeed: 190,
+  stalkRate: 5,
+  /** The station: this far to the side of the cat and this far above its head, px. */
+  standoff: 96,
+  hoverAbove: 64,
 
-  /**
-   * How hard the sweep leans towards the cat, per second.
-   *
-   * This is what stops the arena having a safe corner. It used to patrol a
-   * fixed beat, so standing at one end of the lair meant it dived where you
-   * were not. It now drifts over you and you have to keep moving.
-   */
-  stalkRate: 7,
+  /** The charge: how hard it accelerates, px/sec^2, and how fast it goes at most, px/sec. */
+  chargeAccel: 1100,
+  chargeSpeed: 470,
+  /** The speed a charge starts from: it does not launch from a standstill. */
+  chargeStartSpeed: 80,
+  /** How far past the locked point it carries on, px, and the longest a charge lasts, ms. */
+  overshoot: 14,
+  chargeTimeoutMs: 1100,
+  /** How long it takes to shed the charge's speed afterwards, ms. */
+  recoverMs: 420,
 
-  /** How long it hovers between dives, ms, the first time. */
-  restMs: 1500,
+  /** Rest between charges, ms: the first one, the floor, and how much each charge shortens the next. */
+  restMs: 1100,
+  minRestMs: 450,
+  furyStep: 0.85,
+  /** Grace before the first charge when the cat arrives, ms, on top of the rest. */
+  approachGraceMs: 900,
+
   /** How often the wings are heard while it is flying at someone, ms. */
   wingBuzzMs: 420,
-  /** The longest it will spend lining up a dive before diving anyway, ms. */
-  aimTimeoutMs: 1400,
 
-  /**
-   * How much shorter each rest gets, and the shortest it will ever be, ms.
-   *
-   * It gets angrier. Standing in the arena working out the pattern is meant to
-   * be viable for a while and then stop being viable, so the fight has a clock
-   * on it without needing a health bar on either side.
-   */
-  furyStep: 0.84,
-  minRestMs: 620,
-
-  /**
-   * Extra pause before the *first* attack after the cat arrives, ms.
-   *
-   * Without it the beetle could already be halfway through its count when you
-   * walked in, and drop the moment you arrived. Being hit by something you have
-   * not had a chance to look at yet is not a pattern -- you need to see one
-   * sweep before you are asked to read one.
-   */
-  approachGraceMs: 1400,
-  /**
-   * Speed of sliding into position above the cat, px/sec.
-   *
-   * Deliberately slower than the drop. This is the telegraph, and it is the
-   * whole of the warning you get: fast enough and the boss is simply on top of
-   * you, which is not a pattern, it is a coin toss.
-   */
-  aimSpeed: 245,
-
-  /** Speed of the drop itself, px/sec. */
-  diveSpeed: 430,
-  /**
-   * How far it drops on a dive, px.
-   *
-   * Deep enough to reach a cat standing on the arena floor. At 120 the dive
-   * bottomed out 27px above the cat's head, so the boss was menacing and
-   * completely harmless to anyone who simply stood still.
-   */
-  diveDepth: 175,
-  /**
-   * How far ahead of the cat it aims, in seconds of the cat's own movement.
-   *
-   * Without this, running away from it works forever: the cat is faster than
-   * the sweep, so a straight line always outran the drop. Leading the target
-   * means running in a straight line is the thing that gets you hit, and you
-   * have to turn, stop or jump over it instead.
-   */
-  leadSeconds: 0.5,
-
-  /** How quickly it turns towards where it is going, per second. */
-  turnRate: 3,
+  /** The spots on its back, which are its lives: one per sting on the thorns. */
+  spots: 4,
+  /** After a sting it cannot be stung again for this long, ms, so one patch takes one spot. */
+  stingCooldownMs: 900,
+  /** How hard a sting throws it back, px/sec. */
+  stingKnockback: 260,
+  /** How long its dying fall lasts before it is gone, ms. */
+  deathMs: 1400,
 } as const;
 
 /** The crow, which circles its nest and comes at the cat. */
@@ -798,6 +715,8 @@ export const EXIT = {
   depth: -10,
   /** How long the cat takes to be drawn into the centre, ms. */
   drawInMs: 420,
+  /** In a level with a beetle, how long the portals take to appear once it is dead, ms. */
+  openMs: 700,
   /**
    * How long the fade to black takes once the cat is in, ms. The same 650 as
    * the pause after a death before the respawn, so leaving and dying take

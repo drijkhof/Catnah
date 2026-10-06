@@ -166,46 +166,54 @@ of the pool rather than of the nearest tile.
 Water is harmless by design — the original wish was that not every pool has a
 piranha in it, which only means anything if a pool without one is safe.
 
-## The beetle stands in the way
+## The beetle hunts
 
-It is not a patrol that might happen to be overhead. `guard()` puts it between
-the cat and the door and keeps it there, and three details are what make that
-work -- each of them found by watching a bot walk straight past the version
-before it:
+It is not a patrol and not a gatekeeper. `Boss.step` runs four phases:
 
-- **It leads.** Aiming at where the cat *is* means always being behind where the
-  cat will be; it trailed sixty pixels back the whole way and blocked nothing.
-- **It is faster than the cat.** 215 against 190. Below that, a cat that simply
-  ran at the door overtook it.
-- **It does not pass through rock.** `GameScene` gives it a collider against
-  the level's blocks, the same as the walkers. It steers by setting a velocity
-  every frame, so a wall holds it where it presses. Two things followed from
-  that and are easy to reintroduce: a dive used to end at a depth *below* the
-  floor, reached by diving through it, and with rock in the way the beetle
-  sat pressed into the ground "diving" for ever -- a dive ends on the floor
-  now (`blocked.down`); and a line-up aimed past a wall never arrived, so it
-  stood against the wall aiming for ever -- a blocked or overlong line-up
-  (`aimTimeoutMs`) dives from where it is.
-- **It flies, audibly.** `guardClearance` is 36px, so it hovers where a cat
-  can run under it and be dived on, and `buzz` plays the `wings` voice every
-  `wingBuzzMs` while it has someone to fly at, from where it is.
-- **Its floor is the first solid straight below the `X`**, found by
-  `GameScene.buildBoss`, not the level's `groundLine`. The arena's floor need
-  not be the level's, and when it was not, the beetle held station inside the
-  rock under the arena. Below only, never nearest-in-any-direction, or an `X`
-  written low in its arena finds the row it stands in.
-- **It will not give ground past the door.** Backing off for ever meant a cat
-  that ran was escorted to the exit by a beetle politely keeping its distance.
-  It retreats until its back is to the exit, and then it stands.
+- **idle** -- nobody within `engageRange` of its lair: it drifts back to the
+  lair. Arriving restarts its patience with `approachGraceMs` on top, so the
+  first charge is never half wound up when you walk in.
+- **stalk** -- it takes station `standoff` to the side of the cat it is
+  already on and `hoverAbove` over the cat's head, eased (`stalkSpeed`,
+  `stalkRate`), never lower than `lowestY` and never outside `reach` of its
+  lair. Its wings are heard every `wingBuzzMs` from here on.
+- **charge** -- when the rest runs out it **locks where the cat is at that
+  instant** and accelerates along that line (`chargeStartSpeed`,
+  `chargeAccel`, up to `chargeSpeed`). The line is fixed: a cat that moves
+  early is missed, one that stands still is hit. It carries on `overshoot`
+  past the point; hitting rock (any `blocked` side, from the collider the
+  scene gives it against the level's blocks) or `chargeTimeoutMs` ends it
+  sooner. Every charge shortens the next rest by `furyStep`, down to
+  `minRestMs`.
+- **recover** -- it sheds the speed over `recoverMs`, lifting a little, and
+  stalks again.
+- **dying** -- out of spots: body off, and `fall` steps it down by hand
+  every frame -- gravity, a slow turn, a fade -- then `destroy()`. Stepped,
+  not tweened: a tween that did not run left a dead beetle hanging in the
+  air. The scene forgets a boss that is no longer `active` and opens the level's
+  portals (`openExits`: hidden and not enterable in any level with an `X`
+  until then; `respawnBoss` closes them again), and
+  `respawnBoss` (shift-click the level name, dev only) puts a fresh one back
+  through the same `spawnBoss` the level build uses, and the cat back at its
+  respawn point.
 
-`guardY` puts it low -- fourteen pixels of clearance, measured to the bottom of
-the body. A standing cat is 18 and does not fit; a sneaking one is 9 and does.
-The floor comes from `groundLine` rather than a search for the nearest solid
-underneath, because the beetle is placed low in its arena and half the floor is
-*above* it: a search finds the second row down and hangs the beetle in the
-ground.
+**Its spots are its lives.** `GameScene` checks its body against the thorn
+rectangles every stepped frame and calls `sting()`: one spot off (`spots`,
+four to start), the texture swapped to `bossKey(left)` -- `creatures.ts`
+bakes `boss-4` down to `boss-0` -- a red flash, the `bossHurt` squeal, and a
+knockback along the reverse of its charge into `recover`. `stingCooldownMs`
+after a sting it cannot be stung, so one patch of thorns costs one spot, not
+one a frame. The last spot calls `die()`. The scene's `overlap` that kills the
+cat on touch does nothing to a dying beetle because its body is disabled.
 
-The climb back after a dive is the slow part on purpose. That is the window.
+`lowestY` comes from the floor the scene finds as the first solid straight
+below the `X` -- not the level's `groundLine`, because an arena's floor need
+not be the level's. `keepToItsLair` is the hard stop at the ends of its beat
+and at that height, outside a charge; a charge is allowed down to the floor
+and the collider stops it there.
+
+The old gatekeeper -- station between the cat and the door, line up, drop,
+climb back slowly -- is gone; it was tame as a lamb in the rebuilt arena.
 
 ## The lava lake
 

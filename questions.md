@@ -1402,3 +1402,65 @@ low on purpose, so a standing cat could not pass under it; you wanted it to
 fly, and a beetle you can run under but which comes down on you is the
 better fight. **Its wings are heard** while it is after you: a short low buzz
 every 0.42s, from where it is. Not heard by me; say if it is too much.
+
+## The beetle is a hunter now
+
+**"Tame as a lamb"** -- in the rebuilt arena the old gatekeeper (stand between
+the cat and the door, line up overhead, drop, climb back slowly) mostly sat
+and waited. You asked for an attacker: near the cat, attack; an attack is an
+acceleration towards where the cat was at the start of it, in a straight
+line; then find a new spot near the cat and go again. That is what it does
+now, in four phases (idle, stalk, charge, recover; see `objects/CLAUDE.md`).
+Calls of mine inside that:
+
+- **It stalks from the side it is already on**, `standoff` 96px off and
+  `hoverAbove` 64px over your head, so you always see where the next charge
+  will come from.
+- **A charge starts at 80px/s, not from a standstill**, and accelerates at
+  1100px/s² to 470: a wind-up you can read, then faster than you can run.
+- **It carries on 14px past the locked point**, so a charge at a standing
+  cat connects rather than stopping short of its nose.
+- **The door is no longer guarded.** Every charge is a moment it is not
+  between you and the exit; the fight is dodging and going, not baiting a
+  drop. If the arena turns out too easy to run through, a `guard` phase can
+  come back between charges.
+
+> **Still open:** whether a charge should be allowed to end *on the cat*
+> (it overshoots and brakes beyond you now) and whether the rest should
+> start shortening at 1.1s or slower. Numbers in `BOSS`, all of them.
+
+## The beetle can be beaten, on the thorns
+
+**Its spots are its lives.** Four on its back; a sting on the thorns takes
+one -- thrown back, squealing, flashing -- and the last one is a slow fall out
+of the sky. (There were five for a moment, but the fifth sat under the head
+and was never seen, so it looked like four lives that took five hits; four it
+is.) The texture is baked once per count, `boss-4` down to `boss-0`,
+so the back is the health bar and nothing else is needed on screen. Calls:
+
+- **One patch, one spot.** A sting cooldown of 0.9s, or a beetle lying in a
+  patch for half a second would be stripped bare.
+- **Lost from the tail forwards**, so the head end keeps its spots longest
+  and the loss reads from behind.
+- **Knocked back along the reverse of its charge**, up a little, into its
+  recover phase: the charge that hurt it ends there.
+- **A dying beetle cannot hurt you**: its body is switched off for the fall.
+
+**Shift-click the level name puts it back** (dev only), spots and all, and
+the cat back at its respawn point, so the fight can be taken from the top
+without a walk or a death. Its dying fall is stepped by
+hand rather than tweened, and stepped wherever it is: the first version fell
+out of the awake range and hung there, faded, for ever.
+
+**The arena needs thorns for any of this to matter.** The volcano has none
+in the arena today; `^` wants to go in where a charge at a cat standing in
+front of it would carry the beetle through. That is your map.
+
+## No way out until the beetle is dead
+
+**In a level with an `X`, the portals are hidden and cannot be entered until
+the beetle has fallen.** Then they come up out of nothing over 0.7s with the
+checkpoint's two notes. The fight was optional before -- every charge was a
+moment it was not between you and the door -- and you wanted it not to be.
+The dev respawn (shift-click) hides the portals again along with putting the
+beetle back. Every `E` in such a level behaves the same; none is special.

@@ -37,11 +37,27 @@ export function generateCreatureTextures(scene: Phaser.Scene): void {
  * while the silhouette stays unmistakably a ladybird. That contrast is the joke
  * and the menace at the same time.
  */
+/** The texture of the beetle with this many spots left on its back. */
+export function bossKey(spots: number): string {
+  return `boss-${spots}`;
+}
+
+/**
+ * The beetle, baked once per number of spots it has left: `boss-4` down to
+ * `boss-0`. Its spots are its lives -- each sting on the thorns takes one,
+ * and a beetle with none left is done for -- so the back is the health bar,
+ * and there is no other.
+ */
 function generateBoss(scene: Phaser.Scene): void {
   const { width, height } = BOSS_SIZE;
   const midY = height / 2;
+  // Four, all on the shell and clear of the head. There was a fifth at x=46,
+  // under the head drawn over it, so the first sting took a spot nobody
+  // could see and the beetle looked to have four lives and take five hits.
+  const spots: ReadonlyArray<readonly [number, number, number]> = [[18, 16, 5], [20, 32, 4], [34, 13, 4], [36, 31, 5]];
 
-  bakeTexture(scene, 'boss', width, height, (g) => {
+  for (let left = 0; left <= spots.length; left += 1) {
+    bakeTexture(scene, bossKey(left), width, height, (g) => {
     // Spines along the back, drawn first so the shell sits over their roots.
     g.fillStyle(COLORS.bossSpine, 1);
     for (let i = 0; i < 6; i += 1) {
@@ -63,9 +79,9 @@ function generateBoss(scene: Phaser.Scene): void {
     g.fillStyle(COLORS.bossShellDark, 1);
     g.fillRect(width / 2 - 5, midY - (height - 12) / 2 + 3, 3, height - 18);
 
-    // Spots.
+    // Spots: the first `left` of them. Lost from the tail forwards.
     g.fillStyle(COLORS.bossSpot, 1);
-    for (const [sx, sy, r] of [[18, 16, 5], [20, 32, 4], [34, 13, 4], [36, 31, 5], [46, 22, 4]]) {
+    for (const [sx, sy, r] of spots.slice(0, left)) {
       g.fillCircle(sx, sy, r);
     }
 
@@ -83,7 +99,8 @@ function generateBoss(scene: Phaser.Scene): void {
 
     g.fillStyle(0xffffff, 0.8);
     g.fillCircle(width - 9, midY - 5, 1.5);
-  });
+    });
+  }
 }
 
 function generateRat(scene: Phaser.Scene): void {
