@@ -346,6 +346,15 @@ export const CAT = {
 export const LIVES = 3;
 
 /**
+ * The score is time, and lower is better: every second in a level counts,
+ * and every death adds a minute on top. Shown once, on the victory screen.
+ */
+export const SCORE = {
+  /** What a death costs, ms. */
+  deathPenaltyMs: 60_000,
+} as const;
+
+/**
  * The most heart slots a run can ever hold, however many spare hearts and
  * hundred-charm bonuses it finds. Seven is more than double the start:
  * enough that finding every spare heart in the game (there are three) still

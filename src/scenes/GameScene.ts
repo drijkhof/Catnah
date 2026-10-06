@@ -16,10 +16,11 @@ import { TITLE } from '../level/levels/title';
 import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, LOG_BULGE, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
-import { installGodMode, isGodMode } from '../dev/godMode';
+import { GOD_MODE_KEY, installGodMode, isGodMode } from '../dev/godMode';
 import { installBossRespawn } from '../dev/bossRespawn';
 import { sound, type Ambience, type SoundMode } from '../audio/Sound';
 import { SNAPSHOT_KEY, type GameSnapshot } from '../dev/hot';
+import { formatClock, scoreMs } from '../score';
 
 /**
  * Whether something falling should be stopped by a branch this frame.
@@ -58,6 +59,9 @@ export class GameScene extends Phaser.Scene {
   private player!: Player;
   private level!: ParsedLevel;
   private scoreText!: Phaser.GameObjects.Text;
+
+  /** The running score in the HUD: the clock plus the deaths, as one time. */
+  private clockText?: Phaser.GameObjects.Text;
   private charms!: Phaser.Physics.Arcade.StaticGroup;
   /**
    * Little hearts collected **this run**, not this level.
@@ -166,6 +170,13 @@ export class GameScene extends Phaser.Scene {
   /** True from the moment the cat is killed until it is back on its feet. */
   private dying = false;
 
+  /**
+   * The run's clock: time spent in levels, ms, carried from level to level.
+   * With `deaths` it is the score -- see `SCORE` -- shown when the run is won.
+   */
+  private elapsedMs = 0;
+  private deaths = 0;
+
   constructor() {
     super('Game');
   }
@@ -176,6 +187,8 @@ export class GameScene extends Phaser.Scene {
     lives?: number;
     maxLives?: number;
     collected?: number;
+    elapsedMs?: number;
+    deaths?: number;
     title?: boolean;
   }): void {
     this.titleMode = data.title ?? false;
@@ -183,12 +196,21 @@ export class GameScene extends Phaser.Scene {
     const carried = this.registry.get(SNAPSHOT_KEY) as GameSnapshot | undefined;
 
     this.levelIndex = data.levelIndex ?? carried?.levelIndex ?? 0;
+    this.elapsedMs = data.elapsedMs ?? carried?.elapsedMs ?? 0;
+    this.deaths = data.deaths ?? carried?.deaths ?? 0;
     // Lives cross level boundaries; a spare heart found in one is still yours
     // in the next, which is the only thing that makes finding one worth a
     // detour.
-    this.lives = Math.min(data.lives ?? LIVES, MAX_LIVES);
-    this.maxLives = Math.min(Math.max(LIVES, this.lives, data.maxLives ?? 0), MAX_LIVES);
-    this.collected = data.collected ?? 0;
+    this.lives = Math.min(data.lives ?? carried?.lives ?? LIVES, MAX_LIVES);
+    this.maxLives = Math.min(Math.max(LIVES, this.lives, data.maxLives ?? carried?.maxLives ?? 0), MAX_LIVES);
+    this.collected = data.collected ?? carried?.collected ?? 0;
+
+    // God mode lives in the registry, and a hot reload builds a new game
+    // with a new registry: it rides in the snapshot and is put back here,
+    // before the HUD is built, so the level name paints gold as it should.
+    if (import.meta.env.DEV && carried?.godMode) {
+      this.registry.set(GOD_MODE_KEY, true);
+    }
   }
 
   create(): void {
@@ -422,11 +444,20 @@ export class GameScene extends Phaser.Scene {
       activeCheckpoint: this.activeCheckpoint?.getData('levelPosition') as
         | { x: number; y: number }
         | undefined,
+      elapsedMs: this.elapsedMs,
+      deaths: this.deaths,
+      lives: this.lives,
+      maxLives: this.maxLives,
+      collected: this.collected,
+      godMode: isGodMode(this),
     };
   }
 
   /** Puts a snapshot from the previous build back into this one. */
   restoreState(snapshot: GameSnapshot): void {
+    // The charms already taken are taken again, quietly: no sound, and not
+    // counted -- the count came back in the snapshot, and counting them a
+    // second time doubled it (and lost every earlier level's share).
     for (const mark of snapshot.collectedCharms) {
       const match = this.charms.getChildren().find((charm) => {
         const at = charm.getData('levelPosition') as { x: number; y: number };
@@ -434,9 +465,10 @@ export class GameScene extends Phaser.Scene {
       });
 
       if (match) {
-        this.collectCharm(match as Phaser.Physics.Arcade.Sprite);
+        (match as Phaser.Physics.Arcade.Sprite).disableBody(true, true);
       }
     }
+    this.scoreText.setText(this.formatScore());
 
     if (snapshot.activeCheckpoint) {
       const mark = snapshot.activeCheckpoint;
@@ -494,6 +526,18 @@ export class GameScene extends Phaser.Scene {
   }
 
   update(_time: number, delta: number): void {
+    // The clock runs whenever the level does: not on the title, not while
+    // paused (update does not run then), but through dying and leaving. The
+    // HUD shows it to the second, so the text is only touched when the
+    // second changes.
+    if (!this.titleMode) {
+      this.elapsedMs += delta;
+      const shown = formatClock(scoreMs(this.elapsedMs, this.deaths));
+      if (this.clockText && this.clockText.text !== shown) {
+        this.clockText.setText(shown);
+      }
+    }
+
     // Input is sampled first so that edge-triggered reads (jump-just-pressed)
     // are consistent for everything that runs this frame.
     this.controls.update();
@@ -817,11 +861,20 @@ export class GameScene extends Phaser.Scene {
     // The world goes to black under the HUD; the hearts stay. The level name
     // sits under the fade and goes with the level it names.
     this.blackout(0, 1, EXIT.fadeMs, () => {
+      // The last level's portal is the end of the game: the victory screen,
+      // with the run's time and deaths as its score. Every other portal is
+      // the next level, with everything the run has gathered.
+      if (this.levelIndex + 1 >= LEVELS.length) {
+        this.scene.start('Victory', { elapsedMs: this.elapsedMs, deaths: this.deaths });
+        return;
+      }
       this.scene.start('Game', {
-        levelIndex: (this.levelIndex + 1) % LEVELS.length,
+        levelIndex: this.levelIndex + 1,
         lives: this.lives,
         maxLives: this.maxLives,
         collected: this.collected,
+        elapsedMs: this.elapsedMs,
+        deaths: this.deaths,
       });
     });
   }
@@ -1119,8 +1172,13 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.flash(200, 90, 0, 0);
 
     this.lives -= 1;
+    this.deaths += 1;
     this.refreshLives();
     this.announce67();
+
+    // The clock jumps a minute at once, and flushes red so the jump is seen.
+    this.clockText?.setTint(0xff6b6b);
+    this.time.delayedCall(650, () => this.clockText?.clearTint());
 
     this.time.delayedCall(650, () => {
       // A hot reload that lands while this is pending destroys the scene this
@@ -2328,9 +2386,12 @@ export class GameScene extends Phaser.Scene {
   }
 
   private buildHud(): void {
-    // An icon rather than a word, so the HUD needs no translating.
+    // Top left: the running score over the level name. Top right: the lives,
+    // and under them the little-heart count beside the mute button -- an
+    // icon rather than a word, so the HUD needs no translating. The count
+    // is right-aligned so it does not shift with the number of lives.
     this.add
-      .image(TILE, TILE, 'charm')
+      .image(GAME_WIDTH - TILE - 16, TILE * 2 + 4, 'charm')
       .setScrollFactor(0)
       .setDepth(1000);
 
@@ -2363,14 +2424,28 @@ export class GameScene extends Phaser.Scene {
     this.buildMuteButton();
 
     this.scoreText = this.add
-      .text(TILE + 10, TILE - 7, this.formatScore(), {
+      .text(GAME_WIDTH - TILE - 26, TILE * 2 - 4, this.formatScore(), {
         fontFamily: 'monospace',
         fontSize: '14px',
         color: '#ffffff',
         stroke: '#2f3d2a',
         strokeThickness: 3,
       })
+      .setOrigin(1, 0)
       // Scroll factor 0 pins the HUD to the viewport instead of the world.
+      .setScrollFactor(0)
+      .setDepth(1000);
+
+    // The score, top left, running: the clock plus a minute per death. A
+    // death makes it jump by a minute, which is the point of showing it.
+    this.clockText = this.add
+      .text(TILE + 10, TILE - 7, formatClock(scoreMs(this.elapsedMs, this.deaths)), {
+        fontFamily: 'monospace',
+        fontSize: '14px',
+        color: '#ffffff',
+        stroke: '#2f3d2a',
+        strokeThickness: 3,
+      })
       .setScrollFactor(0)
       .setDepth(1000);
   }

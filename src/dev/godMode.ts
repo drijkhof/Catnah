@@ -21,7 +21,8 @@ import Phaser from 'phaser';
  * changing level -- which builds a whole new `GameScene` -- and dies with the
  * tab, which is where you want a cheat to die.
  */
-const KEY = 'catnah:god-mode';
+export const GOD_MODE_KEY = 'catnah:god-mode';
+const KEY = GOD_MODE_KEY;
 
 /** How long a touch has to be held to count, ms. */
 const LONG_PRESS = 550;

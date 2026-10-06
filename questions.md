@@ -146,8 +146,8 @@ street furniture is part of the level rather than scenery.
 **Three levels, played in order, looping.** A glowing door at the far right of
 each ends it. Finishing the city returns you to the forest.
 
-> **Still open:** there is no win state. What should happen after the city — a
-> score, a "well done", a fourth level?
+> **Settled:** the last level's portal leads to the victory screen -- see
+> "Winning, and the score" at the end of this file.
 
 **Reaching the door is the only goal.** Little hearts are optional; nothing requires
 collecting them, and nothing happens when you get them all.
@@ -1464,3 +1464,35 @@ checkpoint's two notes. The fight was optional before -- every charge was a
 moment it was not between you and the door -- and you wanted it not to be.
 The dev respawn (shift-click) hides the portals again along with putting the
 beetle back. Every `E` in such a level behaves the same; none is special.
+
+## Winning, and the score
+
+**The last level's portal leads to `VictoryScene`** -- "You actually won!",
+your words, in gold on black -- instead of looping back to the forest. The
+dev level-skip still wraps round, so the forest is one Cmd-click past the
+volcano in a dev build.
+
+**The score is a clock, and lower is better**: every second in a level, plus
+`SCORE.deathPenaltyMs` (a minute) per death, shown as one time with the sum
+written out beneath it. Calls of mine:
+
+- **The clock runs through dying and leaving**, and stops only on the title
+  and while paused (`update` does not run then). A death's 650ms pause
+  therefore counts twice, once as time and once as the minute; it is small.
+- **It carries from level to level** in the `scene.start` data, next to
+  lives and hearts, and through a hot reload in the snapshot.
+- **Game over does not show it**: a run that is lost has no score.
+- **The clock runs in the HUD too**, top left over the level name, at your
+  word, with the little-heart count moved to the right under the lives: the score
+  as it stands, to the second, jumping a minute at a death. `src/score.ts`
+  holds the sum and the format so the HUD and the victory screen agree.
+
+## The victory screen is daylight, and says "Time"
+
+**A positive background**: the sunlit forest, run the way the title screen
+runs it (title-mode `GameScene` launched underneath), coming up out of the
+black the volcano left, with a soft dark band behind the words so they read
+against the trees. **"Time", not "Score"**, at your word, and the deaths said
+plainly: `5:06 played · died 2 times (+2:00)`, or `never died!`. The minute
+per death was already added the instant you die; the HUD clock now flushes
+red for 650ms as it jumps, so the cost is seen.

@@ -479,8 +479,24 @@ as a descent.
 ## The five levels
 
 **Forest, canopy, swamp, cave, volcano.** Each one starts at one end and
-ends at a **portal**, which takes you to the next; the volcano leads back
-to the forest. Little hearts are optional everywhere.
+ends at a **portal**, which takes you to the next; the volcano's portal —
+which only appears once the beetle is dead — ends the game. Little hearts
+are optional everywhere.
+
+## Winning, and the score
+
+Walk into the volcano's portal and the sunlit forest comes up out of the
+black with **"You actually won!"** in gold over it, your **time** under
+that, and how often you died. The time is the score, and lower is better:
+every second you spend in a level counts, from the moment it starts until the
+moment you leave it, and **every death adds a minute, at once** — the clock
+jumps and flushes red. At the end it reads, say, `Time 7:12`, and beneath it
+`5:12 played · died 2 times (+2:00)` — or `never died!`. The
+same clock runs **top left during play**, over the level name, and jumps by
+a minute when you die; the little-heart count sits top right under the lives,
+beside the mute button. It carries from level to level and
+survives a hot reload; it does not run on the title screen or while the game
+is paused. Any key on the victory screen takes you back to the title.
 
 A level may have **more than one portal**; every one leads on to the next
 level, and none is special. The portal is a **wormhole**: a round picture two tiles across, a blue

@@ -3,6 +3,7 @@ import { GAME_HEIGHT, GAME_WIDTH, CAT, COLORS } from './config';
 import { BootScene } from './scenes/BootScene';
 import { TitleScene } from './scenes/TitleScene';
 import { GameOverScene } from './scenes/GameOverScene';
+import { VictoryScene } from './scenes/VictoryScene';
 import { GameScene } from './scenes/GameScene';
 import { captureFrom, SNAPSHOT_KEY, type GameSnapshot } from './dev/hot';
 import { sound } from './audio/Sound';
@@ -47,7 +48,7 @@ function createGame(carried?: GameSnapshot): Phaser.Game {
       },
     },
 
-    scene: [BootScene, TitleScene, GameScene, GameOverScene],
+    scene: [BootScene, TitleScene, GameScene, GameOverScene, VictoryScene],
   });
 }
 

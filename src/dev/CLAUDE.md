@@ -20,8 +20,14 @@ honest option is to stand up a new game and carry the state across:
 3. `preBoot` puts it in the registry, where the incoming `GameScene` finds it at
    the end of `create`.
 
-The snapshot is deliberately small — where the cat is and what it has collected.
-Everything else is rebuilt from the new source, which is the entire point.
+The snapshot is deliberately small — where the cat is, what it has collected,
+and the run's bookkeeping: lives and their ceiling, the little-heart count,
+the clock and the deaths (the score), and whether god mode was on. God mode
+lives in the registry, and the new game has a new registry, so `init` puts it
+back from the snapshot before the HUD paints. The charms already taken are
+taken again *quietly* on restore — no sound, not counted — because the count
+came back in the snapshot and counting them again doubled it. Everything else
+is rebuilt from the new source, which is the entire point.
 
 ## Three things that will bite
 

@@ -31,6 +31,18 @@ export interface GameSnapshot {
    * simply has none, and doing without one is exactly what happens then.
    */
   activeCheckpoint?: CharmMark;
+  /**
+   * The run's clock and its deaths, the hearts (lives, their ceiling, and
+   * the little ones counted towards the next), and whether god mode was on:
+   * everything a reload used to reset. All optional, like the checkpoint,
+   * so an older snapshot still restores what it has.
+   */
+  elapsedMs?: number;
+  deaths?: number;
+  lives?: number;
+  maxLives?: number;
+  collected?: number;
+  godMode?: boolean;
 }
 
 /** A scene that can hand its state over to the build replacing it. */

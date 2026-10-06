@@ -7,6 +7,11 @@ Phaser scenes. Registered in order in `src/main.ts`; the first one starts.
 - **`GameScene`** — builds the level, owns the player, camera, HUD and the
   update loop.
 - **`GameOverScene`** — black, one line of red, and back to the title.
+- **`VictoryScene`** — the last level's portal leads here: the title-mode
+  forest underneath (launched the same way `TitleScene` does it, and stopped
+  on the way out), "You actually won!" in gold, the run's time (played plus a
+  minute per death, see `SCORE`) and how often you died, and back to the
+  title.
 
 `BootScene` starts `Title`, **except on a hot reload**, which carries a game in
 progress: dropping the player back on the title screen would throw away the
