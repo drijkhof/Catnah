@@ -55,11 +55,13 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(VERSION),
   },
 
-  // GitHub Pages serves this as a project site at /Catnah/, not at the root of
-  // a domain, so every built asset URL has to be prefixed. It has to be a
-  // literal here rather than derived from the repository name, because that is
-  // only known to the workflow.
-  base: '/Catnah/',
+  // Relative, so one build serves from anywhere: GitHub Pages at /Catnah/
+  // and a custom domain at /. With an absolute base the built index wrote
+  // `/Catnah/assets/...` into every script tag, and the same build broke the
+  // moment it was served from any other path. The manifest, the icons and the
+  // service worker (registered at `${BASE_URL}sw.js`, scope `BASE_URL`) are
+  // relative too, so nothing in the shipped page names its own path.
+  base: './',
 
   plugins: [stripInternalDocs()],
 

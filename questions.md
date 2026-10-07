@@ -1496,3 +1496,21 @@ against the trees. **"Time", not "Score"**, at your word, and the deaths said
 plainly: `5:06 played · died 2 times (+2:00)`, or `never died!`. The minute
 per death was already added the instant you die; the HUD clock now flushes
 red for 650ms as it jumps, so the cost is seen.
+
+## The game is going to live at catnah.rijkhof.nl
+
+**A custom domain, not a repo rename.** You wanted a URL without a capital
+to say out loud; renaming the repo to `catnah` would have killed the old
+`/Catnah/` link and every installed copy. A custom domain on the same repo
+serves the game at the root of `catnah.rijkhof.nl`, and GitHub redirects
+the github.io URL to it, so everything old keeps working.
+
+**Vite's `base` is `./` now**, relative, so one build serves from `/Catnah/`
+and from `/` alike -- there is no moment where the site is broken while DNS
+catches up. The manifest, icons and service worker were relative already.
+
+Waiting on DNS: your CNAME (`catnah.rijkhof.nl -> drijkhof.github.io`) was
+not yet published by DDS when this was written; the name still answered with
+the web host's A record. Once it points at GitHub: set the custom domain in
+the repo's Pages settings, wait for the certificate, enforce HTTPS, and
+change the README link.
