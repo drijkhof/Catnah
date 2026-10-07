@@ -1509,8 +1509,8 @@ the github.io URL to it, so everything old keeps working.
 and from `/` alike -- there is no moment where the site is broken while DNS
 catches up. The manifest, icons and service worker were relative already.
 
-Waiting on DNS: your CNAME (`catnah.rijkhof.nl -> drijkhof.github.io`) was
-not yet published by DDS when this was written; the name still answered with
-the web host's A record. Once it points at GitHub: set the custom domain in
-the repo's Pages settings, wait for the certificate, enforce HTTPS, and
-change the README link.
+The CNAME took DDS about two hours to publish; once it pointed at GitHub
+the custom domain went into the repo's Pages settings, GitHub requested the
+certificate, HTTPS was enforced when it arrived, and the README link moved.
+`drijkhof.github.io/Catnah/` redirects there, so old links and installed
+copies keep working.

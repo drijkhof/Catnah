@@ -4,7 +4,7 @@ A 2D platformer about a cat, built to be played in a browser on a phone or a
 laptop. Five levels: forest, canopy, swamp, cave, volcano — and an evil
 lord beetle at the end of the last one.
 
-**Play it:** https://drijkhof.github.io/Catnah/
+**Play it:** https://catnah.rijkhof.nl/
 
 ## Running it here
 
