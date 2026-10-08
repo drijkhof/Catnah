@@ -11,6 +11,11 @@ export interface PlayerInput {
   readonly up: boolean;
   /** Down: sneaking on the ground, climbing down, swimming down. */
   readonly sneak: boolean;
+  /**
+   * The jump input: the keyboard's up key (`↑`, `W`) or the touch button.
+   * On a keyboard up and jump are therefore one key; the touch stick pushed
+   * up is `up` and never a jump, or every diagonal shove would be one.
+   */
   readonly jumpJustPressed: boolean;
   readonly jumpHeld: boolean;
 }
@@ -70,7 +75,7 @@ export class Controls implements PlayerInput {
     }
 
     this.cursors = keyboard.createCursorKeys();
-    this.keys = keyboard.addKeys('W,A,S,D,SPACE') as Record<
+    this.keys = keyboard.addKeys('W,A,S,D') as Record<
       string,
       Phaser.Input.Keyboard.Key
     >;
@@ -94,12 +99,13 @@ export class Controls implements PlayerInput {
     return this.cursors.right.isDown || this.keys.D.isDown || this.stickX > TOUCH.stickDeadZone;
   }
 
-  /** True while the player is pointing upwards: climbing, swimming up. Not jumping. */
+  /** True while the player is pointing upwards: climbing, swimming up. */
   get up(): boolean {
     return (
       this.cursors.up.isDown || this.keys.W.isDown || this.stickY < -TOUCH.stickVerticalDeadZone
     );
   }
+
 
   /** True while the player is pointing down: sneaking, climbing down, swimming down. */
   get sneak(): boolean {
@@ -122,8 +128,10 @@ export class Controls implements PlayerInput {
   update(): void {
     this.sampleTouch();
 
+    // No Space: the keyboard jumps on up. Edge-triggered, so holding up on
+    // the ground is one jump, and up held on a rope is a climb, not a leap.
     this.jumpHeldLastFrame = this.jumpHeldNow;
-    this.jumpHeldNow = this.cursors.space.isDown || this.keys.SPACE.isDown || this.jumpTouched;
+    this.jumpHeldNow = this.cursors.up.isDown || this.keys.W.isDown || this.jumpTouched;
   }
 
   /**

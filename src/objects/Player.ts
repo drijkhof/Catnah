@@ -154,7 +154,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     // A queued jump beats a held sneak, so a player holding the button is
     // never stuck. Under a low overhang there is no headroom to stand, which is
-    // what stops the jump instead.
+    // what stops the jump instead. On a keyboard the jump press *is* the up
+    // key; `updateClimb` has had its turn above, so by now up did not grab.
     const wantsJump = this.coyoteTimer > 0 && controls.jumpJustPressed;
     this.resolvePose(controls.sneak && onGround && !wantsJump);
 
@@ -394,7 +395,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
    * Falling onto one catches it -- that is the automatic grip, with no button
    * to hold. Otherwise holding up (or down) takes hold: standing at the foot of
    * a liana and pressing up climbs it, and holding up on the way past one
-   * catches it. Jump is a separate input and never grabs.
+   * catches it. On a keyboard the same press is the jump input, and grabbing
+   * wins: this runs before the jump is considered, and the leap off a rope
+   * only listens once the cat is already climbing -- so one press grabs,
+   * holding climbs, and a *second* press leaps.
    */
   private wantsToGrab(controls: PlayerInput, onGround: boolean): boolean {
     if (this.climbCooldownTimer > 0) {

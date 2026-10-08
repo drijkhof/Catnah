@@ -9,18 +9,25 @@ It asks `controls.left`, `controls.right`, `controls.up`, `controls.sneak`
 keyboard and touch behind those answers. Adding a device or a key rebinding
 should touch this folder only.
 
-Bindings today: arrows / WASD steer and `Space` jumps on a keyboard; on a touch
+Bindings today: arrows / WASD on a keyboard, and `↑`/`W` is the jump; on a touch
 device a **stick** under the left thumb (four directions, diagonals) and a jump
-button under the right.
+button under the right. There is no Space.
 
-## Up and jump are separate
+## Up and jump: two inputs, one key on a keyboard
 
 `up` is `↑`, `W` or the stick pushed up; `jumpHeld` / `jumpJustPressed` are
-`Space` or the jump button. `Player` decides what up means from where the cat
-is (rope: climb; water: swim up; ground: nothing, bar grabbing a rope), and
-what jump means (ground jump, wall jump, swim stroke, leap off a rope). Keeping
-them apart is what allows a straight jump off a rope, and climbing without
-leaping. They used to be one input; see git history if that is wanted back.
+`↑`, `W` or the jump button. So on a keyboard one key feeds both, and the
+touch stick pushed up feeds only `up` -- or every diagonal shove on a phone
+would be a jump. `Player` decides what each means from where the cat is:
+`up` held climbs a rope and swims up; the jump *edge* is the ground jump,
+the wall jump, the swim stroke and the leap off a rope.
+
+What keeps one key from doing two things at once is **order and edges**:
+`updateClimb` runs before the jump is considered, and grabbing wants `up`
+*held* while leaping wants the jump *edge* and only listens once the cat is
+already climbing. So beside a rope one press grabs, holding climbs, a
+second press leaps. Space used to be the jump; it is gone at the author's
+word.
 
 ## The stick is a zone, not a button
 

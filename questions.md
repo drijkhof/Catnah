@@ -219,8 +219,8 @@ Worth flagging because an up arrow that does not jump is not what a player
 expects from a platformer, and a child especially will try it first. The
 alternative is a dedicated grab button, which is a button more to hold.
 
-> **Still open:** is `Space` the right jump key, or should jump be `↑` and climb
-> get its own key? Any split works; this one puts climbing where a ladder is.
+> **Settled, later:** Space is gone and `↑` is the jump again -- see "No
+> Space: up is the jump" at the end of this file for how one key does both.
 
 
 ## The canopy level
@@ -1514,3 +1514,19 @@ the custom domain went into the repo's Pages settings, GitHub requested the
 certificate, HTTPS was enforced when it arrived, and the README link moved.
 `drijkhof.github.io/Catnah/` redirects there, so old links and installed
 copies keep working.
+
+## No Space: up is the jump
+
+**"Spatie niet meer gebruiken, onmiddellijk."** So `↑`/`W` is the jump on a
+keyboard, and the only one. The split that Space existed for -- climb a rope
+without leaping, leave it with a straight jump -- survives on one key by
+**order and edges**: grabbing wants up *held* and runs first, leaping wants
+the jump *edge* and only listens once the cat is already climbing. So beside
+a rope one press grabs, holding climbs, a second press leaps; in water
+holding swims up and a fresh press is a stroke; wall jumps are a press
+against a wall. Measured: 86px ground jump, grab-climb-leap in that order,
+stroke at -280px/s. The touch stick pushed up still never jumps; the button
+does. The earlier `CAT.upAlsoJumps` half-step is gone with Space.
+
+The one habit this punishes: tapping `↑` repeatedly while climbing leaps
+off the rope on the second tap. Holding is climbing; tapping is jumping.

@@ -127,7 +127,7 @@ pushed gets the new version.
 | Forward / back | `→` `←` or `D` `A` | stick, bottom left |
 | Up: climb up / swim up | `↑` or `W` | stick up |
 | Down: sneak / climb down / swim down | `↓` or `S` | stick down |
-| **Jump** (also off a rope, and the swim stroke) | `Space` | button, bottom right |
+| **Jump** (also off a rope, and the swim stroke) | `↑` or `W` — the same key | button, bottom right |
 
 The left thumb has a four-way **stick**
 (left, right, up, down, diagonals too) and the right thumb a jump button. Any
@@ -136,11 +136,13 @@ touch in the left 40% of the screen steers, any touch in the right 40% jumps
 Up and down need a bigger push than left and right (`TOUCH` in `config.ts`),
 so running with a slightly wandering thumb does not climb.
 
-**Up and jump are separate inputs.** Up never jumps: on the ground it does
-nothing (except take hold of a rope, if one is there), on a rope it climbs, in
-water it swims up. Jump is Space or the button. That is what makes a **straight
-jump off a rope** possible, and lets you just climb without leaping: jump
-alone throws the cat off upwards, jump plus a direction throws it that way.
+**On a keyboard, up is the jump — one key.** There is no Space. The game
+tells the two apart by where you are and by how you press: on the ground a
+press jumps; beside a rope a press takes hold, *holding* climbs, and a
+**second press** leaps off (straight up on its own, that way with a
+direction); in water holding swims up and a fresh press is a stroke; against
+a wall in mid-air a press is a wall jump. On a phone the two stay separate:
+the stick pushed up climbs and swims and never jumps, the button jumps.
 
 Add `?touch` to the address to see the touch controls on a laptop; the mouse
 acts as a finger. It also shows the phone-sized view.
@@ -150,7 +152,7 @@ Wall jumping has no button of its own: in mid-air against a wall, jump does it.
 - **Gravity is always on.** Falling speed is capped at 600 px/s so long drops
   stay readable.
 - **You steer in the air**, but with less grip than on the ground.
-- **Jump height is variable**: a flick of the space bar gives about 39px and
+- **Jump height is variable**: a flick of the key gives about 39px and
   holding it gives 86px, with everything in between. Letting go does not stop
   the climb dead — the cat gets heavier and coasts on a little, still rising
   about 30px after a very short tap.
