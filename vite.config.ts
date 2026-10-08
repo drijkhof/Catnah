@@ -47,8 +47,8 @@ function build(): string {
   }
 }
 
-/** Shown on the title screen. The `0.1` is by hand; the rest is the build. */
-const VERSION = `v0.1.${build()}`;
+/** Shown on the title screen. The `0.2` is by hand; the rest is the build. v0.1 is a git tag. */
+const VERSION = `v0.2.${build()}`;
 
 export default defineConfig({
   define: {
