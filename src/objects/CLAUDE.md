@@ -215,6 +215,91 @@ and the collider stops it there.
 The old gatekeeper -- station between the cat and the door, line up, drop,
 climb back slowly -- is gone; it was tame as a lamb in the rebuilt arena.
 
+## Camels are walkers you stand on
+
+A camel is a `GroundEnemy` of kind `camel`: it ambles slowly (`pace`, like a
+hedgehog -- walls, edges and the end of the world turn it), never grazes, and
+is **not pushable**, so the cat walking into it moves the cat and never the
+camel. Not *immovable*: an immovable body is not separated from the static
+ground either, and fell straight through the floor. Its body is its back only
+(`CAMEL_BACK`), from the hump tops down and without the head, so the cat
+stands on the humps. And it treats the cacti as **fences** (`setFences`, from
+`GameScene`), turning two tiles short of one rather than carrying its rider
+into it.
+
+**The cat has no collider with a camel at all** (`rideable` skips the kill
+overlap and adds nothing in its place). Standing on one is `GameScene.
+rideCamels`, geometry run every frame *before* the cat's own step: a cat over
+the back, not rising, whose feet are at the back -- or will cross it this
+frame, at its fall speed -- is stood on it: feet put on the top, fall stopped,
+`touching.down` raised so the cat can jump from there, and carried by the
+camel's *movement* (its change in x since last frame, not its velocity: a
+camel against a fence has a velocity and goes nowhere, and a cat carried by
+that slid off). Two things it learned the hard way:
+
+- Arcade's collision between two moving bodies made landing a coin toss: it
+  chose the sideways separation whenever the cat came down near an edge of
+  the back, and the `touching` flags flickered every other frame as gravity
+  dropped the cat a hair and the collision lifted it back, so a rider carried
+  on half the frames fell behind and off. Hence no collider.
+- `update` runs between the physics step and Arcade's `postUpdate`, which
+  moves the *sprite* by however far the *body* travelled this frame. A snap
+  that set only the sprite was carried below the back again before it was
+  drawn, and the cat fell through. The snap sets the body too and zeroes its
+  `prevFrame` delta.
+
+Measured under the console harness: 64 of 64 drops onto the back land, and
+every jump that reaches the back lands.
+
+## Worms hunt under the sand
+
+`Worm` is not a sprite with a body: it is a clock (hidden, shivering, rising,
+standing, sinking; `WORM`), a position under the sand, and a cropped picture.
+Now and then, on its own clock (`hiddenMinMs`..`hiddenMaxMs`, each worm
+started at its own point in the wait), it comes up out of its hole to **look
+about** for `lookMs` -- without warning, which is the point -- straight up
+with nobody there. A cat on the sand within `huntRange` when it looks is
+**seen**: the worm leans up to `lookLean` toward it and turns with it, and
+`spotted` is set as it sinks. Then the cat is
+**hunted**: the worm travels toward it under the sand at `travelSpeed`, hole
+and all -- the mound sprite moves with it as the ripple -- as far as the
+sand goes: `Mound.from`/`to` from the parser, the run of open cells on plain
+`#` floor either side of the `u`; a rock, a wall, a cactus or a drop ends
+it, and a mound in a one-tile pocket never moves. Within `senseRange`
+the ground **churns** for `shiverMs`: the mound jolts, and sand grains are
+thrown up around the spot the worm will come out of, more of them the nearer
+the lunge (a `Graphics` redrawn each frame, placed by a hash of the tick so
+they jump rather than drift, nothing random); sneaking along, a few grains
+kick up behind it. That is the warning, it marks *where*, and it is sized so
+a cat right on top can see it, turn and run clear -- and then
+it **lunges**: out fast to `lungeHeight`, leaning toward the cat by up to
+`maxLean` and re-aimed every frame of the rise, a `snapMs` hold, and back
+in wherever it is. A cat that steps away during the shiver is let go. After
+a lunge it needs `lungeCooldownMs` under the sand, which is the gap to run
+through; it is slower than the cat, so it can be outrun, and it closes on a
+cat that stops. With nobody about it drifts home, and home again it forgets,
+so the next cat gets the look. A cat that drops in right beside the hole gets
+no look, only the churn; a worm that is up when the cat walks up to it
+lunges from where it is. `senseRange` is set to what the lunge can
+actually reach (44px at 70° is 41px sideways); set it further and the worm
+lunges at air.
+
+The deadly part is a **segment**, not a column: `touches(body)` walks the
+part that is out in 2px steps against the body grown by the worm's
+half-width, and `GameScene.touchingSomethingDeadly` asks every worm every
+frame, the way it reads the lava's rectangles. Drawing: the worm texture is
+the whole animal, head at the top; the top `out` pixels are cropped, the
+origin put at the bottom of the shown part so the picture grows out of the
+sand and turns about it, rotated to the lean, and stretched when the lunge
+reaches further than the picture is tall. The mound is drawn in front so the
+worm comes *out* of it, and is marked `KEEP_LIVE`: the scenery bake would
+otherwise flatten it into the static textures at its home and destroy the
+original, leaving a painted mound that never moved while the worm came up
+elsewhere -- which is exactly what happened first. **Worms are afraid of camels**: the scene hands `step`
+the camels, and with one within `WORM.fearRange` a hidden worm stays hidden
+and does not travel, and a worm that is up sinks at once -- so a camel is the
+safe way over the sand.
+
 ## The lava lake
 
 `LavaLake` owns everything the lava *does*; `GameScene` keeps only the

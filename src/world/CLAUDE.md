@@ -64,6 +64,13 @@ bushes (which do, on purpose). A bush therefore also draws over the foot of a
 trunk or boulder beside it, which looks natural. Anything new that must pass in
 front of or behind the creatures needs the same treatment.
 
+The same flag is the only way an image or a `Graphics` at depth ≤ 0 that
+*moves or is redrawn* survives: the bake has no way to tell a still picture
+from one that is about to move, flattens it where it stands and destroys the
+original. The desert's worm mounds and their sand grains are marked live for
+that reason; the symptom without it is a picture painted at the start position
+for ever while the live object moves invisibly.
+
 **Anything touching the forest floor must stay at scroll factor 1.** Bushes sit
 on the ground the cat walks on; parallaxing them would make them visibly slide
 across it. Only things clearly far away can afford to move at a different rate.

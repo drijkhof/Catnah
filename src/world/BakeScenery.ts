@@ -59,7 +59,13 @@ export function bakeScenery(scene: Phaser.Scene, widthInPixels: number, heightIn
   list.forEach((object, index) => {
     // A Graphics object drawn once for the whole level (the stone mass) has
     // no size of its own; it goes into every chunk.
-    if (object instanceof Phaser.GameObjects.Graphics && object.scrollFactorX === 1 && object.depth <= 0 && !tweened.has(object)) {
+    if (
+      object instanceof Phaser.GameObjects.Graphics &&
+      object.scrollFactorX === 1 &&
+      object.depth <= 0 &&
+      !tweened.has(object) &&
+      !object.getData(KEEP_LIVE)
+    ) {
       candidates.push({ object: object as unknown as Bakeable, index, bounds: new Phaser.Geom.Rectangle(0, 0, widthInPixels, heightInPixels) });
       return;
     }

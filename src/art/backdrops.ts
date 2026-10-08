@@ -18,11 +18,18 @@ export const MOUNTAIN_SIZES = {
 /** The smoke puff over a crater, and the ash that falls through the level. */
 export const SMOKE_SIZE = { width: 64, height: 44 };
 
+/** The desert's pyramids, far and near, px. A pyramid is wider than it is tall. */
+export const PYRAMID_SIZES = {
+  far: { width: 260, height: 150 },
+  near: { width: 340, height: 210 },
+} as const;
+
 /** Skies and scenery for the places that are not the forest. */
 export function generateBackdropTextures(scene: Phaser.Scene): void {
   generateCave(scene);
   generateSwamp(scene);
   generateVolcano(scene);
+  generateDesert(scene);
 }
 
 function generateVolcano(scene: Phaser.Scene): void {
@@ -363,3 +370,85 @@ export function generateCaveWall(scene: Phaser.Scene): void {
   });
 }
 
+/**
+ * The desert: a hard pale sky going white at the horizon, and pyramids in
+ * two ranks -- a lit face and a shadow face meeting at a crisp edge, with the
+ * courses of stone showing as faint lines.
+ */
+function generateDesert(scene: Phaser.Scene): void {
+  bakeTexture(scene, 'desert-sky', GAME_WIDTH, GAME_HEIGHT, (g) => {
+    fillVerticalGradient(g, GAME_WIDTH, GAME_HEIGHT, 0x5aa6d8, 0xf3e3b4, 36);
+  });
+
+  for (const [rank, seed, lit, shadow] of [
+    ['far', 211, 0xe2c994, 0xc4a46c],
+    ['near', 223, 0xd9b877, 0xa8864c],
+  ] as const) {
+    const size = PYRAMID_SIZES[rank];
+    for (const variant of ['a', 'b'] as const) {
+      bakeTexture(scene, `pyramid-${rank}-${variant}`, size.width, size.height, (g) => {
+        drawPyramid(g, size.width, size.height, createRandom(seed + (variant === 'a' ? 0 : 1000)), lit, shadow);
+      });
+    }
+  }
+}
+
+/**
+ * One pyramid, seen a little from the side so two faces show: the right one
+ * in sun, the left in shadow, with the edge between them running from the
+ * apex to a point along the base. Courses of stone as thin lines, a capstone
+ * a shade paler, and the odd missing block along the edges for age.
+ */
+function drawPyramid(
+  g: Phaser.GameObjects.Graphics,
+  width: number,
+  height: number,
+  random: () => number,
+  lit: number,
+  shadow: number,
+): void {
+  const apexX = width * (0.44 + random() * 0.12);
+  const apexY = 4;
+  const footY = height - 2;
+  // Where the two faces meet along the base: left of the apex, so the
+  // shadow face is the narrower one.
+  const edgeX = apexX - width * (0.12 + random() * 0.1);
+
+  g.fillStyle(shadow, 1);
+  g.fillTriangle(0, footY, edgeX, footY, apexX, apexY);
+  g.fillStyle(lit, 1);
+  g.fillTriangle(edgeX, footY, width, footY, apexX, apexY);
+
+  // Courses of stone: horizontal lines, slightly darker on each face, that
+  // get closer together towards the top because they are further away.
+  const litLine = Phaser.Display.Color.ValueToColor(lit).darken(7).color;
+  const shadowLine = Phaser.Display.Color.ValueToColor(shadow).darken(7).color;
+  for (let y = footY - 6; y > apexY + 8; y -= 6 + Math.round(random() * 2)) {
+    const t = (y - apexY) / (footY - apexY);
+    const leftX = apexX - apexX * t;
+    const rightX = apexX + (width - apexX) * t;
+    const meetX = apexX + (edgeX - apexX) * t;
+    g.fillStyle(shadowLine, 1);
+    g.fillRect(leftX, y, Math.max(0, meetX - leftX), 1);
+    g.fillStyle(litLine, 1);
+    g.fillRect(meetX, y, Math.max(0, rightX - meetX), 1);
+  }
+
+  // The edge between the faces, and a paler capstone.
+  g.fillStyle(Phaser.Display.Color.ValueToColor(shadow).darken(12).color, 1);
+  for (let t = 0.1; t < 1; t += 0.08) {
+    g.fillRect(apexX + (edgeX - apexX) * t, apexY + (footY - apexY) * t, 1, 2);
+  }
+  g.fillStyle(Phaser.Display.Color.ValueToColor(lit).lighten(10).color, 1);
+  g.fillTriangle(apexX - 3, apexY + 7, apexX + 3, apexY + 7, apexX, apexY);
+
+  // Age: a few blocks missing along the outer edges, sky showing through.
+  g.fillStyle(0xf3e3b4, 1);
+  for (let n = 0; n < 4; n += 1) {
+    const t = 0.3 + random() * 0.6;
+    const onRight = random() < 0.5;
+    const x = onRight ? apexX + (width - apexX) * t : apexX - apexX * t;
+    const y = apexY + (footY - apexY) * t;
+    g.fillRect(onRight ? x - 3 : x, y - 2, 3, 3);
+  }
+}

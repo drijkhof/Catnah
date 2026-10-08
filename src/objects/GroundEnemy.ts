@@ -1,11 +1,14 @@
 import Phaser from 'phaser';
-import { GROUND_ENEMY_SIZES } from '../art';
+import { CAMEL_BACK, GROUND_ENEMY_SIZES } from '../art';
 import { GRAZING, GROUND_ENEMIES, RAT, type GroundEnemyKind } from '../config';
 import { sound } from '../audio/Sound';
 import { isSolidTile } from './solid';
 
 /** How far ahead it looks for a wall or the end of the floor, px. */
 const PROBE = 3;
+
+/** How far short of a fence a walker turns, px: two tiles. */
+const FENCE_MARGIN = 32;
 
 /**
  * Something that paces the floor: a hedgehog, or a faster rat.
@@ -52,6 +55,9 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
 
   private leapCooldown = 0;
 
+  /** Rectangles it turns round in front of. See `setFences`. */
+  private fences: Phaser.Geom.Rectangle[] = [];
+
   constructor(
     scene: Phaser.Scene,
     x: number,
@@ -71,7 +77,20 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
     const size = GROUND_ENEMY_SIZES[kind];
     this.body.setSize(size.width, size.height, false);
     this.body.setOffset(0, 0);
+    if (kind === 'camel') {
+      // The body is the back, not the picture: from the tops of the humps
+      // down, and only the barrel, so the cat stands *on* the humps rather
+      // than floating at the height of the head. See `generateDesertCreatures`.
+      this.body.setSize(CAMEL_BACK.width, size.height - CAMEL_BACK.top, false);
+      this.body.setOffset(CAMEL_BACK.left, CAMEL_BACK.top);
+    }
     this.body.setCollideWorldBounds(true);
+    if (kind === 'camel') {
+      // Not pushable: the cat landing on it or walking into it moves the
+      // cat, never the camel. Not *immovable*, though -- an immovable body
+      // is not separated from the static ground either, and fell through it.
+      this.body.pushable = false;
+    }
     // Above the baked scenery (-0.5), so trees and rocks never hide it, and
     // below the bushes and reeds (-0.3), which are kept live so that it can
     // walk behind them. That is on purpose: it makes a player remember.
@@ -90,6 +109,28 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
     this.setVelocityX(0);
   }
 
+  /** True for a walker the cat stands on rather than dies on: the camel. */
+  get rideable(): boolean {
+    return this.kind === 'camel';
+  }
+
+  /**
+   * Things it turns round in front of, besides walls and edges: the cacti,
+   * for a camel, which would otherwise carry its rider straight into one.
+   * It turns `FENCE_MARGIN` short of them, so the rider has room to get off.
+   */
+  setFences(fences: Phaser.Geom.Rectangle[]): void {
+    this.fences = fences;
+  }
+
+  /** Is a fence within `FENCE_MARGIN` ahead? */
+  private fenceAhead(): boolean {
+    const body = this.body;
+    const from = this.direction > 0 ? body.right : body.x - FENCE_MARGIN;
+    const to = from + FENCE_MARGIN;
+    return this.fences.some((fence) => fence.right > from && fence.x < to && fence.bottom > body.y && fence.y < body.bottom);
+  }
+
   /**
    * Called from the scene once a frame, after the physics of the last one.
    *
@@ -97,6 +138,14 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
    */
   step(delta = 16.667, cat?: Phaser.Math.Vector2): void {
     if (!this.active) {
+      return;
+    }
+
+    // A camel only ambles: no grazing, no fleeing. It cannot be pushed, so
+    // the cat landing on its back rides it rather than shoving it: a living
+    // platform, at the height of its humps, that goes somewhere.
+    if (this.kind === 'camel') {
+      this.pace();
       return;
     }
 
@@ -114,9 +163,9 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
     this.ratStep(delta, cat);
   }
 
-  /** Turn at a wall, at an edge, or at the end of the world. Walk otherwise. */
+  /** Turn at a wall, at an edge, at a fence, or at the end of the world. Walk otherwise. */
   private pace(speed = GROUND_ENEMIES[this.kind].speed): void {
-    if (this.atLevelEdge() || this.blockedAhead() || !this.groundAhead()) {
+    if (this.atLevelEdge() || this.blockedAhead() || !this.groundAhead() || this.fenceAhead()) {
       this.direction = -this.direction;
     }
 

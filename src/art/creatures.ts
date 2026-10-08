@@ -6,7 +6,23 @@ import { bakeTexture } from './canvas';
 export const GROUND_ENEMY_SIZES = {
   hedgehog: { width: 20, height: 13 },
   rat: { width: 19, height: 9 },
+  camel: { width: 46, height: 34 },
 };
+
+/**
+ * Where the camel's back is within its picture: the barrel with the humps,
+ * `top` pixels down from the top of the texture (the neck and head rise
+ * above it) and `left` in from the left (the tail). The body is this, so
+ * the cat stands on the humps.
+ */
+export const CAMEL_BACK = { left: 7, top: 9, width: 30 };
+
+/** The worm, drawn fully out; the scene crops it to how far out it is. */
+export const WORM_SIZE = { width: 6, height: 32 };
+/** A cactus: one tile wide, two tall. */
+export const CACTUS_SIZE = { width: 16, height: 32 };
+/** The mound a worm lives in, drawn over the tile it stands on. */
+export const MOUND_SIZE = { width: 16, height: 8 };
 export const PIRANHA_SIZE = { width: 17, height: 10 };
 
 /** Wide and flat, because what it is for is being landed on. */
@@ -21,6 +37,7 @@ export const BOSS_SIZE = { width: 66, height: 46 };
 
 export function generateCreatureTextures(scene: Phaser.Scene): void {
   generateHedgehog(scene);
+  generateDesertCreatures(scene);
   generateRat(scene);
   generatePiranha(scene);
   generateCrocodile(scene);
@@ -162,6 +179,120 @@ function generateHedgehog(scene: Phaser.Scene): void {
     g.fillStyle(COLORS.hedgehogFace, 1);
     g.fillRect(4, height - 2, 3, 2);
     g.fillRect(12, height - 2, 3, 2);
+  });
+}
+
+/**
+ * The desert's own: a camel to ride, a worm that comes up out of the sand,
+ * the mound it lives in, and a cactus that kills.
+ */
+function generateDesertCreatures(scene: Phaser.Scene): void {
+  const camel = GROUND_ENEMY_SIZES.camel;
+  bakeTexture(scene, 'camel', camel.width, camel.height, (g) => {
+    const { width, height } = camel;
+    const bodyY = height - 16;
+    // Legs: four, long and thin, with knees and dark hooves. Drawn first so
+    // the belly sits over their tops.
+    g.fillStyle(COLORS.camelDark, 1);
+    for (const x of [9, 14, 27, 32]) {
+      g.fillRect(x, bodyY + 4, 3, 12);
+      g.fillRect(x - 1, height - 2, 5, 2);
+    }
+    g.fillStyle(COLORS.camelBody, 1);
+    for (const x of [9, 14, 27, 32]) {
+      g.fillRect(x, bodyY + 4, 3, 5);
+    }
+    // The body: a long barrel, and the two humps rising out of it -- the
+    // back the cat stands on is the top of the body between them.
+    g.fillStyle(COLORS.camelBody, 1);
+    g.fillEllipse(21, bodyY + 2, 30, 13);
+    g.fillEllipse(14, bodyY - 4, 11, 10);
+    g.fillEllipse(26, bodyY - 4, 11, 10);
+    // Light along the top of the humps and the back, shade under the belly.
+    g.fillStyle(COLORS.camelLight, 1);
+    g.fillEllipse(13, bodyY - 6, 7, 4);
+    g.fillEllipse(25, bodyY - 6, 7, 4);
+    g.fillStyle(COLORS.camelDark, 1);
+    g.fillEllipse(21, bodyY + 7, 24, 4);
+    // The neck rises from the front of the body and curves forward into
+    // the head; the head is a rounded wedge with an ear and a dark muzzle.
+    g.fillStyle(COLORS.camelBody, 1);
+    g.fillRect(33, bodyY - 6, 5, 10);
+    g.fillRect(35, bodyY - 11, 5, 7);
+    g.fillEllipse(width - 6, bodyY - 12, 11, 7);
+    g.fillStyle(COLORS.camelDark, 1);
+    g.fillRect(width - 3, bodyY - 11, 3, 3);
+    g.fillRect(width - 9, bodyY - 16, 2, 3);
+    g.fillStyle(COLORS.camelLight, 1);
+    g.fillRect(36, bodyY - 9, 2, 7);
+    g.fillStyle(0x2a1a10, 1);
+    g.fillRect(width - 7, bodyY - 13, 1, 1);
+    // A short tail with a tuft.
+    g.fillStyle(COLORS.camelDark, 1);
+    g.fillRect(6, bodyY - 1, 2, 7);
+    g.fillRect(5, bodyY + 5, 3, 2);
+  });
+
+  const worm = WORM_SIZE;
+  bakeTexture(scene, 'worm', worm.width, worm.height, (g) => {
+    const { width, height } = worm;
+    const cx = width / 2;
+    // Segments from the bottom up, each a thin rounded band, a paler belly.
+    for (let y = height - 2; y > 7; y -= 3) {
+      g.fillStyle(COLORS.wormDark, 1);
+      g.fillEllipse(cx, y, width, 4);
+      g.fillStyle(COLORS.wormBody, 1);
+      g.fillEllipse(cx, y - 1, width - 2, 3);
+      g.fillStyle(COLORS.wormBelly, 1);
+      g.fillRect(cx - 1, y - 1, 1, 1);
+    }
+    // The head: a blunt rounded top, no wider than the body, with an open
+    // mouth and two pale eyes.
+    g.fillStyle(COLORS.wormDark, 1);
+    g.fillEllipse(cx, 5, width, 9);
+    g.fillStyle(COLORS.wormBody, 1);
+    g.fillEllipse(cx, 4, width - 2, 7);
+    g.fillStyle(COLORS.wormMouth, 1);
+    g.fillEllipse(cx, 3, 3, 2);
+    g.fillStyle(0xffffff, 0.9);
+    g.fillRect(cx - 2, 2, 1, 1);
+    g.fillRect(cx + 1, 2, 1, 1);
+  });
+
+  const mound = MOUND_SIZE;
+  bakeTexture(scene, 'mound', mound.width, mound.height, (g) => {
+    g.fillStyle(COLORS.sandMoundDark, 1);
+    g.fillEllipse(mound.width / 2, mound.height, mound.width, mound.height * 2);
+    g.fillStyle(COLORS.sandMound, 1);
+    g.fillEllipse(mound.width / 2 - 1, mound.height, mound.width - 4, mound.height * 2 - 3);
+    // The hole the worm comes out of.
+    g.fillStyle(COLORS.wormMouth, 0.6);
+    g.fillEllipse(mound.width / 2, 3, 5, 2);
+  });
+
+  const cactus = CACTUS_SIZE;
+  bakeTexture(scene, 'cactus', cactus.width, cactus.height, (g) => {
+    const { width, height } = cactus;
+    const cx = width / 2;
+    // Trunk and two arms, rounded at the ends, ribbed with a darker line.
+    g.fillStyle(COLORS.cactus, 1);
+    g.fillRoundedRect(cx - 3, 2, 6, height - 2, 3);
+    g.fillRoundedRect(cx - 8, 10, 4, 10, 2);
+    g.fillRect(cx - 8, 17, 6, 3);
+    g.fillRoundedRect(cx + 4, 6, 4, 12, 2);
+    g.fillRect(cx + 2, 15, 6, 3);
+    g.fillStyle(COLORS.cactusDark, 1);
+    g.fillRect(cx - 1, 4, 1, height - 6);
+    g.fillRect(cx - 7, 11, 1, 7);
+    g.fillRect(cx + 5, 7, 1, 9);
+    // Spines, pale, in rows.
+    g.fillStyle(COLORS.cactusSpine, 1);
+    for (let y = 5; y < height - 2; y += 4) {
+      g.fillRect(cx - 4, y, 1, 1);
+      g.fillRect(cx + 3, y + 2, 1, 1);
+    }
+    g.fillRect(cx - 9, 12, 1, 1);
+    g.fillRect(cx + 8, 8, 1, 1);
   });
 }
 

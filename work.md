@@ -30,6 +30,9 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | struik | `bush` | scenery |
 | egel | `hedgehog` | enemy — paces a platform, deadly to touch |
 | rots | `boulder` / `rock` | solid, climbable stone |
+| kameel | `camel` | ambles slowly; you ride on its humps; harmless |
+| worm | `worm` | hunts under the sand and lunges out of it at you; the part that is out kills |
+| cactus | `cactus` | two tiles tall, deadly from any side |
 
 ## The cat
 
@@ -480,10 +483,46 @@ as a descent.
 
 ## The five levels
 
-**Forest, canopy, swamp, cave, volcano.** Each one starts at one end and
-ends at a **portal**, which takes you to the next; the volcano's portal —
-which only appears once the beetle is dead — ends the game. Little hearts
+**Forest, canopy, swamp, cave, volcano, desert.** Each one starts at one end
+and ends at a **portal**, which takes you to the next; the volcano's portal —
+which only appears once the beetle is dead — leads out into the desert, and
+the desert's portal ends the game. Little hearts
 are optional everywhere.
+
+### 6 — Desert
+
+Out the far side of the mountain into the open: sand and sandstone under a
+white sun, pyramids on the skyline, heat shimmering along their feet. Flat
+going, mostly, with low dunes of stacked sand to climb and a few sandstone
+shelves to jump between. Nothing here hunts you, and nothing walks the sand
+but **camels**, which hurt nobody: jump on one's back and it carries you
+along, slowly, as it ambles. What kills is standing still in the wrong place:
+
+- **Worms** live under the sand, each with a mound for a hole. Now and
+  then one **comes up out of its hole without warning** to look about, and
+  goes back down. If you are within range on the sand when it does, it has
+  seen you: it leans your way and watches you while it is up, and once it is
+  back under, it **hunts**
+  you: it crawls under the sand toward you, hole and all — the mound moves,
+  rippling along the sand (slower than you run, so you can outrun it; it
+  closes when you stop), as far as the sand goes — rocks, walls, cacti and
+  drops stop it — and sand kicks up where it goes, so you can see it coming.
+  Close enough, **the ground churns**, sand thrown up around
+  the very spot it will come out of: a little warning, long enough to turn
+  and run clear even when it is right under you. Then it
+  **lunges** out of the sand *at* you, leaning your way and following you as
+  it comes, snaps, and sinks back in wherever it is. Step away while the
+  ground ruffles and it lets you go. After a lunge it needs a moment under
+  the sand before the next — that is the gap to run through. Walk away far
+  enough and it crawls back to its hole and forgets you. The part that is
+  out kills, the look included. **Worms are afraid of camels**: with one near, a worm stays
+  under the sand, and one that is up ducks back down — so a camel's back is
+  the safe way over the sand.
+- **Landing on a camel always sticks.** Come down anywhere on its back, from
+  any height, and you stand on it; jump off whenever you like.
+- **Cacti**, two tiles tall, kill from any side, in any pose — there is no
+  crawling under a cactus and no jumping out of one.
+- A few **rocks** to climb and wall-jump off.
 
 ## Winning, and the score
 

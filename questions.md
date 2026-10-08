@@ -1530,3 +1530,94 @@ does. The earlier `CAT.upAlsoJumps` half-step is gone with Space.
 
 The one habit this punishes: tapping `↑` repeatedly while climbing leaps
 off the rope on the second tap. Holding is climbing; tapping is jumping.
+
+## The desert, level 6
+
+**After the volcano, as you asked**, so the volcano's portal -- the one the
+beetle guards -- leads out into the open, and the desert's portal ends the
+game. Your brief: camels to jump on that cannot kill you, mounds in the sand
+that long worms come out of, a few rocks, cacti that kill if you stand on
+them, no hedgehogs, and pyramids for a backdrop. Calls of mine inside that:
+
+- **A camel ambles, slowly, and carries you.** It stood still for an hour
+  at your word and then you wanted it walking again: 20px/s, turning at
+  walls and edges like a hedgehog, not pushable so the cat never shoves it,
+  and the rider carried by hand each frame. Its body is its back only, from
+  the hump tops down, so the cat stands on the humps rather than at the
+  height of the head. Drawn with long legs, two humps, a curved neck and a
+  dark muzzle; the worm got thinner at the same time.
+- **A camel turns two tiles short of a cactus**, at your word, so it never
+  carries you into one: the scene hands every camel the cactus rectangles as
+  fences, and `pace` turns at a fence like at a wall.
+- **The rider is carried by the camel's actual movement**, not its
+  velocity. The first version used the velocity, and you slid off the back
+  whenever the camel pressed against something and went nowhere.
+- **Landing on a camel had to be 100%, at your word**, and it was a coin
+  toss: Arcade's collision between the two moving bodies chose the sideways
+  push near the edges of the back, and the snap I added on top was undone
+  by Arcade itself, which moves the sprite by the body's fall *after* the
+  scene's update. So the cat has **no collider with a camel at all** now;
+  standing on one is geometry, every frame, before the cat's own step: over
+  the back, not rising, feet at the top or crossing it this frame means
+  standing on it, with the body snapped as well as the sprite. Measured 64
+  of 64 drops and every jump that reaches the back. A jump that falls short
+  of the back by a pixel still falls short; that is the jump, not the
+  landing.
+- **The worm is a Dune worm, at your word**: it hunts a cat that comes
+  near, lunges *at* it rather than straight up, surfaces anywhere along its
+  sand and dives in anywhere, and the ground shivers first. Then you made
+  the order concrete: up out of the hole without warning while the cat is
+  still at a distance, a look at it, back down, the crawl toward it with
+  the hole, and only close by the shake and the attack -- and the looking
+  about stays on the worm's own clock, at your word: *that* is the coming
+  up without warning, so a worm looks about every 1.8 to 3.6 seconds
+  whether or not anybody is there, and the hunt starts from the look that
+  finds you. My calls inside that: the look leans up to 25° toward the cat
+  and turns with it, 900ms up; the worm
+  forgets the cat once it is back home, so the next approach gets the look
+  again; a cat that drops in right beside the hole gets no look, only the
+  churn; it travels at 55px/s, slower than the cat runs, so it can be outrun
+  and only catches a cat that stops; it hunts within 150px and lunges within
+  48px, which is what a 44px lunge leaning 70° can actually reach; the
+  ruffle before the lunge is 550ms, sized so that a cat standing right on
+  top of the worm can see it, turn and run clear (50px at 190px/s is
+  265ms, and a player needs a moment to notice), and it lets the cat go if
+  it steps away; the sand ripples while the worm sneaks along under it; after a lunge there
+  is 1.1s under the sand before the next, which is the gap to run through;
+  its sand is the run of open floor either side of its mound, ended by a
+  rock, wall, cactus or drop, so it cannot follow you up a shelf or past a
+  cactus; a cat on a shelf above the sand is out of reach and not hunted;
+  and the peek stays, straight up and slower, as the warning that the sand
+  is lived in. A worm whose mound sits in a one-tile pocket can only peek
+  and lunge in place. The ripple is the mound sprite itself moving; a trail
+  of disturbed sand would look better and is not drawn yet.
+- **The ride is geometry, not the touching flags.** Those flicker every
+  other frame -- gravity drops the cat a hair, the collision lifts it back
+  -- and a rider carried on half the frames fell behind, reached the edge
+  of the back and was pushed off. Now: feet within a few pixels of the
+  back's top and over it, not rising, means riding, every frame, and the
+  feet are set on the back. Measured: the camel walks at 20px/s and turns at
+  its fences; over 400 frames with a turn in them the cat stayed on,
+  drifting a dozen pixels on a thirty-pixel back, then walked off the end
+  and jumped off at full height.
+- **A worm is a clock and a cropped picture**, not a body: hidden 1.8-3.6s,
+  up in a third of a second, tall for 1.1s, down in half a second; the part
+  that is out is what kills. The mound is drawn in front so it comes out of
+  the sand. It makes the rat's scurry as it surfaces.
+- **Cacti kill from any side**, two tiles tall, inset 4px from the tile's
+  edges, with none of the thorns' mercies: no crawling under, no jumping
+  out. "If you stand on it you are dead" -- and if you walk into it.
+- **Pyramids, not dunes.** Two ranks on parallax, lit from the right, with
+  courses of stone and a paler capstone; the forest's sun, whiter and
+  higher; the swamp's mist tinted sand as heat shimmer.
+- **The map is a first pass**, 108 tiles -- about the forest's 97 and the
+  volcano's 104, as you asked -- laid out by a script and frozen: flats
+  with low sand dunes, five sandstone shelves, four camels, six mounds -- three of
+  them in the first stretch -- six cacti, a checkpoint halfway. It is yours to reshape.
+
+## Worms are afraid of camels
+
+**Your rule, as said.** With a camel within 40px of its mound (`WORM.fearRange`)
+a hidden worm stays hidden, and one that is up sinks at once, taking as long
+to go down as it had come up. It gives the camel a job: its back is the safe
+way over the mounds, and walking the same ground on foot is the gamble.

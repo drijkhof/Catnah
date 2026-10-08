@@ -3,6 +3,7 @@ import type { ThemeName } from '../level/themes';
 import type { ParsedLevel } from '../level/Level';
 import { Backdrop } from './Backdrop';
 import { CaveBackdrop } from './CaveBackdrop';
+import { DesertBackdrop } from './DesertBackdrop';
 import { SwampBackdrop } from './SwampBackdrop';
 import { VolcanoBackdrop } from './VolcanoBackdrop';
 
@@ -32,6 +33,9 @@ export function createBackdrop(
       break;
     case 'volcano':
       new VolcanoBackdrop(scene, levelWidth, groundLine);
+      break;
+    case 'desert':
+      new DesertBackdrop(scene, levelWidth, groundLine);
       break;
     default:
       new Backdrop(scene, levelWidth, groundLine, level.waterZones);

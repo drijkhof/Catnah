@@ -1,7 +1,7 @@
 import type { TilePalette } from '../art/tiles';
 
 /** The places the game visits. */
-export type ThemeName = 'jungle' | 'forest' | 'swamp' | 'cave' | 'volcano';
+export type ThemeName = 'jungle' | 'forest' | 'swamp' | 'cave' | 'volcano' | 'desert';
 
 /**
  * One palette per place.
@@ -180,6 +180,39 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     nestStraw: 0x9a8f78,
     nestStrawLight: 0xc0b394,
     nestShadow: 0x4e4638,
+    lava: 0xe8622a,
+    lavaDeep: 0x8f2d10,
+    lavaBright: 0xffc44d,
+  },
+  // Sand, sandstone and a hard sky. Nothing grows but cactus, so the
+  // surface is `dust` -- here pale sand with the odd pebble -- over warm
+  // sandstone, and the rock is the same stone bleached by the sun.
+  desert: {
+    surfaceStyle: 'dust',
+    groundStyle: 'earth',
+    shade: 0x6a4a22,
+    columnStyle: 'rope',
+    platformStyle: 'shelf',
+    grass: 0xefd48f,
+    grassDark: 0xd4b166,
+    dirt: 0xd9b36a,
+    dirtDark: 0xb8924a,
+    rock: 0xc49a62,
+    rockDark: 0x8e6a3e,
+    rockLight: 0xe6c88e,
+    branch: 0xb08c58,
+    branchDark: 0x7e6038,
+    leaf: 0x4f8a3c,
+    leafLight: 0x8fc46a,
+    trunk: 0xa88450,
+    trunkDark: 0x74582e,
+    trunkLight: 0xcfae78,
+    water: 0x3fa6c8,
+    waterDeep: 0x2c7f9c,
+    waterFoam: 0xd6f1f8,
+    nestStraw: 0xd8c08a,
+    nestStrawLight: 0xeedcaa,
+    nestShadow: 0x8a6c3c,
     lava: 0xe8622a,
     lavaDeep: 0x8f2d10,
     lavaBright: 0xffc44d,

@@ -438,7 +438,7 @@ export const LAVA = {
 } as const;
 
 /** Things that pace the floor. */
-export type GroundEnemyKind = 'hedgehog' | 'rat';
+export type GroundEnemyKind = 'hedgehog' | 'rat' | 'camel';
 
 /**
  * A hedgehog ambles; a rat scurries. That is the whole difference, besides
@@ -447,7 +447,70 @@ export type GroundEnemyKind = 'hedgehog' | 'rat';
 export const GROUND_ENEMIES: Record<GroundEnemyKind, { speed: number }> = {
   hedgehog: { speed: 42 },
   rat: { speed: 78 },
+  // A camel ambles, slowly, hurts nobody, and the cat can stand on its back
+  // and be carried along.
+  camel: { speed: 20 },
 };
+
+/**
+ * The worms of the desert. Each lives under the sand with a mound for a
+ * hole, and now and then comes up out of it to **look about** -- without
+ * warning, on its own clock. A cat within `huntRange` when it looks is
+ * seen: it watches the cat, goes back down, and the hunt under the sand,
+ * the churn and the lunge follow. Touching the part that is out kills.
+ */
+export const WORM = {
+  /** How tall it stands for the look, px. */
+  height: 30,
+  /** How long it stays under between looks, ms, least and most. */
+  hiddenMinMs: 1800,
+  hiddenMaxMs: 3600,
+  /** The look: how long the rise, the looking about and the sink take, ms. */
+  riseMs: 320,
+  lookMs: 900,
+  sinkMs: 450,
+  /** How far it leans toward the cat while looking, degrees from upright. */
+  lookLean: 25,
+  /**
+   * Worms are afraid of camels: with one this near its mound, px, a worm
+   * stays under the sand, and one that is up goes down at once. Riding a
+   * camel is the safe way over the mounds.
+   */
+  fearRange: 40,
+  /**
+   * The lunge. A cat this near the mound, px, is prey: the worm comes out
+   * *at* it -- fast, further than it stands on its own, leaning toward the
+   * cat by up to `maxLean` degrees from upright and following it while it
+   * rises -- snaps, and sinks. Then it needs `lungeCooldownMs` under the
+   * sand before it can lunge again, which is the gap to run through.
+   */
+  senseRange: 48,
+  lungeHeight: 44,
+  lungeMs: 170,
+  snapMs: 260,
+  maxLean: 70,
+  lungeCooldownMs: 1100,
+  /**
+   * The hunt. A cat within `huntRange`, px, of a hidden worm is followed:
+   * the worm travels under the sand toward it at `travelSpeed`, px/s, its
+   * mound moving with it as the ripple, as far as the sand goes (see
+   * `Mound`). Slower than the cat runs, so it can be outrun; it closes on a
+   * cat that stops. Before a lunge the ground ruffles for `shiverMs`: the
+   * warning, sized so that a cat standing right on top of the worm, which
+   * is the worst case, can see it, turn and run clear of the lunge -- about
+   * 50px at the cat's 190px/s is 265ms, and a player needs a moment to see
+   * it first.
+   */
+  huntRange: 150,
+  travelSpeed: 55,
+  shiverMs: 550,
+} as const;
+
+/** A cactus: one tile wide, two tall, deadly to touch from any side. */
+export const CACTUS = {
+  /** The part that kills, inset from the tile's sides, px. */
+  inset: 4,
+} as const;
 
 /**
  * A rat is afraid of you, until it cannot be.
@@ -876,6 +939,20 @@ export const COLORS = {
 
   hedgehogBody: 0x8a6a4a,
   hedgehogSpine: 0x4a3524,
+
+  // The desert's own: a camel, a worm, a cactus, and the sand they stand in.
+  camelBody: 0xc9a062,
+  camelDark: 0x9c7a44,
+  camelLight: 0xe3c488,
+  wormBody: 0xb86a4a,
+  wormDark: 0x7d4430,
+  wormBelly: 0xe0a080,
+  wormMouth: 0x2a1410,
+  cactus: 0x4f8a3c,
+  cactusDark: 0x35612a,
+  cactusSpine: 0xe8e4c0,
+  sandMound: 0xd8b874,
+  sandMoundDark: 0xb8964e,
   hedgehogFace: 0xc9a582,
 
   piranhaBody: 0x4c6b58,

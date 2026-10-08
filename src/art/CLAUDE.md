@@ -19,7 +19,8 @@ binary assets but the portal picture and runs straight after clone.
   of rock is one boulder. Nothing about lava is drawn per tile any more.
 - `backdrops.ts` — cave, swamp and volcano scenery: stalactites, crystals,
   and the volcano's ridged mountains with lava running down them (`drawMountain`).
-- `creatures.ts` — hedgehog, piranha, crow.
+- `creatures.ts` — hedgehog, rat, piranha, crow, crocodile, spider, the beetle,
+  and the desert's camel, worm, mound and cactus.
 - `ui.ts` — the touch-button glyphs.
 - `portal.ts` — the way out of a level. The portal is a picture,
   `public/assets/portal.png`, the one real asset; `shadePortal` copies it to

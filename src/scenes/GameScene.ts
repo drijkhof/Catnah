@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { AWAKE_RANGE, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, WATER_DROP } from '../config';
+import { AWAKE_RANGE, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, WATER_DROP } from '../config';
 import { Controls, IdleControls, type PlayerInput } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -9,6 +9,7 @@ import { Crow } from '../objects/Crow';
 import { GroundEnemy } from '../objects/GroundEnemy';
 import { Piranha } from '../objects/Piranha';
 import { Spider } from '../objects/Spider';
+import { Worm } from '../objects/Worm';
 import { addGroundShade, bakeScenery, createBackdrop } from '../world';
 import { parseLevel, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
@@ -165,6 +166,10 @@ export class GameScene extends Phaser.Scene {
    * under the points -- see `touchingSomethingDeadly`.
    */
   private thornRects: Phaser.Geom.Rectangle[] = [];
+  /** Cacti: kill from any side, sneaking or not. */
+  private cactusRects: Phaser.Geom.Rectangle[] = [];
+  /** The desert's worms, each in its mound; what is out of the sand kills. */
+  private worms: Worm[] = [];
   private lava?: LavaLake;
 
   /** True from the moment the cat is killed until it is back on its feet. */
@@ -261,6 +266,8 @@ export class GameScene extends Phaser.Scene {
     const waterZones = this.buildWater();
     this.lavaRects = this.buildLava();
     this.thornRects = this.buildThorns();
+    this.cactusRects = this.buildCacti();
+    this.worms = this.level.mounds.map((mound, index) => new Worm(this, mound, index + 1));
     this.charms = this.buildCharms();
     this.checkpoints = this.buildCheckpoints();
     this.respawnPoint = { x: this.level.spawn.x, y: this.level.spawn.y };
@@ -542,6 +549,10 @@ export class GameScene extends Phaser.Scene {
     // are consistent for everything that runs this frame.
     this.controls.update();
 
+    // The camels' backs are floors, before the cat decides what it is doing
+    // this frame -- it has to see itself standing on one to jump from it.
+    this.rideCamels(delta);
+
     if (!this.dying && !this.leaving) {
       this.player.step(this.controls, delta);
     }
@@ -598,6 +609,10 @@ export class GameScene extends Phaser.Scene {
     // carry on whether or not anybody is looking. What the lava does *not* do
     // off screen is be heard -- that is handled where it spits.
     this.lava?.step(delta);
+    const camels = this.walkers.filter((walker) => walker.rideable);
+    for (const worm of this.worms) {
+      worm.step(delta, cat, camels);
+    }
 
     // A beetle that has fallen and gone is forgotten, and the way out opens.
     if (this.boss && !this.boss.active) {
@@ -680,6 +695,52 @@ export class GameScene extends Phaser.Scene {
   private overlapsBody(creature: Phaser.Physics.Arcade.Sprite, rect: Phaser.Geom.Rectangle): boolean {
     const body = creature.body as Phaser.Physics.Arcade.Body;
     return body.right > rect.x && body.x < rect.right && body.bottom > rect.y && body.y < rect.bottom;
+  }
+
+  /**
+   * Standing on a camel, by geometry rather than by physics.
+   *
+   * Arcade's collision between two moving bodies made landing on a camel a
+   * coin toss: it chose the sideways separation whenever the cat came down
+   * near the edge of the back, and after a snap it still dropped the cat
+   * through. So the camel has no collider with the cat at all. Each frame,
+   * a cat over the back that is not rising and whose feet are at the back
+   * -- or will cross it this frame -- is stood on it: feet on the top, fall
+   * stopped, carried by the camel's movement, and told it is on the ground
+   * so that it can jump from there. It runs before the cat's own step so
+   * the flag is seen the same frame.
+   */
+  private rideCamels(delta: number): void {
+    const cat = this.player.body;
+    const dt = delta / 1000;
+    for (const walker of this.walkers) {
+      if (!walker.rideable) {
+        continue;
+      }
+      const moved = walker.x - ((walker.getData('lastX') as number | undefined) ?? walker.x);
+      walker.setData('lastX', walker.x);
+      const back = walker.body;
+      const over = cat.right > back.x + 2 && cat.x < back.right - 2;
+      if (!over || cat.velocity.y < 0) {
+        continue;
+      }
+      const atBack = cat.bottom >= back.y - 3 && cat.bottom <= back.y + 6;
+      const crossing = cat.bottom <= back.y + 1 && cat.bottom + cat.velocity.y * dt >= back.y - 1;
+      if (atBack || crossing) {
+        this.player.x += moved;
+        // Sprite *and* body, and the body's frame delta zeroed: `update` runs
+        // between the physics step and Arcade's `postUpdate`, which moves the
+        // sprite by however far the body fell this frame -- so a sprite put
+        // on the back alone was carried below it again before it was drawn,
+        // and the cat fell through.
+        this.player.y = back.y;
+        cat.y = back.y - cat.height;
+        cat.prevFrame.y = cat.y;
+        this.player.setVelocityY(0);
+        cat.touching.down = true;
+        cat.touching.none = false;
+      }
+    }
   }
 
   /** Collects the rectangles of everything a sneaking cat can hide behind. */
@@ -894,6 +955,13 @@ export class GameScene extends Phaser.Scene {
     this.walkers = this.level.walkers.map(
       (at) => new GroundEnemy(this, at.x, at.y, at.kind),
     );
+    // A camel turns two tiles short of a cactus rather than carrying its
+    // rider into one.
+    for (const walker of this.walkers) {
+      if (walker.rideable) {
+        walker.setFences(this.cactusRects);
+      }
+    }
     this.piranhas = this.level.piranhas.map((at, index) => {
       // Each fish gets only the pool it lives in, never all the water.
       const pool = (this.level.pools[at.poolIndex] ?? []).map(
@@ -966,10 +1034,34 @@ export class GameScene extends Phaser.Scene {
     ];
 
     for (const creature of everything) {
+      if (creature instanceof GroundEnemy && creature.rideable) {
+        // A camel is stood on, not died on, and it is not a physics
+        // collision at all: Arcade's separation of two moving bodies made
+        // landing on it a coin toss, pushing the cat sideways or dropping it
+        // through the back. The back is geometry, handled by `rideCamels`
+        // every frame; the cat passes through the camel from the side.
+        continue;
+      }
       if (!this.titleMode) {
         this.physics.add.overlap(this.player, creature, () => this.kill());
       }
     }
+  }
+
+  /**
+   * Draws the cacti and returns the rectangles that kill: the trunk and
+   * arms, inset from the tile's sides, two tiles tall from the cell up.
+   * Unlike thorns there is no crawling under a cactus and no jumping out of
+   * one: touch it from any side, in any pose, and you are dead.
+   */
+  private buildCacti(): Phaser.Geom.Rectangle[] {
+    return this.level.cacti.map((cactus) => {
+      this.add
+        .image(cactus.x, cactus.y + TILE, 'cactus')
+        .setOrigin(0, 1)
+        .setDepth(-0.25);
+      return new Phaser.Geom.Rectangle(cactus.x + CACTUS.inset, cactus.y - TILE + 2, TILE - CACTUS.inset * 2, TILE * 2 - 2);
+    });
   }
 
   /**
@@ -1067,6 +1159,7 @@ export class GameScene extends Phaser.Scene {
       swamp: 'wind',
       cave: 'hush',
       volcano: 'rumble',
+      desert: 'wind',
     };
 
     sound.setAmbience(bed[theme] ?? 'none');
@@ -1114,8 +1207,15 @@ export class GameScene extends Phaser.Scene {
       body.bottom > zone.y &&
       body.y < zone.bottom;
 
-    if (this.lavaRects.some(inside)) {
+    if (this.lavaRects.some(inside) || this.cactusRects.some(inside)) {
       return true;
+    }
+
+    // A worm kills by the part of it that is out of the sand this frame.
+    for (const worm of this.worms) {
+      if (worm.touches(body)) {
+        return true;
+      }
     }
 
     // Velocity alone, not "airborne and rising": on the frame the jump is

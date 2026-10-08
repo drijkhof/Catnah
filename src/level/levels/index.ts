@@ -4,12 +4,14 @@ import { CAVE } from './cave';
 import { SWAMP } from './swamp';
 import { CANOPY } from './canopy';
 import { VOLCANO } from './volcano';
+import { DESERT } from './desert';
 
 /**
  * The levels, in the order they are played.
  *
- * The cave sits second to last, not second. It is the descent, and what it
- * descends into is the volcano -- so it has to be the thing you do immediately
- * before arriving there.
+ * The cave sits before the volcano, not second. It is the descent, and what
+ * it descends into is the volcano -- so it has to be the thing you do
+ * immediately before arriving there. The desert comes after the volcano: out
+ * the far side of the mountain into the open, with the beetle behind you.
  */
-export const LEVELS: LevelDefinition[] = [FOREST, CANOPY, SWAMP, CAVE, VOLCANO];
+export const LEVELS: LevelDefinition[] = [FOREST, CANOPY, SWAMP, CAVE, VOLCANO, DESERT];

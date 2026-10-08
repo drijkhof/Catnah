@@ -15,7 +15,7 @@ export { BUSH_SIZE, CANOPY_SIZE, CHECKPOINT_SIZE, FOG_HEIGHT, SUN_SIZE, TREE_SIZ
 export { BUTTON_SIZE, STICK_KNOB_SIZE, STICK_SIZE } from './ui';
 export { PORTAL_KEY, PORTAL_SOURCE_KEY, shadePortal } from './portal';
 export { POOL_FRAMES, POOL_HEADROOM, bakeLavaPool, groupLavaPools, type LavaPool } from './lava';
-export { CAVE_WALL_SIZE, DEAD_TREE_SIZE, MOUNTAIN_SIZES, SMOKE_SIZE, STALACTITE_SIZE, STALAGMITE_SIZE } from './backdrops';
+export { CAVE_WALL_SIZE, DEAD_TREE_SIZE, MOUNTAIN_SIZES, PYRAMID_SIZES, SMOKE_SIZE, STALACTITE_SIZE, STALAGMITE_SIZE } from './backdrops';
 export {
   BRANCH_LEAF_DROP,
   BRANCH_THICKNESS,
@@ -41,6 +41,10 @@ export {
 export type { TilePalette } from './tiles';
 export {
   BOSS_SIZE,
+  CACTUS_SIZE,
+  CAMEL_BACK,
+  MOUND_SIZE,
+  WORM_SIZE,
   bossKey,
   CROCODILE_SIZE,
   CROW_SIZE,

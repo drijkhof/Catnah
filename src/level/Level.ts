@@ -181,6 +181,13 @@ export interface ClimbZone extends Point {
   againstWall: boolean;
 }
 
+export interface Mound extends Point {
+  /** The left edge of the sand the worm can travel under, px. */
+  from: number;
+  /** The right edge of that sand, px. */
+  to: number;
+}
+
 export interface ParsedLevel {
   name: string;
   theme: ThemeName;
@@ -221,6 +228,15 @@ export interface ParsedLevel {
   charms: Point[];
   /** Thorn tiles. Deadly, and scenery otherwise -- nothing stands on them. */
   thorns: Point[];
+  /** Cactus tiles: two tiles tall from the cell up, deadly to touch from any side. */
+  cacti: Point[];
+  /**
+   * Mounds of sand a worm lives in, by the cell the mound sits on, with the
+   * run of sand the worm can travel under: every cell along that row, left
+   * and right of the mound, that is open with plain floor beneath it. The
+   * worm surfaces anywhere in `[from, to]` (pixels) and nowhere else.
+   */
+  mounds: Mound[];
   /**
    * Every `_` cell, including the buried ones that have no `Solid`. The
    * ground shade needs them all to know where the mass is; the scene fills
@@ -271,6 +287,8 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const nests: Point[] = [];
   const charms: Point[] = [];
   const thorns: Point[] = [];
+  const cacti: Point[] = [];
+  const mounds: Mound[] = [];
   const voids: Point[] = [];
   const checkpoints: Point[] = [];
   let spawn: Point | null = null;
@@ -478,6 +496,33 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           thorns.push({ x, y });
           break;
 
+        case 'Y':
+          cacti.push({ x, y });
+          break;
+
+        case 'u': {
+          // The worm's run: how far the sand goes either way along this row.
+          // Sand is an open cell on plain floor; a rock, a wall, a cactus or
+          // a drop ends it.
+          const sand = (c: number): boolean =>
+            !`${SOLID_LETTERS}Y`.includes(at(c, row)) && at(c, row + 1) === '#';
+          let left = column;
+          while (left > 0 && sand(left - 1)) {
+            left -= 1;
+          }
+          let right = column;
+          while (right < width - 1 && sand(right + 1)) {
+            right += 1;
+          }
+          mounds.push({ x, y, from: left * TILE, to: (right + 1) * TILE });
+          break;
+        }
+          break;
+
+        case 'k':
+          walkers.push({ x: x + TILE / 2, y: y + TILE, kind: 'camel' });
+          break;
+
         case '*':
           checkpoints.push({ x: x + TILE / 2, y: y + TILE / 2 });
           break;
@@ -579,6 +624,8 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     nests,
     charms,
     thorns,
+    cacti,
+    mounds,
     voids,
     checkpoints,
     extraLives,
@@ -639,7 +686,7 @@ function assertCreaturesHaveRoom(rows: string[], width: number, name: string): v
 
   rows.forEach((tiles, row) => {
     for (let column = 0; column < width; column += 1) {
-      if (!'hrfcX'.includes(tiles[column])) {
+      if (!'hrfcXk'.includes(tiles[column])) {
         continue;
       }
 
@@ -722,15 +769,19 @@ function assertCharmBudget(charms: Point[], name: string): void {
 function assertThornsStandOnGround(rows: string[], width: number, name: string): void {
   for (let row = 0; row < rows.length; row += 1) {
     for (let column = 0; column < width; column += 1) {
-      if ((rows[row]?.[column] ?? '.') !== '^') {
+      const tile = rows[row]?.[column] ?? '.';
+      if (!'^Yu'.includes(tile)) {
         continue;
       }
 
       const below = rows[row + 1]?.[column] ?? '.';
 
-      if (!`${SOLID_LETTERS}A=`.includes(below)) {
+      // Thorns and cacti stand on anything solid; a worm's mound only on
+      // plain floor, since the worm comes up out of the ground.
+      const allowed = tile === 'u' ? '#' : `${SOLID_LETTERS}A=`;
+      if (!allowed.includes(below)) {
         throw new Error(
-          `${name}: the thorns at ${column},${row} stand on nothing (found '${below}').`,
+          `${name}: the '${tile}' at ${column},${row} stands on nothing (found '${below}').`,
         );
       }
     }
@@ -760,7 +811,7 @@ function assertWalkersStandOnGround(rows: string[], width: number, name: string)
 
   rows.forEach((tiles, row) => {
     for (let column = 0; column < width; column += 1) {
-      if (!'hr'.includes(tiles[column])) {
+      if (!'hrk'.includes(tiles[column])) {
         continue;
       }
 

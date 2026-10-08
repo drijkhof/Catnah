@@ -32,6 +32,9 @@ its platforms must attach to a column. Everything else is derived.
 | `+` | spare heart, on its own — no nest, no ledge. Write one directly above a row of `N` for a heart sitting in a nest |
 | `W` | water with a spare heart floating in it — use this instead of `+` inside a pool, or it punches a hole in the water |
 | `h` | hedgehog, `r` rat — walkers, only ever on plain `#` floor |
+| `k` | camel — ambles on plain `#` floor, harmless: the cat jumps on its back and rides |
+| `u` | a mound of sand with a worm in it, on plain `#` floor. The worm shows itself only for a cat: it comes up to look at one that comes near, then hunts it — travels under the sand along this row, mound and all, as far as the sand goes (open cells on plain `#` either side; a rock, wall, cactus or drop ends the run — `Mound.from`/`to`), and lunges out at the cat. The part that is out kills. A `u` in a one-tile pocket is a worm that can only peek and lunge where it is |
+| `Y` | cactus — two tiles tall from its cell up, deadly to touch from any side, sneaking or not; needs something solid under it |
 | `f` | piranha — water *with* a fish in it |
 | `c` | crow |
 | `^` | thorns — deadly to touch, and needs something solid directly under it |
