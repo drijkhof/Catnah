@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import type { CrispText } from '../text';
 
 /**
  * Puts the evil lord beetle back, spots and all, and the cat back at its
@@ -12,13 +13,13 @@ import Phaser from 'phaser';
  */
 export function installBossRespawn(
   scene: Phaser.Scene & { respawnBoss(): void },
-  label: Phaser.GameObjects.Text,
+  label: CrispText,
 ): void {
   // Harmless if the other shortcuts have already done this.
-  label.setInteractive({ useHandCursor: true });
+  label.setInteractive();
 
-  label.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-    if ((pointer.event as MouseEvent).shiftKey) {
+  label.on('pointerdown', (event: PointerEvent) => {
+    if (event.shiftKey) {
       scene.respawnBoss();
     }
   });

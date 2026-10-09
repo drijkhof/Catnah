@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH, SCORE } from '../config';
 import { formatClock, scoreMs } from '../score';
 import { stats } from '../stats';
+import { crispText, type CrispText } from '../text';
 
 /**
  * How long the screen holds before it will take an input, ms.
@@ -62,28 +63,34 @@ export class VictoryScene extends Phaser.Scene {
       .setOrigin(0, 0)
       .setDepth(3000);
     this.tweens.add({ targets: black, alpha: 0, duration: 650, onComplete: () => black.destroy() });
+    // The words are HTML above the black, so they fade up with it by hand.
+    const fadeUp = (text: CrispText, to: number): CrispText => {
+      text.setAlpha(0);
+      this.tweens.add({ targets: text, alpha: to, duration: 650 });
+      return text;
+    };
 
-    const title = this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.36, 'You actually won!', {
+    const title = fadeUp(crispText(
+      this, GAME_WIDTH / 2, GAME_HEIGHT * 0.36, 'You actually won!', {
         fontFamily: 'monospace',
         fontSize: `${Math.round(GAME_WIDTH * 0.075)}px`,
         color: '#ffc44d',
         stroke: '#3a2a05',
         strokeThickness: 6,
       })
-      .setOrigin(0.5);
+      .setOrigin(0.5), 1);
 
     const time = formatClock(scoreMs(this.elapsedMs, this.deaths));
 
-    this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.56, `Time  ${time}`, {
+    fadeUp(crispText(
+      this, GAME_WIDTH / 2, GAME_HEIGHT * 0.56, `Time  ${time}`, {
         fontFamily: 'monospace',
         fontSize: `${Math.round(GAME_WIDTH * 0.045)}px`,
         color: '#ffffff',
         stroke: '#1d2a18',
         strokeThickness: 4,
       })
-      .setOrigin(0.5);
+      .setOrigin(0.5), 1);
 
     // How often you died, said plainly, with what it cost.
     const penalty = formatClock(this.deaths * SCORE.deathPenaltyMs);
@@ -93,8 +100,8 @@ export class VictoryScene extends Phaser.Scene {
         : this.deaths === 1
           ? `died once (+${penalty})`
           : `died ${this.deaths} times (+${penalty})`;
-    this.add
-      .text(
+    fadeUp(crispText(
+      this,
         GAME_WIDTH / 2,
         GAME_HEIGHT * 0.66,
         `${formatClock(this.elapsedMs)} played  ·  ${died}`,
@@ -104,8 +111,7 @@ export class VictoryScene extends Phaser.Scene {
           color: '#b9b9b9',
         },
       )
-      .setOrigin(0.5)
-      .setAlpha(0.9);
+      .setOrigin(0.5), 0.9);
 
     // The records, written before they are read: a first win sets both.
     const record = stats.recordWin(scoreMs(this.elapsedMs, this.deaths), this.deaths);
@@ -119,19 +125,18 @@ export class VictoryScene extends Phaser.Scene {
             ? 'New record: fewest deaths!'
             : `Best  ${formatClock(best.bestMs ?? 0)}  ·  fewest deaths  ${best.fewestDeaths ?? 0}`;
     const isRecord = record.fastest || record.fewestDeaths;
-    this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.75, records, {
+    fadeUp(crispText(
+      this, GAME_WIDTH / 2, GAME_HEIGHT * 0.75, records, {
         fontFamily: 'monospace',
         fontSize: `${Math.round(GAME_WIDTH * (isRecord ? 0.03 : 0.024))}px`,
         color: isRecord ? '#ffc44d' : '#b9b9b9',
         stroke: isRecord ? '#3a2a05' : undefined,
         strokeThickness: isRecord ? 3 : 0,
       })
-      .setOrigin(0.5)
-      .setAlpha(0.95);
+      .setOrigin(0.5), 0.95);
 
-    const hint = this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.88, 'Press any key', {
+    const hint = crispText(
+      this, GAME_WIDTH / 2, GAME_HEIGHT * 0.88, 'Press any key', {
         fontFamily: 'monospace',
         fontSize: `${Math.round(GAME_WIDTH * 0.026)}px`,
         color: '#ffffff',

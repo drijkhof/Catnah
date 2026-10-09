@@ -1552,6 +1552,20 @@ them, no hedgehogs, and pyramids for a backdrop. Calls of mine inside that:
 - **The rider is carried by the camel's actual movement**, not its
   velocity. The first version used the velocity, and you slid off the back
   whenever the camel pressed against something and went nowhere.
+- **All text crisp, at your word.** The canvas is 640×360 (less on a
+  phone) stretched to the screen, so any word drawn on it is upscaled in
+  blocks like the sprites. Rather than render the world at device
+  resolution -- which would touch every camera, HUD and touch-zone
+  calculation -- text moved off the canvas into Phaser's DOM layer: one
+  `<div>` per text, kept over the canvas by the Scale Manager, drawn by the
+  browser. Same font families and sizes as before, so nothing moved; the
+  canvas stroke became a CSS text-stroke painted under the fill. Two
+  consequences handled: the layer is above every canvas fade, so the level
+  name and the victory words fade by hand alongside; and the words take no
+  pointer events unless made interactive, or they would steal touches from
+  the stick. The dev shortcuts on the level name now get native pointer
+  events. The monospace family stays; a nicer face is now a one-line
+  change, if you want one.
 - **Records and totals, at your word**: fastest time and fewest deaths as
   the records, and played time, little hearts, big hearts and deaths as
   the totals. Calls of mine: records come only from a *won* run, because a

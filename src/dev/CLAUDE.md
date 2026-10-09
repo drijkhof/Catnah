@@ -1,5 +1,10 @@
 # Dev
 
+The level name the shortcuts hang off is HTML (`CrispText`, see `src/text.ts`),
+so the handlers get the browser's own `PointerEvent` -- `event.altKey`,
+`event.metaKey`, `event.shiftKey` directly -- and the release events are
+`pointerup` and `pointerleave`, not Phaser's pointer and `pointerout`.
+
 Development-only code. None of it ships: every entry point is behind
 `import.meta.hot` or `import.meta.env.DEV`, both of which Vite resolves away in
 a production build.

@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import type { CrispText } from '../text';
 
 /**
  * Cmd-click the level name to skip forward a level, Ctrl-click to go back one.
@@ -16,17 +17,16 @@ import Phaser from 'phaser';
  */
 export function installLevelSkip(
   scene: Phaser.Scene,
-  label: Phaser.GameObjects.Text,
+  label: CrispText,
   index: number,
   count: number,
 ): void {
   // Otherwise Ctrl-click opens the browser's own menu on a Mac.
   scene.input.mouse?.disableContextMenu();
 
-  label.setInteractive({ useHandCursor: true });
+  label.setInteractive();
 
-  label.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-    const event = pointer.event as MouseEvent;
+  label.on('pointerdown', (event: PointerEvent) => {
     const step = event.metaKey ? 1 : event.ctrlKey ? -1 : 0;
 
     if (step === 0) {

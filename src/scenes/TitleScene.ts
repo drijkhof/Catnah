@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH, LIVES, TILE } from '../config';
 import { formatClock } from '../score';
 import { formatPlayed, stats } from '../stats';
+import { crispText } from '../text';
 import { sound } from '../audio/Sound';
 
 /**
@@ -48,8 +49,8 @@ export class TitleScene extends Phaser.Scene {
     const titleSize = Math.round(Math.min(GAME_WIDTH * 0.09, room * 0.45));
     const titleY = Math.round(titleSize * 0.7 + 6);
 
-    const title = this.add
-      .text(GAME_WIDTH / 2, titleY, 'Catnah', {
+    const title = crispText(
+      this,GAME_WIDTH / 2, titleY, 'Catnah', {
         fontFamily: 'monospace',
         fontSize: `${titleSize}px`,
         color: '#ffffff',
@@ -68,8 +69,8 @@ export class TitleScene extends Phaser.Scene {
       repeat: -1,
     });
 
-    this.add
-      .text(GAME_WIDTH / 2, titleY + Math.round(titleSize * 0.5) + 8, 'A Hannah Milatovic Rijkhof Game', {
+    crispText(
+      this,GAME_WIDTH / 2, titleY + Math.round(titleSize * 0.5) + 8, 'A Hannah Milatovic Rijkhof Game', {
         fontFamily: 'monospace',
         fontSize: `${Math.round(GAME_WIDTH * 0.022)}px`,
         color: '#ffffff',
@@ -82,8 +83,8 @@ export class TitleScene extends Phaser.Scene {
 
     // Bottom right, small and quiet: there for telling one build from another
     // when something is reported, not for reading.
-    this.add
-      .text(GAME_WIDTH - 4, GAME_HEIGHT - 3, __APP_VERSION__, {
+    crispText(
+      this,GAME_WIDTH - 4, GAME_HEIGHT - 3, __APP_VERSION__, {
         fontFamily: 'monospace',
         fontSize: `${Math.round(GAME_WIDTH * 0.018)}px`,
         color: '#ffffff',
@@ -115,10 +116,13 @@ export class TitleScene extends Phaser.Scene {
       const labelSize = Math.round(GAME_WIDTH * 0.017);
       const valueSize = Math.round(GAME_WIDTH * 0.024);
       const right = GAME_WIDTH - 8;
-      let y = Math.round(GAME_HEIGHT * 0.16);
+      // Centred on the screen's height: the column's full height worked out
+      // first, from the two headings and the six rows it is made of.
+      const columnHeight = 2 * (labelSize + 4) + 4 + rows.length * (labelSize + 1 + valueSize + 6);
+      let y = Math.round((GAME_HEIGHT - columnHeight) / 2);
       const heading = (text: string): void => {
-        this.add
-          .text(right, y, text, {
+        crispText(
+          this, right, y, text, {
             fontFamily: 'monospace',
             fontSize: `${labelSize}px`,
             color: '#ffc44d',
@@ -135,8 +139,8 @@ export class TitleScene extends Phaser.Scene {
           y += 4;
           heading('All time');
         }
-        const name = this.add
-          .text(right, y, label, {
+        const name = crispText(
+          this, right, y, label, {
             fontFamily: 'monospace',
             fontSize: `${labelSize}px`,
             color: '#ffe9b0',
@@ -155,8 +159,8 @@ export class TitleScene extends Phaser.Scene {
             .setDepth(1000);
         }
         y += labelSize + 1;
-        this.add
-          .text(right, y, value, {
+        crispText(
+          this, right, y, value, {
             fontFamily: 'monospace',
             fontSize: `${valueSize}px`,
             color: '#ffffff',
@@ -171,8 +175,8 @@ export class TitleScene extends Phaser.Scene {
 
     const prompt = this.game.device.input.touch ? 'Tap to start' : 'Press any key to start';
 
-    const hint = this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.62, prompt, {
+    const hint = crispText(
+      this,GAME_WIDTH / 2, GAME_HEIGHT * 0.62, prompt, {
         fontFamily: 'monospace',
         fontSize: `${Math.round(GAME_WIDTH * 0.026)}px`,
         color: '#ffffff',

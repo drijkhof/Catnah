@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { crispText } from '../text';
 import { GAME_HEIGHT, GAME_WIDTH } from '../config';
 
 /**
@@ -37,8 +38,8 @@ export class GameOverScene extends Phaser.Scene {
 
     this.cameras.main.setBackgroundColor('rgba(0,0,0,0)');
 
-    const text = this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'Game Over', {
+    const text = crispText(
+      this,GAME_WIDTH / 2, GAME_HEIGHT / 2, 'Game Over', {
         fontFamily: 'monospace',
         fontSize: `${Math.round(GAME_WIDTH * 0.09)}px`,
         color: '#e0202a',

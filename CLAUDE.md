@@ -134,6 +134,14 @@ inline in a scene. If you find yourself typing a number twice, it goes there.
 **Never branch on device type in gameplay code.** Ask `Controls` what the
 player wants; it merges keyboard and touch. See `input/CLAUDE.md`.
 
+**Text is HTML, never canvas text.** `crispText(scene, x, y, text, style)`
+from `src/text.ts`, not `this.add.text`: the canvas is a few hundred pixels
+stretched to the screen, and a word drawn on it is as blocky as the cat. The
+DOM layer sits above the canvas, so text ignores canvas fades -- a screen
+that fades, fades its text's alpha alongside -- and catches no pointer
+events unless `setInteractive()` is called, or it would steal touches from
+the stick. See `src/text.ts`.
+
 **Art is referred to by texture key, never by colour or shape.** Every texture
 is drawn in code in `src/art` and swapped for real art by loading a file under
 the same key. See `art/CLAUDE.md`.

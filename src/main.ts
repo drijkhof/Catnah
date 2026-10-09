@@ -21,6 +21,10 @@ function createGame(carried?: GameSnapshot): Phaser.Game {
     // `image-rendering` rule) if the game moves to high-resolution art.
     pixelArt: true,
 
+    // Text is HTML over the canvas (`src/text.ts`), so it is crisp on any
+    // screen while the canvas stays pixel art.
+    dom: { createContainer: true },
+
     scale: {
       // FIT letterboxes the fixed 640x360 canvas into whatever viewport it gets,
       // which is what lets one build serve both a laptop window and a phone in

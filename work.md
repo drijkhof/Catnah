@@ -566,6 +566,13 @@ A column of cactus cells in the map is one tall cactus, drawn as one with an
 arm every so often, and deadly along its whole height — the desert has a
 three-high one.
 
+## Text is crisp
+
+Every word in the game — the HUD, the title, the scores, the notes that pop
+up — is drawn by the browser at the screen's own resolution, not on the
+game's canvas, so it is sharp on any phone or laptop while the cat and the
+trees stay pixel art.
+
 ## Records and totals
 
 The game remembers, on the device it is played on, what has been played

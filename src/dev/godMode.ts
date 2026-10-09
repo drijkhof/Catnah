@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { crispText, type CrispText } from '../text';
 
 /**
  * God mode: you still hear and feel every hit, you simply do not lose anything.
@@ -40,9 +41,9 @@ export function isGodMode(scene: Phaser.Scene): boolean {
  *
  * @param label The level name in the HUD, which becomes the target.
  */
-export function installGodMode(scene: Phaser.Scene, label: Phaser.GameObjects.Text): void {
+export function installGodMode(scene: Phaser.Scene, label: CrispText): void {
   // Harmless if the level-skip shortcut has already done this.
-  label.setInteractive({ useHandCursor: true });
+  label.setInteractive();
 
   paint(scene, label);
 
@@ -53,8 +54,10 @@ export function installGodMode(scene: Phaser.Scene, label: Phaser.GameObjects.Te
     held = undefined;
   };
 
-  label.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-    if ((pointer.event as MouseEvent).altKey) {
+  // The label is HTML (see `text.ts`), so these are the browser's own
+  // pointer events, with the modifier keys on them directly.
+  label.on('pointerdown', (event: PointerEvent) => {
+    if (event.altKey) {
       toggle(scene, label);
       return;
     }
@@ -67,11 +70,11 @@ export function installGodMode(scene: Phaser.Scene, label: Phaser.GameObjects.Te
   });
 
   label.on('pointerup', stopHolding);
-  label.on('pointerout', stopHolding);
+  label.on('pointerleave', stopHolding);
   scene.events.once(Phaser.Scenes.Events.SHUTDOWN, stopHolding);
 }
 
-function toggle(scene: Phaser.Scene, label: Phaser.GameObjects.Text): void {
+function toggle(scene: Phaser.Scene, label: CrispText): void {
   const now = !isGodMode(scene);
 
   scene.registry.set(KEY, now);
@@ -80,16 +83,16 @@ function toggle(scene: Phaser.Scene, label: Phaser.GameObjects.Text): void {
 }
 
 /** The level name is gold while it is on, so it is never on without you knowing. */
-function paint(scene: Phaser.Scene, label: Phaser.GameObjects.Text): void {
+function paint(scene: Phaser.Scene, label: CrispText): void {
   const on = isGodMode(scene);
 
   label.setColor(on ? '#ffd34d' : '#ffffff');
   label.setAlpha(on ? 1 : 0.75);
 }
 
-function announce(scene: Phaser.Scene, label: Phaser.GameObjects.Text, text: string): void {
-  const note = scene.add
-    .text(label.x, label.y + 12, text, {
+function announce(scene: Phaser.Scene, label: CrispText, text: string): void {
+  const note = crispText(
+    scene,label.x, label.y + 12, text, {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#ffd34d',

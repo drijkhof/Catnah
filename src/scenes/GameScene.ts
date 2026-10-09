@@ -23,6 +23,7 @@ import { sound, type Ambience, type SoundMode } from '../audio/Sound';
 import { SNAPSHOT_KEY, type GameSnapshot } from '../dev/hot';
 import { formatClock, scoreMs } from '../score';
 import { stats } from '../stats';
+import { crispText, type CrispText } from '../text';
 
 /**
  * Whether something falling should be stopped by a branch this frame.
@@ -60,10 +61,13 @@ export class GameScene extends Phaser.Scene {
   private controls!: PlayerInput & { update(): void };
   private player!: Player;
   private level!: ParsedLevel;
-  private scoreText!: Phaser.GameObjects.Text;
+  private scoreText!: CrispText;
 
   /** The running score in the HUD: the clock plus the deaths, as one time. */
-  private clockText?: Phaser.GameObjects.Text;
+  private clockText?: CrispText;
+
+  /** The level name in the HUD. HTML, so it is faded by hand with the level. */
+  private levelName?: CrispText;
   private charms!: Phaser.Physics.Arcade.StaticGroup;
   /**
    * Little hearts collected **this run**, not this level.
@@ -372,6 +376,11 @@ export class GameScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(EXIT.fadeDepth)
       .setAlpha(from);
+    // Text is HTML above the canvas, so the black cannot cover the level
+    // name: it is faded alongside, to where the black leaves it.
+    if (this.levelName) {
+      this.tweens.add({ targets: this.levelName, alpha: (1 - to) * 0.75, duration });
+    }
     this.tweens.add({
       targets: black,
       alpha: to,
@@ -1326,8 +1335,8 @@ export class GameScene extends Phaser.Scene {
     this.announce67();
 
     // The clock jumps a minute at once, and flushes red so the jump is seen.
-    this.clockText?.setTint(0xff6b6b);
-    this.time.delayedCall(650, () => this.clockText?.clearTint());
+    this.clockText?.setColor('#ff6b6b');
+    this.time.delayedCall(650, () => this.clockText?.setColor('#ffffff'));
 
     this.time.delayedCall(650, () => {
       // A hot reload that lands while this is pending destroys the scene this
@@ -2668,8 +2677,8 @@ export class GameScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(1000);
 
-    const levelName = this.add
-      .text(TILE + 10, TILE + 9, this.level.name, {
+    const levelName = crispText(
+      this,TILE + 10, TILE + 9, this.level.name, {
         fontFamily: 'monospace',
         fontSize: '10px',
         color: '#ffffff',
@@ -2688,6 +2697,9 @@ export class GameScene extends Phaser.Scene {
 
       // A development cheat, same reasoning. See `dev/godMode.ts`.
       installGodMode(this, levelName);
+    }
+    this.levelName = levelName;
+    if (import.meta.env.DEV) {
 
       // Puts the beetle back. See `dev/bossRespawn.ts`.
       installBossRespawn(this, levelName);
@@ -2696,8 +2708,8 @@ export class GameScene extends Phaser.Scene {
     this.refreshLives();
     this.buildMuteButton();
 
-    this.scoreText = this.add
-      .text(GAME_WIDTH - TILE - 26, TILE * 2 - 4, this.formatScore(), {
+    this.scoreText = crispText(
+      this,GAME_WIDTH - TILE - 26, TILE * 2 - 4, this.formatScore(), {
         fontFamily: 'monospace',
         fontSize: '14px',
         color: '#ffffff',
@@ -2711,8 +2723,8 @@ export class GameScene extends Phaser.Scene {
 
     // The score, top left, running: the clock plus a minute per death. A
     // death makes it jump by a minute, which is the point of showing it.
-    this.clockText = this.add
-      .text(TILE + 10, TILE - 7, formatClock(scoreMs(this.elapsedMs, this.deaths)), {
+    this.clockText = crispText(
+      this,TILE + 10, TILE - 7, formatClock(scoreMs(this.elapsedMs, this.deaths)), {
         fontFamily: 'monospace',
         fontSize: '14px',
         color: '#ffffff',
@@ -2880,8 +2892,8 @@ export class GameScene extends Phaser.Scene {
    * for one second is nothing for something this short-lived and this rare.
    */
   private announceBonus(text: string): void {
-    const note = this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2, text, {
+    const note = crispText(
+      this,GAME_WIDTH / 2, GAME_HEIGHT / 2, text, {
         fontFamily: 'monospace',
         fontSize: '10px',
         color: '#ffd34d',
