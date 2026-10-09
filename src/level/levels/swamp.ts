@@ -1,7 +1,7 @@
 import type { LevelDefinition } from '../Level';
 
 /**
- * Level 3: the swamp. 248 tiles, and all of it is one question: how do you get
+ * Level 5: the swamp. 248 tiles, and all of it is one question: how do you get
  * over the water?
  *
  * **Eight crossings**, alternating, with a bank between each pair to stand on

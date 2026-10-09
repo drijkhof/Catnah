@@ -1,7 +1,7 @@
 import type { LevelDefinition } from '../Level';
 
 /**
- * Level 1: a sunlit forest. 90 tiles.
+ * Level 3: a sunlit forest. 90 tiles.
  *
  * Every branch grows from a trunk here and `branchesNeedTrunks` holds the
  * parser to it. The later levels have no trees, so their ledges stand on their

@@ -10,10 +10,10 @@ import { BEACH } from './beach';
 /**
  * The levels, in the order they are played.
  *
- * The cave sits before the volcano, not second. It is the descent, and what
- * it descends into is the volcano -- so it has to be the thing you do
- * immediately before arriving there. The desert comes after the volcano: out
- * the far side of the mountain into the open, with the beetle behind you.
- * The beach is where the desert runs out: sand into sea.
+ * It starts at the sea and ends in the fire. The beach first, then the
+ * desert behind it, then the forest and the canopy, the swamp, and the cave
+ * -- which sits immediately before the volcano because it is the descent,
+ * and what it descends into is the volcano. The volcano is last: its portal
+ * only appears once the beetle is dead, so the beetle is the end of the game.
  */
-export const LEVELS: LevelDefinition[] = [FOREST, CANOPY, SWAMP, CAVE, VOLCANO, DESERT, BEACH];
+export const LEVELS: LevelDefinition[] = [BEACH, DESERT, FOREST, CANOPY, SWAMP, CAVE, VOLCANO];

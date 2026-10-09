@@ -1552,7 +1552,12 @@ them, no hedgehogs, and pyramids for a backdrop. Calls of mine inside that:
 - **The rider is carried by the camel's actual movement**, not its
   velocity. The first version used the velocity, and you slid off the back
   whenever the camel pressed against something and went nowhere.
-- **The beach, level 7, at your word**: sea behind, sand underfoot, the map
+- **The order of the levels is yours**: beach first, desert second, then
+  the forest through to the volcano -- which makes the beetle the end of
+  the game, since the volcano's portal is the one that leads to the victory
+  screen now. The level headers and `work.md` are renumbered to match; the
+  level files themselves did not move.
+- **The beach, level 1 now, at your word**: sea behind, sand underfoot, the map
   kept to one example of each thing. Calls of mine: the crab is the
   hedgehog's letter and the gull the crow's, decided by the place (the
   parser maps `h` by theme; the level definition says `crowBehaviour:

@@ -485,17 +485,18 @@ level: what they lost was the reason to walk through them. The cave is the one
 exception, and it was never stretched — it is long because it was designed long,
 as a descent.
 
-## The five levels
+## The seven levels
 
-**Forest, canopy, swamp, cave, volcano, desert, beach.** Each one starts at
-one end and ends at a **portal**, which takes you to the next; the volcano's
-portal — which only appears once the beetle is dead — leads out into the
-desert, the desert runs out into the beach, and the beach's portal ends the
-game. Little hearts are optional everywhere.
+**Beach, desert, forest, canopy, swamp, cave, volcano.** It starts at the sea
+and ends in the fire. Each level starts at one end and ends at a **portal**,
+which takes you to the next: the beach runs out into the desert, the desert
+into the forest, the cave is the descent into the volcano, and the volcano's
+portal — which only appears once the beetle is dead — ends the game, so the
+beetle is the finale. Little hearts are optional everywhere.
 
-### 6 — Desert
+### 2 — Desert
 
-Out the far side of the mountain into the open: sand and sandstone under a
+Up from the beach into the open: sand and sandstone under a
 white sun, pyramids on the skyline, heat shimmering along their feet. Flat
 going, mostly, with low dunes of stacked sand to climb and a few sandstone
 shelves to jump between. Nothing here hunts you, and nothing walks the sand
@@ -528,9 +529,9 @@ along, slowly, as it ambles. What kills is standing still in the wrong place:
   crawling under a cactus and no jumping out of one.
 - A few **rocks** to climb and wall-jump off.
 
-### 7 — Beach
+### 1 — Beach
 
-Where the desert runs out: a strip of pale sand with the sea behind it,
+Where the game begins: a strip of pale sand with the sea behind it,
 swells far out with a couple of sailboats slipping across them, lighter water
 nearer in, and foam creeping up the sand just behind where you walk. The map is **nearly empty for now** — one of each
 thing the beach has, so each can be looked at on its own:
@@ -614,14 +615,14 @@ game.
 
 
 
-### 1 — Forest
+### 3 — Forest
 
 90 tiles. Every branch grows from a trunk here, and the parser holds the level
 to it. Trees to climb by their branches, boulders to wall-jump between, a pool
 with a piranha in it, hedgehogs on the floor, and near the end **the great
 tree** — with the crow's nest at the top of it and the spare heart in the nest.
 
-### 2 — Swamp
+### 5 — Swamp
 
 By far the longest level — 248 tiles, three times any other — and all of it is
 one question: how do you get over the water? Overcast sky going brown at the
@@ -664,7 +665,7 @@ The lianas here are five tiles long, hang low over the water and **hang from
 nothing**. That is on purpose: all you can do with one is cross, there is no
 climbing up out of the level on them, and the swamp has sky overhead rather than
 a roof.
-### 3 — Canopy
+### 4 — Canopy
 
 78 tiles and one idea all the way through: **jumping off a liana onto a platform
 out of its reach**. The lianas hang from the roof rather than standing on the
@@ -675,7 +676,7 @@ does not involve letting go in mid-air.
 In the middle, **five lianas hang side by side**: holding on is not pinned to
 one rope, so that stretch is crossed sideways as much as it is climbed.
 
-### 4 — Cave
+### 6 — Cave
 
 **Long, and all the way down.** 240 tiles end to end like everywhere else, but
 the way out is forty rows lower than the way in, so the level reads as a descent
@@ -704,7 +705,7 @@ chamber with the **spare heart** in it — and hanging over the doorway, a spide
 ceiling like the rest of them and drops like the rest of them, slowly, and there
 is no getting past it except by timing it.
 
-### 5 — Volcano
+### 7 — Volcano
 
 The floor is a **lava lake** and only the islands are safe, so the level reads
 as somewhere not to land rather than somewhere to walk. Chains hang over the

@@ -1,7 +1,7 @@
 import type { LevelDefinition } from '../Level';
 
 /**
- * Level 5: the cave, and the way down to the volcano. 240 tiles.
+ * Level 6: the cave, and the way down to the volcano. 240 tiles.
  *
  * **Long, and all the way down.** The way out is forty rows lower than the way
  * in, so the level reads as a descent rather than as a walk without ever being

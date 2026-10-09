@@ -1,7 +1,7 @@
 import type { LevelDefinition } from '../Level';
 
 /**
- * Level 6: the volcano. 104 tiles.
+ * Level 7, the last: the volcano. 104 tiles.
  *
  * The floor is a lava lake and only the islands are safe, so most of the level
  * reads as somewhere not to land rather than somewhere to walk. Chains hang
