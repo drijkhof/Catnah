@@ -1,7 +1,7 @@
 import type { TilePalette } from '../art/tiles';
 
 /** The places the game visits. */
-export type ThemeName = 'jungle' | 'forest' | 'swamp' | 'cave' | 'volcano' | 'desert';
+export type ThemeName = 'jungle' | 'forest' | 'swamp' | 'cave' | 'volcano' | 'desert' | 'beach';
 
 /**
  * One palette per place.
@@ -210,6 +210,41 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     water: 0x3fa6c8,
     waterDeep: 0x2c7f9c,
     waterFoam: 0xd6f1f8,
+    nestStraw: 0xd8c08a,
+    nestStrawLight: 0xeedcaa,
+    nestShadow: 0x8a6c3c,
+    lava: 0xe8622a,
+    lavaDeep: 0x8f2d10,
+    lavaBright: 0xffc44d,
+  },
+  // The beach: pale sand underfoot, the sea behind. Its columns are palms,
+  // whole trunks with a crown of fronds on top, and climbable; its rocks
+  // are sand castles, block by block, with flags on the towers.
+  beach: {
+    surfaceStyle: 'dust',
+    groundStyle: 'earth',
+    shade: 0x8a7a55,
+    columnStyle: 'trunk',
+    crownStyle: 'palm',
+    rockStyle: 'sand',
+    platformStyle: 'shelf',
+    grass: 0xf6e7b4,
+    grassDark: 0xdcc78a,
+    dirt: 0xe8d194,
+    dirtDark: 0xc9ad6e,
+    rock: 0xdcbf7e,
+    rockDark: 0xa8894f,
+    rockLight: 0xf1dca4,
+    branch: 0xb59a6e,
+    branchDark: 0x7d6747,
+    leaf: 0x3f9a4a,
+    leafLight: 0x6fc267,
+    trunk: 0xb08a5a,
+    trunkDark: 0x7c5e3a,
+    trunkLight: 0xd3b183,
+    water: 0x3f9fcf,
+    waterDeep: 0x2a7aa3,
+    waterFoam: 0xeaf8fc,
     nestStraw: 0xd8c08a,
     nestStrawLight: 0xeedcaa,
     nestShadow: 0x8a6c3c,

@@ -20,9 +20,9 @@ its platforms must attach to a column. Everything else is derived.
 | `=` | branch — what the platforms are in level 1 |
 | `B` | fallen bough, a full-height solid for low overhangs |
 | `_` | void: solid rock that is never seen. Dark, impassable, and free -- a collision body only where it touches something not solid, one flat dark fill for the picture. The mass behind a cave's walls; keep `#` for the rock near the surface that shows texture |
-| `R` | boulder / brick — solid rock, and what wall jumps are taken from |
+| `R` | boulder / brick — solid rock, and what wall jumps are taken from. On the beach it is **sand castle**: every cluster of touching rock cells is baked as one mass of pressed sand (`art/castle.ts`), edges only along its silhouette, the top cells notched into battlements, and a flag on each run of two or more top cells (a tower); a single top cell is a merlon. `Q` in a beach castle is its **gate**: an arched doorway drawn over the run of `Q`s, as solid as the rest |
 | `G`, `Q` | the same rock. The letter is a seam: touching cells of one letter are drawn as one boulder, so `RRRGGG` is two rocks side by side and `RR` over `GG` is one stacked on another |
-| `T` | climbable column — a rope or chain, or (`climbableColumns: false`) a real tree, which is never climbable at all |
+| `T` | climbable column — a rope or chain, or (`climbableColumns: false`) a real tree, which is never climbable at all. On the beach a climbable **palm**, baked as one picture per tree: a single column is a small palm, two columns side by side (`TT`, same top and height) are one **big** palm with a wide trunk and a big crown; either way a ledge at the top to stand on, and a big one climbs on both sides. The crown is two layers, the front fronds drawn in front of the cat |
 | `V` | liana — always climbable everywhere, regardless of `climbableColumns`. Never a platform, even at its top: it hangs from nothing, so there is nothing up there to stand on. Coexists with `T` in the same level: a tree, and the liana beside it |
 | `v` | dead vine — the liana's stem with no leaves, never climbable, purely decoration |
 | `w` | water — swimmable, not solid, harmless on its own |
@@ -31,12 +31,13 @@ its platforms must attach to a column. Everything else is derived.
 | `N` | nest — a ledge set into the tile, so the cat sits *in* it |
 | `+` | spare heart, on its own — no nest, no ledge. Write one directly above a row of `N` for a heart sitting in a nest |
 | `W` | water with a spare heart floating in it — use this instead of `+` inside a pool, or it punches a hole in the water |
-| `h` | hedgehog, `r` rat — walkers, only ever on plain `#` floor |
+| `h` | hedgehog, `r` rat — walkers, only ever on plain `#` floor. On the beach `h` is a **crab**: the letters are the same in every level, and the place decides what walks |
+| `j` | jellyfish — a mine washed up on the sand: lies on its cell's floor, pulsing, and kills from any side; needs something solid under it like a cactus does |
 | `k` | camel — ambles on plain `#` floor, harmless: the cat jumps on its back and rides |
 | `u` | a mound of sand with a worm in it, on plain `#` floor. The worm shows itself only for a cat: it comes up to look at one that comes near, then hunts it — travels under the sand along this row, mound and all, as far as the sand goes (open cells on plain `#` either side; a rock, wall, cactus or drop ends the run — `Mound.from`/`to`), and lunges out at the cat. The part that is out kills. A `u` in a one-tile pocket is a worm that can only peek and lunge where it is |
-| `Y` | cactus — two tiles tall from its cell up, deadly to touch from any side, sneaking or not; needs something solid under it |
+| `Y` | cactus — two tiles tall from its cell up, deadly to touch from any side, sneaking or not; needs something solid under it. A `Y` may stand on a `Y`: a column of n is one cactus n + 1 tiles tall, drawn as one |
 | `f` | piranha — water *with* a fish in it |
-| `c` | crow |
+| `c` | crow — or, with `crowBehaviour: 'swoop'` (the beach), a **gull**, which glides along and swoops at the cat instead of circling and chasing |
 | `^` | thorns — deadly to touch, and needs something solid directly under it |
 | `s` | spider — walks the ceiling above it, so it needs rock directly above |
 | `X` | the evil lord beetle. A level with one has no portal until it is dead: every `E` stays hidden and cannot be entered until the beetle falls |

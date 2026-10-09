@@ -4,7 +4,7 @@ import type { ThemeName } from './themes';
 import type { GroundEnemyKind } from '../config';
 
 /** What a crow does. See `LevelDefinition.crowBehaviour`. */
-export type CrowBehaviour = 'attack' | 'flyby';
+export type CrowBehaviour = 'attack' | 'flyby' | 'swoop';
 
 /**
  * One level, as a grid of characters.
@@ -230,6 +230,8 @@ export interface ParsedLevel {
   thorns: Point[];
   /** Cactus tiles: two tiles tall from the cell up, deadly to touch from any side. */
   cacti: Point[];
+  /** Jellyfish: mines, lying on the sand where they were put, by their foot. */
+  jellies: Point[];
   /**
    * Mounds of sand a worm lives in, by the cell the mound sits on, with the
    * run of sand the worm can travel under: every cell along that row, left
@@ -289,6 +291,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const thorns: Point[] = [];
   const cacti: Point[] = [];
   const mounds: Mound[] = [];
+  const jellies: Point[] = [];
   const voids: Point[] = [];
   const checkpoints: Point[] = [];
   let spawn: Point | null = null;
@@ -473,7 +476,13 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
         }
 
         case 'h':
-          walkers.push({ x: x + TILE / 2, y: y + TILE, kind: 'hedgehog' });
+          // The walker of the place: on the beach the hedgehog's letter is
+          // a crab, so a level is written with the same letters everywhere.
+          walkers.push({ x: x + TILE / 2, y: y + TILE, kind: definition.theme === 'beach' ? 'crab' : 'hedgehog' });
+          break;
+
+        case 'j':
+          jellies.push({ x: x + TILE / 2, y: y + TILE });
           break;
 
         case 'r':
@@ -626,6 +635,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     thorns,
     cacti,
     mounds,
+    jellies,
     voids,
     checkpoints,
     extraLives,
@@ -770,15 +780,16 @@ function assertThornsStandOnGround(rows: string[], width: number, name: string):
   for (let row = 0; row < rows.length; row += 1) {
     for (let column = 0; column < width; column += 1) {
       const tile = rows[row]?.[column] ?? '.';
-      if (!'^Yu'.includes(tile)) {
+      if (!'^Yuj'.includes(tile)) {
         continue;
       }
 
       const below = rows[row + 1]?.[column] ?? '.';
 
-      // Thorns and cacti stand on anything solid; a worm's mound only on
-      // plain floor, since the worm comes up out of the ground.
-      const allowed = tile === 'u' ? '#' : `${SOLID_LETTERS}A=`;
+      // Thorns, cacti and jellyfish stand on anything solid; a worm's mound
+      // only on plain floor, since the worm comes up out of the ground. A
+      // cactus may also stand on a cactus: a column of `Y` is one tall cactus.
+      const allowed = tile === 'u' ? '#' : tile === 'Y' ? `${SOLID_LETTERS}A=Y` : `${SOLID_LETTERS}A=`;
       if (!allowed.includes(below)) {
         throw new Error(
           `${name}: the '${tile}' at ${column},${row} stands on nothing (found '${below}').`,

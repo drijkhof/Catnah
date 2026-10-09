@@ -23,7 +23,7 @@ export const FOLIAGE_BACK_SIZE = { width: 64, height: 54 };
 export const FOLIAGE_NEAR_SIZE = { width: 28, height: 13 };
 
 /** A darker version of a palette colour, for shading leaves against leaves. */
-function shade(colour: number, amount: number): number {
+export function shade(colour: number, amount: number): number {
   return Phaser.Display.Color.ValueToColor(colour).darken(amount).color;
 }
 
@@ -468,6 +468,10 @@ export type GroundStyle = 'earth' | 'stone';
 
 export interface TilePalette {
   columnStyle: ColumnStyle;
+  /** What tops a climbable column: a palm's crown of fronds, or nothing. */
+  crownStyle?: 'palm';
+  /** What `R` is made of: sand, pressed into castle blocks, or rock (the default). */
+  rockStyle?: 'sand';
   platformStyle: PlatformStyle;
   surfaceStyle: SurfaceStyle;
   groundStyle: GroundStyle;

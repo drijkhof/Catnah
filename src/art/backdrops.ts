@@ -30,6 +30,83 @@ export function generateBackdropTextures(scene: Phaser.Scene): void {
   generateSwamp(scene);
   generateVolcano(scene);
   generateDesert(scene);
+  generateBeach(scene);
+}
+
+/**
+ * The beach: a sky that pales toward the horizon, two bands of sea that
+ * tile sideways -- far water with the crests of swells on it, near water
+ * lighter and streaked with foam -- and the foam edge where it meets the
+ * sand.
+ */
+function generateBeach(scene: Phaser.Scene): void {
+  bakeTexture(scene, 'beach-sky', GAME_WIDTH, GAME_HEIGHT, (g) => {
+    fillVerticalGradient(g, GAME_WIDTH, GAME_HEIGHT, 0x4f9fdc, 0xd6ecf7, 36);
+  });
+
+  const random = createRandom(6113);
+
+  bakeTexture(scene, 'sea-far', 128, 24, (g) => {
+    g.fillStyle(0x2f7fb0, 1);
+    g.fillRect(0, 0, 128, 24);
+    // Swells: short pale lines, denser toward the bottom where the water
+    // is nearer.
+    for (let i = 0; i < 26; i += 1) {
+      const y = 2 + Math.floor(random() * 22);
+      const w = 4 + Math.floor(random() * 10);
+      g.fillStyle(y > 12 ? 0x5aa6d0 : 0x4591c0, 1);
+      g.fillRect(Math.floor(random() * 128), y, w, 1);
+    }
+  });
+
+  bakeTexture(scene, 'sea-near', 128, 28, (g) => {
+    fillVerticalGradient(g, 128, 28, 0x3f9fcf, 0x7cc8e6, 14);
+    for (let i = 0; i < 22; i += 1) {
+      const y = 2 + Math.floor(random() * 24);
+      const w = 6 + Math.floor(random() * 14);
+      g.fillStyle(0xbfe6f4, 0.8);
+      g.fillRect(Math.floor(random() * 128), y, w, 1);
+    }
+  });
+
+  // Sailboats, far out: a dark hull, a mast, a mainsail and a jib, small
+  // enough that the shape is all there is to see. Two variants: white sails
+  // and cream with a red band, so the two on the water are not twins.
+  for (const [variant, sail, band] of [
+    ['a', 0xf8f8f4, 0xf8f8f4],
+    ['b', 0xf3e9c8, 0xd8352b],
+  ] as const) {
+    bakeTexture(scene, `sailboat-${variant}`, 16, 14, (g) => {
+      // Hull: a shallow curve, darker below the waterline.
+      g.fillStyle(0x4a3a2c, 1);
+      g.fillTriangle(1, 11, 15, 11, 14, 13);
+      g.fillTriangle(1, 11, 14, 13, 2, 13);
+      g.fillStyle(0x6b5640, 1);
+      g.fillRect(2, 10, 12, 2);
+      // Mast.
+      g.fillStyle(0x3a2e22, 1);
+      g.fillRect(8, 0, 1, 11);
+      // Mainsail aft, jib forward, with the band across the main.
+      g.fillStyle(sail, 1);
+      g.fillTriangle(9, 1, 9, 10, 14, 10);
+      g.fillTriangle(7, 3, 7, 10, 3, 10);
+      g.fillStyle(band, 1);
+      g.fillTriangle(9, 6, 9, 8, 12, 8);
+      // A shadowed edge on the jib so the two sails read as two.
+      g.fillStyle(0xcfc8b4, 1);
+      g.fillRect(7, 4, 1, 6);
+    });
+  }
+
+  bakeTexture(scene, 'foam', 64, 6, (g) => {
+    // A scalloped white edge, the water's last reach up the sand.
+    g.fillStyle(0xeaf8fc, 1);
+    for (let x = 0; x < 64; x += 8) {
+      g.fillEllipse(x + 4, 3, 10, 5);
+    }
+    g.fillStyle(0xeaf8fc, 0.5);
+    g.fillRect(0, 4, 64, 2);
+  });
 }
 
 function generateVolcano(scene: Phaser.Scene): void {

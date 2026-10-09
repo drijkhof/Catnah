@@ -10,11 +10,11 @@ import { GroundEnemy } from '../objects/GroundEnemy';
 import { Piranha } from '../objects/Piranha';
 import { Spider } from '../objects/Spider';
 import { Worm } from '../objects/Worm';
-import { addGroundShade, bakeScenery, createBackdrop } from '../world';
-import { parseLevel, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
+import { KEEP_LIVE, addGroundShade, bakeScenery, createBackdrop } from '../world';
+import { parseLevel, type ClimbZone, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
 import { TITLE } from '../level/levels/title';
-import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, GRASS_FRINGE_HEIGHT, LOG_BULGE, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
+import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, CASTLE_FLAG_HEADROOM, GRASS_FRINGE_HEIGHT, JELLY_SIZE, LOG_BULGE, PALM_BULGE, PALM_CROWN_ANCHOR, PALM_CROWN_SIZE, bakePalmTrunk, bakeSandCastle, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeCactus, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { GOD_MODE_KEY, installGodMode, isGodMode } from '../dev/godMode';
@@ -168,6 +168,9 @@ export class GameScene extends Phaser.Scene {
   private thornRects: Phaser.Geom.Rectangle[] = [];
   /** Cacti: kill from any side, sneaking or not. */
   private cactusRects: Phaser.Geom.Rectangle[] = [];
+
+  /** The beach's jellyfish: mines, deadly from any side. */
+  private jellyRects: Phaser.Geom.Rectangle[] = [];
   /** The desert's worms, each in its mound; what is out of the sand kills. */
   private worms: Worm[] = [];
   private lava?: LavaLake;
@@ -267,6 +270,7 @@ export class GameScene extends Phaser.Scene {
     this.lavaRects = this.buildLava();
     this.thornRects = this.buildThorns();
     this.cactusRects = this.buildCacti();
+    this.jellyRects = this.buildJellies();
     this.worms = this.level.mounds.map((mound, index) => new Worm(this, mound, index + 1));
     this.charms = this.buildCharms();
     this.checkpoints = this.buildCheckpoints();
@@ -1055,12 +1059,53 @@ export class GameScene extends Phaser.Scene {
    * one: touch it from any side, in any pose, and you are dead.
    */
   private buildCacti(): Phaser.Geom.Rectangle[] {
-    return this.level.cacti.map((cactus) => {
+    // A column of `Y` is one cactus: each cell is two tiles tall from where
+    // it stands, so a column of n is n + 1 tiles, drawn once at that height
+    // and deadly as one rectangle.
+    const cells = [...this.level.cacti].sort((a, b) => a.x - b.x || a.y - b.y);
+    const rects: Phaser.Geom.Rectangle[] = [];
+    let i = 0;
+    while (i < cells.length) {
+      const base = cells[i];
+      let count = 1;
+      while (i + count < cells.length && cells[i + count].x === base.x && cells[i + count].y === base.y + count * TILE) {
+        count += 1;
+      }
+      // The sort puts the top cell first; the picture stands on the last.
+      const bottom = cells[i + count - 1];
+      const height = (count + 1) * TILE;
+      const key = count === 1 ? 'cactus' : `cactus:${count}`;
+      if (!this.textures.exists(key)) {
+        bakeCactus(this, key, height);
+      }
       this.add
-        .image(cactus.x, cactus.y + TILE, 'cactus')
+        .image(bottom.x, bottom.y + TILE, key)
         .setOrigin(0, 1)
         .setDepth(-0.25);
-      return new Phaser.Geom.Rectangle(cactus.x + CACTUS.inset, cactus.y - TILE + 2, TILE - CACTUS.inset * 2, TILE * 2 - 2);
+      rects.push(new Phaser.Geom.Rectangle(bottom.x + CACTUS.inset, bottom.y + TILE - height + 2, TILE - CACTUS.inset * 2, height - 2));
+      i += count;
+    }
+    return rects;
+  }
+
+  /**
+   * Jellyfish: a mine each, washed up on the sand where the level put it,
+   * pulsing a little. The pulse is a tween, which also keeps it out of the
+   * scenery bake.
+   */
+  private buildJellies(): Phaser.Geom.Rectangle[] {
+    return this.level.jellies.map((jelly, index) => {
+      const image = this.add.image(jelly.x, jelly.y, 'jelly').setOrigin(0.5, 1).setDepth(-0.25).setData(KEEP_LIVE, true);
+      this.tweens.add({
+        targets: image,
+        scaleY: 0.88,
+        scaleX: 1.06,
+        duration: 1300 + (index % 3) * 220,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+      });
+      return new Phaser.Geom.Rectangle(jelly.x - JELLY_SIZE.width / 2 + 2, jelly.y - JELLY_SIZE.height + 1, JELLY_SIZE.width - 4, JELLY_SIZE.height - 1);
     });
   }
 
@@ -1160,6 +1205,7 @@ export class GameScene extends Phaser.Scene {
       cave: 'hush',
       volcano: 'rumble',
       desert: 'wind',
+      beach: 'wind',
     };
 
     sound.setAmbience(bed[theme] ?? 'none');
@@ -1207,7 +1253,7 @@ export class GameScene extends Phaser.Scene {
       body.bottom > zone.y &&
       body.y < zone.bottom;
 
-    if (this.lavaRects.some(inside) || this.cactusRects.some(inside)) {
+    if (this.lavaRects.some(inside) || this.cactusRects.some(inside) || this.jellyRects.some(inside)) {
       return true;
     }
 
@@ -1758,6 +1804,58 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
+   * On the beach, `R` is a sand castle, and a castle is **one picture**: every
+   * cluster of touching rock cells -- `R`, `G` and `Q` alike, any shape -- is
+   * baked as one mass of pressed sand by `bakeSandCastle`, edges only along
+   * its silhouette, battlements along the top, a flag on each tower and an
+   * arched gate wherever the `Q`s are. The cells still collide one by one as
+   * rock does; this is only the picture.
+   */
+  private buildSandCastles(rocks: Solid[], cells: Map<string, string>): void {
+    const seen = new Set<string>();
+    for (const solid of rocks) {
+      const startKey = `${solid.x / TILE},${solid.y / TILE}`;
+      if (seen.has(startKey)) {
+        continue;
+      }
+      // Flood the cluster.
+      const cluster: Array<{ column: number; row: number; gate: boolean }> = [];
+      const queue = [startKey];
+      seen.add(startKey);
+      while (queue.length > 0) {
+        const key = queue.pop() as string;
+        const [column, row] = key.split(',').map(Number);
+        cluster.push({ column, row, gate: cells.get(key) === 'Q' });
+        for (const next of [`${column + 1},${row}`, `${column - 1},${row}`, `${column},${row + 1}`, `${column},${row - 1}`]) {
+          if (cells.has(next) && !seen.has(next)) {
+            seen.add(next);
+            queue.push(next);
+          }
+        }
+      }
+      const left = Math.min(...cluster.map((cell) => cell.column));
+      const top = Math.min(...cluster.map((cell) => cell.row));
+      const wide = Math.max(...cluster.map((cell) => cell.column)) - left + 1;
+      const high = Math.max(...cluster.map((cell) => cell.row)) - top + 1;
+      const key = `${this.level.theme}:castle:${left},${top}`;
+      if (!this.textures.exists(key)) {
+        bakeSandCastle(
+          this,
+          key,
+          cluster.map((cell) => ({ column: cell.column - left, row: cell.row - top, gate: cell.gate })),
+          wide,
+          high,
+          5003 + left * 31 + top * 17,
+        );
+      }
+      this.add
+        .image(left * TILE, top * TILE - CASTLE_FLAG_HEADROOM, key)
+        .setOrigin(0, 0)
+        .setDepth(-0.3);
+    }
+  }
+
+  /**
    * Draws every cluster of `R` cells as one boulder.
    *
    * The cells still collide one by one; this is only the picture. A cluster
@@ -1776,6 +1874,11 @@ export class GameScene extends Phaser.Scene {
     const seen = new Set<string>();
     const random = createRandom(4451);
     const palette = THEMES[this.level.theme];
+
+    if (palette.rockStyle === 'sand') {
+      this.buildSandCastles(rocks, cells);
+      return;
+    }
 
     // Every full cell of anything, for telling a buried stone from a boulder
     // in the open: a cluster with no air round it gets no moss.
@@ -2000,6 +2103,11 @@ export class GameScene extends Phaser.Scene {
     const random = createRandom(7919);
     let i = 0;
 
+    if (palette.crownStyle === 'palm') {
+      this.buildPalms(zones);
+      return;
+    }
+
     while (i < zones.length) {
       const top = zones[i];
       let cells = 1;
@@ -2026,6 +2134,66 @@ export class GameScene extends Phaser.Scene {
         .setDepth(-3);
 
       i += cells;
+    }
+  }
+
+  /**
+   * The beach's palms, like its castles: columns of `T` grouped into one
+   * picture each. A single column is a small palm; two columns side by side
+   * with the same top and height are one **big** palm -- a wide trunk and a
+   * bigger crown -- rather than two thin ones standing together. Every cell
+   * still climbs on its own, so a big palm is climbed up either side. The
+   * crown is anchored where the fronds meet the trunk's top, behind the cat
+   * like the trunk.
+   */
+  private buildPalms(zones: ClimbZone[]): void {
+    const palette = THEMES[this.level.theme];
+    const random = createRandom(7919);
+
+    // Columns first: x, top, and how many cells.
+    const columns: Array<{ x: number; y: number; cells: number }> = [];
+    let i = 0;
+    while (i < zones.length) {
+      const top = zones[i];
+      let cells = 1;
+      while (i + cells < zones.length && zones[i + cells].x === top.x && zones[i + cells].y === top.y + cells * TILE) {
+        cells += 1;
+      }
+      columns.push({ x: top.x, y: top.y, cells });
+      i += cells;
+    }
+
+    // Then palms: a column joins the one to its left when they match.
+    let c = 0;
+    while (c < columns.length) {
+      const first = columns[c];
+      const next = columns[c + 1];
+      const wide = next !== undefined && next.x === first.x + TILE && next.y === first.y && next.cells === first.cells ? 2 : 1;
+      const variant = Math.floor(random() * 3);
+      const key = `${this.level.theme}:palm:${wide}:${first.cells}:${variant}`;
+      if (!this.textures.exists(key)) {
+        bakePalmTrunk(this, key, wide, first.cells, palette, 4409 + first.cells * 53 + wide * 977 + variant * 101);
+      }
+      this.add
+        .image(first.x - PALM_BULGE, first.y, key)
+        .setOrigin(0, 0)
+        .setDepth(-3);
+      // The crown in two layers: the back fronds and the coconuts behind
+      // the cat, the front fronds in front of it (a positive depth, which
+      // the scenery bake leaves alone), so a cat up a palm climbs and jumps
+      // in among the leaves.
+      for (const [layer, depth] of [
+        ['back', -2.5],
+        ['front', 0.6],
+      ] as const) {
+        this.add
+          .image(first.x + (wide * TILE) / 2, first.y + 4, `palm-crown-${layer}`)
+          .setOrigin(0.5, PALM_CROWN_ANCHOR / PALM_CROWN_SIZE.height)
+          .setScale(wide === 2 ? 1.6 : 0.9)
+          .setFlipX(variant === 1)
+          .setDepth(depth);
+      }
+      c += wide;
     }
   }
 

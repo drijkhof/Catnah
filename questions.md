@@ -1552,6 +1552,51 @@ them, no hedgehogs, and pyramids for a backdrop. Calls of mine inside that:
 - **The rider is carried by the camel's actual movement**, not its
   velocity. The first version used the velocity, and you slid off the back
   whenever the camel pressed against something and went nowhere.
+- **The beach, level 7, at your word**: sea behind, sand underfoot, the map
+  kept to one example of each thing. Calls of mine: the crab is the
+  hedgehog's letter and the gull the crow's, decided by the place (the
+  parser maps `h` by theme; the level definition says `crowBehaviour:
+  'swoop'`), so every level is written with the same letters; the crab sees
+  110px sideways and about its own height, chases at 115px/s (the cat runs
+  190) and stops at edges rather than turning; the jellyfish is a static
+  mine, the crab's size as you asked, and lies *on the sand* at your word
+  -- washed up, pulsing, not floating as I first had it; the palm's crown
+  is big at your word, fronds that reach well out and droop below the top,
+  and the example palm is nine tiles tall; then, at your word, the palms
+  went the way of the castle: one picture per tree, a `TT` pair being one
+  big palm (wide trunk, crown at 1.6×) and a lone `T` a small one (crown at
+  0.9×), the trunk its own baker (`art/palm.ts`) with frond-scar rings and
+  a flared foot rather than the forest's bark; and the crown is two
+  layers at your word -- the back fronds and the coconuts behind the cat,
+  four front fronds in front of it at depth 0.6, like the bushes -- so the
+  cat is in among the leaves; you built a sand castle out of
+  `R` and asked for it to look like one with flags on the towers, so on the
+  beach `R` is pressed sand (`rockStyle: 'sand'` in the palette) rather
+  than boulders -- and, at your word, one picture per castle rather than a
+  grid of blocks: every cluster of touching cells is baked as one mass with
+  edges only along its outline, the sky-facing cells notched into
+  battlements and a flag on every run of two or more top cells (my reading
+  of "tower"; a single top cell is a merlon and gets none). `Q` is the
+  gate, as you used it: an arched dark doorway over the run of `Q`s, still
+  solid, since a walk-through gate would be a hole in the map rather than
+  a letter; the gull's swoop is aimed
+  once and committed to, skimming 20px above the feet so a standing cat is
+  hit and a sneaking one is passed over -- ducking is the dodge, which is
+  what makes it a different attack from the crow's chase; the palm is the
+  theme's climbable trunk with a crown on top and a ledge to stand on, and
+  the beach's `T` is therefore climbable; the sea is three tiling bands
+  pinned sideways and drifting, with a foam edge that creeps up the sand,
+  rather than a parallax strip that would run out; the ambience is the
+  wind; and sailboats on the water at your word -- three, far out, tiny
+  (a hull, a mast, two sails, one with a red band), pinned sideways like
+  the sea and drifting across at their own slow paces, two one way and one
+  the other, sliding off one edge and in at the other so there is always
+  one about; the higher on the band, the smaller, and the near water's
+  crests pass in front of the hulls. A gull cry of its own is not made yet -- it uses the crow's caw.
+- **Cacti may be stacked, at your word**: a column of `Y` is one cactus,
+  one tile taller than the column, baked at that height with arms every
+  14px alternating sides, and one deadly rectangle; the camels' fences see
+  it as one too.
 - **Landing on a camel had to be 100%, at your word**, and it was a coin
   toss: Arcade's collision between the two moving bodies chose the sideways
   push near the edges of the back, and the snap I added on top was undone

@@ -31,6 +31,10 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | egel | `hedgehog` | enemy — paces a platform, deadly to touch |
 | rots | `boulder` / `rock` | solid, climbable stone |
 | kameel | `camel` | ambles slowly; you ride on its humps; harmless |
+| krab | `crab` | the beach's walker: scuttles, and runs at you once it has seen you |
+| kwal | `jelly` | a mine hanging in the air on the beach; touch kills |
+| meeuw | `gull` | the beach's bird: glides along the shore and swoops at you |
+| palmboom | `palm` | a climbable trunk on the beach with a crown of fronds you can stand on |
 | worm | `worm` | hunts under the sand and lunges out of it at you; the part that is out kills |
 | cactus | `cactus` | two tiles tall, deadly from any side |
 
@@ -483,11 +487,11 @@ as a descent.
 
 ## The five levels
 
-**Forest, canopy, swamp, cave, volcano, desert.** Each one starts at one end
-and ends at a **portal**, which takes you to the next; the volcano's portal —
-which only appears once the beetle is dead — leads out into the desert, and
-the desert's portal ends the game. Little hearts
-are optional everywhere.
+**Forest, canopy, swamp, cave, volcano, desert, beach.** Each one starts at
+one end and ends at a **portal**, which takes you to the next; the volcano's
+portal — which only appears once the beetle is dead — leads out into the
+desert, the desert runs out into the beach, and the beach's portal ends the
+game. Little hearts are optional everywhere.
 
 ### 6 — Desert
 
@@ -523,6 +527,43 @@ along, slowly, as it ambles. What kills is standing still in the wrong place:
 - **Cacti**, two tiles tall, kill from any side, in any pose — there is no
   crawling under a cactus and no jumping out of one.
 - A few **rocks** to climb and wall-jump off.
+
+### 7 — Beach
+
+Where the desert runs out: a strip of pale sand with the sea behind it,
+swells far out with a couple of sailboats slipping across them, lighter water
+nearer in, and foam creeping up the sand just behind where you walk. The map is **nearly empty for now** — one of each
+thing the beach has, so each can be looked at on its own:
+
+- **Crabs** scuttle along the sand, quicker than a hedgehog, and once one
+  has seen you — near, and on its level — it comes straight at you, stopping
+  only at an edge or a wall. The hedgehog's letter, on the beach.
+- **Jellyfish** lie washed up on the sand, pulsing: mines. Touch one from
+  any side and it kills.
+- **Gulls** glide along the shore at their own height and, when you are
+  ahead of one and near enough, swoop: a dive to chest height along a line
+  it picks when it breaks off, skimming past where you were, and a climb out
+  ahead. It does not follow you down the line, so **duck** — a sneaking cat
+  is under it — or be somewhere else. The crow's letter, on the beach.
+- **Palms** are trunks you can climb, ringed with the scars of old fronds,
+  with a crown on top and a place to stand up there. They come in two
+  sizes: a thin one, and a **big** one — twice as wide, a thicker trunk and
+  a crown of fronds reaching well out either side and drooping below the
+  top — which is written as two columns side by side. Some of the fronds
+  hang in front of you: at the top of a palm you climb and jump in among
+  the leaves, not on top of a picture of them.
+- **Sand castles**: the beach's rock is sand. Build one from `R` cells and
+  it comes out as one castle of pressed sand — not a grid of blocks — with
+  battlements along the top, a little red flag on each tower (a top edge two
+  or more blocks wide), and an arched gate wherever `Q` is written. The gate
+  is a picture: the castle is a wall all the way, and climbs and wall-jumps
+  like rock.
+
+### Cacti come tall
+
+A column of cactus cells in the map is one tall cactus, drawn as one with an
+arm every so often, and deadly along its whole height — the desert has a
+three-high one.
 
 ## Winning, and the score
 

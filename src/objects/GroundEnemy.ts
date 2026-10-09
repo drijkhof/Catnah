@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { CAMEL_BACK, GROUND_ENEMY_SIZES } from '../art';
-import { GRAZING, GROUND_ENEMIES, RAT, type GroundEnemyKind } from '../config';
+import { CRAB, GRAZING, GROUND_ENEMIES, RAT, type GroundEnemyKind } from '../config';
 import { sound } from '../audio/Sound';
 import { isSolidTile } from './solid';
 
@@ -31,6 +31,12 @@ const FENCE_MARGIN = 32;
  * it stops running and leaps at you. It is the only attack in the game that
  * comes from something trying to get away, and the only sound in the game that
  * is meant to make you jump.
+ *
+ * **A crab comes for you.** It scuttles back and forth like the others, quicker
+ * than a hedgehog, until it sees the cat -- near, and at about its own height
+ * -- and then runs straight at it. It stops at an edge or a wall rather than
+ * turning away, and waits there, because a crab that gave up at the first
+ * ledge would be a hedgehog with claws.
  */
 export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
   declare body: Phaser.Physics.Arcade.Body;
@@ -57,6 +63,9 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
 
   /** Rectangles it turns round in front of. See `setFences`. */
   private fences: Phaser.Geom.Rectangle[] = [];
+
+  /** A crab that has seen the cat and is after it. */
+  private chasing = false;
 
   constructor(
     scene: Phaser.Scene,
@@ -149,6 +158,11 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
       return;
     }
 
+    if (this.kind === 'crab') {
+      this.crabStep(delta, cat);
+      return;
+    }
+
     if (this.kind === 'hedgehog') {
       if (this.graze(delta)) {
         this.setVelocityX(0);
@@ -232,6 +246,40 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
       this.setFlipX(-away < 0);
       sound.playAt('ratLeap', this.x, this.y);
     }
+  }
+
+  /**
+   * A crab: pacing, or after the cat.
+   *
+   * It takes up the chase when the cat is within `CRAB.sightRange` sideways
+   * and about level with it, and keeps it up until the cat is further off
+   * than `CRAB.releaseRange` -- the two ranges differ so it does not
+   * flicker at the edge of one. Chasing, it heads for the cat and stops
+   * dead at anything it cannot cross.
+   */
+  private crabStep(delta: number, cat?: Phaser.Math.Vector2): void {
+    if (cat === undefined) {
+      this.pace();
+      return;
+    }
+
+    const dx = Math.abs(cat.x - this.x);
+    const dy = Math.abs(cat.y - this.y);
+    const sees = dx < CRAB.sightRange && dy < CRAB.sightHeight;
+    const keeps = this.chasing && dx < CRAB.releaseRange && dy < CRAB.sightHeight * 2;
+    this.chasing = sees || keeps;
+
+    if (!this.chasing) {
+      this.pace();
+      return;
+    }
+
+    this.direction = cat.x < this.x ? -1 : 1;
+    this.setFlipX(this.direction < 0);
+
+    const stuck = this.atLevelEdge() || this.blockedAhead() || !this.groundAhead();
+    this.setVelocityX(stuck ? 0 : this.direction * CRAB.chaseSpeed);
+    this.scurry(delta, CRAB.chaseSpeed);
   }
 
   /**

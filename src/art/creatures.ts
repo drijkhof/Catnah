@@ -7,7 +7,18 @@ export const GROUND_ENEMY_SIZES = {
   hedgehog: { width: 20, height: 13 },
   rat: { width: 19, height: 9 },
   camel: { width: 46, height: 34 },
+  crab: { width: 20, height: 13 },
 };
+
+/** A jellyfish: a mine, the size of a crab. */
+export const JELLY_SIZE = { width: 20, height: 13 };
+/**
+ * The crown of fronds on a palm, drawn over the top of its trunk. Big: the
+ * fronds reach out well past a tile either side and droop below the trunk's
+ * top, which sits `PALM_CROWN_ANCHOR` px down from the top of the picture.
+ */
+export const PALM_CROWN_SIZE = { width: 128, height: 76 };
+export const PALM_CROWN_ANCHOR = 30;
 
 /**
  * Where the camel's back is within its picture: the barrel with the humps,
@@ -38,6 +49,7 @@ export const BOSS_SIZE = { width: 66, height: 46 };
 export function generateCreatureTextures(scene: Phaser.Scene): void {
   generateHedgehog(scene);
   generateDesertCreatures(scene);
+  generateBeachCreatures(scene);
   generateRat(scene);
   generatePiranha(scene);
   generateCrocodile(scene);
@@ -270,29 +282,46 @@ function generateDesertCreatures(scene: Phaser.Scene): void {
     g.fillEllipse(mound.width / 2, 3, 5, 2);
   });
 
-  const cactus = CACTUS_SIZE;
-  bakeTexture(scene, 'cactus', cactus.width, cactus.height, (g) => {
-    const { width, height } = cactus;
+  bakeCactus(scene, 'cactus', CACTUS_SIZE.height);
+}
+
+/**
+ * A cactus of any height: the trunk, and an arm every so often, alternating
+ * sides, each reaching up. The two-tile one is the plain `Y`; a column of
+ * `Y` is one tall cactus, baked on demand under its own key.
+ */
+export function bakeCactus(scene: Phaser.Scene, key: string, height: number): void {
+  const width = CACTUS_SIZE.width;
+  bakeTexture(scene, key, width, height, (g) => {
     const cx = width / 2;
-    // Trunk and two arms, rounded at the ends, ribbed with a darker line.
+    // Arms: from 10px below the top, one every 14px, left then right.
+    const arms: Array<{ side: number; y: number; length: number }> = [];
+    let side = -1;
+    for (let y = 10; y < height - 10; y += 14) {
+      arms.push({ side, y: y - (side > 0 ? 4 : 0), length: 10 + (arms.length % 2) * 2 });
+      side = -side;
+    }
     g.fillStyle(COLORS.cactus, 1);
     g.fillRoundedRect(cx - 3, 2, 6, height - 2, 3);
-    g.fillRoundedRect(cx - 8, 10, 4, 10, 2);
-    g.fillRect(cx - 8, 17, 6, 3);
-    g.fillRoundedRect(cx + 4, 6, 4, 12, 2);
-    g.fillRect(cx + 2, 15, 6, 3);
+    for (const arm of arms) {
+      const ax = arm.side < 0 ? cx - 8 : cx + 4;
+      g.fillRoundedRect(ax, arm.y, 4, arm.length, 2);
+      g.fillRect(arm.side < 0 ? cx - 8 : cx + 2, arm.y + arm.length - 3, 6, 3);
+    }
     g.fillStyle(COLORS.cactusDark, 1);
     g.fillRect(cx - 1, 4, 1, height - 6);
-    g.fillRect(cx - 7, 11, 1, 7);
-    g.fillRect(cx + 5, 7, 1, 9);
+    for (const arm of arms) {
+      g.fillRect(arm.side < 0 ? cx - 7 : cx + 5, arm.y + 1, 1, arm.length - 3);
+    }
     // Spines, pale, in rows.
     g.fillStyle(COLORS.cactusSpine, 1);
     for (let y = 5; y < height - 2; y += 4) {
       g.fillRect(cx - 4, y, 1, 1);
       g.fillRect(cx + 3, y + 2, 1, 1);
     }
-    g.fillRect(cx - 9, 12, 1, 1);
-    g.fillRect(cx + 8, 8, 1, 1);
+    for (const arm of arms) {
+      g.fillRect(arm.side < 0 ? cx - 9 : cx + 8, arm.y + 2, 1, 1);
+    }
   });
 }
 
@@ -314,6 +343,150 @@ function generatePiranha(scene: Phaser.Scene): void {
 
     g.fillStyle(COLORS.dangerEye, 1);
     g.fillRect(width - 5, 4, 2, 2);
+  });
+}
+
+/**
+ * The beach's own: a crab, a jellyfish, a gull, and the crown of a palm.
+ */
+function generateBeachCreatures(scene: Phaser.Scene): void {
+  const crab = GROUND_ENEMY_SIZES.crab;
+  bakeTexture(scene, 'crab', crab.width, crab.height, (g) => {
+    // Legs first, four a side, so the shell sits over their roots.
+    g.fillStyle(COLORS.crabDark, 1);
+    for (let i = 0; i < 4; i += 1) {
+      g.fillRect(2 + i * 2, 9, 1, 4);
+      g.fillRect(crab.width - 3 - i * 2, 9, 1, 4);
+    }
+    // The shell: a wide oval, darker along the bottom.
+    g.fillStyle(COLORS.crabDark, 1);
+    g.fillEllipse(crab.width / 2, 7, 16, 9);
+    g.fillStyle(COLORS.crabShell, 1);
+    g.fillEllipse(crab.width / 2, 6, 15, 8);
+    // Claws out in front, both sides -- a crab has no front, it is flipped anyway.
+    g.fillStyle(COLORS.crabClaw, 1);
+    g.fillRect(0, 4, 4, 3);
+    g.fillRect(crab.width - 4, 4, 4, 3);
+    g.fillStyle(COLORS.crabDark, 1);
+    g.fillRect(0, 6, 2, 1);
+    g.fillRect(crab.width - 2, 6, 2, 1);
+    // Eyes on stalks.
+    g.fillStyle(COLORS.crabDark, 1);
+    g.fillRect(7, 1, 1, 3);
+    g.fillRect(12, 1, 1, 3);
+    g.fillStyle(0x1a1010, 1);
+    g.fillRect(6, 0, 2, 2);
+    g.fillRect(12, 0, 2, 2);
+  });
+
+  const jelly = JELLY_SIZE;
+  bakeTexture(scene, 'jelly', jelly.width, jelly.height, (g) => {
+    // Tentacles hang from under the bell.
+    g.fillStyle(COLORS.jellyTentacle, 0.9);
+    for (let i = 0; i < 5; i += 1) {
+      const x = 3 + i * 3.5;
+      g.fillRect(x, 7, 1, 3 + (i % 2) * 3);
+    }
+    // The bell, translucent, with a paler crown.
+    g.fillStyle(COLORS.jellyBell, 0.85);
+    g.fillEllipse(jelly.width / 2, 5, 18, 10);
+    g.fillStyle(COLORS.jellyLight, 0.9);
+    g.fillEllipse(jelly.width / 2 - 2, 3, 9, 4);
+    g.fillStyle(COLORS.jellyBell, 1);
+    g.fillRect(1, 7, jelly.width - 2, 1);
+  });
+
+  const gull = CROW_SIZE;
+  bakeTexture(scene, 'gull', gull.width, gull.height, (g) => {
+    // The crow's pose -- wings spread, side on -- in a gull's colours.
+    g.fillStyle(COLORS.gullWing, 1);
+    g.fillTriangle(3, 6, 13, 6, 0, 0);
+    g.fillTriangle(6, 6, 18, 6, 20, 1);
+    g.fillStyle(0x6b757a, 1);
+    g.fillTriangle(0, 0, 2, 1, 1, 3);
+    g.fillTriangle(20, 1, 18, 2, 19, 4);
+
+    g.fillStyle(COLORS.gullBody, 1);
+    g.fillRect(4, 5, 11, 7);
+    g.fillRect(13, 3, 6, 6);
+    g.fillTriangle(2, 8, 6, 8, 0, 12);
+
+    g.fillStyle(COLORS.gullWing, 1);
+    g.fillRect(2, 8, 3, 1);
+
+    g.fillStyle(0x1a1a1a, 1);
+    g.fillRect(16, 5, 2, 2);
+
+    g.fillStyle(COLORS.gullBeak, 1);
+    g.fillTriangle(19, 5, 19, 8, gull.width, 6);
+  });
+
+  // The crown comes in two layers, same size and anchor: the back fronds
+  // and the coconuts behind the cat, the front fronds in front of it, so a
+  // cat at the top of a palm is in among the leaves rather than pasted on
+  // them. Fronds fan out from the top of the trunk, arch, and droop at the
+  // tips to below where they started: each is a stem drawn as a run of
+  // overlapping triangles along that curve, with leaflets off it either
+  // side, the back ones darker so the crown has depth.
+  const crown = PALM_CROWN_SIZE;
+  const fronds = [-172, -150, -128, -106, -90, -74, -52, -30, -8];
+  const drawFrond = (g: Phaser.GameObjects.Graphics, degrees: number, index: number, back: boolean): void => {
+    const cx = crown.width / 2;
+    const cy = PALM_CROWN_ANCHOR;
+    const angle = (degrees * Math.PI) / 180;
+    const length = 52 + (index % 3) * 4;
+    const stem = back ? COLORS.palmFrond : COLORS.palmFrondLight;
+    const leaf = back ? 0x2f7a3a : COLORS.palmFrond;
+    let px = cx;
+    let py = cy;
+    for (let along = 0; along < length; along += 3) {
+      const t = (along + 3) / length;
+      const droop = t * t * 40;
+      const nx = cx + Math.cos(angle) * (along + 3);
+      const ny = cy + Math.sin(angle) * (along + 3) + droop;
+      // Leaflets: a pair of short blades off the stem, longest mid-frond.
+      if (along > 6) {
+        const blade = 3 + Math.sin(t * Math.PI) * 7;
+        const dx = nx - px;
+        const dy = ny - py;
+        const len = Math.hypot(dx, dy) || 1;
+        const ox = (-dy / len) * blade;
+        const oy = (dx / len) * blade;
+        g.fillStyle(leaf, 1);
+        g.fillTriangle(px, py, nx, ny, px + ox, py + oy + 2);
+        g.fillTriangle(px, py, nx, ny, px - ox, py - oy + 2);
+      }
+      const thick = Math.max(1, 3.5 - t * 2.5);
+      g.fillStyle(stem, 1);
+      g.fillTriangle(px, py - thick, px, py + thick, nx, ny);
+      g.fillTriangle(px, py + thick, nx, ny + thick * 0.7, nx, ny - thick * 0.7);
+      px = nx;
+      py = ny;
+    }
+  };
+  bakeTexture(scene, 'palm-crown-back', crown.width, crown.height, (g) => {
+    fronds.forEach((degrees, index) => {
+      if (index % 2 === 0) {
+        drawFrond(g, degrees, index, true);
+      }
+    });
+    // Coconuts at the heart of it.
+    const cx = crown.width / 2;
+    const cy = PALM_CROWN_ANCHOR;
+    g.fillStyle(COLORS.coconut, 1);
+    g.fillCircle(cx - 4, cy + 2, 3.5);
+    g.fillCircle(cx + 4, cy + 2, 3.5);
+    g.fillCircle(cx, cy + 6, 3.5);
+    g.fillStyle(0x8a6540, 1);
+    g.fillCircle(cx - 5, cy + 1, 1.2);
+    g.fillCircle(cx + 3, cy + 1, 1.2);
+  });
+  bakeTexture(scene, 'palm-crown-front', crown.width, crown.height, (g) => {
+    fronds.forEach((degrees, index) => {
+      if (index % 2 === 1) {
+        drawFrond(g, degrees, index, false);
+      }
+    });
   });
 }
 

@@ -215,6 +215,44 @@ and the collider stops it there.
 The old gatekeeper -- station between the cat and the door, line up, drop,
 climb back slowly -- is gone; it was tame as a lamb in the rebuilt arena.
 
+## The crab is the hedgehog that comes for you
+
+A `GroundEnemy` of kind `crab`, which is what the hedgehog's letter `h` makes
+on the beach (the parser decides by theme, so levels are written with the same
+letters everywhere). It paces like the others, quicker than a hedgehog
+(`GROUND_ENEMIES.crab`), until it *sees* the cat -- within `CRAB.sightRange`
+sideways and about its own height (`sightHeight`) -- and then heads straight
+for it at `chaseSpeed`, stopping dead at an edge or a wall rather than turning,
+until the cat is `releaseRange` away. Two ranges, so it does not flicker at
+the edge of one.
+
+## The gull is the crow with a different attack
+
+`Crow` with behaviour `swoop`, drawn as a gull: the crow's letter `c` in a
+level whose definition says `crowBehaviour: 'swoop'`. It glides along the
+level like a `flyby` bird at the height it was placed (`GULL.glideSpeed`,
+`bob`), and when the cat is *ahead* of it, below it and within `attackRange`
+-- and not sneaking or hidden -- it dives, in three legs. The dive is aimed
+**once**, at a point `skimHeight` above the cat's feet, straight onto that
+line (the glide's sideways speed otherwise carried it past the cat before it
+was low); it does not follow the cat down. It levels off `levelOff` above the
+skim, because the turn is not instant and a dive flown all the way down
+overshot by five pixels. Then it skims level for `skimPast`, and climbs out
+to a point `climbRun` further on at gliding height, with `cooldownMs` before
+the next. The skim height is chosen so that a standing cat (18px) is hit and
+a sneaking one (9px) is passed over, with a couple of pixels to spare each
+way -- measured from both directions and from several distances: ducking is
+the dodge, as is simply not being where it aimed.
+
+## Jellyfish are mines
+
+Not a class: `GameScene.buildJellies` puts an image on the sand where each
+`j` is -- washed up, its foot on the cell's floor -- with a slow pulse tween
+(which also keeps it out of the scenery bake, as does `KEEP_LIVE`), and a
+rectangle a little inside the picture in `jellyRects`, which
+`touchingSomethingDeadly` checks like the cacti -- from any side, sneaking
+or not. The parser wants something solid under a `j`, as under a cactus.
+
 ## Camels are walkers you stand on
 
 A camel is a `GroundEnemy` of kind `camel`: it ambles slowly (`pace`, like a

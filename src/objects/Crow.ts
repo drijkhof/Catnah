@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { CROW } from '../config';
+import { CROW, GULL } from '../config';
 import { createRandom } from '../art';
 import { sound } from '../audio/Sound';
 import type { CrowBehaviour } from '../level/Level';
@@ -16,6 +16,13 @@ import type { CrowBehaviour } from '../level/Level';
  * What it does is the level's choice (`CrowBehaviour`). A `flyby` crow ignores
  * the cat altogether: it sweeps across the level and back, rising and falling
  * a little on the way, and never attacks. The title screen uses it.
+ *
+ * A `swoop` crow is the beach's **gull**, drawn as one: it glides along the
+ * shore like a flyby bird, and when the cat is ahead of it and near enough
+ * it dives -- down to just above the cat's chest, along a line it commits to
+ * when it breaks off, skims past where the cat was, and climbs out ahead to
+ * glide again. It does not follow the cat down the line: the dodge is to
+ * duck, since a sneaking cat is under the skim, or to not be where it was.
  */
 /** What a crow can tell about the cat, worked out by the scene. */
 export interface CatCover {
@@ -62,6 +69,15 @@ export class Crow extends Phaser.Physics.Arcade.Sprite {
   /** Where in its rise and fall it is, ms. */
   private bobClock = 0;
 
+  /** A `swoop` bird: gliding, diving at the cat, skimming past it, or climbing out. */
+  private swoop: 'glide' | 'dive' | 'skim' | 'climb' = 'glide';
+
+  /** Where the dive skims: just above where the cat's chest was. */
+  private readonly skim = new Phaser.Math.Vector2();
+
+  /** Time until it may swoop again, ms. */
+  private swoopCooldown = 0;
+
   /**
    * @param sweep Where a `flyby` crow turns round, left and right. Ignored by
    *   an attacking one.
@@ -73,7 +89,7 @@ export class Crow extends Phaser.Physics.Arcade.Sprite {
     behaviour: CrowBehaviour = 'attack',
     sweep: { left: number; right: number } = { left: nestX, right: nestX },
   ) {
-    super(scene, nestX, nestY, 'crow');
+    super(scene, nestX, nestY, behaviour === 'swoop' ? 'gull' : 'crow');
 
     this.behaviour = behaviour;
     this.sweepLeft = sweep.left - CROW.flybyOvershoot;
@@ -112,7 +128,7 @@ export class Crow extends Phaser.Physics.Arcade.Sprite {
 
   /** True while it has broken off to come at the cat. */
   get hunting(): boolean {
-    return this.attacking;
+    return this.attacking || this.swoop !== 'glide';
   }
 
   /**
@@ -126,6 +142,11 @@ export class Crow extends Phaser.Physics.Arcade.Sprite {
   step(target: Phaser.Math.Vector2, delta: number, cat: CatCover = IN_THE_OPEN): void {
     if (this.behaviour === 'flyby') {
       this.flyBy(delta);
+      return;
+    }
+
+    if (this.behaviour === 'swoop') {
+      this.gullStep(target, delta, cat);
       return;
     }
 
@@ -165,7 +186,12 @@ export class Crow extends Phaser.Physics.Arcade.Sprite {
    * It turns round beyond each end of the sweep, which the level makes wider
    * than any screen, so the turn happens out of sight.
    */
-  private flyBy(delta: number): void {
+  private flyBy(
+    delta: number,
+    speed: number = CROW.flybySpeed,
+    bob: number = CROW.flybyBob,
+    periodMs: number = CROW.flybyBobPeriodMs,
+  ): void {
     this.bobClock += delta;
 
     if (this.x >= this.sweepRight) {
@@ -174,11 +200,71 @@ export class Crow extends Phaser.Physics.Arcade.Sprite {
       this.sweepDirection = 1;
     }
 
-    const angular = (Math.PI * 2) / CROW.flybyBobPeriodMs;
-    const rise = CROW.flybyBob * angular * 1000 * Math.cos(this.bobClock * angular);
+    const angular = (Math.PI * 2) / periodMs;
+    const rise = bob * angular * 1000 * Math.cos(this.bobClock * angular);
 
-    this.setVelocity(this.sweepDirection * CROW.flybySpeed, rise);
+    this.setVelocity(this.sweepDirection * speed, rise);
     this.setFlipX(this.sweepDirection < 0);
+  }
+
+  /**
+   * The gull: gliding along the shore, and the swoop.
+   *
+   * The dive is aimed once, when it breaks off, at a point `GULL.skimHeight`
+   * above the cat's feet, *at* the cat; from there it skims level for
+   * `GULL.skimPast` in the direction of flight, and climbs to a point
+   * `GULL.climbRun` further on at gliding height. Each leg is flown by
+   * turning the velocity toward its point, and the glide that follows picks
+   * up from wherever the climb ends -- the sweep keeps its own height, so a
+   * gull that climbed a little short or long simply bobs from there.
+   */
+  private gullStep(target: Phaser.Math.Vector2, delta: number, cat: CatCover): void {
+    const dt = delta / 1000;
+    this.swoopCooldown = Math.max(0, this.swoopCooldown - delta);
+
+    if (this.swoop === 'glide') {
+      this.flyBy(delta, GULL.glideSpeed, GULL.bob, GULL.bobPeriodMs);
+
+      const ahead = (target.x - this.x) * this.sweepDirection > 0;
+      const near = Math.abs(target.x - this.x) < GULL.attackRange && target.y > this.y;
+      if (ahead && near && !cat.sneaking && !cat.hidden && this.swoopCooldown === 0) {
+        this.swoop = 'dive';
+        this.skim.set(target.x, target.y - GULL.skimHeight);
+        // Straight onto the line: the glide's sideways velocity would
+        // otherwise carry it past the cat before it was low.
+        const line = new Phaser.Math.Vector2(this.skim.x - this.x, this.skim.y - this.y).normalize().scale(GULL.swoopSpeed);
+        this.setVelocity(line.x, line.y);
+        sound.playAt('caw', this.x, this.y);
+      }
+      return;
+    }
+
+    const point =
+      this.swoop === 'dive'
+        ? this.skim
+        : this.swoop === 'skim'
+          ? new Phaser.Math.Vector2(this.skim.x + this.sweepDirection * GULL.skimPast, this.skim.y)
+          : new Phaser.Math.Vector2(this.skim.x + this.sweepDirection * (GULL.skimPast + GULL.climbRun), this.nest.y);
+
+    const desired = new Phaser.Math.Vector2(point.x - this.x, point.y - this.y).normalize().scale(GULL.swoopSpeed);
+    const turn = Phaser.Math.Clamp(GULL.turnRate * dt, 0, 1);
+    this.setVelocity(
+      Phaser.Math.Linear(this.body.velocity.x, desired.x, turn),
+      Phaser.Math.Linear(this.body.velocity.y, desired.y, turn),
+    );
+    this.setFlipX(this.body.velocity.x < 0);
+
+    // Past the point, or on it: the next leg. Passing is judged along the
+    // direction of flight, so a dive that curved wide does not circle back.
+    const passed = (point.x - this.x) * this.sweepDirection <= 0;
+    if (this.swoop === 'dive' && (passed || this.y >= point.y - GULL.levelOff)) {
+      this.swoop = 'skim';
+    } else if (this.swoop === 'skim' && passed) {
+      this.swoop = 'climb';
+    } else if (this.swoop === 'climb' && (passed || this.y <= point.y)) {
+      this.swoop = 'glide';
+      this.swoopCooldown = GULL.cooldownMs;
+    }
   }
 
   /** The point on its patrol circle it is currently heading for. */

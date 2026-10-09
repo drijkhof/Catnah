@@ -438,7 +438,7 @@ export const LAVA = {
 } as const;
 
 /** Things that pace the floor. */
-export type GroundEnemyKind = 'hedgehog' | 'rat' | 'camel';
+export type GroundEnemyKind = 'hedgehog' | 'rat' | 'camel' | 'crab';
 
 /**
  * A hedgehog ambles; a rat scurries. That is the whole difference, besides
@@ -450,7 +450,58 @@ export const GROUND_ENEMIES: Record<GroundEnemyKind, { speed: number }> = {
   // A camel ambles, slowly, hurts nobody, and the cat can stand on its back
   // and be carried along.
   camel: { speed: 20 },
+  // A crab scuttles, quicker than a hedgehog, and goes for a cat it sees.
+  crab: { speed: 60 },
 };
+
+/**
+ * The beach's crab. It paces like a hedgehog until it *sees* the cat --
+ * within `sightRange` sideways and about its own height -- and then comes
+ * after it at `chaseSpeed`, stopping at an edge or a wall rather than
+ * turning, until the cat is `releaseRange` away. The hedgehog's letter, on
+ * the beach.
+ */
+export const CRAB = {
+  sightRange: 110,
+  sightHeight: 24,
+  releaseRange: 170,
+  chaseSpeed: 115,
+} as const;
+
+/**
+ * The beach's gull: the crow's letter, and a different attack. It glides
+ * along the shore at the height it was placed, rising and falling a little,
+ * and when the cat is ahead of it and within `attackRange` it **swoops**: a
+ * dive to `skimHeight` above the cat's feet, committed to the line it chose
+ * -- it does not follow the cat -- skimming `skimPast` beyond where the cat
+ * was and climbing out over `climbRun`, then back to gliding for
+ * `cooldownMs`. Skimming at the cat's chest means a standing cat is hit and
+ * a sneaking one is passed over: ducking is the dodge.
+ */
+export const GULL = {
+  glideSpeed: 85,
+  bob: 6,
+  bobPeriodMs: 2200,
+  attackRange: 160,
+  swoopSpeed: 230,
+  skimHeight: 24,
+  /**
+   * How far above the skim the dive levels off, px: the turn is not
+   * instant, and a dive flown all the way down overshot by five pixels --
+   * enough to clip a sneaking cat it was meant to pass over.
+   */
+  levelOff: 6,
+  skimPast: 36,
+  climbRun: 110,
+  /**
+   * How quickly the velocity turns toward the next point of the swoop, per
+   * second. Sharp: the dive has to be on its line within a few frames, or
+   * the gull is past the cat before it is low -- the first version turned
+   * at the crow's rate and never got below gliding height.
+   */
+  turnRate: 16,
+  cooldownMs: 2000,
+} as const;
 
 /**
  * The worms of the desert. Each lives under the sand with a mound for a
@@ -948,6 +999,22 @@ export const COLORS = {
   wormDark: 0x7d4430,
   wormBelly: 0xe0a080,
   wormMouth: 0x2a1410,
+  // The beach's own: a crab, a jellyfish, a gull, a palm and the sea.
+  crabShell: 0xd9532f,
+  crabDark: 0x9a3419,
+  crabClaw: 0xe8734a,
+  jellyBell: 0xcfa0e8,
+  jellyLight: 0xf0d6ff,
+  jellyTentacle: 0xa872c9,
+  gullBody: 0xf4f4f0,
+  gullWing: 0x9aa3a8,
+  gullBeak: 0xf0b23a,
+  palmFrond: 0x3f9a4a,
+  palmFrondLight: 0x6fc267,
+  coconut: 0x6b4a2a,
+  seaFar: 0x2f7fb0,
+  seaNear: 0x3f9fcf,
+  seaFoam: 0xeaf8fc,
   cactus: 0x4f8a3c,
   cactusDark: 0x35612a,
   cactusSpine: 0xe8e4c0,

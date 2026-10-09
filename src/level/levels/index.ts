@@ -5,6 +5,7 @@ import { SWAMP } from './swamp';
 import { CANOPY } from './canopy';
 import { VOLCANO } from './volcano';
 import { DESERT } from './desert';
+import { BEACH } from './beach';
 
 /**
  * The levels, in the order they are played.
@@ -13,5 +14,6 @@ import { DESERT } from './desert';
  * it descends into is the volcano -- so it has to be the thing you do
  * immediately before arriving there. The desert comes after the volcano: out
  * the far side of the mountain into the open, with the beetle behind you.
+ * The beach is where the desert runs out: sand into sea.
  */
-export const LEVELS: LevelDefinition[] = [FOREST, CANOPY, SWAMP, CAVE, VOLCANO, DESERT];
+export const LEVELS: LevelDefinition[] = [FOREST, CANOPY, SWAMP, CAVE, VOLCANO, DESERT, BEACH];

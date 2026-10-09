@@ -39,6 +39,8 @@ export {
   bakeTrunk,
 } from './tiles';
 export type { TilePalette } from './tiles';
+export { CASTLE_FLAG_HEADROOM, bakeSandCastle, type CastleCell } from './castle';
+export { PALM_BULGE, bakePalmTrunk } from './palm';
 export {
   BOSS_SIZE,
   CACTUS_SIZE,
@@ -49,7 +51,11 @@ export {
   CROCODILE_SIZE,
   CROW_SIZE,
   GROUND_ENEMY_SIZES,
+  JELLY_SIZE,
+  PALM_CROWN_ANCHOR,
+  PALM_CROWN_SIZE,
   PIRANHA_SIZE,
+  bakeCactus,
   SPIDER_SIZE,
 } from './creatures';
 
