@@ -13,6 +13,16 @@ Phaser scenes. Registered in order in `src/main.ts`; the first one starts.
   minute per death, see `SCORE`) and how often you died, and back to the
   title.
 
+`src/stats.ts` is the device's memory of every run: `GameScene` feeds it
+(time per frame, hearts, big hearts, deaths as they happen), `VictoryScene`
+sets the records with `recordWin` and says "New record" when it did, and
+`TitleScene` lists records and totals down the right-hand side, each value under its name, once there is anything.
+Records are per version (`records[__APP_VERSION__]`, so per build), totals
+all-time. Everything is in `localStorage` under `catnah:stats`, read once at load,
+written on every event and every five seconds of counted time, and on
+`pagehide`. Hot reload is safe: totals accrue per frame and are never
+derived from the carried `elapsedMs`.
+
 `BootScene` starts `Title`, **except on a hot reload**, which carries a game in
 progress: dropping the player back on the title screen would throw away the
 place `src/dev/hot.ts` went to such trouble to keep. It tests for the snapshot

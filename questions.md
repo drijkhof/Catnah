@@ -1552,6 +1552,25 @@ them, no hedgehogs, and pyramids for a backdrop. Calls of mine inside that:
 - **The rider is carried by the camel's actual movement**, not its
   velocity. The first version used the velocity, and you slid off the back
   whenever the camel pressed against something and went nowhere.
+- **Records and totals, at your word**: fastest time and fewest deaths as
+  the records, and played time, little hearts, big hearts and deaths as
+  the totals. Calls of mine: records come only from a *won* run, because a
+  fastest time for a run that stopped halfway is not a time; totals count
+  as they happen, so an abandoned run still adds up; the fastest time is
+  the score (clock plus the death minutes), the same number the victory
+  screen calls Time, not the bare clock; it is all per device in
+  `localStorage` (`catnah:stats`), since there is no server -- the
+  anti-cheat replay question from earlier stands if that ever changes;
+  time is written out every five seconds and on the tab going away, the
+  rest the moment it happens; shown on the title screen down the right-hand
+  side, each value under its name, at your word, and only once anything has
+  been played, and on the victory
+  screen as "New record" in gold or the best to beat in grey. Wins are
+  counted too, since they were free. Then, at your word, records went
+  **per version** -- keyed by `__APP_VERSION__`, which already carries the
+  deploy's run number (or the commit hash on a laptop build), so each build
+  has its own fastest time and fewest deaths and old ones stay in storage
+  under their version -- while the totals stay all-time, as you said.
 - **The order of the levels is yours**: beach first, desert second, then
   the forest through to the volcano -- which makes the beetle the end of
   the game, since the volcano's portal is the one that leads to the victory

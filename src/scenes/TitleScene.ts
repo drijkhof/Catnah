@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH, LIVES, TILE } from '../config';
+import { formatClock } from '../score';
+import { formatPlayed, stats } from '../stats';
 import { sound } from '../audio/Sound';
 
 /**
@@ -93,6 +95,80 @@ export class TitleScene extends Phaser.Scene {
       .setAlpha(0.7);
 
     // A phone has no keys to press, so it is told what it does have.
+    // What this device has seen, down the right-hand side: each number
+    // under its name -- this version's records first, under its version
+    // number, then the all-time totals -- and only once there is anything
+    // to tell.
+    if (stats.any) {
+      const s = stats.snapshot;
+      const r = stats.records;
+      // The two kinds of heart are told apart by their own pictures, the
+      // little one and the big one, each in front of the word.
+      const rows: Array<[string, string, string?]> = [
+        ['Fastest time', r.bestMs === null ? '–' : formatClock(r.bestMs)],
+        ['Fewest deaths', r.fewestDeaths === null ? '–' : String(r.fewestDeaths)],
+        ['Played', formatPlayed(s.playedMs)],
+        ['hearts', String(s.hearts), 'charm'],
+        ['hearts', String(s.bigHearts), 'life'],
+        ['Deaths', String(s.deaths)],
+      ];
+      const labelSize = Math.round(GAME_WIDTH * 0.017);
+      const valueSize = Math.round(GAME_WIDTH * 0.024);
+      const right = GAME_WIDTH - 8;
+      let y = Math.round(GAME_HEIGHT * 0.16);
+      const heading = (text: string): void => {
+        this.add
+          .text(right, y, text, {
+            fontFamily: 'monospace',
+            fontSize: `${labelSize}px`,
+            color: '#ffc44d',
+            stroke: '#2a1d14',
+            strokeThickness: 2,
+          })
+          .setOrigin(1, 0)
+          .setDepth(1000);
+        y += labelSize + 4;
+      };
+      heading('Best');
+      for (const [index, [label, value, icon]] of rows.entries()) {
+        if (index === 2) {
+          y += 4;
+          heading('All time');
+        }
+        const name = this.add
+          .text(right, y, label, {
+            fontFamily: 'monospace',
+            fontSize: `${labelSize}px`,
+            color: '#ffe9b0',
+            stroke: '#2a1d14',
+            strokeThickness: 2,
+          })
+          .setOrigin(1, 0)
+          .setDepth(1000)
+          .setAlpha(0.75);
+        if (icon) {
+          const size = labelSize + 2;
+          this.add
+            .image(right - name.width - 3, y + labelSize / 2, icon)
+            .setOrigin(1, 0.5)
+            .setDisplaySize(size, size)
+            .setDepth(1000);
+        }
+        y += labelSize + 1;
+        this.add
+          .text(right, y, value, {
+            fontFamily: 'monospace',
+            fontSize: `${valueSize}px`,
+            color: '#ffffff',
+            stroke: '#2a1d14',
+            strokeThickness: 3,
+          })
+          .setOrigin(1, 0)
+          .setDepth(1000);
+        y += valueSize + 6;
+      }
+    }
+
     const prompt = this.game.device.input.touch ? 'Tap to start' : 'Press any key to start';
 
     const hint = this.add

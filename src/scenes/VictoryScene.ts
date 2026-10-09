@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH, SCORE } from '../config';
 import { formatClock, scoreMs } from '../score';
+import { stats } from '../stats';
 
 /**
  * How long the screen holds before it will take an input, ms.
@@ -19,7 +20,8 @@ const HOLD_MS = 1200;
  * up out of black, since the game has just faded to black on its way out.
  * One line in gold, the time under it, and how often you died: the time is
  * the score, lower is better, every second in a level plus a minute for
- * every death.
+ * every death. The win goes into this device's records (`stats`), and if it
+ * beat the fastest time or the fewest deaths, the screen says so.
  */
 export class VictoryScene extends Phaser.Scene {
   private ready = false;
@@ -105,8 +107,31 @@ export class VictoryScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setAlpha(0.9);
 
+    // The records, written before they are read: a first win sets both.
+    const record = stats.recordWin(scoreMs(this.elapsedMs, this.deaths), this.deaths);
+    const best = stats.records;
+    const records =
+      record.fastest && record.fewestDeaths
+        ? 'New record: fastest time and fewest deaths!'
+        : record.fastest
+          ? 'New record: fastest time!'
+          : record.fewestDeaths
+            ? 'New record: fewest deaths!'
+            : `Best  ${formatClock(best.bestMs ?? 0)}  ·  fewest deaths  ${best.fewestDeaths ?? 0}`;
+    const isRecord = record.fastest || record.fewestDeaths;
+    this.add
+      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.75, records, {
+        fontFamily: 'monospace',
+        fontSize: `${Math.round(GAME_WIDTH * (isRecord ? 0.03 : 0.024))}px`,
+        color: isRecord ? '#ffc44d' : '#b9b9b9',
+        stroke: isRecord ? '#3a2a05' : undefined,
+        strokeThickness: isRecord ? 3 : 0,
+      })
+      .setOrigin(0.5)
+      .setAlpha(0.95);
+
     const hint = this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.86, 'Press any key', {
+      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.88, 'Press any key', {
         fontFamily: 'monospace',
         fontSize: `${Math.round(GAME_WIDTH * 0.026)}px`,
         color: '#ffffff',

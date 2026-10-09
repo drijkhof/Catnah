@@ -22,6 +22,7 @@ import { installBossRespawn } from '../dev/bossRespawn';
 import { sound, type Ambience, type SoundMode } from '../audio/Sound';
 import { SNAPSHOT_KEY, type GameSnapshot } from '../dev/hot';
 import { formatClock, scoreMs } from '../score';
+import { stats } from '../stats';
 
 /**
  * Whether something falling should be stopped by a branch this frame.
@@ -543,6 +544,7 @@ export class GameScene extends Phaser.Scene {
     // second changes.
     if (!this.titleMode) {
       this.elapsedMs += delta;
+      stats.addPlayed(delta);
       const shown = formatClock(scoreMs(this.elapsedMs, this.deaths));
       if (this.clockText && this.clockText.text !== shown) {
         this.clockText.setText(shown);
@@ -1319,6 +1321,7 @@ export class GameScene extends Phaser.Scene {
 
     this.lives -= 1;
     this.deaths += 1;
+    stats.addDeath();
     this.refreshLives();
     this.announce67();
 
@@ -2608,6 +2611,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private collectCharm(charm: Phaser.Physics.Arcade.Sprite): void {
+    stats.addHeart();
     if (!charm.active) {
       return;
     }
@@ -2650,6 +2654,7 @@ export class GameScene extends Phaser.Scene {
 
     this.lives = Math.min(this.lives + 1, MAX_LIVES);
     this.maxLives = this.lives;
+    stats.addBigHeart();
     return 'granted';
   }
 

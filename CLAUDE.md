@@ -159,6 +159,10 @@ instead of scrolling with the world, plus a high `setDepth` to stay on top.
   its respawn point too. Development only.
 - **Dev test levels**: none at the moment. See `src/level/CLAUDE.md` for how
   to add one.
+- **Clearing the records and totals**: `stats.reset()` in the console
+  (`window.stats` exists in dev only). Removing the `catnah:stats` key from
+  localStorage by hand is not enough -- the store keeps counting from memory
+  and writes it straight back.
 
 - Physics bodies and velocity vectors: set `physics.arcade.debug` to `true` in
   `src/main.ts`.

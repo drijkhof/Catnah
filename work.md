@@ -566,6 +566,25 @@ A column of cactus cells in the map is one tall cactus, drawn as one with an
 arm every so often, and deadly along its whole height — the desert has a
 three-high one.
 
+## Records and totals
+
+The game remembers, on the device it is played on, what has been played
+there. **Records** are the best of a finished run — the fastest time (the
+score: the clock plus a minute a death) and the fewest deaths — and only a
+win sets them. They are kept **per version** of the game, build number and
+all: a level that changed is a different race, so a new build starts with
+clean records while the old ones stay in storage under their version.
+**Totals** add up as they happen, finished run or not, across every version:
+time spent in levels, little hearts, big hearts, deaths. The title screen
+lists them down the right-hand side, each number under its name — the
+records under "Best", the totals under "All time", the two
+kinds of heart told apart by their own pictures in front of the word — once
+there is anything to show; the
+victory screen says **New record** in gold when a win beats the fastest time
+or the fewest deaths, and otherwise shows the best to beat. Nothing leaves
+the device: there is no account and no server, and a private window simply
+remembers nothing.
+
 ## Winning, and the score
 
 Walk into the volcano's portal and the sunlit forest comes up out of the

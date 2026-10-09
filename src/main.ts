@@ -7,6 +7,7 @@ import { VictoryScene } from './scenes/VictoryScene';
 import { GameScene } from './scenes/GameScene';
 import { captureFrom, SNAPSHOT_KEY, type GameSnapshot } from './dev/hot';
 import { sound } from './audio/Sound';
+import { stats } from './stats';
 
 function createGame(carried?: GameSnapshot): Phaser.Game {
   return new Phaser.Game({
@@ -166,4 +167,7 @@ if (import.meta.env.DEV) {
   // Exposed only in development, so the running game can be poked from the
   // browser console: `game.scene.getScene('Game')`.
   (window as unknown as { game: Phaser.Game }).game = game;
+  // And the device's records and totals, so `stats.reset()` can clear them:
+  // removing the localStorage key alone is written straight back over.
+  (window as unknown as { stats: typeof stats }).stats = stats;
 }
