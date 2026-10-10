@@ -40,6 +40,13 @@ Two things that follow from it being an overlay:
 - `GameScene.create` **clears the camera's filters**. Nothing else does, and a
   new run starting in black and white is a haunting little bug.
 
+Both the game-over screen and the title ignore **auto-repeat** keydowns
+(`event.repeat`): a key held down fires `keydown` every few dozen
+milliseconds, and without the check one held key dismissed the game over and
+started a new run through the title in the same instant, so the title was
+never seen. The title also holds for 500ms before taking input, for the same
+reason the game-over screen does.
+
 `GameOverScene` ignores input for its first 900ms. A death is usually a keypress
 or a tap, and without the pause the same press that killed you also dismisses
 the message. Its text is at full alpha from the first frame and only *then*

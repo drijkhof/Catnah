@@ -17,6 +17,12 @@ import { sound } from '../audio/Sound';
  * It has no `update` and nothing in it moves except the title bobbing and the
  * prompt pulsing, both on tweens.
  */
+/**
+ * How long the title holds before it takes an input, ms. Short: it is there
+ * to outlast the press that ended the last screen, not to make anyone wait.
+ */
+const TITLE_HOLD_MS = 500;
+
 export class TitleScene extends Phaser.Scene {
   /** True once the game has been asked for, so a second key cannot ask again. */
   private starting = false;
@@ -198,8 +204,18 @@ export class TitleScene extends Phaser.Scene {
 
   /** Any key, or a tap anywhere. */
   private waitForAnyInput(): void {
-    this.input.keyboard?.once('keydown', () => this.begin());
-    this.input.once('pointerdown', () => this.begin());
+    // Not straight away, and never on a key that is merely still held. A
+    // held key repeats `keydown` every few dozen milliseconds, so the press
+    // that dismissed the game-over screen used to dismiss this one too, and
+    // the title went by unseen on the way into a new run.
+    this.time.delayedCall(TITLE_HOLD_MS, () => {
+      this.input.keyboard?.on('keydown', (event: KeyboardEvent) => {
+        if (!event.repeat) {
+          this.begin();
+        }
+      });
+      this.input.once('pointerdown', () => this.begin());
+    });
   }
 
   /**

@@ -1552,6 +1552,12 @@ them, no hedgehogs, and pyramids for a backdrop. Calls of mine inside that:
 - **The rider is carried by the camel's actual movement**, not its
   velocity. The first version used the velocity, and you slid off the back
   whenever the camel pressed against something and went nowhere.
+- **"After game over you don't return to the title"**: you did, for a
+  few milliseconds. The title took any input the instant it appeared, and a
+  key still held from the death auto-repeats `keydown`, so the same key
+  that dismissed the game-over screen started a new run through the title
+  before it could be seen. Now neither screen listens to repeats, and the
+  title holds half a second before it listens at all.
 - **All text crisp, at your word.** The canvas is 640×360 (less on a
   phone) stretched to the screen, so any word drawn on it is upscaled in
   blocks like the sprites. Rather than render the world at device

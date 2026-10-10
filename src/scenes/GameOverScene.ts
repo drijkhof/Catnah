@@ -64,7 +64,13 @@ export class GameOverScene extends Phaser.Scene {
     this.time.delayedCall(HOLD_MS, () => {
       this.ready = true;
 
-      this.input.keyboard?.once('keydown', () => this.leave());
+      // A fresh press, not a key still held from the death: a held key
+      // repeats `keydown`, and that repeat should not read the message for you.
+      this.input.keyboard?.on('keydown', (event: KeyboardEvent) => {
+        if (!event.repeat) {
+          this.leave();
+        }
+      });
       this.input.once('pointerdown', () => this.leave());
     });
   }
