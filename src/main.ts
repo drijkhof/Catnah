@@ -8,6 +8,7 @@ import { GameScene } from './scenes/GameScene';
 import { captureFrom, SNAPSHOT_KEY, type GameSnapshot } from './dev/hot';
 import { sound } from './audio/Sound';
 import { stats } from './stats';
+import { installBackButton } from './back';
 
 function createGame(carried?: GameSnapshot): Phaser.Game {
   return new Phaser.Game({
@@ -79,6 +80,7 @@ function createGame(carried?: GameSnapshot): Phaser.Game {
  */
 const carried = import.meta.hot?.data.snapshot as GameSnapshot | undefined;
 const game = createGame(carried);
+installBackButton(game);
 
 if (import.meta.hot) {
   import.meta.hot.accept();

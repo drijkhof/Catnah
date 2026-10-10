@@ -13,6 +13,12 @@ Phaser scenes. Registered in order in `src/main.ts`; the first one starts.
   minute per death, see `SCORE`) and how often you died, and back to the
   title.
 
+`src/back.ts` is the back button: `runStarted()` in `TitleScene.begin`
+pushes one history entry, `runEnded()` in the game-over and victory `leave`
+takes it back, and the `popstate` listener installed from `main.ts` reads a
+pop during a run as "to the title". The title has no entry of its own, so
+back there is the browser's own back: the exit.
+
 `src/stats.ts` is the device's memory of every run: `GameScene` feeds it
 (time per frame, hearts, big hearts, deaths as they happen), `VictoryScene`
 sets the records with `recordWin` and says "New record" when it did, and

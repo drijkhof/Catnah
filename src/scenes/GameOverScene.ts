@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { crispText } from '../text';
+import { runEnded } from '../back';
 import { GAME_HEIGHT, GAME_WIDTH } from '../config';
 
 /**
@@ -82,6 +83,7 @@ export class GameOverScene extends Phaser.Scene {
     }
 
     this.leaving = true;
+    runEnded();
 
     // The game underneath is paused, not stopped. It has to be stopped here or
     // it stays paused for ever behind the title screen.

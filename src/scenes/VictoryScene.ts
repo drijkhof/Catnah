@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH, SCORE } from '../config';
 import { formatClock, scoreMs } from '../score';
 import { stats } from '../stats';
+import { runEnded } from '../back';
 import { crispText, type CrispText } from '../text';
 
 /**
@@ -169,6 +170,7 @@ export class VictoryScene extends Phaser.Scene {
       return;
     }
     this.leaving = true;
+    runEnded();
     // The forest underneath is ours; the title launches its own.
     this.scene.stop('Game');
     this.scene.start('Title');

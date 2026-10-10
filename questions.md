@@ -1552,6 +1552,14 @@ them, no hedgehogs, and pyramids for a backdrop. Calls of mine inside that:
 - **The rider is carried by the camel's actual movement**, not its
   velocity. The first version used the velocity, and you slid off the back
   whenever the camel pressed against something and went nowhere.
+- **Back: title first, then out, at your word.** One history entry is
+  pushed when a run starts and taken back when the run ends (game over,
+  victory, or back itself), so the title never has an entry of its own and
+  back from there is the browser's plain back -- the exit. Back during a
+  run, or on the game-over or victory screen, pops our entry and goes to the
+  title. A reload mid-run takes the leftover entry back on load, so the
+  first back on the title still leaves. The run lost to a back press is
+  not saved anywhere; neither is one lost to a game over.
 - **The empty score board, and the game over with no word on it**: the
   same thing. Phaser's fullscreen wraps only the canvas in a fresh element,
   and a browser shows nothing outside the fullscreen element -- so from the

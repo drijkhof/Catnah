@@ -566,6 +566,13 @@ A column of cactus cells in the map is one tall cactus, drawn as one with an
 arm every so often, and deadly along its whole height — the desert has a
 three-high one.
 
+## The back button
+
+On a phone, **back** during a run takes you to the title screen — the run is
+over, like a game over — and **back** on the title screen leaves the game, as
+back always does. The same for the browser's back button and an iPhone's
+edge swipe. So one wrong press mid-run costs the run, never the app.
+
 ## Text is crisp
 
 Every word in the game — the HUD, the title, the scores, the notes that pop

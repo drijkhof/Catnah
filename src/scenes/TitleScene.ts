@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH, LIVES, TILE } from '../config';
 import { formatClock } from '../score';
 import { formatPlayed, stats } from '../stats';
+import { runStarted } from '../back';
 import { crispText } from '../text';
 import { sound } from '../audio/Sound';
 
@@ -262,6 +263,8 @@ export class TitleScene extends Phaser.Scene {
     // audio. A context created any other way is stuck suspended for ever, and
     // silently -- no error anywhere.
     sound.unlock();
+    // Back from here goes to the title; back from the title leaves.
+    runStarted();
 
     this.starting = true;
     this.cameras.main.fade(300, 0, 0, 0);
