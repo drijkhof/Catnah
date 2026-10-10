@@ -31,6 +31,12 @@ function createGame(carried?: GameSnapshot): Phaser.Game {
       // landscape without any layout branching.
       mode: Phaser.Scale.FIT,
       autoCenter: Phaser.Scale.CENTER_BOTH,
+      // Fullscreen takes the game's own container, not a wrapper Phaser
+      // makes round the canvas alone. The text lives in a DOM layer beside
+      // the canvas (see `src/text.ts`), and a browser shows only what is
+      // inside the fullscreen element -- with the default wrapper every word
+      // vanished the moment the title went fullscreen.
+      fullscreenTarget: 'game',
     },
 
     physics: {

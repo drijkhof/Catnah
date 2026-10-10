@@ -1552,6 +1552,12 @@ them, no hedgehogs, and pyramids for a backdrop. Calls of mine inside that:
 - **The rider is carried by the camel's actual movement**, not its
   velocity. The first version used the velocity, and you slid off the back
   whenever the camel pressed against something and went nowhere.
+- **The empty score board, and the game over with no word on it**: the
+  same thing. Phaser's fullscreen wraps only the canvas in a fresh element,
+  and a browser shows nothing outside the fullscreen element -- so from the
+  moment the title's keypress went fullscreen, every word (now HTML beside
+  the canvas) was invisible, box and picture intact. Fullscreen now takes
+  the game's own container, canvas and text together.
 - **"After game over you don't return to the title"**: you did, for a
   few milliseconds. The title took any input the instant it appeared, and a
   key still held from the death auto-repeats `keydown`, so the same key

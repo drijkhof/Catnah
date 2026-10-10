@@ -140,7 +140,10 @@ stretched to the screen, and a word drawn on it is as blocky as the cat. The
 DOM layer sits above the canvas, so text ignores canvas fades -- a screen
 that fades, fades its text's alpha alongside -- and catches no pointer
 events unless `setInteractive()` is called, or it would steal touches from
-the stick. See `src/text.ts`.
+the stick. And **fullscreen must take the `#game` container**
+(`scale.fullscreenTarget` in `main.ts`): Phaser's default wraps only the
+canvas, and the browser hides everything outside the fullscreen element --
+every word in the game, silently. See `src/text.ts`.
 
 **Art is referred to by texture key, never by colour or shape.** Every texture
 is drawn in code in `src/art` and swapped for real art by loading a file under
