@@ -576,7 +576,10 @@ edge swipe. So one wrong press mid-run costs the run, never the app.
 **Double-tap the time** in the top-left corner to quit a run to the title
 from inside the game -- a phone has no key to press, and not every phone
 has a back gesture. Two taps, not one, so a stray touch costs nothing. On a
-keyboard it is **Escape**.
+keyboard it is **Escape**. The title screen has the same spot, **hidden**:
+double-tap where the time would be and the game goes back the way back
+does, out. So the two back steps -- run to title, title to out -- are both
+there by double-tapping the top-left corner, on any phone.
 
 ## Text is crisp
 

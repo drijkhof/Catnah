@@ -107,6 +107,26 @@ export class CrispText extends Phaser.GameObjects.DOMElement {
   }
 }
 
+/**
+ * Calls `handler` when `label` is tapped twice within `windowMs`. The label
+ * has to be interactive already. Two taps rather than one is the guard: a
+ * word in a corner must not do anything on a stray touch.
+ */
+export function onDoubleTap(label: CrispText, windowMs: number, handler: () => void): void {
+  let lastTap = -Infinity;
+
+  label.on('pointerdown', () => {
+    const now = performance.now();
+
+    if (now - lastTap < windowMs) {
+      lastTap = -Infinity;
+      handler();
+    } else {
+      lastTap = now;
+    }
+  });
+}
+
 /** The `this.add.text(...)` of this game. */
 export function crispText(scene: Phaser.Scene, x: number, y: number, text: string, style: CrispTextStyle = {}): CrispText {
   return new CrispText(scene, x, y, text, style);

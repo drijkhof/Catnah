@@ -1739,3 +1739,18 @@ it sits well clear of the stick and the jump button. Decided without you:
 - Ignored while a game over is on screen, which is already on its way to
   the title.
 
+## The title's hidden back button
+
+**As asked:** the same spot and size as the clock, double-tapped, on the
+title screen. It calls the browser's back, which is what the back button
+does there: it leaves the game. Decided without you:
+
+- **A double tap, not a single**, to match the time in the game and so one
+  stray tap on the title never closes the app. Say so if you want one tap.
+- **No key for it on a laptop.** The browser's own back button is already
+  there; an Escape that navigated away from the page would surprise.
+- **It may do nothing in an installed app.** A page cannot close itself: if
+  the game was opened straight from the home screen, there is no page to go
+  back to and the browser ignores the call. In a browser tab, and on a phone
+  that came to the game from another page, it goes back.
+

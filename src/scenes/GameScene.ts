@@ -23,7 +23,7 @@ import { sound, type Ambience, type SoundMode } from '../audio/Sound';
 import { SNAPSHOT_KEY, type GameSnapshot } from '../dev/hot';
 import { formatClock, scoreMs } from '../score';
 import { stats } from '../stats';
-import { crispText, type CrispText } from '../text';
+import { crispText, onDoubleTap, type CrispText } from '../text';
 import { runEnded } from '../back';
 
 /**
@@ -2748,16 +2748,7 @@ export class GameScene extends Phaser.Scene {
     // the stick and the jump button, and a phone has no other way out of a
     // run -- there is no key to press, and the back gesture is not on every
     // phone. Two taps, not one, so a stray touch costs nothing.
-    let lastTap = -Infinity;
-    this.clockText.on('pointerdown', () => {
-      const now = this.time.now;
-      if (now - lastTap < TOUCH.doubleTapMs) {
-        lastTap = -Infinity;
-        this.quitToTitle();
-      } else {
-        lastTap = now;
-      }
-    });
+    onDoubleTap(this.clockText, TOUCH.doubleTapMs, () => this.quitToTitle());
 
     // The keyboard's way out, so the feature exists on a laptop too.
     this.input.keyboard?.on('keydown-ESC', () => this.quitToTitle());

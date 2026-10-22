@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH, LIVES, TILE } from '../config';
+import { GAME_HEIGHT, GAME_WIDTH, LIVES, TILE, TOUCH } from '../config';
 import { formatClock } from '../score';
 import { formatPlayed, stats } from '../stats';
 import { runStarted } from '../back';
-import { crispText } from '../text';
+import { crispText, onDoubleTap } from '../text';
 import { sound } from '../audio/Sound';
 
 /**
@@ -44,7 +44,35 @@ export class TitleScene extends Phaser.Scene {
     this.scene.bringToTop();
 
     this.addWords();
+    this.addBackSpot();
     this.waitForAnyInput();
+  }
+
+  /**
+   * A hidden back button: the same spot, and the same size, as the clock in
+   * the game's HUD, and the same double tap. In the game it quits to the
+   * title; here it is the browser's back, which leaves the game -- the
+   * same two steps the back button takes, for a phone that has no back
+   * button. Invisible on purpose: the title has nothing in that corner, and
+   * a visible button would ask to be pressed.
+   *
+   * It catches the taps itself, being HTML over the canvas, so they do not
+   * also start a run. Where there is nothing to go back to -- the game
+   * opened straight into an installed app -- the browser ignores it; a page
+   * cannot close itself.
+   */
+  private addBackSpot(): void {
+    const spot = crispText(
+      this,TILE + 10, TILE - 7, '00:00', {
+        fontFamily: 'monospace',
+        fontSize: '14px',
+        color: 'transparent',
+      })
+      .setScrollFactor(0)
+      .setDepth(1000)
+      .setInteractive();
+
+    onDoubleTap(spot, TOUCH.doubleTapMs, () => history.back());
   }
 
   /** The name, whose game it is, and how to begin. */
