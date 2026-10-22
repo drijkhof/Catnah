@@ -209,6 +209,10 @@ export class GameScene extends Phaser.Scene {
     title?: boolean;
   }): void {
     this.titleMode = data.title ?? false;
+    // The scene instance is reused from run to run, so a flag set on the
+    // way out has to be cleared on the way in, or the second run's double
+    // tap does nothing.
+    this.quitting = false;
 
     const carried = this.registry.get(SNAPSHOT_KEY) as GameSnapshot | undefined;
 
