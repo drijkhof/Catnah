@@ -909,6 +909,12 @@ export const TOUCH = {
   stickZoneWidth: 0.4,
   /** ...and the jump button to the same share on the right, both below this share of its height. */
   zoneTop: 0.3,
+  /**
+   * Two taps on the clock this close together, ms, quit the run to the
+   * title. A double tap rather than one: the clock is a word in a corner,
+   * and one stray touch must not cost the run.
+   */
+  doubleTapMs: 350,
 } as const;
 
 export const COLORS = {

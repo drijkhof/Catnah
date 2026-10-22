@@ -1724,3 +1724,18 @@ them, no hedgehogs, and pyramids for a backdrop. Calls of mine inside that:
 a hidden worm stays hidden, and one that is up sinks at once, taking as long
 to go down as it had come up. It gives the camel a job: its back is the safe
 way over the mounds, and walking the same ground on foot is the gamble.
+
+## Quitting to the title
+
+**Double-tap the time, as asked.** Two taps within 350ms (`TOUCH.doubleTapMs`)
+on the clock in the top-left corner end the run and fade to the title, the
+same way back does. The clock is now the one HUD word that takes touches;
+it sits well clear of the stick and the jump button. Decided without you:
+
+- **Escape does the same on a keyboard**, one press, since every feature has
+  to work with both. If a stray Escape mid-run turns out to cost runs, it
+  can be made a double press like the tap.
+- **No confirmation**, as you said: the second tap is the confirmation.
+- Ignored while a game over is on screen, which is already on its way to
+  the title.
+

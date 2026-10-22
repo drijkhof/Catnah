@@ -17,7 +17,9 @@ Phaser scenes. Registered in order in `src/main.ts`; the first one starts.
 pushes one history entry, `runEnded()` in the game-over and victory `leave`
 takes it back, and the `popstate` listener installed from `main.ts` reads a
 pop during a run as "to the title". The title has no entry of its own, so
-back there is the browser's own back: the exit.
+back there is the browser's own back: the exit. `GameScene.quitToTitle` is
+the way out from inside a run -- a double tap on the clock, or Escape -- and
+calls `runEnded()` too, so the stack stays in step with what is on screen.
 
 `src/stats.ts` is the device's memory of every run: `GameScene` feeds it
 (time per frame, hearts, big hearts, deaths as they happen), `VictoryScene`

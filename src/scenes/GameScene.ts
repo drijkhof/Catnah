@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { AWAKE_RANGE, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, WATER_DROP } from '../config';
+import { AWAKE_RANGE, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
 import { Controls, IdleControls, type PlayerInput } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -24,6 +24,7 @@ import { SNAPSHOT_KEY, type GameSnapshot } from '../dev/hot';
 import { formatClock, scoreMs } from '../score';
 import { stats } from '../stats';
 import { crispText, type CrispText } from '../text';
+import { runEnded } from '../back';
 
 /**
  * Whether something falling should be stopped by a branch this frame.
@@ -127,6 +128,9 @@ export class GameScene extends Phaser.Scene {
    * its own words.
    */
   private titleMode = false;
+
+  /** Set once the run is being left for the title, so a second ask is ignored. */
+  private quitting = false;
 
   /**
    * True while the level is being left: the cat is being drawn into the
@@ -2732,7 +2736,47 @@ export class GameScene extends Phaser.Scene {
         strokeThickness: 3,
       })
       .setScrollFactor(0)
-      .setDepth(1000);
+      .setDepth(1000)
+      .setInteractive();
+
+    // Double-tap the clock to quit to the title. The clock is the one HUD
+    // word that takes touches: it sits in the top-left corner, well clear of
+    // the stick and the jump button, and a phone has no other way out of a
+    // run -- there is no key to press, and the back gesture is not on every
+    // phone. Two taps, not one, so a stray touch costs nothing.
+    let lastTap = -Infinity;
+    this.clockText.on('pointerdown', () => {
+      const now = this.time.now;
+      if (now - lastTap < TOUCH.doubleTapMs) {
+        lastTap = -Infinity;
+        this.quitToTitle();
+      } else {
+        lastTap = now;
+      }
+    });
+
+    // The keyboard's way out, so the feature exists on a laptop too.
+    this.input.keyboard?.on('keydown-ESC', () => this.quitToTitle());
+  }
+
+  /**
+   * Leaves the run for the title screen: the run is over, like a game over.
+   *
+   * Takes the run's history entry back first (`runEnded`), the same as the
+   * game-over and victory screens do, so the back button stays in step. Not
+   * while the scene is paused: a game over is already on its way to the
+   * title, and a fade would never finish on a paused camera.
+   */
+  private quitToTitle(): void {
+    if (this.quitting || this.titleMode || this.scene.isPaused()) {
+      return;
+    }
+    this.quitting = true;
+    runEnded();
+    this.cameras.main.fade(180, 0, 0, 0);
+    this.cameras.main.once('camerafadeoutcomplete', () => {
+      this.scene.start('Title');
+    });
   }
 
   /**

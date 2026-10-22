@@ -573,6 +573,11 @@ over, like a game over — and **back** on the title screen leaves the game, as
 back always does. The same for the browser's back button and an iPhone's
 edge swipe. So one wrong press mid-run costs the run, never the app.
 
+**Double-tap the time** in the top-left corner to quit a run to the title
+from inside the game -- a phone has no key to press, and not every phone
+has a back gesture. Two taps, not one, so a stray touch costs nothing. On a
+keyboard it is **Escape**.
+
 ## Text is crisp
 
 Every word in the game — the HUD, the title, the scores, the notes that pop
