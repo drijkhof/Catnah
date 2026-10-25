@@ -50,6 +50,12 @@ Two things that follow from it being an overlay:
   stays paused for ever otherwise, sitting behind the title screen.
 - `GameScene.create` **clears the camera's filters**. Nothing else does, and a
   new run starting in black and white is a haunting little bug.
+- More generally, **`GameScene` is one instance, restarted per level and per
+  run**, so every per-run flag has to be reset on the way in (`init` or
+  `create`, or where the thing is built), never only where it is set. Two
+  bugs came from forgetting that: the double tap to quit worked once, and a
+  run that died in the volcano with the beetle up left `exitsOpen` false, so
+  level 1's portal could be seen but not entered.
 
 Both the game-over screen and the title ignore **auto-repeat** keydowns
 (`event.repeat`): a key held down fires `keydown` every few dozen

@@ -821,6 +821,11 @@ export class GameScene extends Phaser.Scene {
    */
   private buildExit(): void {
     this.exits = this.level.exits.map((exit) => this.buildPortal(exit));
+    // The scene instance is reused from level to level and run to run, and
+    // only the beetle ever closes or opens the portals: a run that ended in
+    // the volcano with the beetle still up left them closed, and the next
+    // run's level 1 had a portal that could be seen but not entered.
+    this.exitsOpen = true;
     if (this.level.boss) {
       this.closeExits();
     }
