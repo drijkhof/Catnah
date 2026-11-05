@@ -34,6 +34,8 @@ its platforms must attach to a column. Everything else is derived.
 | `+` | spare heart, on its own — no nest, no ledge. Write one directly above a row of `N` for a heart sitting in a nest |
 | `W` | water with a spare heart floating in it — use this instead of `+` inside a pool, or it punches a hole in the water |
 | `h` | hedgehog, `r` rat — walkers, only ever on plain `#` floor. On the moon `h` is a **robot**. On the beach `h` is a **crab**: the letters are the same in every level, and the place decides what walks |
+| `M` | the hull of a **moon base**: solid, every cluster of touching `M` drawn as one base by `art/base.ts`, the inside and the doors included. Write a roof over side walls that stop two rows short of the ground: those gaps are the doors. `=` inside is drawn as a lab bench |
+| `F` | an American flag planted in the dust. Scenery only, at the cell's floor |
 | `D` | a **grey block** (moon): solid, a robot climbs out of its top every `ROBOT.spawnEveryMs` while the cat is near, and holding down against it breaks it. Deliberately *not* in `FULL_CELL`, so no neighbour switches a face off against it and nothing is left with a hole when it goes |
 | `j` | jellyfish — a mine washed up on the sand: lies on its cell's floor, pulsing, and kills from any side; needs something solid under it like a cactus does |
 | `k` | camel — ambles on plain `#` floor, harmless: the cat jumps on its back and rides |
@@ -258,6 +260,11 @@ have to climb to the middle of a big one). The sand path's is 3.
 cat in from there; the draw-in then lasts longer the further the cat was
 (`EXIT.pullMsPerPx`), and the fade waits for it. The sand path's is 4. Its
 backdrop keeps bushes clear of the portal; see `world/index.ts`.
+
+## No air
+
+`helmet: true` puts the space helmet on the cat for the whole level
+(`GameScene.buildHelmet`); `SpaceScene` puts it on in space.
 
 ## Off into space
 

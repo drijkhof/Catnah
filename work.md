@@ -49,6 +49,9 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | kaart | `map` | the Earth, the Moon, Mars and Saturn; only the Moon can be picked |
 | maan | `moon` | the last level |
 | robotje | `robot` | the moon's walker: comes for you to grab you |
+| maanbasis | `moon base` | the moon's `M`: a module with doors at both ends and a lab inside |
+| laboratorium | `laboratory` | inside the moon base |
+| ruimtehelm | `space helmet` | the glass bubble the cat wears in space and on the moon |
 | grijs blok | `grey block` / `hatch` | the moon's `D`: a robot comes out every five seconds; hold down to break it |
 
 ## The cat
@@ -500,7 +503,7 @@ and touching an **earlier** one after passing a later one moves the point back
 | Volcano | 104 |
 | Desert | 109 |
 | Sand path | 66 |
-| Moon | 162 |
+| Moon | 180 |
 
 Every level is **written out** in its file, row by row.
 
@@ -644,7 +647,7 @@ Saturn are dimmed. The run's clock does not count while you fly.
 
 ### 10 — Moon
 
-162 tiles of grey dust over grey rock, craters, moon rocks to climb, and the
+180 tiles of grey dust over grey rock, craters, moon rocks to climb, and the
 sky black and full of stars with the Earth hanging in it, Saturn and
 Mars further off, and grey hills on the horizon.
 
@@ -659,8 +662,22 @@ Mars further off, and grey hills on the horizon.
 
 After the first stretch comes a staircase of rock up to a plateau with a
 block on top, a wide crater with robots in the bottom and shelves over it, a
-chain up a tall tower with a spare heart on top, and a last run of blocks
-to the way out. Its portal ends the game.
+chain up a tall tower with a spare heart on top, then the **moon base**, and
+a last run of blocks to the way out. Its portal ends the game.
+
+**The moon base** is a small white module, sixteen tiles across, with a
+blue and red stripe, a radar dish and an antenna on its roof, and an open
+airlock at each end, framed in hazard stripes, so you walk in one side and
+out the other. Inside is the **laboratory**: lights along the ceiling, a
+round window with the Earth in it, computers with lines on their screens, a
+shelf of flasks and test tubes, a tall tank of bubbling green with a moon
+rock floating in it, a white lab bench to jump on, hearts, and a checkpoint.
+
+**American flags** stand planted in the dust at the start and outside the
+base, and one on the hills on the horizon.
+
+**A space helmet**: in space and on the moon the cat wears a glass bubble
+over its head, which stays on in every pose.
 
 ### Cacti come tall
 

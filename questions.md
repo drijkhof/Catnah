@@ -1841,3 +1841,18 @@ off the grey block themselves.
   off it; they also follow the cat down into craters.
 - **The moon has ordinary gravity.** Lower gravity would make it feel like
   the moon, but it changes every jump; say if you want it.
+
+## The flag, the moon base, and the space helmet
+
+Asked for: the American flag in the background, a moon base you can go into
+with a laboratory inside it, and a space helmet whenever the cat is in space.
+Then: the base smaller.
+
+- **Flags, three of them**: one on the hills on the horizon, one planted at
+  the start and one by the base's door, all behind the cat. Stiff on a rod
+  along the top, as on the real moon, where there is no wind.
+- **The base is walked through**, a door at each end, sixteen tiles across
+  (it was twenty-eight at first), after the tall tower. Nothing hunts
+  inside, though a robot from outside can roll in.
+- **The helmet is on the moon too**, not only on the flight: there is no air
+  there either. It stays on inside the base.
