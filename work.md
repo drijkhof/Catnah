@@ -500,7 +500,7 @@ and touching an **earlier** one after passing a later one moves the point back
 | Volcano | 104 |
 | Desert | 109 |
 | Sand path | 66 |
-| Moon | 92 |
+| Moon | 162 |
 
 Every level is **written out** in its file, row by row.
 
@@ -644,8 +644,8 @@ Saturn are dimmed. The run's clock does not count while you fly.
 
 ### 10 — Moon
 
-92 tiles of grey dust over grey rock, a crater or two, moon rocks to climb,
-and the sky black and full of stars with the Earth hanging in it, Saturn and
+162 tiles of grey dust over grey rock, craters, moon rocks to climb, and the
+sky black and full of stars with the Earth hanging in it, Saturn and
 Mars further off, and grey hills on the horizon.
 
 - **Robots** roll about on treads with a grabbing arm out front, and come
@@ -657,7 +657,10 @@ Mars further off, and grey hills on the horizon.
   breaks, and nothing comes out of it again. Holding down is sneaking, so
   no robot can hurt you while you do it.
 
-Its portal ends the game.
+After the first stretch comes a staircase of rock up to a plateau with a
+block on top, a wide crater with robots in the bottom and shelves over it, a
+chain up a tall tower with a spare heart on top, and a last run of blocks
+to the way out. Its portal ends the game.
 
 ### Cacti come tall
 
