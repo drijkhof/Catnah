@@ -42,7 +42,7 @@ export {
 export type { TilePalette } from './tiles';
 export { CASTLE_FLAG_HEADROOM, bakeSandCastle, type CastleCell } from './castle';
 export { PALM_BULGE, bakePalmTrunk } from './palm';
-export { AWNING_BULGE, HOUSE_HEADROOM, SKYLINE_SIZES, bakeAwning, bakeHouse, type HouseCell } from './house';
+export { AWNING_BULGE, HOUSE_HEADROOM, LAMP_GLOW, LAMP_SIZE, MOON_SIZE, SKYLINE_SIZES, bakeAwning, bakeHouse, type HouseCell } from './house';
 export {
   BOSS_SIZE,
   CACTUS_SIZE,

@@ -43,7 +43,7 @@ export function createBackdrop(
       new BeachBackdrop(scene, groundLine);
       break;
     case 'city':
-      new CityBackdrop(scene, levelWidth, groundLine);
+      new CityBackdrop(scene, level, levelWidth, groundLine);
       break;
     case 'path':
       // The forest's sky, sun, distant trees and bushes, out in the open:

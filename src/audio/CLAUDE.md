@@ -57,7 +57,7 @@ move to three states rather than silently resetting to `all`.
 with a slow oscillator on the gain, which is what wind actually is.
 The swell is what gives it a pulse without ever being a rhythm you could tap to.
 
-Three kinds -- `wind`, `rumble`, `hush` -- picked in `GameScene` off the
+Four kinds -- `wind`, `rain`, `rumble`, `hush` -- picked in `GameScene` off the
 **theme**, not the level, because it is what the *place* sounds like. Asking for
 the bed you already have does nothing, so two swamp levels do not restart the
 wind between them.

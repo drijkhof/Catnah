@@ -24,7 +24,9 @@ binary assets but the portal picture and runs straight after clone.
 - `house.ts` — the city: `bakeHouse` draws a cluster of cells as one town
   house (stepped gable, sash windows, door, arcade arches under it),
   `bakeAwning` a run of `=` as one striped awning, and the skyline textures
-  behind the street. Facades come from a fixed list and go round in street
+  behind the street, the night sky, moon and street lamps. With the
+  palette's `night` set, houses and awnings are drawn dark with about half
+  the windows lit. Facades come from a fixed list and go round in street
   order, so neighbours always differ.
 - `ui.ts` — the touch-button glyphs.
 - `portal.ts` — the way out of a level. The portal is a picture,

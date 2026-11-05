@@ -1,10 +1,11 @@
 import Phaser from 'phaser';
-import { AWAKE_RANGE, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
+import { AWAKE_RANGE, RAIN, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
 import { Controls, IdleControls, type PlayerInput } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
 import { Crocodile } from '../objects/Crocodile';
 import { LavaLake } from '../objects/LavaLake';
+import { Rain } from '../objects/Rain';
 import { Crow } from '../objects/Crow';
 import { GroundEnemy } from '../objects/GroundEnemy';
 import { Piranha } from '../objects/Piranha';
@@ -183,6 +184,8 @@ export class GameScene extends Phaser.Scene {
   /** The desert's worms, each in its mound; what is out of the sand kills. */
   private worms: Worm[] = [];
   private lava?: LavaLake;
+  /** The city's rain, if this is the city. Only ever built outside title mode. */
+  private rain?: Rain;
 
   /** True from the moment the cat is killed until it is back on its feet. */
   private dying = false;
@@ -242,6 +245,7 @@ export class GameScene extends Phaser.Scene {
     this.level = parseLevel(this.titleMode ? TITLE : LEVELS[this.levelIndex]);
     this.crocodiles = [];
     this.spiders = [];
+    this.rain = undefined;
     this.lifeIcons = [];
     this.dying = false;
     this.leaving = false;
@@ -632,6 +636,7 @@ export class GameScene extends Phaser.Scene {
     // carry on whether or not anybody is looking. What the lava does *not* do
     // off screen is be heard -- that is handled where it spits.
     this.lava?.step(delta);
+    this.rain?.step(delta);
     const camels = this.walkers.filter((walker) => walker.rideable);
     for (const worm of this.worms) {
       worm.step(delta, cat, camels);
@@ -1235,20 +1240,26 @@ export class GameScene extends Phaser.Scene {
       volcano: 'rumble',
       desert: 'wind',
       beach: 'wind',
-      city: 'wind',
+      city: 'rain',
       path: 'wind',
     };
 
     sound.setAmbience(bed[theme] ?? 'none');
 
+    if (theme === 'city') {
+      this.rain = new Rain(this);
+    }
+
     // Birds in anything with leaves in it, water in anything underground. Every
     // gap is different: birds on a fixed beat are a smoke alarm.
     const sparse: Partial<
-      Record<string, { voice: 'chirp' | 'drip'; min: number; max: number }>
+      Record<string, { voice: 'chirp' | 'drip' | 'patter'; min: number; max: number }>
     > = {
       forest: { voice: 'chirp', min: 1800, max: 5200 },
       jungle: { voice: 'chirp', min: 1200, max: 3800 },
-      city: { voice: 'chirp', min: 3000, max: 8000 },
+      // Rain is drops, not a hiss: often enough to be rain, never regular
+      // enough to be a rhythm.
+      city: { voice: 'patter', min: RAIN.patterMinMs, max: RAIN.patterMaxMs },
       path: { voice: 'chirp', min: 1600, max: 4600 },
       cave: { voice: 'drip', min: 2200, max: 6000 },
     };
@@ -1808,7 +1819,7 @@ export class GameScene extends Phaser.Scene {
       if (palette.platformStyle === 'awning') {
         const awningKey = `${this.level.theme}:awning:${length}:${column},${row}`;
         if (!this.textures.exists(awningKey)) {
-          bakeAwning(this, awningKey, length, 8101 + column * 31 + row * 17);
+          bakeAwning(this, awningKey, length, 8101 + column * 31 + row * 17, palette.night ?? false);
         }
         this.add
           .image(solid.x - AWNING_BULGE.side, solid.y - AWNING_BULGE.top, awningKey)
@@ -1988,6 +1999,7 @@ export class GameScene extends Phaser.Scene {
         // The facade: the next one along for each house down the street, so
         // two neighbours are never built of the same thing.
         houseNumber,
+        THEMES[this.level.theme].night ?? false,
       );
       houseNumber += 1;
       this.add

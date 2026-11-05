@@ -805,6 +805,24 @@ export const CHECKPOINT = {
  * inside the hole before anything happens, so brushing the rim on the way
  * past does nothing, and neither does jumping over it.
  */
+/** The city's rain. Screen space; see `objects/Rain.ts`. */
+export const RAIN = {
+  /** How many drops are in the air at once. */
+  drops: 110,
+  /** How fast they fall, px/s. */
+  fallMin: 520,
+  fallMax: 860,
+  /** How far they lean while falling, px/s; negative is to the left. */
+  lean: -90,
+  /** How long a streak is drawn, as a fraction of a second of its own travel. */
+  streak: 0.022,
+  /** In front of the level, under the fade to black (999) and the HUD. */
+  depth: 500,
+  /** The drops heard landing: a random gap between each, ms. */
+  patterMinMs: 70,
+  patterMaxMs: 300,
+} as const;
+
 export const EXIT = {
   /** The disc as shown, px. Round, so it can simply be turned. */
   diameter: 32,

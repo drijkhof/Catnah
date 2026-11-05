@@ -28,6 +28,7 @@ export type Voice =
   | 'ratLeap'
   | 'chirp'
   | 'drip'
+  | 'patter'
   | 'checkpoint'
   | 'portal'
   | 'wings'
@@ -41,7 +42,7 @@ export type Voice =
  * swell on it, which is what wind actually is. The swell is what makes
  * it feel like it has a pulse without ever being a rhythm you could tap to.
  */
-export type Ambience = 'none' | 'wind' | 'rumble' | 'hush';
+export type Ambience = 'none' | 'wind' | 'rain' | 'rumble' | 'hush';
 
 /**
  * The three states the mute button cycles through, in order: nothing at all,
@@ -317,6 +318,12 @@ class SoundBoard {
         this.blip(at, 1400, 420, 0.13, 'sine', 0.16);
         break;
 
+      case 'patter':
+        // One raindrop landing. Pitched all over the place on purpose: drops
+        // hit slate, brick, a gutter and a puddle, and they do not agree.
+        this.blip(at, 900 + Math.random() * 1800, 300 + Math.random() * 400, 0.045, 'sine', 0.035);
+        break;
+
       case 'caw':
         this.caw(at);
         break;
@@ -531,6 +538,9 @@ class SoundBoard {
     const shape = {
       // Mid, wandering: leaves in it.
       wind: { type: 'bandpass' as BiquadFilterType, hz: 620, q: 0.7, level: 0.085, breath: 0.09 },
+      // **Not a hiss**: a very soft low wash for the rain to land in. The
+      // rain itself is the drops the scene schedules over the top.
+      rain: { type: 'lowpass' as BiquadFilterType, hz: 480, q: 0.5, level: 0.018, breath: 0.05 },
       // Under everything, felt more than heard.
       rumble: { type: 'lowpass' as BiquadFilterType, hz: 150, q: 0.9, level: 0.16, breath: 0.13 },
       // Almost nothing: the sound of a big room with nobody in it.
@@ -556,7 +566,7 @@ class SoundBoard {
 
     // The swell. Slow, and different per bed, so wind breathes.
     lfo.type = 'sine';
-    lfo.frequency.value = 0.16;
+    lfo.frequency.value = kind === 'rain' ? 0.9 : 0.16;
     depth.gain.value = shape.breath;
     lfo.connect(depth).connect(gain.gain);
 

@@ -3,7 +3,7 @@ import type { LevelDefinition } from '../Level';
 /**
  * Level 1: the city. 104 tiles.
  *
- * A Dutch town on a sunny morning: a street of brick pavers, and on it a
+ * A Dutch town at night, in the rain: a street of brick pavers, and on it a
  * row of gabled houses that are the level. A house stands on the pavement
  * and blocks it, so each one is a way through or a way over:
  *

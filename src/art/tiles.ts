@@ -576,6 +576,8 @@ export interface TilePalette {
    * picture per cluster of one letter; or rock (the default).
    */
   rockStyle?: 'sand' | 'house';
+  /** Night: what is baked for this place is drawn dark, with lit windows. */
+  night?: boolean;
   platformStyle: PlatformStyle;
   surfaceStyle: SurfaceStyle;
   groundStyle: GroundStyle;

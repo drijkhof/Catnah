@@ -517,13 +517,17 @@ optional everywhere.
 
 ### 1 — City
 
-104 tiles. A Dutch town on a sunny morning: a street of brick pavers, a
-skyline of gables and a church tower behind it, and on the street a row of
+104 tiles. A Dutch town **at night, in the rain**: a street of wet brick
+pavers, the moon and stars, a skyline of dark gables with a lit window here
+and there and a church tower with a lit clock behind it, street lamps along
+the pavement between the houses, rain streaking down over everything and the
+patter of drops landing, and on the street a row of
 tall, narrow houses — brick in three reds and browns, or plaster in cream,
 blue-grey, sage and ochre — each with a **stepped gable** capped in white
 stone and a stone ball on top, white sash windows, flower boxes, shutters
-on the plaster ones, and a front door with a fanlight. Two neighbours are
-never built of the same thing.
+on the plaster ones, and a front door with its fanlight lit. About half the
+windows are lit, warm yellow. Two neighbours are never built of the same
+thing.
 
 A house stands on the pavement and blocks it, so every one is a way over or
 a way through:

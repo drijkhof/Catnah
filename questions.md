@@ -1761,9 +1761,9 @@ volcano, desert, beach, sand path; a city as long as the other levels with
 houses, rats and drainpipes, and houses that are not ugly; and a sand path,
 stones with a bit of green and sand, leading to a big portal.
 
-- **The city is a Dutch street in the morning**, not the old city at night.
-  I read "not ugly" as tall narrow canal houses: stepped gables in white
-  stone, sash windows, flower boxes, shutters, doors with fanlights, a
+- **The city is a Dutch street at night, in the rain** (asked for after the
+  first version, which was a sunny morning). I read "not ugly" as tall
+  narrow canal houses: stepped gables in white stone, sash windows, flower boxes, shutters, doors with fanlights, a
   different brick or plaster for every neighbour.
 - **The steps of a gable are the steps you climb.** A gable is drawn exactly
   on its cells, so the roofs are a staircase rather than a slope painted over
@@ -1775,8 +1775,9 @@ stones with a bit of green and sand, leading to a big portal.
 - **Some houses stand on arches**, walked through, and one low one is
   sneaked under. A doorway in a side view is a hole into a wall, so an
   arcade over the full width is the only way *through* a house that reads.
-- **No cars, no crows, no rain.** You asked for houses, rats and drainpipes;
-  the old city had all three of the others, and they are in git history.
+- **No cars and no crows.** The old city had both, and they are in git
+  history. The rain is back, drops and sound as before, and the windows
+  are lit about half at random.
 - **The big portal is three times the usual size**, and its mouth scales
   with it, so walking into its foot is enough.
 - **The sand path is 66 tiles, shorter than the rest**, because "gewoon een

@@ -252,36 +252,38 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     lavaDeep: 0x8f2d10,
     lavaBright: 0xffc44d,
   },
-  // A Dutch town on a sunny morning: brick pavers underfoot, rows of
-  // gabled houses, zinc drainpipes up their sides and striped awnings over
+  // A Dutch town at night, in the rain: wet brick pavers underfoot, rows of
+  // gabled houses with lit windows, zinc drainpipes up their sides and striped awnings over
   // the shop windows. `R` is a house, one picture per house.
   city: {
     surfaceStyle: 'paved',
     groundStyle: 'earth',
-    shade: 0x1c1a1c,
+    shade: 0x0c0c12,
     columnStyle: 'drainpipe',
     rockStyle: 'house',
     platformStyle: 'awning',
-    // The pavers: warm grey brick, a darker joint between them.
-    grass: 0xa49a92,
-    grassDark: 0x6f6660,
-    dirt: 0x5a4f4a,
-    dirtDark: 0x433a36,
-    rock: 0x9b8e86,
-    rockDark: 0x6a5f59,
-    rockLight: 0xc4b8ae,
-    branch: 0x5f7f6a,
-    branchDark: 0x3f5a48,
-    leaf: 0x5fa049,
-    leafLight: 0x7cc25e,
-    // Zinc.
-    trunk: 0x9aa3a8,
-    trunkDark: 0x5f676c,
-    trunkLight: 0xd2d9dc,
-    // A canal: greener and darker than open water.
-    water: 0x3f7a86,
-    waterDeep: 0x2b5a64,
-    waterFoam: 0xb9dbe0,
+    night: true,
+    // The pavers, wet and under a night sky: blue-grey brick, a darker
+    // joint, a sheen along their tops.
+    grass: 0x5c5c6a,
+    grassDark: 0x393946,
+    dirt: 0x2f2b30,
+    dirtDark: 0x221f24,
+    rock: 0x55525c,
+    rockDark: 0x37343e,
+    rockLight: 0x77747e,
+    branch: 0x3f5a48,
+    branchDark: 0x2a3d31,
+    leaf: 0x3f6a3a,
+    leafLight: 0x56864a,
+    // Zinc, at night.
+    trunk: 0x6a737a,
+    trunkDark: 0x3c4349,
+    trunkLight: 0x9ea8ae,
+    // A canal at night: dark, with the lamps in it.
+    water: 0x26465a,
+    waterDeep: 0x182f3e,
+    waterFoam: 0x8fb2c4,
     nestStraw: 0xc9a75a,
     nestStrawLight: 0xe6cd8a,
     nestShadow: 0x6b5227,
@@ -289,8 +291,6 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     lavaDeep: 0x8f2d10,
     lavaBright: 0xffc44d,
   },
-  // The last walk: a path of flat stones laid in sand, grass at its
-  // edges, out into the open towards the big portal.
   path: {
     surfaceStyle: 'path',
     groundStyle: 'earth',
