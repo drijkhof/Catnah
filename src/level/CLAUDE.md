@@ -5,7 +5,8 @@ coordinates.
 
 - `Level.ts` — the `LevelDefinition` shape and `parseLevel`.
 - `themes.ts` — one palette per place.
-- `levels/` — the three levels, one file each, plus the order they play in.
+- `levels/` — the nine levels, one file each, plus the order they play in
+  (`index.ts`). The last one's portal is the end of the game.
 
 A level is a grid of characters plus a theme, a width, a ground row, and whether
 its platforms must attach to a column. Everything else is derived.
@@ -17,12 +18,13 @@ its platforms must attach to a column. Everything else is derived.
 | Char | Meaning |
 | --- | --- |
 | `#` | forest floor / earth |
-| `=` | branch — what the platforms are in level 1 |
+| `=` | one-way platform — a branch, a stone shelf, or in the city an **awning** sticking out of a house's side wall |
 | `B` | fallen bough, a full-height solid for low overhangs |
 | `_` | void: solid rock that is never seen. Dark, impassable, and free -- a collision body only where it touches something not solid, one flat dark fill for the picture. The mass behind a cave's walls; keep `#` for the rock near the surface that shows texture |
 | `R` | boulder / brick — solid rock, and what wall jumps are taken from. On the beach it is **sand castle**: every cluster of touching rock cells is baked as one mass of pressed sand (`art/castle.ts`), edges only along its silhouette, the top cells notched into battlements, and a flag on each run of two or more top cells (a tower); a single top cell is a merlon. `Q` in a beach castle is its **gate**: an arched doorway drawn over the run of `Q`s, as solid as the rest |
+| `R`, `G`, `Q` in the city | a **house**: every cluster of touching cells *of one letter* is one picture (`art/house.ts`), so a street of houses alternates letters. Write the stepped gable as cells, each row two narrower than the one under it: the steps are the climb. Open cells under a house down to the ground are an **arcade**, drawn as arches; two rows high is walked through, one row is sneaked |
 | `G`, `Q` | the same rock. The letter is a seam: touching cells of one letter are drawn as one boulder, so `RRRGGG` is two rocks side by side and `RR` over `GG` is one stacked on another |
-| `T` | climbable column — a rope or chain, or (`climbableColumns: false`) a real tree, which is never climbable at all. On the beach a climbable **palm**, baked as one picture per tree: a single column is a small palm, two columns side by side (`TT`, same top and height) are one **big** palm with a wide trunk and a big crown; either way a ledge at the top to stand on, and a big one climbs on both sides. The crown is two layers, the front fronds drawn in front of the cat |
+| `T` | climbable column — in the city a **drainpipe**, with its top level with the roof it serves (the top tile's ledge is the roof's height); a rope or chain, or (`climbableColumns: false`) a real tree, which is never climbable at all. On the beach a climbable **palm**, baked as one picture per tree: a single column is a small palm, two columns side by side (`TT`, same top and height) are one **big** palm with a wide trunk and a big crown; either way a ledge at the top to stand on, and a big one climbs on both sides. The crown is two layers, the front fronds drawn in front of the cat |
 | `V` | liana — always climbable everywhere, regardless of `climbableColumns`. Never a platform, even at its top: it hangs from nothing, so there is nothing up there to stand on. Coexists with `T` in the same level: a tree, and the liana beside it |
 | `v` | dead vine — the liana's stem with no leaves, never climbable, purely decoration |
 | `w` | water — swimmable, not solid, harmless on its own |
@@ -245,6 +247,13 @@ itself in mid-air in the liana section instead of at the real floor, 13 rows
 down. The row to use is always the spawn row plus one, or plus two when a
 boulder sits directly under the spawn tile (`P` sits on top of it, not on the
 floor beneath).
+
+## The big portal
+
+`portalScale` on a level definition makes its portals that many times the
+usual size, mouth included (`EXIT.openingRadius` scales too, or a cat would
+have to climb to the middle of a big one). The sand path's is 3. Its
+backdrop keeps bushes clear of the portal; see `world/index.ts`.
 
 ## The title level
 

@@ -5,6 +5,7 @@ import { Backdrop } from './Backdrop';
 import { CaveBackdrop } from './CaveBackdrop';
 import { DesertBackdrop } from './DesertBackdrop';
 import { BeachBackdrop } from './BeachBackdrop';
+import { CityBackdrop } from './CityBackdrop';
 import { SwampBackdrop } from './SwampBackdrop';
 import { VolcanoBackdrop } from './VolcanoBackdrop';
 
@@ -40,6 +41,20 @@ export function createBackdrop(
       break;
     case 'beach':
       new BeachBackdrop(scene, groundLine);
+      break;
+    case 'city':
+      new CityBackdrop(scene, levelWidth, groundLine);
+      break;
+    case 'path':
+      // The forest's sky, sun, distant trees and bushes, out in the open:
+      // no canopy closing it in from above.
+      // no canopy closing it in from above. Fewer bushes than the forest, so
+      // the path shows, and none in front of the big portal.
+      new Backdrop(scene, levelWidth, groundLine, level.waterZones, {
+        canopy: false,
+        bushSpacing: 130,
+        clear: level.exits.map((exit): [number, number] => [exit.x - 32 * level.portalScale, exit.x + 32 * level.portalScale]),
+      });
       break;
     default:
       new Backdrop(scene, levelWidth, groundLine, level.waterZones);

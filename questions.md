@@ -1754,3 +1754,37 @@ does there: it leaves the game. Decided without you:
   back to and the browser ignores the call. In a browser tab, and on a phone
   that came to the game from another page, it goes back.
 
+## The city and the sand path, and a new order
+
+Asked for: the levels in the order city, forest, canopy, swamp, cave,
+volcano, desert, beach, sand path; a city as long as the other levels with
+houses, rats and drainpipes, and houses that are not ugly; and a sand path,
+stones with a bit of green and sand, leading to a big portal.
+
+- **The city is a Dutch street in the morning**, not the old city at night.
+  I read "not ugly" as tall narrow canal houses: stepped gables in white
+  stone, sash windows, flower boxes, shutters, doors with fanlights, a
+  different brick or plaster for every neighbour.
+- **The steps of a gable are the steps you climb.** A gable is drawn exactly
+  on its cells, so the roofs are a staircase rather than a slope painted over
+  a flat collision box.
+- **Drainpipes are climbable `T`**, topped by a hopper level with the roof;
+  **awnings are the city's `=`**, one-way, sticking out of a house's side
+  wall. In side view an awning cannot hang over a shop front, because the
+  front is the wall the cat walks past.
+- **Some houses stand on arches**, walked through, and one low one is
+  sneaked under. A doorway in a side view is a hole into a wall, so an
+  arcade over the full width is the only way *through* a house that reads.
+- **No cars, no crows, no rain.** You asked for houses, rats and drainpipes;
+  the old city had all three of the others, and they are in git history.
+- **The big portal is three times the usual size**, and its mouth scales
+  with it, so walking into its foot is enough.
+- **The sand path is 66 tiles, shorter than the rest**, because "gewoon een
+  steentjes pad" read as a short walk to the end rather than a level to
+  fight through. Nothing lives on it.
+- **The beetle is no longer the finale.** The volcano's portal still only
+  opens once it is dead, but now leads on to the desert.
+
+> **Still open:** the city is 104 tiles, against 90 to 109 for the outdoor
+> levels. The sand path could be made longer, or given something to do.
+

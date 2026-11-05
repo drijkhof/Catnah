@@ -253,6 +253,14 @@ function drawGrassTop(
     drawDustTop(g, palette, random);
     return;
   }
+  if (palette.surfaceStyle === 'paved') {
+    drawPavedTop(g, palette, random);
+    return;
+  }
+  if (palette.surfaceStyle === 'path') {
+    drawPathTop(g, palette, random);
+    return;
+  }
 
   const light = lighten(palette.grass, 16);
   const seam = shade(palette.grassDark, 30);
@@ -315,12 +323,99 @@ function drawDustTop(
   }
 }
 
+/**
+ * Pavement: a kerb-less run of brick pavers, two courses deep with the
+ * joints staggered, lit along the top edge, then the sand bed under them.
+ * Worn smooth, so no pebbles and nothing growing.
+ */
+function drawPavedTop(
+  g: Phaser.GameObjects.Graphics,
+  palette: TilePalette,
+  random: () => number,
+): void {
+  const joint = palette.grassDark;
+  g.fillStyle(joint, 1);
+  g.fillRect(0, 0, TILE, 9);
+  // Two courses of pavers, 4px tall, joints offset by half a brick.
+  for (const [y, offset] of [[0, 0], [5, 4]] as const) {
+    for (let x = -offset; x < TILE; x += 8) {
+      const tone = random() < 0.3 ? shade(palette.grass, 10) : random() < 0.3 ? lighten(palette.grass, 8) : palette.grass;
+      const left = Math.max(0, x);
+      const right = Math.min(TILE, x + 7);
+      g.fillStyle(tone, 1);
+      g.fillRect(left, y, right - left, 4);
+      g.fillStyle(lighten(palette.grass, 18), 1);
+      g.fillRect(left, y, right - left, 1);
+    }
+  }
+  // Where the pavers sit on their bed.
+  g.fillStyle(shade(palette.dirt, 20), 1);
+  g.fillRect(0, 9, TILE, 1);
+}
+
+/**
+ * A path of stones laid in sand: the sand is the tile, and two or three
+ * flat stones lie in its top, each lit on top and shadowed under, with a
+ * blade or two of grass in the gaps.
+ */
+function drawPathTop(
+  g: Phaser.GameObjects.Graphics,
+  palette: TilePalette,
+  random: () => number,
+): void {
+  g.fillStyle(lighten(palette.dirt, 8), 1);
+  g.fillRect(0, 0, TILE, 4);
+  g.fillStyle(palette.dirtDark, 1);
+  g.fillRect(0, 5, TILE, 1);
+  // Sand grains.
+  for (let i = 0; i < 6; i += 1) {
+    g.fillStyle(random() < 0.5 ? palette.dirtDark : lighten(palette.dirt, 16), 1);
+    g.fillRect(Math.floor(random() * TILE), Math.floor(random() * 6), 1, 1);
+  }
+  // Flat stones, never touching the tile's edges so a run of path does not
+  // line up into a ruled band.
+  let x = 1 + Math.floor(random() * 2);
+  while (x < TILE - 4) {
+    const w = 4 + Math.floor(random() * 3);
+    if (x + w > TILE - 1) {
+      break;
+    }
+    g.fillStyle(palette.rockDark, 1);
+    g.fillRect(x, 1, w, 4);
+    g.fillStyle(palette.rock, 1);
+    g.fillRect(x, 0, w, 3);
+    g.fillStyle(palette.rockLight, 1);
+    g.fillRect(x + 1, 0, w - 2, 1);
+    x += w + 1 + Math.floor(random() * 2);
+  }
+}
+
 /** The blades above a grass tile. Its bottom row joins the tile's top. */
 function drawGrassFringe(
   g: Phaser.GameObjects.Graphics,
   palette: TilePalette,
   random: () => number,
 ): void {
+  if (palette.surfaceStyle === 'paved') {
+    // Swept pavement: nothing stands on it.
+    return;
+  }
+  if (palette.surfaceStyle === 'path') {
+    // Grass only here and there, in tufts between the stones.
+    const bottom = GRASS_FRINGE_HEIGHT;
+    for (let x = 0; x < TILE; x += 1) {
+      if (random() < 0.16) {
+        const tuft = 2 + Math.floor(random() * 3);
+        for (let i = 0; i < tuft && x + i < TILE; i += 1) {
+          const height = 2 + Math.floor(random() * 3);
+          g.fillStyle(random() < 0.4 ? palette.grassDark : palette.grass, 1);
+          g.fillRect(x + i, bottom - height, 1, height);
+        }
+        x += tuft + 2;
+      }
+    }
+    return;
+  }
   if (palette.surfaceStyle === 'dust') {
     // A few pebbles lying on the surface, barely standing above it.
     const bottom = GRASS_FRINGE_HEIGHT;
@@ -410,7 +505,7 @@ function drawMossCap(
   palette: TilePalette,
   random: () => number,
 ): void {
-  if (palette.surfaceStyle === 'dust') {
+  if (palette.surfaceStyle === 'dust' || palette.surfaceStyle === 'paved') {
     g.fillStyle(palette.grass, 1);
     g.fillRect(0, 0, TILE, 1);
     for (let x = 0; x < TILE - 1; x += 3) {
@@ -451,17 +546,23 @@ function drawMossCap(
  * What a `T` column is made of, in this place. Not a liana -- `l` draws the
  * same liana everywhere, on its own, regardless of this.
  */
-export type ColumnStyle = 'trunk' | 'rope' | 'chain';
+export type ColumnStyle = 'trunk' | 'rope' | 'chain' | 'drainpipe';
 
 /** What a one-way platform is made of. */
-export type PlatformStyle = 'branch' | 'shelf';
+/** `awning`: a striped shop awning over a window, in the city. */
+export type PlatformStyle = 'branch' | 'shelf' | 'awning';
 
 /**
  * What grows -- or lies -- on a surface. Grass where there is sun; dust and
  * pebbles where there is none. `grass` and `grassDark` are the surface's
  * colours either way: green outdoors, pale grey in a cave.
+ *
+ * `paved` is the city's pavement: brick pavers in a herringbone of joints,
+ * `grass*` their colour, and nothing standing on them. `path` is the last
+ * level's: flat stones (`rock*`) laid in sand (`dirt*`), with tufts of grass
+ * (`grass*`) here and there between them.
  */
-export type SurfaceStyle = 'grass' | 'dust';
+export type SurfaceStyle = 'grass' | 'dust' | 'paved' | 'path';
 
 /** What the ground is made of: earth with stones in it, or fitted stone. */
 export type GroundStyle = 'earth' | 'stone';
@@ -470,8 +571,11 @@ export interface TilePalette {
   columnStyle: ColumnStyle;
   /** What tops a climbable column: a palm's crown of fronds, or nothing. */
   crownStyle?: 'palm';
-  /** What `R` is made of: sand, pressed into castle blocks, or rock (the default). */
-  rockStyle?: 'sand';
+  /**
+   * What `R` is made of: sand, pressed into castle blocks; a house, one
+   * picture per cluster of one letter; or rock (the default).
+   */
+  rockStyle?: 'sand' | 'house';
   platformStyle: PlatformStyle;
   surfaceStyle: SurfaceStyle;
   groundStyle: GroundStyle;
@@ -601,6 +705,30 @@ export function generateTileset(
         break;
       }
 
+      case 'drainpipe': {
+        // A zinc downpipe: a round pipe lit down its left side, with a
+        // bracket strapping it to the wall every tile.
+        g.fillStyle(palette.trunkDark, 1);
+        g.fillRect(4, 0, 8, TILE);
+        g.fillStyle(palette.trunk, 1);
+        g.fillRect(5, 0, 6, TILE);
+        g.fillStyle(palette.trunkLight, 1);
+        g.fillRect(6, 0, 2, TILE);
+        // A joint, where one length slots into the next.
+        g.fillStyle(palette.trunkDark, 1);
+        g.fillRect(4, 3, 8, 1);
+        g.fillStyle(palette.trunkLight, 1);
+        g.fillRect(4, 4, 8, 1);
+        // The bracket, reaching out to the wall on both sides.
+        g.fillStyle(shade(palette.trunkDark, 20), 1);
+        g.fillRect(0, 10, TILE, 2);
+        g.fillStyle(palette.trunkDark, 1);
+        g.fillRect(3, 9, 10, 4);
+        g.fillStyle(palette.trunk, 1);
+        g.fillRect(4, 10, 8, 1);
+        break;
+      }
+
       default: {
         // Bark, the full width of the tile: ridges in four tones, lit from the
         // left, with the odd notch so the edge is not a ruler. The climb zone
@@ -637,6 +765,18 @@ export function generateTileset(
   /** The top of a column that is bolted to a wall: foliage, as anywhere else. */
   bakeTexture(scene, key('trunk-head'), TILE, TILE, (g) => {
     drawColumn(g);
+    if (palette.columnStyle === 'drainpipe') {
+      // The hopper, as on `trunk-top`, with the gutter running off it
+      // along the wall's top.
+      g.fillStyle(palette.trunkDark, 1);
+      g.fillRect(0, 0, TILE, 6);
+      g.fillRect(3, 6, 10, 2);
+      g.fillStyle(palette.trunk, 1);
+      g.fillRect(0, 1, TILE, 4);
+      g.fillStyle(palette.trunkLight, 1);
+      g.fillRect(0, 1, TILE, 1);
+      return;
+    }
     g.fillStyle(palette.leaf, 1);
     g.fillCircle(3, 3, 4);
     g.fillCircle(13, 4, 4);
@@ -653,6 +793,18 @@ export function generateTileset(
       g.fillRect(3, 0, 10, 4);
       g.fillStyle(palette.rockLight, 1);
       g.fillRect(6, 1, 4, 2);
+      return;
+    }
+
+    if (palette.columnStyle === 'drainpipe') {
+      // The hopper at the top, where the gutter empties into the pipe.
+      g.fillStyle(palette.trunkDark, 1);
+      g.fillRect(1, 0, 14, 6);
+      g.fillRect(3, 6, 10, 2);
+      g.fillStyle(palette.trunk, 1);
+      g.fillRect(2, 1, 12, 4);
+      g.fillStyle(palette.trunkLight, 1);
+      g.fillRect(2, 1, 12, 1);
       return;
     }
 

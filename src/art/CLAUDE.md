@@ -21,6 +21,11 @@ binary assets but the portal picture and runs straight after clone.
   and the volcano's ridged mountains with lava running down them (`drawMountain`).
 - `creatures.ts` — hedgehog, rat, piranha, crow, crocodile, spider, the beetle,
   and the desert's camel, worm, mound and cactus.
+- `house.ts` — the city: `bakeHouse` draws a cluster of cells as one town
+  house (stepped gable, sash windows, door, arcade arches under it),
+  `bakeAwning` a run of `=` as one striped awning, and the skyline textures
+  behind the street. Facades come from a fixed list and go round in street
+  order, so neighbours always differ.
 - `ui.ts` — the touch-button glyphs.
 - `portal.ts` — the way out of a level. The portal is a picture,
   `public/assets/portal.png`, the one real asset; `shadePortal` copies it to

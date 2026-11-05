@@ -14,7 +14,7 @@ import { KEEP_LIVE, addGroundShade, bakeScenery, createBackdrop } from '../world
 import { parseLevel, type ClimbZone, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
 import { TITLE } from '../level/levels/title';
-import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, CASTLE_FLAG_HEADROOM, GRASS_FRINGE_HEIGHT, JELLY_SIZE, LOG_BULGE, PALM_BULGE, PALM_CROWN_ANCHOR, PALM_CROWN_SIZE, bakePalmTrunk, bakeSandCastle, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeCactus, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
+import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, CASTLE_FLAG_HEADROOM, AWNING_BULGE, HOUSE_HEADROOM, bakeAwning, bakeHouse, GRASS_FRINGE_HEIGHT, JELLY_SIZE, LOG_BULGE, PALM_BULGE, PALM_CROWN_ANCHOR, PALM_CROWN_SIZE, bakePalmTrunk, bakeSandCastle, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeCactus, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { GOD_MODE_KEY, installGodMode, isGodMode } from '../dev/godMode';
@@ -709,7 +709,10 @@ export class GameScene extends Phaser.Scene {
       this.exits.find((exit) => {
         const dx = x - exit.centre.x;
         const dy = y - exit.centre.y;
-        return dx * dx + dy * dy <= EXIT.openingRadius * EXIT.openingRadius;
+        // A big portal has a big mouth, so the cat need not climb to its
+        // middle: walking into its foot is enough.
+        const opening = EXIT.openingRadius * this.level.portalScale;
+        return dx * dx + dy * dy <= opening * opening;
       }) ?? null
     );
   }
@@ -859,14 +862,16 @@ export class GameScene extends Phaser.Scene {
 
   /** One portal, standing on one `E` tile's ground. */
   private buildPortal(exit: { x: number; y: number }): { centre: Phaser.Math.Vector2; hole: Phaser.GameObjects.Image } {
-    const radius = EXIT.diameter / 2;
+    const scale = this.level.portalScale;
+    const diameter = EXIT.diameter * scale;
+    const radius = diameter / 2;
 
     // Wider than its tile, so an `E` in the last column would hang over the
     // edge of the world: the disc is kept a sliver inside it.
     const margin = radius + 2;
     const centre = new Phaser.Math.Vector2(
       Phaser.Math.Clamp(exit.x, margin, this.level.widthInPixels - margin),
-      exit.y - (radius - EXIT.sink),
+      exit.y - (radius - EXIT.sink * scale),
     );
 
     // Over all the scenery and the creatures, and just under the cat, so
@@ -877,7 +882,7 @@ export class GameScene extends Phaser.Scene {
     const hole = this.add
       .image(centre.x, centre.y, PORTAL_KEY)
       .setDepth(EXIT.depth);
-    const base = EXIT.diameter / hole.width;
+    const base = diameter / hole.width;
     hole.setScale(base).setAlpha(EXIT.alpha);
 
     // The foot is sunk into the ground, and the ground is drawn *under* the
@@ -885,8 +890,8 @@ export class GameScene extends Phaser.Scene {
     // ground line is masked away. A mask rather than a cropped texture
     // because the disc turns and warps, and a crop would turn with it.
     const lid = this.make.graphics({ x: 0, y: 0 }, false);
-    const reach = EXIT.diameter;
-    lid.fillRect(centre.x - reach, centre.y - reach, reach * 2, reach + radius - EXIT.sink);
+    const reach = diameter;
+    lid.fillRect(centre.x - reach, centre.y - reach, reach * 2, reach + radius - EXIT.sink * scale);
     hole.setMask(lid.createGeometryMask());
 
     // It spins, and on top of that it swells and shrinks. The same amount
@@ -1230,6 +1235,8 @@ export class GameScene extends Phaser.Scene {
       volcano: 'rumble',
       desert: 'wind',
       beach: 'wind',
+      city: 'wind',
+      path: 'wind',
     };
 
     sound.setAmbience(bed[theme] ?? 'none');
@@ -1241,6 +1248,8 @@ export class GameScene extends Phaser.Scene {
     > = {
       forest: { voice: 'chirp', min: 1800, max: 5200 },
       jungle: { voice: 'chirp', min: 1200, max: 3800 },
+      city: { voice: 'chirp', min: 3000, max: 8000 },
+      path: { voice: 'chirp', min: 1600, max: 4600 },
       cave: { voice: 'drip', min: 2200, max: 6000 },
     };
 
@@ -1465,7 +1474,7 @@ export class GameScene extends Phaser.Scene {
       // one whole branch by `buildBranches`, leaves and all.
       if (this.isWood(solid)) {
         tile.setVisible(false);
-      } else if (solid.isBranch) {
+      } else if (solid.isBranch && !(invisible && THEMES[this.level.theme].columnStyle === 'drainpipe')) {
         // Leaves hang below a branch as decoration only. They are not part of
         // the collision box, so the cat lands on the wood rather than on
         // foliage.
@@ -1741,7 +1750,7 @@ export class GameScene extends Phaser.Scene {
 
     return (
       solid.isBranch &&
-      (style === 'branch' || style === 'shelf') &&
+      (style === 'branch' || style === 'shelf' || style === 'awning') &&
       solid.textureKey.startsWith('branch-') &&
       !solid.textureKey.endsWith('-ledge')
     );
@@ -1780,6 +1789,18 @@ export class GameScene extends Phaser.Scene {
       }
 
       const variant = Math.floor(random() * 3);
+
+      if (palette.platformStyle === 'awning') {
+        const awningKey = `${this.level.theme}:awning:${length}:${column},${row}`;
+        if (!this.textures.exists(awningKey)) {
+          bakeAwning(this, awningKey, length, 8101 + column * 31 + row * 17);
+        }
+        this.add
+          .image(solid.x - AWNING_BULGE.side, solid.y - AWNING_BULGE.top, awningKey)
+          .setOrigin(0, 0)
+          .setDepth(-1);
+        continue;
+      }
 
       if (palette.platformStyle === 'shelf') {
         const shelfKey = `${this.level.theme}:shelf:${length}:${variant}`;
@@ -1881,6 +1902,87 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
+   * In the city, `R` is a house, and a house is **one picture**: every
+   * cluster of touching cells of *one letter* is baked by `bakeHouse` --
+   * so `RRRGGG` is two houses side by side, and a street is written by
+   * alternating `R`, `G` and `Q`. Cells inside the outline that are open
+   * (under wall, between walls on the same row) are an archway through it,
+   * drawn as part of the house. The cells still collide one by one; this
+   * is only the picture.
+   */
+  private buildHouses(rocks: Solid[], cells: Map<string, string>): void {
+    const seen = new Set<string>();
+    let houseNumber = 0;
+    const solidCells = new Set(
+      this.level.solids.filter((solid) => !solid.isBranch).map((solid) => `${solid.x / TILE},${solid.y / TILE}`),
+    );
+    // Left to right down the street, so the facades go round in order.
+    for (const solid of [...rocks].sort((a, b) => a.x - b.x || a.y - b.y)) {
+      const startKey = `${solid.x / TILE},${solid.y / TILE}`;
+      if (seen.has(startKey)) {
+        continue;
+      }
+      const letter = solid.glyph;
+      const cluster: Array<{ column: number; row: number }> = [];
+      const queue = [startKey];
+      seen.add(startKey);
+      while (queue.length > 0) {
+        const key = queue.pop() as string;
+        const [column, row] = key.split(',').map(Number);
+        cluster.push({ column, row });
+        for (const next of [`${column + 1},${row}`, `${column - 1},${row}`, `${column},${row + 1}`, `${column},${row - 1}`]) {
+          if (cells.get(next) === letter && !seen.has(next)) {
+            seen.add(next);
+            queue.push(next);
+          }
+        }
+      }
+      const left = Math.min(...cluster.map((cell) => cell.column));
+      const top = Math.min(...cluster.map((cell) => cell.row));
+      const wide = Math.max(...cluster.map((cell) => cell.column)) - left + 1;
+      const mine = new Set(cluster.map((cell) => `${cell.column},${cell.row}`));
+
+      // An archway: open air under this house, down to whatever it stands
+      // over -- the upper storeys carried over the street on arches, which
+      // the cat walks (or sneaks) through.
+      const passages: Array<{ column: number; row: number }> = [];
+      for (let column = left; column < left + wide; column += 1) {
+        const lowest = Math.max(...cluster.filter((cell) => cell.column === column).map((cell) => cell.row));
+        for (let row = lowest + 1; row <= lowest + 4; row += 1) {
+          const below = `${column},${row}`;
+          if (solidCells.has(below) || mine.has(below)) {
+            break;
+          }
+          passages.push({ column: column - left, row: row - top });
+        }
+      }
+      const high = Math.max(...cluster.map((cell) => cell.row - top), ...passages.map((cell) => cell.row)) + 1;
+
+      const key = `${this.level.theme}:house:${left},${top}`;
+      if (this.textures.exists(key)) {
+        this.textures.remove(key);
+      }
+      bakeHouse(
+        this,
+        key,
+        cluster.map((cell) => ({ column: cell.column - left, row: cell.row - top })),
+        passages,
+        wide,
+        high,
+        7001 + left * 31 + top * 17,
+        // The facade: the next one along for each house down the street, so
+        // two neighbours are never built of the same thing.
+        houseNumber,
+      );
+      houseNumber += 1;
+      this.add
+        .image(left * TILE, top * TILE - HOUSE_HEADROOM, key)
+        .setOrigin(0, 0)
+        .setDepth(-0.3);
+    }
+  }
+
+  /**
    * Draws every cluster of `R` cells as one boulder.
    *
    * The cells still collide one by one; this is only the picture. A cluster
@@ -1902,6 +2004,10 @@ export class GameScene extends Phaser.Scene {
 
     if (palette.rockStyle === 'sand') {
       this.buildSandCastles(rocks, cells);
+      return;
+    }
+    if (palette.rockStyle === 'house') {
+      this.buildHouses(rocks, cells);
       return;
     }
 

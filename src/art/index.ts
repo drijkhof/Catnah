@@ -6,6 +6,7 @@ import { generateCreatureTextures } from './creatures';
 import { generateForestTextures } from './forest';
 import { generateUiTextures } from './ui';
 import { generateTileset } from './tiles';
+import { generateCityTextures } from './house';
 import { THEMES } from '../level/themes';
 
 export { bakeTexture, createRandom } from './canvas';
@@ -41,6 +42,7 @@ export {
 export type { TilePalette } from './tiles';
 export { CASTLE_FLAG_HEADROOM, bakeSandCastle, type CastleCell } from './castle';
 export { PALM_BULGE, bakePalmTrunk } from './palm';
+export { AWNING_BULGE, HOUSE_HEADROOM, SKYLINE_SIZES, bakeAwning, bakeHouse, type HouseCell } from './house';
 export {
   BOSS_SIZE,
   CACTUS_SIZE,
@@ -70,6 +72,7 @@ export function generatePlaceholderArt(scene: Phaser.Scene): void {
   generateCreatureTextures(scene);
   generateBackdropTextures(scene);
   generateCaveWall(scene);
+  generateCityTextures(scene);
 
   // All three tilesets are baked up front. They are a few dozen small textures
   // in total, and it means changing level never waits on drawing.

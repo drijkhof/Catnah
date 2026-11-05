@@ -1,4 +1,5 @@
 import type { LevelDefinition } from '../Level';
+import { CITY } from './city';
 import { FOREST } from './forest';
 import { CAVE } from './cave';
 import { SWAMP } from './swamp';
@@ -6,14 +7,17 @@ import { CANOPY } from './canopy';
 import { VOLCANO } from './volcano';
 import { DESERT } from './desert';
 import { BEACH } from './beach';
+import { PATH } from './path';
 
 /**
  * The levels, in the order they are played.
  *
- * It starts at the sea and ends in the fire. The beach first, then the
- * desert behind it, then the forest and the canopy, the swamp, and the cave
- * -- which sits immediately before the volcano because it is the descent,
- * and what it descends into is the volcano. The volcano is last: its portal
- * only appears once the beetle is dead, so the beetle is the end of the game.
+ * Out of town and into the wild, through the fire, and out the other side
+ * to the sea. The city first, then the forest and the canopy, the swamp,
+ * and the cave -- which sits immediately before the volcano because it is
+ * the descent, and what it descends into is the volcano. The volcano's
+ * portal only appears once the beetle is dead, and it leads out into the
+ * desert, then the beach, and last the sand path, which ends at the big
+ * portal: that one is the end of the game.
  */
-export const LEVELS: LevelDefinition[] = [BEACH, DESERT, FOREST, CANOPY, SWAMP, CAVE, VOLCANO];
+export const LEVELS: LevelDefinition[] = [CITY, FOREST, CANOPY, SWAMP, CAVE, VOLCANO, DESERT, BEACH, PATH];

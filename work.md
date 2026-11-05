@@ -37,6 +37,14 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | palmboom | `palm` | a climbable trunk on the beach with a crown of fronds you can stand on |
 | worm | `worm` | hunts under the sand and lunges out of it at you; the part that is out kills |
 | cactus | `cactus` | two tiles tall, deadly from any side |
+| stad | `city` | level 1: a street of Dutch gabled houses |
+| huis | `house` | the city's `R`: one picture per house, a stepped gable on top |
+| regenpijp | `drainpipe` | the city's climbable `T`, up the side of a house |
+| luifel | `awning` | the city's one-way platform, striped, sticking out of a wall |
+| poort | `arcade` | an opening under a house, walked or sneaked through |
+| rat | `rat` | the city's walker, quicker than a hedgehog |
+| zandpad | `sand path` | the last level: stones in sand, ending at the big portal |
+| groot portaal | `big portal` | the last level's way out, three times the size; it ends the game |
 
 ## The cat
 
@@ -60,7 +68,10 @@ Every level starts somewhere nothing can reach. Measured by standing perfectly
 still for forty-five seconds on each one: the forest and the volcano
 put the cat out of everything's way already, and the swamp and the canopy did
 not — a hedgehog simply walked into it. Both now start the cat on **a small
-boulder**, which a hedgehog turns at and cannot climb.
+boulder**, which a hedgehog turns at and cannot climb. In the city no rat
+can reach the start: the first house stands on arches, and a rat put before
+it would walk straight through them to the cat, so the first rat is past the
+canal. The sand path has nothing living in it at all.
 
 A player who has not touched the controls yet should not be able to lose.
 
@@ -471,11 +482,14 @@ and touching an **earlier** one after passing a later one moves the point back
 
 | Level | Tiles |
 | --- | --- |
+| City | 104 |
 | Forest | 90 |
 | Swamp | 248 |
 | Canopy | 78 |
 | Cave | 240 wide, 64 deep |
 | Volcano | 104 |
+| Desert | 109 |
+| Sand path | 66 |
 
 Every level is **written out** in its file, row by row.
 
@@ -485,18 +499,46 @@ level: what they lost was the reason to walk through them. The cave is the one
 exception, and it was never stretched — it is long because it was designed long,
 as a descent.
 
-## The seven levels
+## The nine levels
 
-**Beach, desert, forest, canopy, swamp, cave, volcano.** It starts at the sea
-and ends in the fire. Each level starts at one end and ends at a **portal**,
-which takes you to the next: the beach runs out into the desert, the desert
-into the forest, the cave is the descent into the volcano, and the volcano's
-portal — which only appears once the beetle is dead — ends the game, so the
-beetle is the finale. Little hearts are optional everywhere.
+**City, forest, canopy, swamp, cave, volcano, desert, beach, sand path.**
+Out of town into the wild, down through the fire, and out the other side to
+the sea. Each level starts at one end and ends at a **portal**, which takes
+you to the next: the cave is the descent into the volcano, the volcano's
+portal — which only appears once the beetle is dead — leads out into the
+desert, the desert runs down to the beach, and the beach into the sand path,
+which ends at the **big portal**. That one ends the game. Little hearts are
+optional everywhere.
 
-### 2 — Desert
+### 1 — City
 
-Up from the beach into the open: sand and sandstone under a
+104 tiles. A Dutch town on a sunny morning: a street of brick pavers, a
+skyline of gables and a church tower behind it, and on the street a row of
+tall, narrow houses — brick in three reds and browns, or plaster in cream,
+blue-grey, sage and ochre — each with a **stepped gable** capped in white
+stone and a stone ball on top, white sash windows, flower boxes, shutters
+on the plaster ones, and a front door with a fanlight. Two neighbours are
+never built of the same thing.
+
+A house stands on the pavement and blocks it, so every one is a way over or
+a way through:
+
+- **Over**: the steps of a gable are steps you climb. A low house is jumped
+  onto; a tall one has a **drainpipe** up its side, which you climb to the
+  hopper at the top, level with the roof — or **awnings** sticking out of its
+  wall, striped, one-way, a jump apart.
+- **Through**: some houses stand on **arches** over the street. Two tiles high
+  you walk through; the low one near the end you **sneak** under, or go over
+  by its awning.
+
+**Rats** run the pavement between the houses and under the arches. Halfway
+down, a **canal** crosses the street: swim it or jump it. The tallest house
+has a spare heart floating over the gap beside it, and there is a checkpoint
+after the awnings.
+
+### 7 — Desert
+
+Out of the volcano into the open: sand and sandstone under a
 white sun, pyramids on the skyline, heat shimmering along their feet. Flat
 going, mostly, with low dunes of stacked sand to climb and a few sandstone
 shelves to jump between. Nothing here hunts you, and nothing walks the sand
@@ -529,9 +571,9 @@ along, slowly, as it ambles. What kills is standing still in the wrong place:
   crawling under a cactus and no jumping out of one.
 - A few **rocks** to climb and wall-jump off.
 
-### 1 — Beach
+### 8 — Beach
 
-Where the game begins: a strip of pale sand with the sea behind it,
+Down from the desert to the sea: a strip of pale sand with the sea behind it,
 swells far out with a couple of sailboats slipping across them, lighter water
 nearer in, and foam creeping up the sand just behind where you walk. The map is **nearly empty for now** — one of each
 thing the beach has, so each can be looked at on its own:
@@ -559,6 +601,16 @@ thing the beach has, so each can be looked at on its own:
   or more blocks wide), and an arched gate wherever `Q` is written. The gate
   is a picture: the castle is a wall all the way, and climbs and wall-jumps
   like rock.
+
+### 9 — Sand path
+
+The last walk, and a quiet one: 66 tiles where nothing hunts. A path of flat
+grey stones laid in sand, tufts of grass between them, bushes beside it and
+trees in the distance, out in the open under the sun with no leaves overhead.
+A few arcs of hearts, a couple of boulders to hop, and at the end the **big
+portal** — the same wormhole as every other, three times the size, with the
+bushes kept back from it. Its mouth is big too: walk into its foot and you
+are in. It ends the game.
 
 ### Cacti come tall
 
@@ -609,7 +661,7 @@ remembers nothing.
 
 ## Winning, and the score
 
-Walk into the volcano's portal and the sunlit forest comes up out of the
+Walk into the big portal at the end of the sand path and the sunlit forest comes up out of the
 black with **"You actually won!"** in gold over it, your **time** under
 that, and how often you died. The time is the score, and lower is better:
 every second you spend in a level counts, from the moment it starts until the
@@ -641,7 +693,7 @@ first frame, while the world is still dark — that fades away as you take your
 first steps. From that moment nothing can hurt it: a hedgehog arriving a step
 behind, or lava a tile away, no longer costs a heart.
 
-The cave comes second to last rather than second. It is the descent, and what it
+The cave comes straight before the volcano. It is the descent, and what it
 descends into is the volcano, so it has to be the thing you do immediately
 before arriving there.
 
@@ -656,14 +708,14 @@ game.
 
 
 
-### 3 — Forest
+### 2 — Forest
 
 90 tiles. Every branch grows from a trunk here, and the parser holds the level
 to it. Trees to climb by their branches, boulders to wall-jump between, a pool
 with a piranha in it, hedgehogs on the floor, and near the end **the great
 tree** — with the crow's nest at the top of it and the spare heart in the nest.
 
-### 5 — Swamp
+### 4 — Swamp
 
 By far the longest level — 248 tiles, three times any other — and all of it is
 one question: how do you get over the water? Overcast sky going brown at the
@@ -706,7 +758,7 @@ The lianas here are five tiles long, hang low over the water and **hang from
 nothing**. That is on purpose: all you can do with one is cross, there is no
 climbing up out of the level on them, and the swamp has sky overhead rather than
 a roof.
-### 4 — Canopy
+### 3 — Canopy
 
 78 tiles and one idea all the way through: **jumping off a liana onto a platform
 out of its reach**. The lianas hang from the roof rather than standing on the
@@ -717,7 +769,7 @@ does not involve letting go in mid-air.
 In the middle, **five lianas hang side by side**: holding on is not pinned to
 one rope, so that stretch is crossed sideways as much as it is climbed.
 
-### 6 — Cave
+### 5 — Cave
 
 **Long, and all the way down.** 240 tiles end to end like everywhere else, but
 the way out is forty rows lower than the way in, so the level reads as a descent
@@ -746,7 +798,7 @@ chamber with the **spare heart** in it — and hanging over the doorway, a spide
 ceiling like the rest of them and drops like the rest of them, slowly, and there
 is no getting past it except by timing it.
 
-### 7 — Volcano
+### 6 — Volcano
 
 The floor is a **lava lake** and only the islands are safe, so the level reads
 as somewhere not to land rather than somewhere to walk. Chains hang over the

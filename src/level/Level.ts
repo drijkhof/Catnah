@@ -97,6 +97,11 @@ export interface LevelDefinition {
    * point of a crow is to be seen flying.
    */
   crowBehaviour?: CrowBehaviour;
+  /**
+   * How big this level's portals are, against the usual one. The last
+   * level's is the big portal the whole game walks towards.
+   */
+  portalScale?: number;
   rows: string[];
 }
 
@@ -209,6 +214,8 @@ export interface ParsedLevel {
   /** Whether the columns above can be climbed, or are only scenery to stand on. */
   columnsAreClimbable: boolean;
   crowBehaviour: CrowBehaviour;
+  /** How big the portals are, against the usual one. 1 everywhere but the end. */
+  portalScale: number;
   /** Water, grouped into connected pools. A piranha never leaves its own. */
   pools: WaterZone[][];
   /** Lava. Shaped like water, but touching it kills. */
@@ -621,6 +628,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     deadVineZones,
     columnsAreClimbable: definition.climbableColumns ?? true,
     crowBehaviour: definition.crowBehaviour ?? 'attack',
+    portalScale: definition.portalScale ?? 1,
     waterZones,
     pools,
     crocodiles,

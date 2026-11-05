@@ -1,7 +1,7 @@
 import type { TilePalette } from '../art/tiles';
 
 /** The places the game visits. */
-export type ThemeName = 'jungle' | 'forest' | 'swamp' | 'cave' | 'volcano' | 'desert' | 'beach';
+export type ThemeName = 'jungle' | 'forest' | 'swamp' | 'cave' | 'volcano' | 'desert' | 'beach' | 'city' | 'path';
 
 /**
  * One palette per place.
@@ -248,6 +248,76 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     nestStraw: 0xd8c08a,
     nestStrawLight: 0xeedcaa,
     nestShadow: 0x8a6c3c,
+    lava: 0xe8622a,
+    lavaDeep: 0x8f2d10,
+    lavaBright: 0xffc44d,
+  },
+  // A Dutch town on a sunny morning: brick pavers underfoot, rows of
+  // gabled houses, zinc drainpipes up their sides and striped awnings over
+  // the shop windows. `R` is a house, one picture per house.
+  city: {
+    surfaceStyle: 'paved',
+    groundStyle: 'earth',
+    shade: 0x1c1a1c,
+    columnStyle: 'drainpipe',
+    rockStyle: 'house',
+    platformStyle: 'awning',
+    // The pavers: warm grey brick, a darker joint between them.
+    grass: 0xa49a92,
+    grassDark: 0x6f6660,
+    dirt: 0x5a4f4a,
+    dirtDark: 0x433a36,
+    rock: 0x9b8e86,
+    rockDark: 0x6a5f59,
+    rockLight: 0xc4b8ae,
+    branch: 0x5f7f6a,
+    branchDark: 0x3f5a48,
+    leaf: 0x5fa049,
+    leafLight: 0x7cc25e,
+    // Zinc.
+    trunk: 0x9aa3a8,
+    trunkDark: 0x5f676c,
+    trunkLight: 0xd2d9dc,
+    // A canal: greener and darker than open water.
+    water: 0x3f7a86,
+    waterDeep: 0x2b5a64,
+    waterFoam: 0xb9dbe0,
+    nestStraw: 0xc9a75a,
+    nestStrawLight: 0xe6cd8a,
+    nestShadow: 0x6b5227,
+    lava: 0xe8622a,
+    lavaDeep: 0x8f2d10,
+    lavaBright: 0xffc44d,
+  },
+  // The last walk: a path of flat stones laid in sand, grass at its
+  // edges, out into the open towards the big portal.
+  path: {
+    surfaceStyle: 'path',
+    groundStyle: 'earth',
+    shade: 0x3a2e1c,
+    columnStyle: 'trunk',
+    platformStyle: 'shelf',
+    // The stones of the path are `rock*`; `grass*` is the green at its edge.
+    grass: 0x74b45a,
+    grassDark: 0x52903f,
+    dirt: 0xd7bb82,
+    dirtDark: 0xb39560,
+    rock: 0xa9a49a,
+    rockDark: 0x77726a,
+    rockLight: 0xd4d0c6,
+    branch: 0x9a8a70,
+    branchDark: 0x6c5f4b,
+    leaf: 0x5fa049,
+    leafLight: 0x7cc25e,
+    trunk: 0x6a4527,
+    trunkDark: 0x4a2f1a,
+    trunkLight: 0x8a5f39,
+    water: 0x3f86b8,
+    waterDeep: 0x2f6a95,
+    waterFoam: 0xbfe3f5,
+    nestStraw: 0xc9a75a,
+    nestStrawLight: 0xe6cd8a,
+    nestShadow: 0x6b5227,
     lava: 0xe8622a,
     lavaDeep: 0x8f2d10,
     lavaBright: 0xffc44d,

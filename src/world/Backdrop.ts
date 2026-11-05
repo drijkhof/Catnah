@@ -44,7 +44,19 @@ export class Backdrop {
   /** The pools at the ground line, which no bush is put on. */
   private readonly pools: WaterZone[];
 
-  constructor(scene: Phaser.Scene, levelWidth: number, groundLine: number, water: WaterZone[] = []) {
+  constructor(
+    scene: Phaser.Scene,
+    levelWidth: number,
+    groundLine: number,
+    water: WaterZone[] = [],
+    options: {
+      canopy?: boolean;
+      /** Pixels between bushes; the forest's 74 unless asked otherwise. */
+      bushSpacing?: number;
+      /** Stretches of the floor, `[from, to]` in px, kept clear of bushes. */
+      clear?: Array<[number, number]>;
+    } = {},
+  ) {
     this.scene = scene;
     this.levelWidth = levelWidth;
     this.groundLine = groundLine;
@@ -57,8 +69,10 @@ export class Backdrop {
     this.addFog(DEPTH.fogFar, 0.85);
     this.addTreeRank('mid');
     this.addFog(DEPTH.fogNear, 0.4);
-    this.addCanopy();
-    this.addBushes();
+    if (options.canopy ?? true) {
+      this.addCanopy();
+    }
+    this.addBushes(options.bushSpacing ?? 74, options.clear ?? []);
   }
 
   /**
@@ -206,9 +220,8 @@ export class Backdrop {
     }
   }
 
-  private addBushes(): void {
+  private addBushes(spacing: number, clear: Array<[number, number]>): void {
     const random = createRandom(909);
-    const spacing = 74;
 
     for (let x = 0; x < this.levelWidth; x += spacing) {
       const jitterX = (random() - 0.5) * spacing * 0.6;
@@ -218,7 +231,9 @@ export class Backdrop {
 
       // Not on water. The random draws above happen regardless, so skipping
       // a bush does not move every bush after it.
-      const onWater = this.pools.some((pool) => bushX + halfWidth > pool.x && bushX - halfWidth < pool.x + pool.width);
+      const onWater =
+        this.pools.some((pool) => bushX + halfWidth > pool.x && bushX - halfWidth < pool.x + pool.width) ||
+        clear.some(([from, to]) => bushX + halfWidth > from && bushX - halfWidth < to);
 
       // Bushes sit on the floor the cat walks on, so they scroll with it.
       // Parallaxing them would make them slide across the ground. The foot

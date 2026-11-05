@@ -32,6 +32,11 @@ off the display list with only their bodies, costing nothing per frame.
   stand on real floors, read off the level's own cells. All static, so the
   scenery bake flattens the lot.
 
+- `CityBackdrop` — the forest's sky and sun over two ranks of gables (a
+  church tower in the far one), rooted on the ground line.
+- The sand path uses `Backdrop` with no canopy, fewer bushes, and the floor
+  around the big portal kept clear of them.
+
 The backdrop is where a level's character lives, because the tiles themselves
 are shared across all of them and differ only by palette.
 
