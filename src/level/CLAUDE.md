@@ -5,7 +5,7 @@ coordinates.
 
 - `Level.ts` — the `LevelDefinition` shape and `parseLevel`.
 - `themes.ts` — one palette per place.
-- `levels/` — the nine levels, one file each, plus the order they play in
+- `levels/` — the ten levels, one file each, plus the order they play in
   (`index.ts`). The last one's portal is the end of the game.
 
 A level is a grid of characters plus a theme, a width, a ground row, and whether
@@ -33,7 +33,8 @@ its platforms must attach to a column. Everything else is derived.
 | `N` | nest — a ledge set into the tile, so the cat sits *in* it |
 | `+` | spare heart, on its own — no nest, no ledge. Write one directly above a row of `N` for a heart sitting in a nest |
 | `W` | water with a spare heart floating in it — use this instead of `+` inside a pool, or it punches a hole in the water |
-| `h` | hedgehog, `r` rat — walkers, only ever on plain `#` floor. On the beach `h` is a **crab**: the letters are the same in every level, and the place decides what walks |
+| `h` | hedgehog, `r` rat — walkers, only ever on plain `#` floor. On the moon `h` is a **robot**. On the beach `h` is a **crab**: the letters are the same in every level, and the place decides what walks |
+| `D` | a **grey block** (moon): solid, a robot climbs out of its top every `ROBOT.spawnEveryMs` while the cat is near, and holding down against it breaks it. Deliberately *not* in `FULL_CELL`, so no neighbour switches a face off against it and nothing is left with a hole when it goes |
 | `j` | jellyfish — a mine washed up on the sand: lies on its cell's floor, pulsing, and kills from any side; needs something solid under it like a cactus does |
 | `k` | camel — ambles on plain `#` floor, harmless: the cat jumps on its back and rides |
 | `u` | a mound of sand with a worm in it, on plain `#` floor. The worm shows itself only for a cat: it comes up to look at one that comes near, then hunts it — travels under the sand along this row, mound and all, as far as the sand goes (open cells on plain `#` either side; a rock, wall, cactus or drop ends the run — `Mound.from`/`to`), and lunges out at the cat. The part that is out kills. A `u` in a one-tile pocket is a worm that can only peek and lunge where it is |
@@ -257,6 +258,13 @@ have to climb to the middle of a big one). The sand path's is 3.
 cat in from there; the draw-in then lasts longer the further the cat was
 (`EXIT.pullMsPerPx`), and the fade waits for it. The sand path's is 4. Its
 backdrop keeps bushes clear of the portal; see `world/index.ts`.
+
+## Off into space
+
+`next: 'space'` on a level sends its portal to `SpaceScene` instead of the
+next level, carrying the run (`levelIndex` of the next level, lives, hearts,
+time, deaths) through; the map there starts that next level. The sand path
+has it, so the moon comes after the flight.
 
 ## The title level
 

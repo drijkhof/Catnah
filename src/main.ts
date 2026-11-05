@@ -5,6 +5,7 @@ import { TitleScene } from './scenes/TitleScene';
 import { GameOverScene } from './scenes/GameOverScene';
 import { VictoryScene } from './scenes/VictoryScene';
 import { GameScene } from './scenes/GameScene';
+import { SpaceScene } from './scenes/SpaceScene';
 import { captureFrom, SNAPSHOT_KEY, type GameSnapshot } from './dev/hot';
 import { sound } from './audio/Sound';
 import { stats } from './stats';
@@ -60,7 +61,7 @@ function createGame(carried?: GameSnapshot): Phaser.Game {
       },
     },
 
-    scene: [BootScene, TitleScene, GameScene, GameOverScene, VictoryScene],
+    scene: [BootScene, TitleScene, GameScene, SpaceScene, GameOverScene, VictoryScene],
   });
 }
 

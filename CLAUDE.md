@@ -2,8 +2,9 @@
 
 A 2D platformer that runs in the browser, on **both phone and laptop**.
 
-You play a cat through nine levels, from a Dutch city street to a sand path
-that ends at the big portal. `work.md` has them all. The cat can move forward and back, jump, and sneak,
+You play a cat through ten levels, from a Dutch city street to a sand path
+whose big portal sends it flying through space to a map, and from the map to
+the moon. `work.md` has them all. The cat can move forward and back, jump, and sneak,
 steers in the air, and is always subject to gravity. Those
 are equal targets, not a primary and a fallback: every feature needs to work
 with touch and with a keyboard, and needs to be readable on a small screen.
@@ -92,7 +93,7 @@ src/
   scenes/       Phaser scenes. See scenes/CLAUDE.md
   objects/      Game entities. See objects/CLAUDE.md
   input/        Keyboard + touch, unified. See input/CLAUDE.md
-  level/        Level data, themes and the nine levels. See level/CLAUDE.md
+  level/        Level data, themes and the ten levels. See level/CLAUDE.md
 public/assets/  Static art and audio. See assets/CLAUDE.md
 ```
 

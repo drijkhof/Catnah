@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { CAMEL_BACK, GROUND_ENEMY_SIZES } from '../art';
-import { CRAB, GRAZING, GROUND_ENEMIES, RAT, type GroundEnemyKind } from '../config';
+import { CRAB, GRAZING, GROUND_ENEMIES, RAT, ROBOT, type GroundEnemyKind } from '../config';
 import { sound } from '../audio/Sound';
 import { isSolidTile } from './solid';
 
@@ -158,7 +158,7 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
       return;
     }
 
-    if (this.kind === 'crab') {
+    if (this.kind === 'crab' || this.kind === 'robot') {
       this.crabStep(delta, cat);
       return;
     }
@@ -179,7 +179,7 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
 
   /** Turn at a wall, at an edge, at a fence, or at the end of the world. Walk otherwise. */
   private pace(speed = GROUND_ENEMIES[this.kind].speed): void {
-    if (this.atLevelEdge() || this.blockedAhead() || !this.groundAhead() || this.fenceAhead()) {
+    if (this.atLevelEdge() || this.blockedAhead() || !this.groundOrDrop() || this.fenceAhead()) {
       this.direction = -this.direction;
     }
 
@@ -249,7 +249,7 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * A crab: pacing, or after the cat.
+   * A crab, or a moon robot: pacing, or after the cat.
    *
    * It takes up the chase when the cat is within `CRAB.sightRange` sideways
    * and about level with it, and keeps it up until the cat is further off
@@ -263,10 +263,12 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
       return;
     }
 
+    // A moon robot hunts the same way, by its own numbers.
+    const hunt = this.kind === 'robot' ? ROBOT : CRAB;
     const dx = Math.abs(cat.x - this.x);
     const dy = Math.abs(cat.y - this.y);
-    const sees = dx < CRAB.sightRange && dy < CRAB.sightHeight;
-    const keeps = this.chasing && dx < CRAB.releaseRange && dy < CRAB.sightHeight * 2;
+    const sees = dx < hunt.sightRange && dy < hunt.sightHeight;
+    const keeps = this.chasing && dx < hunt.releaseRange && dy < hunt.sightHeight * 2;
     this.chasing = sees || keeps;
 
     if (!this.chasing) {
@@ -277,9 +279,9 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
     this.direction = cat.x < this.x ? -1 : 1;
     this.setFlipX(this.direction < 0);
 
-    const stuck = this.atLevelEdge() || this.blockedAhead() || !this.groundAhead();
-    this.setVelocityX(stuck ? 0 : this.direction * CRAB.chaseSpeed);
-    this.scurry(delta, CRAB.chaseSpeed);
+    const stuck = this.atLevelEdge() || this.blockedAhead() || !this.groundOrDrop();
+    this.setVelocityX(stuck ? 0 : this.direction * hunt.chaseSpeed);
+    this.scurry(delta, hunt.chaseSpeed);
   }
 
   /**
@@ -363,6 +365,15 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   /** Is there still floor under the step it is about to take? */
+  /**
+   * Whether it may walk on: ground ahead, or -- for a moon robot, which is
+   * the only walker that steps off edges -- anything at all. A robot climbs
+   * out on top of its grey block, and has to be able to roll off it.
+   */
+  private groundOrDrop(): boolean {
+    return this.kind === 'robot' || this.groundAhead();
+  }
+
   private groundAhead(): boolean {
     const body = this.body;
     const ahead = this.direction > 0 ? body.right : body.x - PROBE;

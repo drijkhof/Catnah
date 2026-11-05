@@ -29,6 +29,9 @@ export type Voice =
   | 'chirp'
   | 'drip'
   | 'patter'
+  | 'beep'
+  | 'crunch'
+  | 'whoosh'
   | 'checkpoint'
   | 'portal'
   | 'wings'
@@ -316,6 +319,24 @@ class SoundBoard {
 
       case 'drip':
         this.blip(at, 1400, 420, 0.13, 'sine', 0.16);
+        break;
+
+      case 'beep':
+        // A robot climbing out of its block: two quick electronic notes.
+        this.blip(at, 880, 860, 0.06, 'square', 0.08);
+        this.blip(at + 0.08, 1320, 1300, 0.07, 'square', 0.08);
+        break;
+
+      case 'crunch':
+        // A robot block breaking: a dry crack and a low bump.
+        this.hiss(at, 0.18, 900, 0.35);
+        this.thud(at, 0.22, 0.4);
+        break;
+
+      case 'whoosh':
+        // Off into space: noise sweeping up.
+        this.hiss(at, 0.5, 600, 0.12);
+        this.blip(at, 200, 900, 0.5, 'sine', 0.08);
         break;
 
       case 'patter':

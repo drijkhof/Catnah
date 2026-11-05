@@ -1,13 +1,13 @@
 import type { LevelDefinition } from '../Level';
 
 /**
- * Level 9, the last: the sand path. 66 tiles.
+ * Level 9: the sand path. 66 tiles.
  *
  * Nothing hunts here. A path of flat stones laid in sand, grass along its
  * edges and bushes beside it, out in the open under the sun, with a few
  * hearts to pick up and a boulder or two to hop -- and at the end of it
- * the **big portal**, three times the size of any other, which ends the
- * game.
+ * the **big portal**, three times the size of any other, which sends the
+ * cat off into space.
  */
 
 /**
@@ -58,5 +58,7 @@ export const PATH: LevelDefinition = {
   portalScale: 3,
   // Come within four tiles of it and it sucks you in.
   portalPull: 4,
+  // Through the big portal and off into space, to the moon.
+  next: 'space',
   rows: ROWS,
 };

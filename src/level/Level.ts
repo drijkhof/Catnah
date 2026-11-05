@@ -107,6 +107,12 @@ export interface LevelDefinition {
    * it the cat has to walk into the portal's mouth.
    */
   portalPull?: number;
+  /**
+   * Where this level's portal goes, if not simply to the next level:
+   * `space` is the flight to the moon, which ends at a map and picks up
+   * again with the level after this one.
+   */
+  next?: 'space';
   rows: string[];
 }
 
@@ -223,6 +229,9 @@ export interface ParsedLevel {
   portalScale: number;
   /** How far from its rim a portal pulls the cat in, tiles; 0 for not at all. */
   portalPull: number;
+  next: 'space' | null;
+  /** The moon's grey blocks (`D`), by their top-left corner. Robots come out of them. */
+  hatches: Point[];
   /** Water, grouped into connected pools. A piranha never leaves its own. */
   pools: WaterZone[][];
   /** Lava. Shaped like water, but touching it kills. */
@@ -312,6 +321,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   let boss: Point | null = null;
   const extraLives: Point[] = [];
   const exits: Point[] = [];
+  const hatches: Point[] = [];
 
   /**
    * A thin one-way ledge, used for the tops of trees and for nests. Invisible
@@ -491,8 +501,30 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
 
         case 'h':
           // The walker of the place: on the beach the hedgehog's letter is
-          // a crab, so a level is written with the same letters everywhere.
-          walkers.push({ x: x + TILE / 2, y: y + TILE, kind: definition.theme === 'beach' ? 'crab' : 'hedgehog' });
+          // a crab, and on the moon a robot, so a level is written with the
+          // same letters everywhere.
+          walkers.push({
+            x: x + TILE / 2,
+            y: y + TILE,
+            kind: definition.theme === 'beach' ? 'crab' : definition.theme === 'moon' ? 'robot' : 'hedgehog',
+          });
+          break;
+
+        // A grey block a robot climbs out of. Solid, but not part of the
+        // ground: the cat can break it, so nothing around it may switch a
+        // face off against it -- see `FULL_CELL`, which leaves it out.
+        case 'D':
+          hatches.push({ x, y });
+          solids.push({
+            x,
+            y,
+            width: TILE,
+            height: TILE,
+            textureKey: 'robot-hatch',
+            isBranch: false,
+            faces: { up: true, down: true, left: true, right: true },
+            glyph: 'D',
+          });
           break;
 
         case 'j':
@@ -637,6 +669,8 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     crowBehaviour: definition.crowBehaviour ?? 'attack',
     portalScale: definition.portalScale ?? 1,
     portalPull: definition.portalPull ?? 0,
+    next: definition.next ?? null,
+    hatches,
     waterZones,
     pools,
     crocodiles,

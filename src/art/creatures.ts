@@ -8,6 +8,7 @@ export const GROUND_ENEMY_SIZES = {
   rat: { width: 19, height: 9 },
   camel: { width: 46, height: 34 },
   crab: { width: 20, height: 13 },
+  robot: { width: 16, height: 15 },
 };
 
 /** A jellyfish: a mine, the size of a crab. */

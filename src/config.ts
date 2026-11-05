@@ -438,7 +438,7 @@ export const LAVA = {
 } as const;
 
 /** Things that pace the floor. */
-export type GroundEnemyKind = 'hedgehog' | 'rat' | 'camel' | 'crab';
+export type GroundEnemyKind = 'hedgehog' | 'rat' | 'camel' | 'crab' | 'robot';
 
 /**
  * A hedgehog ambles; a rat scurries. That is the whole difference, besides
@@ -452,7 +452,45 @@ export const GROUND_ENEMIES: Record<GroundEnemyKind, { speed: number }> = {
   camel: { speed: 20 },
   // A crab scuttles, quicker than a hedgehog, and goes for a cat it sees.
   crab: { speed: 60 },
+  // A moon robot rolls along, and goes for a cat it sees.
+  robot: { speed: 46 },
 };
+
+/**
+ * The moon's robots, and the grey blocks (`D`) they come out of. A robot
+ * hunts like a crab -- paces until it sees the cat, then comes for it --
+ * with a longer sight and a slower roll. A block lets one out every
+ * `spawnEveryMs` while the cat is near enough for it to be awake, and stops
+ * at `maxAlivePerBlock` of its own still about. Holding down beside or on a
+ * block for `breakMs` breaks it, and then nothing more comes out of it.
+ */
+export const ROBOT = {
+  sightRange: 150,
+  sightHeight: 40,
+  releaseRange: 240,
+  chaseSpeed: 88,
+  spawnEveryMs: 5000,
+  maxAlivePerBlock: 2,
+  breakMs: 700,
+  /** How close the cat has to be to a block for holding down to work on it, px. */
+  breakReach: 3,
+} as const;
+
+/**
+ * The flight through space, between the sand path and the moon. The cat is
+ * flown, not walked: it accelerates towards whatever direction is held, up
+ * to `maxSpeed`, and drifts to a stop with nothing held. The map comes up
+ * once it is `mapDistance` from the Earth, or after `mapAfterMs` whatever
+ * happens, so nobody is lost out there.
+ */
+export const SPACE = {
+  worldSize: 6000,
+  accel: 420,
+  maxSpeed: 230,
+  drag: 160,
+  mapDistance: 1500,
+  mapAfterMs: 40000,
+} as const;
 
 /**
  * The beach's crab. It paces like a hedgehog until it *sees* the cat --

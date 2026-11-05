@@ -44,7 +44,12 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | poort | `arcade` | an opening under a house, walked or sneaked through |
 | rat | `rat` | the city's walker, quicker than a hedgehog |
 | zandpad | `sand path` | the last level: stones in sand, ending at the big portal |
-| groot portaal | `big portal` | the last level's way out, three times the size; it ends the game |
+| groot portaal | `big portal` | the sand path's way out, three times the size; it sends you into space |
+| ruimte | `space` | the flight from the Earth to the map, between the sand path and the moon |
+| kaart | `map` | the Earth, the Moon, Mars and Saturn; only the Moon can be picked |
+| maan | `moon` | the last level |
+| robotje | `robot` | the moon's walker: comes for you to grab you |
+| grijs blok | `grey block` / `hatch` | the moon's `D`: a robot comes out every five seconds; hold down to break it |
 
 ## The cat
 
@@ -495,6 +500,7 @@ and touching an **earlier** one after passing a later one moves the point back
 | Volcano | 104 |
 | Desert | 109 |
 | Sand path | 66 |
+| Moon | 92 |
 
 Every level is **written out** in its file, row by row.
 
@@ -504,16 +510,18 @@ level: what they lost was the reason to walk through them. The cave is the one
 exception, and it was never stretched — it is long because it was designed long,
 as a descent.
 
-## The nine levels
+## The ten levels
 
-**City, forest, canopy, swamp, cave, volcano, desert, beach, sand path.**
+**City, forest, canopy, swamp, cave, volcano, desert, beach, sand path,
+and — after a flight through space — the moon.**
 Out of town into the wild, down through the fire, and out the other side to
 the sea. Each level starts at one end and ends at a **portal**, which takes
 you to the next: the cave is the descent into the volcano, the volcano's
 portal — which only appears once the beetle is dead — leads out into the
 desert, the desert runs down to the beach, and the beach into the sand path,
-which ends at the **big portal**. That one ends the game. Little hearts are
-optional everywhere.
+which ends at the **big portal**. That one sends you off into **space**, to
+a map, and from the map to the **moon**, whose portal ends the game. Little
+hearts are optional everywhere.
 
 ### 1 — City
 
@@ -619,7 +627,36 @@ trees in the distance, out in the open under the sun with no leaves overhead.
 A few arcs of hearts, a couple of boulders to hop, and at the end the **big
 portal** — the same wormhole as every other, three times the size, with the
 bushes kept back from it. It **pulls**: come within four tiles of its rim
-and it sucks you in, slowly at first and faster as you go. It ends the game.
+and it sucks you in, slowly at first and faster as you go — and out into
+space.
+
+### Space, and the map
+
+Not a level: a flight. You start beside the Earth and **fly** the cat
+yourself, any direction, with the same keys and stick as walking — out
+through stars in three layers, clouds of glowing gas and planets drifting
+by, a trail of sparks behind you. Nothing out here can hurt you. Once you
+are far enough from the Earth, or after forty seconds whatever happens, the
+**map** comes up: the Earth, the Moon, Mars and Saturn in a row. Only the
+Moon can be picked — tap it, click it, or press any key — and Mars and
+Saturn are dimmed. The run's clock does not count while you fly.
+
+### 10 — Moon
+
+92 tiles of grey dust over grey rock, a crater or two, moon rocks to climb,
+and the sky black and full of stars with the Earth hanging in it, Saturn and
+Mars further off, and grey hills on the horizon.
+
+- **Robots** roll about on treads with a grabbing arm out front, and come
+  for you once they see you, wanting to pick you up. They roll off edges
+  and drop down; nothing stops them but a wall.
+- **Grey blocks** are where they come from: while you are near, a robot
+  climbs out of the top of each every **five seconds**, up to two of its own
+  at a time. **Hold down** on a block or against its side and it cracks and
+  breaks, and nothing comes out of it again. Holding down is sneaking, so
+  no robot can hurt you while you do it.
+
+Its portal ends the game.
 
 ### Cacti come tall
 
@@ -670,7 +707,7 @@ remembers nothing.
 
 ## Winning, and the score
 
-Walk into the big portal at the end of the sand path and the sunlit forest comes up out of the
+Walk into the portal at the end of the moon and the sunlit forest comes up out of the
 black with **"You actually won!"** in gold over it, your **time** under
 that, and how often you died. The time is the score, and lower is better:
 every second you spend in a level counts, from the moment it starts until the

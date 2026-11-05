@@ -59,7 +59,7 @@ export function installBackButton(game: Phaser.Game): void {
     if (title?.scene.isActive()) {
       return;
     }
-    for (const key of ['GameOver', 'Victory', 'Game']) {
+    for (const key of ['GameOver', 'Victory', 'Space', 'Game']) {
       const scene = game.scene.getScene(key);
       if (scene?.scene.isActive() || scene?.scene.isPaused()) {
         scene.scene.stop();

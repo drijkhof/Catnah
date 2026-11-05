@@ -1,7 +1,7 @@
 import type { TilePalette } from '../art/tiles';
 
 /** The places the game visits. */
-export type ThemeName = 'jungle' | 'forest' | 'swamp' | 'cave' | 'volcano' | 'desert' | 'beach' | 'city' | 'path';
+export type ThemeName = 'jungle' | 'forest' | 'swamp' | 'cave' | 'volcano' | 'desert' | 'beach' | 'city' | 'path' | 'moon';
 
 /**
  * One palette per place.
@@ -318,6 +318,37 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     nestStraw: 0xc9a75a,
     nestStrawLight: 0xe6cd8a,
     nestShadow: 0x6b5227,
+    lava: 0xe8622a,
+    lavaDeep: 0x8f2d10,
+    lavaBright: 0xffc44d,
+  },
+  // The moon: pale grey dust over darker grey rock, and nothing growing.
+  moon: {
+    surfaceStyle: 'dust',
+    groundStyle: 'earth',
+    shade: 0x14141a,
+    columnStyle: 'chain',
+    platformStyle: 'shelf',
+    grass: 0xc4c4c0,
+    grassDark: 0x94948f,
+    dirt: 0x76767a,
+    dirtDark: 0x5c5c62,
+    rock: 0x8a8a8e,
+    rockDark: 0x5e5e64,
+    rockLight: 0xb4b4b8,
+    branch: 0x8a8a8e,
+    branchDark: 0x5e5e64,
+    leaf: 0x8a8a8e,
+    leafLight: 0xb4b4b8,
+    trunk: 0x8a8a92,
+    trunkDark: 0x55555d,
+    trunkLight: 0xb6b6be,
+    water: 0x3f86b8,
+    waterDeep: 0x2f6a95,
+    waterFoam: 0xbfe3f5,
+    nestStraw: 0x9a8f78,
+    nestStrawLight: 0xc0b394,
+    nestShadow: 0x4e4638,
     lava: 0xe8622a,
     lavaDeep: 0x8f2d10,
     lavaBright: 0xffc44d,

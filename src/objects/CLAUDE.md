@@ -226,6 +226,18 @@ for it at `chaseSpeed`, stopping dead at an edge or a wall rather than turning,
 until the cat is `releaseRange` away. Two ranges, so it does not flicker at
 the edge of one.
 
+## Moon robots, and the blocks they come out of
+
+A robot is a `GroundEnemy` of kind `robot`: the crab's hunt with its own
+numbers (`ROBOT`), and the one walker that **steps off edges**
+(`groundOrDrop`), because it is born on top of its grey block and has to be
+able to roll off it. `GameScene.stepHatches` runs the blocks: an awake block
+lets one out every `spawnEveryMs` (`spawnRobot` wires it up like a level
+walker: colliders, the bite overlap, a pop), and holding down while touching
+one for `breakMs` cracks it through two textures and destroys it. The block
+tiles are `KEEP_LIVE` so the scenery bake leaves them able to disappear,
+and the ground shade leaves them out.
+
 ## The gull is the crow with a different attack
 
 `Crow` with behaviour `swoop`, drawn as a gull: the crow's letter `c` in a

@@ -1814,3 +1814,30 @@ Asked for: on the sand path, being sucked in from four blocks away.
   range it stops steering and is drawn into the middle, slowly at first and
   faster as it goes, shrinking and fading. There is no tug that can still be
   walked away from.
+
+## Space, the map, and the moon
+
+Asked for: a galaxy with stars and planets that you fly through away from
+the Earth, then a map with the Moon, Mars and Saturn where only the Moon can
+be clicked, which starts the moon level: little robots that want to grab
+you, grey blocks they come out of every five seconds, holding down breaks a
+block, and stars and planets behind. And: the robots must be able to get
+off the grey block themselves.
+
+- **It comes after the sand path.** Its big portal goes to space now, and
+  the moon is the last level: its portal is the win.
+- **You fly the cat itself**, no rocket, with the walking keys and stick.
+  Nothing can hurt it out there, and the run's clock stops while it flies.
+- **The map comes up at 1500px from the Earth, or after 40 seconds**, so
+  someone who does not fly away still gets there.
+- **Mars and Saturn are shown dimmed** and do nothing when tapped. Nothing
+  says "soon"; say if they should.
+- **A block lets out at most two robots of its own at a time**, and only
+  while the cat is near, or a long wait somewhere would fill the level.
+- **Holding down works standing on a block or pressed against its side**, for
+  0.7 seconds in one hold. Holding down is sneaking, so robots cannot hurt the
+  cat while it breaks one -- the rule asked for earlier.
+- **Robots step off any edge**, not only their block's. That is what lets them
+  off it; they also follow the cat down into craters.
+- **The moon has ordinary gravity.** Lower gravity would make it feel like
+  the moon, but it changes every jump; say if you want it.

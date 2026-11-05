@@ -6,6 +6,12 @@ Phaser scenes. Registered in order in `src/main.ts`; the first one starts.
 - **`TitleScene`** — the title screen, and where a finished run ends up.
 - **`GameScene`** — builds the level, owns the player, camera, HUD and the
   update loop.
+- **`SpaceScene`** — between the sand path and the moon: the cat flown
+  through space (`SPACE` in `config.ts`), stars scrolled by hand in three
+  pinned layers, then the map, where only the Moon is interactive (a tap,
+  a click, or any fresh key after 700ms). It carries the run through
+  untouched and starts `Game` at the level after the sand path. The clock
+  does not run here.
 - **`GameOverScene`** — black, one line of red, and back to the title.
 - **`VictoryScene`** — the last level's portal leads here: the title-mode
   forest underneath (launched the same way `TitleScene` does it, and stopped

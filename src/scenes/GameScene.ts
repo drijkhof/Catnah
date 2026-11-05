@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { AWAKE_RANGE, RAIN, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
+import { AWAKE_RANGE, RAIN, ROBOT, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
 import { Controls, IdleControls, type PlayerInput } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -166,6 +166,20 @@ export class GameScene extends Phaser.Scene {
   private boss?: Boss;
   /** The solid blocks, kept so a creature spawned later can collide with them. */
   private blocks!: Phaser.Physics.Arcade.StaticGroup;
+  private branchGroup!: Phaser.Physics.Arcade.StaticGroup;
+  /**
+   * The moon's grey blocks: the tile that collides, how long until the next
+   * robot climbs out, how long the cat has been breaking it, and the robots
+   * it let out that are still about.
+   */
+  private hatches: Array<{
+    tile: Phaser.Physics.Arcade.Sprite;
+    x: number;
+    y: number;
+    spawnIn: number;
+    breaking: number;
+    robots: GroundEnemy[];
+  }> = [];
   /**
    * Lava: kills on contact, whatever the cat is doing. A rectangle it must not
    * be inside.
@@ -246,6 +260,7 @@ export class GameScene extends Phaser.Scene {
     this.crocodiles = [];
     this.spiders = [];
     this.rain = undefined;
+    this.hatches = [];
     this.lifeIcons = [];
     this.dying = false;
     this.leaving = false;
@@ -273,7 +288,9 @@ export class GameScene extends Phaser.Scene {
     // so at the same depth it draws over the ground and under the cat.
     addGroundShade(
       this,
-      this.level.solids,
+      // Not the grey blocks: they can be broken, and the shade they cast
+      // would be left behind on the ground.
+      this.level.solids.filter((solid) => solid.glyph !== 'D'),
       this.level.voids,
       this.level.widthInPixels,
       this.level.heightInPixels,
@@ -599,6 +616,9 @@ export class GameScene extends Phaser.Scene {
       } else {
         walker.doze();
       }
+    }
+    if (!this.titleMode && !this.dying && !this.leaving) {
+      this.stepHatches(delta);
     }
     for (const piranha of this.piranhas) {
       if (this.awake(piranha)) {
@@ -970,6 +990,19 @@ export class GameScene extends Phaser.Scene {
     // The world goes to black under the HUD; the hearts stay. The level name
     // sits under the fade and goes with the level it names.
     this.blackout(0, 1, Math.max(EXIT.fadeMs, drawIn), () => {
+      // The sand path's portal goes off into space, to the map; the level
+      // after it is picked up from there.
+      if (this.level.next === 'space') {
+        this.scene.start('Space', {
+          levelIndex: this.levelIndex + 1,
+          lives: this.lives,
+          maxLives: this.maxLives,
+          collected: this.collected,
+          elapsedMs: this.elapsedMs,
+          deaths: this.deaths,
+        });
+        return;
+      }
       // The last level's portal is the end of the game: the victory screen,
       // with the run's time and deaths as its score. Every other portal is
       // the next level, with everything the run has gathered.
@@ -986,6 +1019,103 @@ export class GameScene extends Phaser.Scene {
         deaths: this.deaths,
       });
     });
+  }
+
+  /**
+   * The moon's grey blocks, once a frame.
+   *
+   * **Breaking**: holding down while touching a block -- standing on it, or
+   * pressed against its side -- cracks it, and after `ROBOT.breakMs` it is
+   * gone, collision and all. Letting go mends the cracks: it has to be one
+   * hold. A cat holding down is sneaking, which no robot can hurt, so
+   * breaking a block is safe while it lasts.
+   *
+   * **Spawning**: an awake block lets a robot out every `ROBOT.spawnEveryMs`,
+   * standing on its top, unless `ROBOT.maxAlivePerBlock` of its own are
+   * still about.
+   */
+  private stepHatches(delta: number): void {
+    const cat = this.player.body;
+    const reach = ROBOT.breakReach;
+    const holding = this.controls.sneak && !this.player.climbing && !this.player.swimming;
+
+    for (const hatch of this.hatches) {
+      if (!hatch.tile.active) {
+        continue;
+      }
+
+      const touching =
+        cat.right > hatch.x - reach &&
+        cat.x < hatch.x + TILE + reach &&
+        cat.bottom > hatch.y - reach &&
+        cat.y < hatch.y + TILE + reach;
+      if (holding && touching) {
+        hatch.breaking += delta;
+        const stage = hatch.breaking / ROBOT.breakMs;
+        hatch.tile.setTexture(stage < 1 / 3 ? 'robot-hatch' : stage < 2 / 3 ? 'robot-hatch-1' : 'robot-hatch-2');
+        hatch.tile.x = hatch.x + (Math.floor(hatch.breaking / 40) % 2 === 0 ? 0.5 : -0.5);
+        if (hatch.breaking >= ROBOT.breakMs) {
+          this.breakHatch(hatch);
+        }
+        continue;
+      }
+      if (hatch.breaking > 0) {
+        hatch.breaking = 0;
+        hatch.tile.setTexture('robot-hatch');
+        hatch.tile.x = hatch.x;
+      }
+
+      if (!this.awake({ x: hatch.x, y: hatch.y })) {
+        continue;
+      }
+      hatch.robots = hatch.robots.filter((robot) => robot.active);
+      hatch.spawnIn -= delta;
+      if (hatch.spawnIn > 0) {
+        continue;
+      }
+      hatch.spawnIn = ROBOT.spawnEveryMs;
+      if (hatch.robots.length < ROBOT.maxAlivePerBlock) {
+        hatch.robots.push(this.spawnRobot(hatch.x + TILE / 2, hatch.y));
+      }
+    }
+  }
+
+  /** A robot climbs out of the top of a grey block, and is wired up like any walker. */
+  private spawnRobot(x: number, y: number): GroundEnemy {
+    const robot = new GroundEnemy(this, x, y, 'robot', this.player.x < x ? -1 : 1);
+    this.walkers.push(robot);
+    this.physics.add.collider(robot, this.blocks);
+    this.physics.add.collider(robot, this.branchGroup, undefined, (walker, branch) =>
+      landsOnBranch(walker as Phaser.Physics.Arcade.Sprite, branch as Phaser.Physics.Arcade.Sprite),
+    );
+    this.physics.add.overlap(this.player, robot, () => this.bitten());
+    robot.setScale(1, 0.2);
+    this.tweens.add({ targets: robot, scaleY: 1, duration: 260, ease: 'Back.easeOut' });
+    sound.playAt('beep', x, y);
+    return robot;
+  }
+
+  /** A grey block breaks: gone, in a burst of chips, and no more robots from it. */
+  private breakHatch(hatch: { tile: Phaser.Physics.Arcade.Sprite; x: number; y: number }): void {
+    hatch.tile.destroy();
+    sound.play('crunch');
+    this.cameras.main.shake(120, 0.004);
+    for (let i = 0; i < 8; i += 1) {
+      const chip = this.add
+        .image(hatch.x + TILE / 2, hatch.y + TILE / 2, 'hatch-chip')
+        .setDepth(1);
+      const angle = (i / 8) * Math.PI * 2 + Math.random() * 0.4;
+      this.tweens.add({
+        targets: chip,
+        x: chip.x + Math.cos(angle) * (14 + Math.random() * 10),
+        y: chip.y + Math.sin(angle) * (14 + Math.random() * 10) - 6,
+        alpha: 0,
+        angle: 180,
+        duration: 420,
+        ease: 'Cubic.easeOut',
+        onComplete: () => chip.destroy(),
+      });
+    }
   }
 
   /**
@@ -1048,6 +1178,7 @@ export class GameScene extends Phaser.Scene {
       );
     }
     this.blocks = blocks;
+    this.branchGroup = branches;
     this.boss = this.level.boss ? this.spawnBoss(this.level.boss) : undefined;
 
     for (const nest of this.level.nests) {
@@ -1248,6 +1379,7 @@ export class GameScene extends Phaser.Scene {
       swamp: 'wind',
       cave: 'hush',
       volcano: 'rumble',
+      moon: 'hush',
       desert: 'wind',
       beach: 'wind',
       city: 'rain',
@@ -1461,9 +1593,21 @@ export class GameScene extends Phaser.Scene {
       const invisible = solid.textureKey.endsWith('-ledge');
       const isVoid = solid.textureKey === 'void';
       const tile = group
-        .create(solid.x, solid.y, this.tile(invisible ? 'branch-mid' : isVoid ? 'ground-fill' : solid.textureKey))
+        .create(
+          solid.x,
+          solid.y,
+          // A grey block looks the same wherever it is: its texture is not the theme's.
+          solid.glyph === 'D' ? solid.textureKey : this.tile(invisible ? 'branch-mid' : isVoid ? 'ground-fill' : solid.textureKey),
+        )
         .setOrigin(0, 0)
         .refreshBody() as Phaser.Physics.Arcade.Sprite;
+
+      // A grey block can be broken, so it is never flattened into the
+      // scenery: it has to be able to crack and disappear.
+      if (solid.glyph === 'D') {
+        tile.setData(KEEP_LIVE, true).setDepth(-0.25);
+        this.hatches.push({ tile, x: solid.x, y: solid.y, spawnIn: ROBOT.spawnEveryMs, breaking: 0, robots: [] });
+      }
 
       // A rock cell collides here but is not drawn here: its cluster is
       // drawn as one boulder by `buildBoulders`. A bough cell likewise: its

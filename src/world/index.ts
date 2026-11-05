@@ -6,6 +6,7 @@ import { CaveBackdrop } from './CaveBackdrop';
 import { DesertBackdrop } from './DesertBackdrop';
 import { BeachBackdrop } from './BeachBackdrop';
 import { CityBackdrop } from './CityBackdrop';
+import { MoonBackdrop } from './MoonBackdrop';
 import { SwampBackdrop } from './SwampBackdrop';
 import { VolcanoBackdrop } from './VolcanoBackdrop';
 
@@ -44,6 +45,9 @@ export function createBackdrop(
       break;
     case 'city':
       new CityBackdrop(scene, level, levelWidth, groundLine);
+      break;
+    case 'moon':
+      new MoonBackdrop(scene, levelWidth, groundLine);
       break;
     case 'path':
       // The forest's sky, sun, distant trees and bushes, out in the open:
