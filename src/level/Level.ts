@@ -113,6 +113,8 @@ export interface LevelDefinition {
    * again with the level after this one.
    */
   next?: 'space';
+  /** Whether the cat wears a space helmet here: there is no air. */
+  helmet?: boolean;
   rows: string[];
 }
 
@@ -230,6 +232,9 @@ export interface ParsedLevel {
   /** How far from its rim a portal pulls the cat in, tiles; 0 for not at all. */
   portalPull: number;
   next: 'space' | null;
+  helmet: boolean;
+  /** Planted flags (`F`), by the foot of the pole. Scenery. */
+  flags: Point[];
   /** The moon's grey blocks (`D`), by their top-left corner. Robots come out of them. */
   hatches: Point[];
   /** Water, grouped into connected pools. A piranha never leaves its own. */
@@ -322,6 +327,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const extraLives: Point[] = [];
   const exits: Point[] = [];
   const hatches: Point[] = [];
+  const flags: Point[] = [];
 
   /**
    * A thin one-way ledge, used for the tops of trees and for nests. Invisible
@@ -370,7 +376,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           // what stops a stack of tiles reading as stripes. Void above is
           // rock above: no grass under it, and so no fringe and no rounded
           // corners either -- those follow the grass-top texture.
-          block(x, y, variantOf('#_'.includes(at(column, row - 1)) ? 'ground-fill' : 'ground-top', column, row), column, row);
+          block(x, y, variantOf('#_M'.includes(at(column, row - 1)) ? 'ground-fill' : 'ground-top', column, row), column, row);
           break;
 
         case 'R':
@@ -508,6 +514,17 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
             y: y + TILE,
             kind: definition.theme === 'beach' ? 'crab' : definition.theme === 'moon' ? 'robot' : 'hedgehog',
           });
+          break;
+
+        // The hull of a moon base: solid, and drawn with the laboratory
+        // inside it as one picture (`art/base.ts`).
+        case 'M':
+          block(x, y, 'base-wall', column, row);
+          break;
+
+        // A flag planted in the dust. Scenery only.
+        case 'F':
+          flags.push({ x: x + 4, y: y + TILE });
           break;
 
         // A grey block a robot climbs out of. Solid, but not part of the
@@ -670,6 +687,8 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     portalScale: definition.portalScale ?? 1,
     portalPull: definition.portalPull ?? 0,
     next: definition.next ?? null,
+    helmet: definition.helmet ?? false,
+    flags,
     hatches,
     waterZones,
     pools,
@@ -950,7 +969,7 @@ function variantOf(base: string, column: number, row: number): string {
 }
 
 /** Solids that fill their whole cell, as opposed to a platform's thin bar. */
-const FULL_CELL = new Set(['#', 'B', 'R', 'G', 'Q', '_']);
+const FULL_CELL = new Set(['#', 'B', 'R', 'G', 'Q', '_', 'M']);
 
 /** The rock letters. One material; the letter only says where a boulder ends. */
 const ROCK = new Set(['R', 'G', 'Q']);

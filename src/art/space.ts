@@ -35,6 +35,45 @@ export function generateSpaceTextures(scene: Phaser.Scene): void {
   generateMoonScenery(scene);
   generateRobot(scene);
   generateHatch(scene);
+  generateHelmet(scene);
+}
+
+/** The space helmet's glass bubble, px across. */
+export const HELMET_SIZE = 18;
+
+/**
+ * Where the middle of the cat's head is in each pose's picture, facing
+ * right, px from its top-left corner: what the helmet is centred on.
+ */
+export const HEAD_IN_POSE = {
+  standing: { x: 18, y: 6 },
+  sneaking: { x: 21, y: 4 },
+  climbing: { x: 11, y: 4 },
+} as const;
+
+/**
+ * A space helmet: a bubble of glass round the cat's head, barely tinted so
+ * the face shows through, a white rim, a glint, and the collar ring at the
+ * bottom where it seals.
+ */
+function generateHelmet(scene: Phaser.Scene): void {
+  const d = HELMET_SIZE;
+  const r = d / 2 - 1;
+  bakeTexture(scene, 'space-helmet', d, d, (g) => {
+    g.fillStyle(0xcfe8ff, 0.22);
+    g.fillCircle(d / 2, d / 2, r);
+    g.lineStyle(1, 0xeef4fa, 0.95);
+    g.strokeCircle(d / 2, d / 2, r);
+    // The glint, top left.
+    g.fillStyle(0xffffff, 0.9);
+    g.fillRect(d / 2 - 5, d / 2 - 5, 2, 1);
+    g.fillRect(d / 2 - 6, d / 2 - 4, 1, 2);
+    // The collar.
+    g.fillStyle(0xb0b8c4, 1);
+    g.fillRect(d / 2 - 5, d - 3, 10, 2);
+    g.fillStyle(0xeef4fa, 1);
+    g.fillRect(d / 2 - 5, d - 3, 10, 1);
+  });
 }
 
 /**

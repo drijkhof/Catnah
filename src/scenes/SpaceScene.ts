@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH, SPACE } from '../config';
 import { Controls } from '../input/Controls';
-import { PLANET_SIZES, STARFIELD_SIZE, createRandom, type PlanetName } from '../art';
+import { HEAD_IN_POSE, PLANET_SIZES, STARFIELD_SIZE, createRandom, type PlanetName } from '../art';
 import { sound } from '../audio/Sound';
 import { crispText, type CrispText } from '../text';
 
@@ -33,6 +33,8 @@ export class SpaceScene extends Phaser.Scene {
   private carry: Carry = { levelIndex: 0 };
   private controls!: Controls;
   private cat!: Phaser.GameObjects.Image;
+  /** The space helmet on the cat's head. */
+  private helmet!: Phaser.GameObjects.Image;
   private velocity = new Phaser.Math.Vector2();
   private earth = new Phaser.Math.Vector2();
   private starLayers: Array<{ sprite: Phaser.GameObjects.TileSprite; factor: number }> = [];
@@ -120,6 +122,7 @@ export class SpaceScene extends Phaser.Scene {
     this.cat = this.add
       .image(this.earth.x + PLANET_SIZES.earth * 1.4, this.earth.y - 40, 'cat-swim-a')
       .setDepth(10);
+    this.helmet = this.add.image(0, 0, 'space-helmet').setDepth(11);
     this.velocity.set(90, -30);
     this.cameras.main.startFollow(this.cat, true, 0.1, 0.1);
 
@@ -208,6 +211,13 @@ export class SpaceScene extends Phaser.Scene {
       const angle = Math.atan2(this.velocity.y, Math.abs(this.velocity.x));
       this.cat.setRotation(left ? -angle : angle);
     }
+
+    // The helmet on its head: the head's place in the picture, from the
+    // picture's middle, flipped and turned with the cat.
+    const head = HEAD_IN_POSE.standing;
+    const offset = new Phaser.Math.Vector2((head.x - this.cat.width / 2) * (this.cat.flipX ? -1 : 1), head.y - this.cat.height / 2);
+    offset.rotate(this.cat.rotation);
+    this.helmet.setPosition(this.cat.x + offset.x, this.cat.y + offset.y).setRotation(this.cat.rotation);
 
     // A trail of sparks behind it while it is moving.
     this.trailIn -= delta;

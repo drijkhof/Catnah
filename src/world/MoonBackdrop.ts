@@ -5,7 +5,7 @@ import { MOON_HILLS_SIZE, PLANET_SIZES, STARFIELD_SIZE, createRandom } from '../
 /**
  * The moon's sky: black space full of stars in three layers, the Earth
  * hanging in it, Saturn and Mars further off, and two ranks of low grey
- * hills on the horizon. The stars and planets slide by a little as the cat
+ * hills on the horizon, with an American flag planted on them. The stars and planets slide by a little as the cat
  * walks, the far things least; the hills are rooted on the ground line.
  */
 export class MoonBackdrop {
@@ -51,5 +51,13 @@ export class MoonBackdrop {
           .setDepth(depth);
       }
     }
+
+    // A flag on the near hills, early on: someone was here before.
+    scene.add
+      .image(GAME_WIDTH * 0.62, groundLine + 8 - 30, 'us-flag')
+      .setOrigin(0, 1)
+      .setScale(0.8)
+      .setScrollFactor(0.4, 1)
+      .setDepth(-69);
   }
 }

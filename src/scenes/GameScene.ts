@@ -15,7 +15,7 @@ import { KEEP_LIVE, addGroundShade, bakeScenery, createBackdrop } from '../world
 import { parseLevel, type ClimbZone, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
 import { TITLE } from '../level/levels/title';
-import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, CASTLE_FLAG_HEADROOM, AWNING_BULGE, HOUSE_HEADROOM, bakeAwning, bakeHouse, GRASS_FRINGE_HEIGHT, JELLY_SIZE, LOG_BULGE, PALM_BULGE, PALM_CROWN_ANCHOR, PALM_CROWN_SIZE, bakePalmTrunk, bakeSandCastle, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeCactus, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
+import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, CASTLE_FLAG_HEADROOM, HEAD_IN_POSE, BASE_HEADROOM, bakeMoonBase, AWNING_BULGE, HOUSE_HEADROOM, bakeAwning, bakeHouse, GRASS_FRINGE_HEIGHT, JELLY_SIZE, LOG_BULGE, PALM_BULGE, PALM_CROWN_ANCHOR, PALM_CROWN_SIZE, bakePalmTrunk, bakeSandCastle, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeCactus, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { GOD_MODE_KEY, installGodMode, isGodMode } from '../dev/godMode';
@@ -172,6 +172,8 @@ export class GameScene extends Phaser.Scene {
    * robot climbs out, how long the cat has been breaking it, and the robots
    * it let out that are still about.
    */
+  /** `=` cells inside a moon base, which the base draws as lab benches. */
+  private benchCells = new Set<string>();
   private hatches: Array<{
     tile: Phaser.Physics.Arcade.Sprite;
     x: number;
@@ -261,6 +263,7 @@ export class GameScene extends Phaser.Scene {
     this.spiders = [];
     this.rain = undefined;
     this.hatches = [];
+    this.benchCells = new Set();
     this.lifeIcons = [];
     this.dying = false;
     this.leaving = false;
@@ -290,7 +293,7 @@ export class GameScene extends Phaser.Scene {
       this,
       // Not the grey blocks: they can be broken, and the shade they cast
       // would be left behind on the ground.
-      this.level.solids.filter((solid) => solid.glyph !== 'D'),
+      this.level.solids.filter((solid) => solid.glyph !== 'D' && solid.glyph !== 'M'),
       this.level.voids,
       this.level.widthInPixels,
       this.level.heightInPixels,
@@ -357,6 +360,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.buildCreatures(blocks, branches);
+    this.buildHelmet();
     this.buildExit();
     this.gatherCover();
 
@@ -1597,7 +1601,9 @@ export class GameScene extends Phaser.Scene {
           solid.x,
           solid.y,
           // A grey block looks the same wherever it is: its texture is not the theme's.
-          solid.glyph === 'D' ? solid.textureKey : this.tile(invisible ? 'branch-mid' : isVoid ? 'ground-fill' : solid.textureKey),
+          solid.glyph === 'D'
+            ? solid.textureKey
+            : this.tile(invisible ? 'branch-mid' : isVoid || solid.glyph === 'M' ? 'ground-fill' : solid.textureKey),
         )
         .setOrigin(0, 0)
         .refreshBody() as Phaser.Physics.Arcade.Sprite;
@@ -1612,7 +1618,7 @@ export class GameScene extends Phaser.Scene {
       // A rock cell collides here but is not drawn here: its cluster is
       // drawn as one boulder by `buildBoulders`. A bough cell likewise: its
       // run is one fallen tree, drawn by `buildLogs`.
-      if (solid.textureKey.startsWith('rock-') || solid.textureKey === 'bough' || isVoid) {
+      if (solid.textureKey.startsWith('rock-') || solid.textureKey === 'bough' || isVoid || solid.glyph === 'M') {
         tile.setVisible(false);
       }
 
@@ -1669,6 +1675,7 @@ export class GameScene extends Phaser.Scene {
     this.buildVoid();
     this.buildStoneMass();
     this.buildBoulders();
+    this.buildBases();
     this.buildLogs();
     this.buildBranches();
     this.buildFillets();
@@ -1945,7 +1952,10 @@ export class GameScene extends Phaser.Scene {
    * wood's actual underside at each cell, which the baker reports.
    */
   private buildBranches(): void {
-    const wood = this.level.solids.filter((solid) => this.isWood(solid));
+    // A bench inside a moon base is drawn by the base, as a lab bench.
+    const wood = this.level.solids.filter(
+      (solid) => this.isWood(solid) && !this.benchCells.has(`${solid.x / TILE},${solid.y / TILE}`),
+    );
     const cells = new Set(wood.map((solid) => `${solid.x / TILE},${solid.y / TILE}`));
     const palette = THEMES[this.level.theme];
     const random = createRandom(6131);
@@ -2160,6 +2170,112 @@ export class GameScene extends Phaser.Scene {
         .image(left * TILE, top * TILE - HOUSE_HEADROOM, key)
         .setOrigin(0, 0)
         .setDepth(-0.3);
+    }
+  }
+
+  /**
+   * The space helmet, where the level says there is no air: a glass bubble
+   * that sits on the cat's head in every pose. Moved after the physics step
+   * (`postupdate`, registered after Arcade's own) so it is where the cat is
+   * drawn, not where it was a frame ago, and taken off when the scene ends
+   * -- the scene's events outlive a restart.
+   */
+  private buildHelmet(): void {
+    if (!this.level.helmet) {
+      return;
+    }
+    const helmet = this.add.image(0, 0, 'space-helmet').setDepth(this.player.depth + 0.01);
+    const follow = (): void => {
+      const cat = this.player;
+      const key = cat.texture.key;
+      const head = key.startsWith('cat-sneak')
+        ? HEAD_IN_POSE.sneaking
+        : key.startsWith('cat-climb')
+          ? HEAD_IN_POSE.climbing
+          : HEAD_IN_POSE.standing;
+      const w = cat.width;
+      const hx = cat.flipX ? w - head.x : head.x;
+      helmet
+        .setPosition(cat.x + (hx - w / 2) * cat.scaleX, cat.y + (head.y - cat.height) * cat.scaleY)
+        .setScale(cat.scaleX)
+        .setAlpha(cat.alpha)
+        .setVisible(cat.visible);
+    };
+    follow();
+    this.events.on('postupdate', follow);
+    this.events.once('shutdown', () => this.events.off('postupdate', follow));
+  }
+
+  /**
+   * Draws each moon base -- every cluster of touching `M` cells -- as one
+   * picture with its laboratory inside (`bakeMoonBase`). The picture reaches
+   * down past the hull to the ground, for the inside and the doors; `=`
+   * cells inside are its lab benches, and `buildBranches` leaves them be.
+   */
+  private buildBases(): void {
+    const walls = this.level.solids.filter((solid) => solid.glyph === 'M');
+    const cells = new Set(walls.map((solid) => `${solid.x / TILE},${solid.y / TILE}`));
+    const solid = new Set(
+      this.level.solids.filter((cell) => !cell.isBranch).map((cell) => `${cell.x / TILE},${cell.y / TILE}`),
+    );
+    const seen = new Set<string>();
+    for (const wall of walls) {
+      const start = `${wall.x / TILE},${wall.y / TILE}`;
+      if (seen.has(start)) {
+        continue;
+      }
+      const cluster: Array<{ column: number; row: number }> = [];
+      const queue = [start];
+      seen.add(start);
+      while (queue.length > 0) {
+        const key = queue.pop() as string;
+        const [column, row] = key.split(',').map(Number);
+        cluster.push({ column, row });
+        for (const next of [`${column + 1},${row}`, `${column - 1},${row}`, `${column},${row + 1}`, `${column},${row - 1}`]) {
+          if (cells.has(next) && !seen.has(next)) {
+            seen.add(next);
+            queue.push(next);
+          }
+        }
+      }
+      const left = Math.min(...cluster.map((cell) => cell.column));
+      const right = Math.max(...cluster.map((cell) => cell.column));
+      const top = Math.min(...cluster.map((cell) => cell.row));
+      // Down to the ground under the middle of it.
+      const middle = Math.round((left + right) / 2);
+      let bottom = Math.max(...cluster.map((cell) => cell.row));
+      while (bottom < top + 40 && !solid.has(`${middle},${bottom + 1}`)) {
+        bottom += 1;
+      }
+      const benches = this.level.solids
+        .filter((cell) => cell.isBranch && cell.textureKey.startsWith('branch-'))
+        .map((cell) => ({ column: cell.x / TILE, row: cell.y / TILE }))
+        .filter((cell) => cell.column > left && cell.column < right && cell.row > top && cell.row <= bottom);
+      for (const bench of benches) {
+        this.benchCells.add(`${bench.column},${bench.row}`);
+      }
+      const key = `${this.level.theme}:base:${left},${top}`;
+      if (this.textures.exists(key)) {
+        this.textures.remove(key);
+      }
+      bakeMoonBase(
+        this,
+        key,
+        cluster.map((cell) => ({ column: cell.column - left, row: cell.row - top })),
+        benches.map((cell) => ({ column: cell.column - left, row: cell.row - top })),
+        right - left + 1,
+        bottom - top + 1,
+        9101 + left * 31,
+      );
+      this.add
+        .image(left * TILE, top * TILE - BASE_HEADROOM, key)
+        .setOrigin(0, 0)
+        .setDepth(-0.3);
+    }
+
+    // Flags planted in the dust, behind everything that moves.
+    for (const flag of this.level.flags) {
+      this.add.image(flag.x, flag.y, 'us-flag').setOrigin(0, 1).setDepth(-0.35);
     }
   }
 
