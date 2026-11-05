@@ -1076,7 +1076,7 @@ export class GameScene extends Phaser.Scene {
         continue;
       }
       if (!this.titleMode) {
-        this.physics.add.overlap(this.player, creature, () => this.kill());
+        this.physics.add.overlap(this.player, creature, () => this.bitten());
       }
     }
   }
@@ -1148,7 +1148,7 @@ export class GameScene extends Phaser.Scene {
     const boss = this.buildBoss(at);
     this.physics.add.collider(boss, this.blocks);
     if (!this.titleMode) {
-      this.physics.add.overlap(this.player, boss, () => this.kill());
+      this.physics.add.overlap(this.player, boss, () => this.bitten());
     }
     return boss;
   }
@@ -1290,9 +1290,10 @@ export class GameScene extends Phaser.Scene {
       return true;
     }
 
-    // A worm kills by the part of it that is out of the sand this frame.
+    // A worm kills by the part of it that is out of the sand this frame --
+    // unless the cat is sneaking, which no creature can get at.
     for (const worm of this.worms) {
-      if (worm.touches(body)) {
+      if (!this.player.sneaking && worm.touches(body)) {
         return true;
       }
     }
@@ -1327,6 +1328,20 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.shake(140, 0.006);
     this.player.setTint(0xff6b6b);
     this.time.delayedCall(220, () => this.player.clearTint());
+  }
+
+  /**
+   * A creature has touched the cat. A sneaking cat is out of reach of every
+   * one of them -- hedgehog, rat, crab, bird, spider, worm and the beetle --
+   * the way it already was under the thorns, where the beetle could not get
+   * at it either. Lava, cacti and jellyfish are not creatures reaching for
+   * it, and still kill a sneaking cat like any other.
+   */
+  private bitten(): void {
+    if (this.player.sneaking) {
+      return;
+    }
+    this.kill();
   }
 
   private kill(): void {

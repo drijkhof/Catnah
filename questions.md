@@ -1788,3 +1788,16 @@ stones with a bit of green and sand, leading to a big portal.
 > **Still open:** the city is 104 tiles, against 90 to 109 for the outdoor
 > levels. The sand path could be made longer, or given something to do.
 
+## Sneaking: nothing alive can get at you
+
+Asked for: when the cat is sneaking, nothing can get at it -- the same way
+the beetle could not reach a cat sneaking in the thorns.
+
+- **Every creature passes a sneaking cat by**: hedgehogs, rats, crabs,
+  crows, gulls, spiders, piranhas, worms and the beetle.
+- **Lava, cacti and jellyfish still kill a sneaking cat.** I read "niks kan
+  erbij" as nothing *reaching* for the cat; those three are things the cat
+  walks into. Say if they should spare it too.
+- **This makes a lot of the game easier**: a sneaking cat can crawl past
+  every walker and the beetle. Sneaking is slow and the pose is lost the
+  moment the cat leaves the ground, which is what is left of the danger.

@@ -186,8 +186,13 @@ Wall jumping has no button of its own: in mid-air against a wall, jump does it.
   stand up among them and you die. It is the pose that counts. **Jumping out
   of them is allowed**: crawl in, jump, and on the way up you are safe — but
   coming down into thorns kills, whether you fell from above or are dropping
-  back into the patch you jumped from. Lava and the creatures on the ground
-  are not fooled by any of it.
+  back into the patch you jumped from. Lava is not fooled by any of it.
+- **Sneaking, nothing alive can get at you.** Hedgehog, rat, crab, crow,
+  gull, spider, worm and the beetle all pass a sneaking cat by without
+  hurting it -- the way the beetle already could not reach a cat sneaking in
+  the thorns. Lava, cacti and jellyfish are not creatures and still kill a
+  sneaking cat. The pose drops the moment you leave the ground, so it only
+  protects a cat on its feet.
 - **Sneaking hides you from the crow.** A crow never starts an attack on a
   sneaking cat — something low and slow in the grass is not worth a dive —
   though one already diving does not let you off just for dropping flat. For
