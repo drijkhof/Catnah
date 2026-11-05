@@ -304,7 +304,7 @@ export class SpaceScene extends Phaser.Scene {
       planet.on('pointerdown', () => this.goToMoon());
     }
 
-    const title = crispText(this, GAME_WIDTH / 2, GAME_HEIGHT * 0.16, 'Tap the Moon', {
+    const title = crispText(this, GAME_WIDTH / 2, GAME_HEIGHT * 0.16, 'Where should we go?', {
       fontFamily: 'monospace',
       fontSize: `${Math.round(GAME_HEIGHT * 0.075)}px`,
       color: '#ffe9a8',

@@ -637,7 +637,8 @@ yourself, any direction, with the same keys and stick as walking — out
 through stars in three layers, clouds of glowing gas and planets drifting
 by, a trail of sparks behind you. Nothing out here can hurt you. Once you
 are far enough from the Earth, or after forty seconds whatever happens, the
-**map** comes up: the Earth, the Moon, Mars and Saturn in a row. Only the
+**map** comes up under the question **"Where should we go?"**: the Earth,
+the Moon, Mars and Saturn in a row. Only the
 Moon can be picked — tap it, click it, or press any key — and Mars and
 Saturn are dimmed. The run's clock does not count while you fly.
 
