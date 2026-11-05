@@ -210,17 +210,23 @@ export function bakeMoonBase(
       g.fillRect(cx - 8, floor - 15, 16, 1);
     };
     consoleAt(x0 + 28);
-    consoleAt(x0 + 60);
+    // A second one only where there is room for it before the window.
+    if (x0 + 60 + 14 < mid - 22) {
+      consoleAt(x0 + 60);
+    }
 
     // A shelf of flasks and test tubes, right of the window.
     {
-      const sx = mid + 34;
+      const sx = mid + 26;
       const sy = y0 + 30;
+      // As many flasks as fit before the tank.
+      const room = x1 - 50 - sx;
+      const flasks = Math.max(2, Math.min(6, Math.floor(room / 7)));
       g.fillStyle(STEEL, 1);
-      g.fillRect(sx, sy, 44, 2);
-      g.fillRect(sx, sy + 16, 44, 2);
+      g.fillRect(sx, sy, flasks * 7 + 2, 2);
+      g.fillRect(sx, sy + 16, flasks * 7 + 2, 2);
       const colours = [0x5ef05e, 0xe84ad8, 0x4ad8f0, 0xf0c84a, 0xf06a4a];
-      for (let i = 0; i < 6; i += 1) {
+      for (let i = 0; i < flasks; i += 1) {
         const fx = sx + 3 + i * 7;
         const colour = colours[Math.floor(random() * colours.length)];
         // A round-bottomed flask, or a tall tube.
@@ -340,17 +346,18 @@ export function bakeMoonBase(
         g.fillRect(x, y + TILE - 2, TILE, 2);
       }
     }
-    // The stripe along the roof: blue over red.
+    // The stripe along the roof: blue over red, on the bottom row of the
+    // roof however thick it is.
     for (const cell of walls) {
-      if (cell.row !== roofRow + 1) {
+      if (cell.row !== ceiling - 1) {
         continue;
       }
       const x = cell.column * TILE;
       const y = top + cell.row * TILE;
       g.fillStyle(STRIPE, 1);
-      g.fillRect(x, y + 4, TILE, 3);
+      g.fillRect(x, y + 5, TILE, 3);
       g.fillStyle(STRIPE_RED, 1);
-      g.fillRect(x, y + 8, TILE, 2);
+      g.fillRect(x, y + 9, TILE, 2);
     }
 
     // Doors: open cells in a side wall's columns, framed in hazard stripes.
