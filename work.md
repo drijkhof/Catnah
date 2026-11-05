@@ -51,7 +51,7 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | robotje | `robot` | the moon's walker: comes for you to grab you |
 | maanbasis | `moon base` | the moon's `M`: a module with doors at both ends and a lab inside |
 | laboratorium | `laboratory` | inside the moon base |
-| alien | `alien` | works at the computers in the lab; friendly |
+| alien | `alien` / Bob | works at the computers in the lab; talks to you once, then is too busy |
 | ruimtehelm | `space helmet` | the glass bubble the cat wears in space and on the moon |
 | grijs blok | `grey block` / `hatch` | the moon's `D`: a robot comes out every five seconds; hold down to break it |
 
@@ -672,10 +672,17 @@ airlock at each end, framed in hazard stripes, so you walk in one side and
 out the other. Inside is the **laboratory**: lights along the ceiling, a
 round window with the Earth in it, computers with lines on their screens, a
 shelf of flasks and test tubes, a tall tank of bubbling green with a moon
-rock floating in it, a white lab bench to jump on, hearts, and a checkpoint.
-And an **alien at work**: green, big black eyes, two antennae with lights
-on them and a white lab coat, typing away at the computers and blinking now
-and then. It is friendly and does nothing to you.
+a little robot growing in it — small at first, filling out, then the next
+one — a white lab bench to jump on, hearts, and a checkpoint. **No robot can
+come in**: they turn round at the doors, even chasing you.
+
+And **Bob**, an alien at work: green, big black eyes, two antennae with
+lights on them and a white lab coat, typing away at the computers and
+blinking now and then. Walk up to him and you **talk**: the hearts and the
+clock go away and the camera zooms in on the lab, Bob and you. He says
+*"Hi, my name is Bob!"*, Next (tap it, or jump) and *"What a cute little
+kitty!"*, and Bye ends it and the camera goes back. Walk up to him again and
+all he says is *"Too busy!"*. Nothing can hurt you while you talk.
 
 **American flags** stand planted in the dust at the start and outside the
 base, and one on the hills on the horizon.

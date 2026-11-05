@@ -12,6 +12,14 @@ Phaser scenes. Registered in order in `src/main.ts`; the first one starts.
   a click, or any fresh key after 700ms). It carries the run through
   untouched and starts `Game` at the level after the sand path. The clock
   does not run here.
+- **Talking to Bob** (`GameScene.startTalk` and on): the HUD and touch
+  buttons are hidden, the main camera stops following and pans and zooms
+  (`BOB`), and the speech bubble is drawn by a **second camera that does
+  not zoom**, in screen space over where Bob is on the zoomed screen
+  (`placeBubble`, every frame). HTML text under a zoomed camera drifts off
+  its place, which is why. That camera is told to ignore everything else and
+  the main one the bubble; robots do not spawn during a talk, or the second
+  camera would draw them too. `endTalk` undoes all of it.
 - **`GameOverScene`** — black, one line of red, and back to the title.
 - **`VictoryScene`** — the last level's portal leads here: the title-mode
   forest underneath (launched the same way `TitleScene` does it, and stopped

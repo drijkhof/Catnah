@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { AWAKE_RANGE, RAIN, ROBOT, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
+import { AWAKE_RANGE, BOB, RAIN, ROBOT, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
 import { Controls, IdleControls, type PlayerInput } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -15,7 +15,7 @@ import { KEEP_LIVE, addGroundShade, bakeScenery, createBackdrop } from '../world
 import { parseLevel, type ClimbZone, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
 import { TITLE } from '../level/levels/title';
-import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, CASTLE_FLAG_HEADROOM, HEAD_IN_POSE, BASE_HEADROOM, LAB_CONSOLE_X, baseInside, bakeMoonBase, AWNING_BULGE, HOUSE_HEADROOM, bakeAwning, bakeHouse, GRASS_FRINGE_HEIGHT, JELLY_SIZE, LOG_BULGE, PALM_BULGE, PALM_CROWN_ANCHOR, PALM_CROWN_SIZE, bakePalmTrunk, bakeSandCastle, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeCactus, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
+import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, CASTLE_FLAG_HEADROOM, HEAD_IN_POSE, BASE_HEADROOM, LAB_CONSOLE_X, LAB_TANK, baseInside, bakeMoonBase, AWNING_BULGE, HOUSE_HEADROOM, bakeAwning, bakeHouse, GRASS_FRINGE_HEIGHT, JELLY_SIZE, LOG_BULGE, PALM_BULGE, PALM_CROWN_ANCHOR, PALM_CROWN_SIZE, bakePalmTrunk, bakeSandCastle, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeCactus, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { GOD_MODE_KEY, installGodMode, isGodMode } from '../dev/godMode';
@@ -172,6 +172,28 @@ export class GameScene extends Phaser.Scene {
    * robot climbs out, how long the cat has been breaking it, and the robots
    * it let out that are still about.
    */
+  /**
+   * Bob, the alien in the lab: his sprite, whether the cat is near him now,
+   * whether they have had their talk, and the talk itself while it lasts.
+   */
+  private bob?: {
+    sprite: Phaser.GameObjects.Sprite;
+    near: boolean;
+    met: boolean;
+  };
+  private talk?: {
+    line: number;
+    bubble: Phaser.GameObjects.Graphics;
+    words: CrispText;
+    next: CrispText;
+    hidden: Phaser.GameObjects.GameObject[];
+    /** The camera the bubble is drawn by: unzoomed, so the words stay crisp and in place. */
+    camera: Phaser.Cameras.Scene2D.Camera;
+  };
+  /** "Too busy!", while it is up. */
+  private busyWords?: CrispText;
+  /** Each moon base, door to door, which no robot may enter. */
+  private baseRects: Phaser.Geom.Rectangle[] = [];
   /** `=` cells inside a moon base, which the base draws as lab benches. */
   private benchCells = new Set<string>();
   private hatches: Array<{
@@ -264,6 +286,10 @@ export class GameScene extends Phaser.Scene {
     this.rain = undefined;
     this.hatches = [];
     this.benchCells = new Set();
+    this.bob = undefined;
+    this.baseRects = [];
+    this.talk = undefined;
+    this.busyWords = undefined;
     this.lifeIcons = [];
     this.dying = false;
     this.leaving = false;
@@ -601,8 +627,18 @@ export class GameScene extends Phaser.Scene {
     // this frame -- it has to see itself standing on one to jump from it.
     this.rideCamels(delta);
 
-    if (!this.dying && !this.leaving) {
+    if (this.talk) {
+      // In a conversation the cat stands and listens: Next is all it does.
+      this.player.setVelocity(0, this.player.body.velocity.y);
+      if (this.controls.jumpJustPressed) {
+        this.nextLine();
+      }
+      this.placeBubble();
+    } else if (!this.dying && !this.leaving) {
       this.player.step(this.controls, delta);
+    }
+    if (!this.titleMode && !this.dying && !this.leaving) {
+      this.meetBob();
     }
 
     const cat = new Phaser.Math.Vector2(this.player.x, this.player.y);
@@ -621,7 +657,9 @@ export class GameScene extends Phaser.Scene {
         walker.doze();
       }
     }
-    if (!this.titleMode && !this.dying && !this.leaving) {
+    // Not during a talk: the bubble's camera draws whatever is made while it
+    // is up, and a robot born then would be drawn twice.
+    if (!this.titleMode && !this.dying && !this.leaving && !this.talk) {
       this.stepHatches(delta);
     }
     for (const piranha of this.piranhas) {
@@ -1087,6 +1125,7 @@ export class GameScene extends Phaser.Scene {
   /** A robot climbs out of the top of a grey block, and is wired up like any walker. */
   private spawnRobot(x: number, y: number): GroundEnemy {
     const robot = new GroundEnemy(this, x, y, 'robot', this.player.x < x ? -1 : 1);
+    robot.setFences(this.baseRects);
     this.walkers.push(robot);
     this.physics.add.collider(robot, this.blocks);
     this.physics.add.collider(robot, this.branchGroup, undefined, (walker, branch) =>
@@ -1142,6 +1181,9 @@ export class GameScene extends Phaser.Scene {
     for (const walker of this.walkers) {
       if (walker.rideable) {
         walker.setFences(this.cactusRects);
+      }
+      if (walker.isRobot) {
+        walker.setFences(this.baseRects);
       }
     }
     this.piranhas = this.level.piranhas.map((at, index) => {
@@ -1502,7 +1544,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   private kill(): void {
-    if (this.dying) {
+    // Nothing happens to a cat in the middle of a conversation.
+    if (this.dying || this.talk) {
       return;
     }
 
@@ -2207,6 +2250,185 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
+   * Bob, once a frame: a cat that walks up to him -- within `BOB.reach`, on
+   * its feet -- starts the talk, the first time; every time after that he
+   * is too busy. The cat has to walk `BOB.rearm` away before he notices it
+   * again, or standing there would start it over and over.
+   */
+  private meetBob(): void {
+    const bob = this.bob;
+    if (!bob || this.talk) {
+      return;
+    }
+    const dx = Math.abs(this.player.x - bob.sprite.x);
+    const dy = Math.abs(this.player.y - bob.sprite.y);
+    if (bob.near) {
+      if (dx > BOB.rearm || dy > TILE) {
+        bob.near = false;
+      }
+      return;
+    }
+    if (dx > BOB.reach || dy > 4 || !this.player.body.blocked.down) {
+      return;
+    }
+    bob.near = true;
+    if (bob.met) {
+      this.sayBusy();
+      return;
+    }
+    this.startTalk();
+  }
+
+  /**
+   * The talk with Bob: the HUD goes, the camera leaves the cat and zooms in
+   * on the lab with Bob and the cat in it, and his first line comes up in a
+   * bubble over him, with Next under it.
+   */
+  private startTalk(): void {
+    const bob = this.bob as NonNullable<GameScene['bob']>;
+    this.player.setVelocity(0, 0);
+
+    // Everything pinned to the screen in front of the world -- the HUD, the
+    // touch buttons -- would be zoomed with it, so it is put away.
+    const hidden = this.children.list.filter((child) => {
+      const pinned = child as unknown as { scrollFactorX?: number; depth?: number; visible?: boolean };
+      return pinned.scrollFactorX === 0 && (pinned.depth ?? 0) >= 0 && pinned.visible === true;
+    });
+    for (const child of hidden) {
+      (child as unknown as Phaser.GameObjects.Components.Visible).setVisible(false);
+    }
+
+    const camera = this.cameras.main;
+    camera.stopFollow();
+    camera.pan((bob.sprite.x + this.player.x) / 2, bob.sprite.y - 36, BOB.zoomMs, 'Sine.easeInOut');
+    camera.zoomTo(BOB.zoom, BOB.zoomMs, 'Sine.easeInOut');
+
+    // The bubble is drawn by a camera of its own that does not zoom, in
+    // screen space over wherever Bob is on the zoomed screen: HTML words
+    // under a zoomed camera drift off their place. Everything else is
+    // hidden from that camera, and the bubble from the main one.
+    const overlay = this.cameras.add(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    overlay.ignore(this.children.list.filter((child) => !hidden.includes(child)));
+    const bubble = this.add.graphics().setScrollFactor(0).setDepth(2000);
+    const words = crispText(this, 0, 0, '', {
+      fontFamily: 'monospace',
+      fontSize: '13px',
+      color: '#1a2030',
+    })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(2001);
+    const next = crispText(this, 0, 0, 'Next ▸', {
+      fontFamily: 'monospace',
+      fontSize: '11px',
+      color: '#3a5aa8',
+    })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(2001)
+      .setInteractive();
+    next.on('pointerdown', () => this.nextLine());
+    camera.ignore([bubble, words, next]);
+    this.talk = { line: -1, bubble, words, next, hidden, camera: overlay };
+    this.nextLine();
+  }
+
+  /** On to Bob's next line, or the end of the talk after the last. */
+  private nextLine(): void {
+    const talk = this.talk;
+    const bob = this.bob;
+    if (!talk || !bob) {
+      return;
+    }
+    talk.line += 1;
+    if (talk.line >= BOB.lines.length) {
+      this.endTalk();
+      return;
+    }
+    sound.play('beep');
+    talk.words.setText(BOB.lines[talk.line]);
+    talk.next.setText(talk.line === BOB.lines.length - 1 ? 'Bye ▸' : 'Next ▸');
+    this.placeBubble();
+  }
+
+  /**
+   * Puts the bubble over Bob's head where it is on the screen right now --
+   * the zoom moves him -- sized to the line: white, rounded, a tail down to
+   * him. Called every frame of the talk.
+   */
+  private placeBubble(): void {
+    const talk = this.talk;
+    const bob = this.bob;
+    if (!talk || !bob) {
+      return;
+    }
+    const camera = this.cameras.main;
+    const view = camera.worldView;
+    const headX = (bob.sprite.x - view.x) * camera.zoom;
+    const headY = (bob.sprite.y - 26 - view.y) * camera.zoom;
+    const width = Math.max(talk.words.width, talk.next.width) + 16;
+    const height = 40;
+    const x = Phaser.Math.Clamp(headX - width / 2, 4, GAME_WIDTH - width - 4);
+    const y = Math.max(4, headY - height - 8);
+    talk.bubble.clear();
+    talk.bubble.fillStyle(0xffffff, 0.95);
+    talk.bubble.fillRoundedRect(x, y, width, height, 6);
+    talk.bubble.fillTriangle(headX - 5, y + height, headX + 5, y + height, headX, y + height + 7);
+    talk.bubble.lineStyle(1, 0x9aa4b2, 1);
+    talk.bubble.strokeRoundedRect(x, y, width, height, 6);
+    talk.words.setPosition(x + width / 2, y + 13);
+    talk.next.setPosition(x + width / 2, y + 29);
+  }
+
+  /** The talk is over: bubble gone, HUD back, the camera back on the cat. */
+  private endTalk(): void {
+    const talk = this.talk;
+    if (!talk || !this.bob) {
+      return;
+    }
+    this.bob.met = true;
+    talk.bubble.destroy();
+    talk.words.destroy();
+    talk.next.destroy();
+    this.cameras.remove(talk.camera);
+    for (const child of talk.hidden) {
+      (child as unknown as Phaser.GameObjects.Components.Visible).setVisible(true);
+    }
+    this.talk = undefined;
+    const camera = this.cameras.main;
+    camera.zoomTo(1, BOB.zoomMs, 'Sine.easeInOut');
+    camera.pan(this.player.x, this.player.y, BOB.zoomMs, 'Sine.easeInOut', false, (_camera, progress) => {
+      if (progress === 1) {
+        camera.startFollow(this.player, true, 0.12, 0.14);
+        camera.setDeadzone(140, 44);
+      }
+    });
+  }
+
+  /** Bob, after the talk: too busy, in a word over his head, and back to work. */
+  private sayBusy(): void {
+    const bob = this.bob as NonNullable<GameScene['bob']>;
+    this.busyWords?.destroy();
+    const words = crispText(this, bob.sprite.x, bob.sprite.y - 32, BOB.busy, {
+      fontFamily: 'monospace',
+      fontSize: '10px',
+      color: '#ffffff',
+      stroke: '#1a2030',
+      strokeThickness: 3,
+    })
+      .setOrigin(0.5)
+      .setDepth(21);
+    this.busyWords = words;
+    this.tweens.add({
+      targets: words,
+      alpha: 0,
+      delay: BOB.busyMs - 400,
+      duration: 400,
+      onComplete: () => words.destroy(),
+    });
+  }
+
+  /**
    * Draws each moon base -- every cluster of touching `M` cells -- as one
    * picture with its laboratory inside (`bakeMoonBase`). The picture reaches
    * down past the hull to the ground, for the inside and the doors; `=`
@@ -2254,6 +2476,7 @@ export class GameScene extends Phaser.Scene {
       for (const bench of benches) {
         this.benchCells.add(`${bench.column},${bench.row}`);
       }
+      this.baseRects.push(new Phaser.Geom.Rectangle(left * TILE, top * TILE, (right - left + 1) * TILE, (bottom - top + 1) * TILE));
       const key = `${this.level.theme}:base:${left},${top}`;
       if (this.textures.exists(key)) {
         this.textures.remove(key);
@@ -2280,13 +2503,31 @@ export class GameScene extends Phaser.Scene {
         right - left + 1,
         bottom - top + 1,
       );
-      this.add
+      const bob = this.add
         .sprite((left + inside.inLeft) * TILE + LAB_CONSOLE_X + 15, (bottom + 1) * TILE - 3, 'alien-a')
         .setOrigin(0.5, 1)
         .setFlipX(true)
         .setDepth(-0.28)
         .setData(KEEP_LIVE, true)
         .play('alien-work');
+      this.bob = { sprite: bob, near: false, met: false };
+
+      // A little robot growing in the specimen tank: small at first, filling
+      // out over a long minute, bobbing in the liquid, and starting again
+      // small once it is grown -- the next one.
+      const floor = (bottom + 1) * TILE - 3;
+      const tankHeight = Math.min(LAB_TANK.maxHeight, floor + 3 - (top + inside.ceiling) * TILE - 12);
+      const tankX = (left + inside.inRight) * TILE - LAB_TANK.fromRight + LAB_TANK.width / 2;
+      const tankY = floor - tankHeight / 2 + 2;
+      const growing = this.add
+        .image(tankX, tankY, 'robot')
+        .setDepth(-0.29)
+        .setTint(0xb8f8c0)
+        .setAlpha(0.9)
+        .setScale(0.3)
+        .setData(KEEP_LIVE, true);
+      this.tweens.add({ targets: growing, scale: { from: 0.3, to: 0.85 }, duration: 9000, repeat: -1, repeatDelay: 2500, ease: 'Sine.easeOut' });
+      this.tweens.add({ targets: growing, y: tankY - 2, duration: 1400, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     }
 
     // Flags planted in the dust, behind everything that moves.

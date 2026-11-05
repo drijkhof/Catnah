@@ -118,6 +118,11 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
     this.setVelocityX(0);
   }
 
+  /** A moon robot, which the scene keeps out of the moon base. */
+  get isRobot(): boolean {
+    return this.kind === 'robot';
+  }
+
   /** True for a walker the cat stands on rather than dies on: the camel. */
   get rideable(): boolean {
     return this.kind === 'camel';
@@ -125,7 +130,8 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
 
   /**
    * Things it turns round in front of, besides walls and edges: the cacti,
-   * for a camel, which would otherwise carry its rider straight into one.
+   * for a camel, which would otherwise carry its rider straight into one;
+   * the moon base, for a robot, which is not allowed in.
    * It turns `FENCE_MARGIN` short of them, so the rider has room to get off.
    */
   setFences(fences: Phaser.Geom.Rectangle[]): void {
@@ -279,7 +285,8 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
     this.direction = cat.x < this.x ? -1 : 1;
     this.setFlipX(this.direction < 0);
 
-    const stuck = this.atLevelEdge() || this.blockedAhead() || !this.groundOrDrop();
+    // A fence holds a hunter too: a moon robot never follows into the base.
+    const stuck = this.atLevelEdge() || this.blockedAhead() || !this.groundOrDrop() || this.fenceAhead();
     this.setVelocityX(stuck ? 0 : this.direction * hunt.chaseSpeed);
     this.scurry(delta, hunt.chaseSpeed);
   }

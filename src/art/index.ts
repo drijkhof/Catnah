@@ -44,7 +44,7 @@ export {
 export type { TilePalette } from './tiles';
 export { CASTLE_FLAG_HEADROOM, bakeSandCastle, type CastleCell } from './castle';
 export { PALM_BULGE, bakePalmTrunk } from './palm';
-export { ALIEN_SIZE, BASE_HEADROOM, FLAG_SIZE, LAB_CONSOLE_X, bakeMoonBase, baseInside } from './base';
+export { ALIEN_SIZE, BASE_HEADROOM, FLAG_SIZE, LAB_CONSOLE_X, LAB_TANK, bakeMoonBase, baseInside } from './base';
 export { HEAD_IN_POSE, HELMET_SIZE } from './space';
 export { MOON_HILLS_SIZE, PLANET_SIZES, SATURN_RING_SPREAD, STARFIELD_SIZE, type PlanetName } from './space';
 export { AWNING_BULGE, HOUSE_HEADROOM, LAMP_GLOW, LAMP_SIZE, MOON_SIZE, SKYLINE_SIZES, bakeAwning, bakeHouse, type HouseCell } from './house';

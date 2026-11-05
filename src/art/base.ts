@@ -57,6 +57,9 @@ export function generateFlagTexture(scene: Phaser.Scene): void {
 /** The alien at work in the lab, px. */
 export const ALIEN_SIZE = { width: 16, height: 24 };
 
+/** The specimen tank: its left edge, px in from the inside of the right wall, and its width. */
+export const LAB_TANK = { fromRight: 44, width: 16, maxHeight: 52 } as const;
+
 /** Where the lab's computer stands, px in from the inside of its left wall. */
 export const LAB_CONSOLE_X = 28;
 
@@ -342,11 +345,11 @@ export function bakeMoonBase(
       }
     }
 
-    // The specimen tank, tall, near the right: glass, green liquid,
-    // bubbles, and a lump of moon rock floating in it.
+    // The specimen tank, tall, near the right: glass, green liquid and
+    // bubbles. The little robot growing in it is the scene's, live.
     {
-      const tx = x1 - 44;
-      const th = Math.min(52, y1 - y0 - 12);
+      const tx = x1 - LAB_TANK.fromRight;
+      const th = Math.min(LAB_TANK.maxHeight, y1 - y0 - 12);
       const ty = floor - th;
       g.fillStyle(STEEL, 1);
       g.fillRect(tx - 2, floor - 4, 20, 4);
@@ -357,10 +360,6 @@ export function bakeMoonBase(
       g.fillRect(tx, ty + 1, 16, th - 5);
       g.fillStyle(0xffffff, 0.5);
       g.fillRect(tx + 2, ty + 2, 1, th - 8);
-      g.fillStyle(0x8a8a8e, 1);
-      g.fillEllipse(tx + 8, ty + th / 2 + 4, 9, 7);
-      g.fillStyle(0xb4b4b8, 1);
-      g.fillEllipse(tx + 7, ty + th / 2 + 3, 4, 3);
       g.fillStyle(0xffffff, 0.8);
       for (let i = 0; i < 6; i += 1) {
         g.fillRect(tx + 3 + Math.floor(random() * 10), ty + 8 + Math.floor(random() * (th - 16)), 1, 1);

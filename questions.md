@@ -1863,3 +1863,21 @@ Then: the base smaller.
   about and cannot be touched. Asked for only as "an alien at work".
 - **"Where should we go?" is under the row of planets now**, and comes up
   once they are there, as asked: the planets in a row, and then the question.
+
+## Bob, the robot in the tank, and no robots in the base
+
+Asked for: a little robot growing in the tube in the moon base; standing in
+front of the alien starts a talk -- "Hi, my name is Bob", Next, "What a cute
+little kitty", and then it ends, and after that he says "too busy"; the
+camera zooms in during the talk on the lab, the alien and the cat; and the
+robots cannot get into the moon base.
+
+- **Written "Too busy!"**, with the spelling corrected from "to bissy".
+- **The last line's button says Bye**, not Next, since it ends the talk.
+- **Next is a tap on it, or the jump input**, so it works on a keyboard too.
+- **The HUD is hidden during the talk**: zooming the camera would zoom it
+  too, and what was asked to be seen is the lab, Bob and the cat.
+- **The growing robot loops**: it grows over nine seconds, rests, and starts
+  small again, as if the next one is growing.
+- **Robots turn at the base's doors**, chasing or not. One already inside
+  (none can be, now) would not be thrown out.

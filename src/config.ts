@@ -477,6 +477,24 @@ export const ROBOT = {
 } as const;
 
 /**
+ * Bob, the alien in the moon base, and the talk you have with him. Stand
+ * within `reach` of him and it starts: the camera zooms to `zoom` over
+ * `zoomMs` on the lab, Bob and the cat, and he says each of `lines` in
+ * turn, a press of Next (jump, Enter, or a tap) for the next. After that,
+ * coming back says `busy` for `busyMs`, and nothing more. The cat has to
+ * walk `rearm` away before he will talk again.
+ */
+export const BOB = {
+  reach: 14,
+  rearm: 36,
+  zoom: 2.4,
+  zoomMs: 600,
+  lines: ['Hi, my name is Bob!', 'What a cute little kitty!'],
+  busy: 'Too busy!',
+  busyMs: 1800,
+} as const;
+
+/**
  * The flight through space, between the sand path and the moon. The cat is
  * flown, not walked: it accelerates towards whatever direction is held, up
  * to `maxSpeed`, and drifts to a stop with nothing held. The map comes up
