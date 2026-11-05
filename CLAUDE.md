@@ -123,7 +123,11 @@ breaks hot reloading in ways that look like the game being broken. The worker is
 opened with a connection; built assets are cache-first, which is safe because
 Vite puts a content hash in every filename, so a changed file is a different
 file and a hit can never be stale. `skipWaiting` plus a reload on `updatefound`
-stops an installed copy sitting on an old build until every tab is closed.
+stops an installed copy sitting on an old build until every tab is closed. The page is
+fetched with `cache: 'no-cache'`: GitHub Pages sends `max-age=600`, and without
+it the browser handed the worker its own stale copy for ten minutes after a
+deploy. A tab that is already open stays on its build until it is reloaded --
+a game deploy does not change `sw.js`, so nothing tells it.
 
 The icons are SVG, not PNG: the only bitmap in the project is the portal
 (`public/assets/portal.png`), and that is a deliberate exception.

@@ -65,10 +65,15 @@ self.addEventListener('fetch', (event) => {
   }
 
   // The page: network first. This is the one that decides whether an update is
-  // ever seen, so the cache is a fallback and never a shortcut.
+  // ever seen, so the cache is a fallback and never a shortcut. `no-cache`
+  // makes the browser check with the server every time: GitHub Pages sends
+  // `max-age=600`, and a plain fetch was handed the browser's own copy of
+  // the old page for up to ten minutes after a deploy.
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
+      // By URL: a navigation request cannot be re-made with options of its
+      // own, the browser throws.
+      fetch(request.url, { cache: 'no-cache', credentials: 'same-origin' })
         .then((response) => remember(request, response))
         .catch(() => caches.match(request).then((hit) => hit || caches.match('./index.html'))),
     );
