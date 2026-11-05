@@ -618,8 +618,8 @@ grey stones laid in sand, tufts of grass between them, bushes beside it and
 trees in the distance, out in the open under the sun with no leaves overhead.
 A few arcs of hearts, a couple of boulders to hop, and at the end the **big
 portal** — the same wormhole as every other, three times the size, with the
-bushes kept back from it. Its mouth is big too: walk into its foot and you
-are in. It ends the game.
+bushes kept back from it. It **pulls**: come within four tiles of its rim
+and it sucks you in, slowly at first and faster as you go. It ends the game.
 
 ### Cacti come tall
 

@@ -1802,3 +1802,15 @@ the beetle could not reach a cat sneaking in the thorns.
 - **This makes a lot of the game easier**: a sneaking cat can crawl past
   every walker and the beetle. Sneaking is slow and the pose is lost the
   moment the cat leaves the ground, which is what is left of the danger.
+
+## The big portal pulls from four tiles
+
+Asked for: on the sand path, being sucked in from four blocks away.
+
+- **Four tiles from the portal's rim**, not its centre. The big portal is
+  three tiles from centre to rim, so four from the centre would have been
+  barely one tile outside it.
+- **The pull is the draw-in, started early**: from the moment the cat is in
+  range it stops steering and is drawn into the middle, slowly at first and
+  faster as it goes, shrinking and fading. There is no tug that can still be
+  walked away from.

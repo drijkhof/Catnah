@@ -715,8 +715,13 @@ export class GameScene extends Phaser.Scene {
         const dx = x - exit.centre.x;
         const dy = y - exit.centre.y;
         // A big portal has a big mouth, so the cat need not climb to its
-        // middle: walking into its foot is enough.
-        const opening = EXIT.openingRadius * this.level.portalScale;
+        // middle: walking into its foot is enough. One that pulls reaches
+        // out further still: that many tiles past its rim.
+        const pull = this.level.portalPull;
+        const opening =
+          pull > 0
+            ? (EXIT.diameter * this.level.portalScale) / 2 + pull * TILE
+            : EXIT.openingRadius * this.level.portalScale;
         return dx * dx + dy * dy <= opening * opening;
       }) ?? null
     );
@@ -942,24 +947,29 @@ export class GameScene extends Phaser.Scene {
     this.player.body.enable = false;
     sound.play('portal');
 
+    // A portal that pulls catches the cat from well outside it, so the draw
+    // in takes longer the further it has to go, and speeds up as it goes:
+    // sucked in, not slid. The fade waits for it.
+    const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, exit.centre.x, exit.centre.y);
+    const drawIn = this.level.portalPull > 0 ? EXIT.drawInMs + distance * EXIT.pullMsPerPx : EXIT.drawInMs;
     this.tweens.add({
       targets: this.player,
       x: exit.centre.x,
       y: exit.centre.y,
       scale: 0.15,
       alpha: 0,
-      duration: EXIT.drawInMs,
-      ease: 'Sine.easeIn',
+      duration: drawIn,
+      ease: this.level.portalPull > 0 ? 'Cubic.easeIn' : 'Sine.easeIn',
     });
     this.tweens.add({
       targets: exit.hole,
       alpha: { from: EXIT.alpha, to: 0 },
-      duration: EXIT.drawInMs,
+      duration: drawIn,
       ease: 'Sine.easeIn',
     });
     // The world goes to black under the HUD; the hearts stay. The level name
     // sits under the fade and goes with the level it names.
-    this.blackout(0, 1, EXIT.fadeMs, () => {
+    this.blackout(0, 1, Math.max(EXIT.fadeMs, drawIn), () => {
       // The last level's portal is the end of the game: the victory screen,
       // with the run's time and deaths as its score. Every other portal is
       // the next level, with everything the run has gathered.

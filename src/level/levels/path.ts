@@ -56,5 +56,7 @@ export const PATH: LevelDefinition = {
   groundRow: 30,
   branchesNeedTrunks: false,
   portalScale: 3,
+  // Come within four tiles of it and it sucks you in.
+  portalPull: 4,
   rows: ROWS,
 };

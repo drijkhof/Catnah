@@ -252,7 +252,10 @@ floor beneath).
 
 `portalScale` on a level definition makes its portals that many times the
 usual size, mouth included (`EXIT.openingRadius` scales too, or a cat would
-have to climb to the middle of a big one). The sand path's is 3. Its
+have to climb to the middle of a big one). The sand path's is 3.
+`portalPull` makes it reach out that many tiles past its rim and suck the
+cat in from there; the draw-in then lasts longer the further the cat was
+(`EXIT.pullMsPerPx`), and the fade waits for it. The sand path's is 4. Its
 backdrop keeps bushes clear of the portal; see `world/index.ts`.
 
 ## The title level

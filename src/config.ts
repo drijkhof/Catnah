@@ -854,6 +854,11 @@ export const EXIT = {
    * between them.
    */
   depth: -10,
+  /**
+   * A portal that pulls (`portalPull`) takes this much longer per pixel the
+   * cat is from its centre, so being sucked in from far off is seen.
+   */
+  pullMsPerPx: 5,
   /** How long the cat takes to be drawn into the centre, ms. */
   drawInMs: 420,
   /** In a level with a beetle, how long the portals take to appear once it is dead, ms. */

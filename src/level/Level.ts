@@ -102,6 +102,11 @@ export interface LevelDefinition {
    * level's is the big portal the whole game walks towards.
    */
   portalScale?: number;
+  /**
+   * How far from its rim a portal here pulls the cat in, in tiles. Without
+   * it the cat has to walk into the portal's mouth.
+   */
+  portalPull?: number;
   rows: string[];
 }
 
@@ -216,6 +221,8 @@ export interface ParsedLevel {
   crowBehaviour: CrowBehaviour;
   /** How big the portals are, against the usual one. 1 everywhere but the end. */
   portalScale: number;
+  /** How far from its rim a portal pulls the cat in, tiles; 0 for not at all. */
+  portalPull: number;
   /** Water, grouped into connected pools. A piranha never leaves its own. */
   pools: WaterZone[][];
   /** Lava. Shaped like water, but touching it kills. */
@@ -629,6 +636,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     columnsAreClimbable: definition.climbableColumns ?? true,
     crowBehaviour: definition.crowBehaviour ?? 'attack',
     portalScale: definition.portalScale ?? 1,
+    portalPull: definition.portalPull ?? 0,
     waterZones,
     pools,
     crocodiles,
