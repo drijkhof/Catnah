@@ -234,11 +234,14 @@ export class SpaceScene extends Phaser.Scene {
 
   /**
    * The map: space darkens, and four worlds come up in a row along a dotted
-   * line from the Earth. The Moon pulses and can be picked; Mars and Saturn
+   * line from the Earth -- the Earth, the Moon, Mars, Saturn -- and then,
+   * under them, the question: "Where should we go?". The Moon pulses and can be picked; Mars and Saturn
    * are there to be looked at, dimmed, and cannot.
    */
   private showMap(): void {
     this.mapShown = true;
+    // Whatever was said during the flight goes.
+    this.tweens.add({ targets: [...this.words], alpha: 0, duration: 300 });
 
     const veil = this.add
       .rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x02030a, 0.8)
@@ -248,7 +251,8 @@ export class SpaceScene extends Phaser.Scene {
       .setAlpha(0);
     this.tweens.add({ targets: veil, alpha: 1, duration: 700 });
 
-    const y = GAME_HEIGHT * 0.52;
+    // The row of worlds a little above the middle, the question under it.
+    const y = GAME_HEIGHT * 0.4;
     const stops: Array<{ name: PlanetName; label: string; x: number; scale: number; open: boolean }> = [
       { name: 'earth', label: 'Earth', x: 0.13, scale: 0.42, open: false },
       { name: 'moon', label: 'Moon', x: 0.38, scale: 0.9, open: true },
@@ -314,7 +318,7 @@ export class SpaceScene extends Phaser.Scene {
       planet.on('pointerdown', () => this.goToMoon());
     }
 
-    const title = crispText(this, GAME_WIDTH / 2, GAME_HEIGHT * 0.16, 'Where should we go?', {
+    const title = crispText(this, GAME_WIDTH / 2, GAME_HEIGHT * 0.84, 'Where should we go?', {
       fontFamily: 'monospace',
       fontSize: `${Math.round(GAME_HEIGHT * 0.075)}px`,
       color: '#ffe9a8',
@@ -325,7 +329,8 @@ export class SpaceScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setAlpha(0);
     this.words.push(title);
-    this.tweens.add({ targets: title, alpha: 1, duration: 700 });
+    // Asked once the worlds are there to choose from.
+    this.tweens.add({ targets: title, alpha: 1, delay: 900, duration: 700 });
 
     // On a keyboard, the only choice is a key away. Held keys from flying do
     // not count: a fresh press, after the map has had a moment.

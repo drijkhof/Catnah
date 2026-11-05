@@ -15,7 +15,7 @@ import { KEEP_LIVE, addGroundShade, bakeScenery, createBackdrop } from '../world
 import { parseLevel, type ClimbZone, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
 import { TITLE } from '../level/levels/title';
-import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, CASTLE_FLAG_HEADROOM, HEAD_IN_POSE, BASE_HEADROOM, bakeMoonBase, AWNING_BULGE, HOUSE_HEADROOM, bakeAwning, bakeHouse, GRASS_FRINGE_HEIGHT, JELLY_SIZE, LOG_BULGE, PALM_BULGE, PALM_CROWN_ANCHOR, PALM_CROWN_SIZE, bakePalmTrunk, bakeSandCastle, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeCactus, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
+import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, CASTLE_FLAG_HEADROOM, HEAD_IN_POSE, BASE_HEADROOM, LAB_CONSOLE_X, baseInside, bakeMoonBase, AWNING_BULGE, HOUSE_HEADROOM, bakeAwning, bakeHouse, GRASS_FRINGE_HEIGHT, JELLY_SIZE, LOG_BULGE, PALM_BULGE, PALM_CROWN_ANCHOR, PALM_CROWN_SIZE, bakePalmTrunk, bakeSandCastle, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeCactus, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { GOD_MODE_KEY, installGodMode, isGodMode } from '../dev/godMode';
@@ -2271,6 +2271,22 @@ export class GameScene extends Phaser.Scene {
         .image(left * TILE, top * TILE - BASE_HEADROOM, key)
         .setOrigin(0, 0)
         .setDepth(-0.3);
+
+      // The alien at work: at the computer, typing, facing it. In front of
+      // the base and behind the cat; it is friendly, so nothing touches it.
+      // Animated, so kept out of the scenery bake.
+      const inside = baseInside(
+        cluster.map((cell) => ({ column: cell.column - left, row: cell.row - top })),
+        right - left + 1,
+        bottom - top + 1,
+      );
+      this.add
+        .sprite((left + inside.inLeft) * TILE + LAB_CONSOLE_X + 15, (bottom + 1) * TILE - 3, 'alien-a')
+        .setOrigin(0.5, 1)
+        .setFlipX(true)
+        .setDepth(-0.28)
+        .setData(KEEP_LIVE, true)
+        .play('alien-work');
     }
 
     // Flags planted in the dust, behind everything that moves.

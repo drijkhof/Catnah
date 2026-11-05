@@ -54,6 +54,110 @@ export function generateFlagTexture(scene: Phaser.Scene): void {
   });
 }
 
+/** The alien at work in the lab, px. */
+export const ALIEN_SIZE = { width: 16, height: 24 };
+
+/** Where the lab's computer stands, px in from the inside of its left wall. */
+export const LAB_CONSOLE_X = 28;
+
+/**
+ * The alien who works in the moon base's laboratory: green, a big head with
+ * two black eyes, two antennae with lights on, and a white lab coat. It
+ * faces right, at a keyboard; two frames, its hands up and down, are the
+ * typing. A third has its eyes shut, for a blink.
+ */
+export function generateAlienTextures(scene: Phaser.Scene): void {
+  const { width, height } = ALIEN_SIZE;
+  const draw = (g: Phaser.GameObjects.Graphics, hands: 'up' | 'down', blink: boolean): void => {
+    const skin = 0x7ad06a;
+    const skinDark = 0x4f9a48;
+    // Legs.
+    g.fillStyle(skinDark, 1);
+    g.fillRect(5, height - 5, 2, 5);
+    g.fillRect(9, height - 5, 2, 5);
+    // The lab coat.
+    g.fillStyle(0xf4f6f8, 1);
+    g.fillRect(3, 12, 10, height - 16);
+    g.fillStyle(0xc8ccd4, 1);
+    g.fillRect(8, 12, 1, height - 16);
+    g.fillRect(3, height - 5, 10, 1);
+    // A pocket with a pen in it.
+    g.fillRect(4, 15, 3, 1);
+    g.fillStyle(0x3a5aa8, 1);
+    g.fillRect(5, 13, 1, 2);
+    // The arm reaching to the keyboard, out in front.
+    g.fillStyle(0xf4f6f8, 1);
+    g.fillRect(11, 14, 3, 2);
+    g.fillStyle(skin, 1);
+    g.fillRect(14, hands === 'up' ? 13 : 15, 2, 2);
+    // Neck and head.
+    g.fillStyle(skin, 1);
+    g.fillRect(7, 10, 3, 2);
+    g.fillEllipse(8, 6, 12, 10);
+    g.fillStyle(skinDark, 1);
+    g.fillRect(5, 10, 6, 1);
+    // Eyes: big, black, a glint each -- or shut.
+    if (blink) {
+      g.fillStyle(0x1a2a14, 1);
+      g.fillRect(6, 6, 3, 1);
+      g.fillRect(10, 6, 3, 1);
+    } else {
+      g.fillStyle(0x10140e, 1);
+      g.fillEllipse(7, 6, 4, 5);
+      g.fillEllipse(11, 6, 4, 5);
+      g.fillStyle(0xffffff, 1);
+      g.fillRect(7, 5, 1, 1);
+      g.fillRect(11, 5, 1, 1);
+    }
+    // Antennae, with lights.
+    g.fillStyle(skinDark, 1);
+    g.fillRect(5, 0, 1, 2);
+    g.fillRect(11, 0, 1, 2);
+    g.fillStyle(0xf2e64a, 1);
+    g.fillRect(4, 0, 2, 1);
+    g.fillRect(11, 0, 2, 1);
+  };
+  bakeTexture(scene, 'alien-a', width, height, (g) => draw(g, 'up', false));
+  bakeTexture(scene, 'alien-b', width, height, (g) => draw(g, 'down', false));
+  bakeTexture(scene, 'alien-blink', width, height, (g) => draw(g, 'down', true));
+  scene.anims.create({
+    key: 'alien-work',
+    frames: [
+      { key: 'alien-a' },
+      { key: 'alien-b' },
+      { key: 'alien-a' },
+      { key: 'alien-b' },
+      { key: 'alien-a' },
+      { key: 'alien-b' },
+      { key: 'alien-blink', duration: 120 },
+      { key: 'alien-b' },
+    ],
+    frameRate: 6,
+    repeat: -1,
+  });
+}
+
+/** Where the inside of a base is, in its cells: found the same way by the bake and the scene. */
+export function baseInside(walls: BaseCell[], wide: number, high: number): { inLeft: number; inRight: number; ceiling: number } {
+  const isWall = new Set(walls.map((cell) => `${cell.column},${cell.row}`));
+  const wall = (c: number, r: number): boolean => isWall.has(`${c},${r}`);
+  const roofRow = Math.min(...walls.map((cell) => cell.row));
+  const probe = Math.min(high - 3, roofRow + 3);
+  let inLeft = 0;
+  while (inLeft < wide && wall(inLeft, probe)) {
+    inLeft += 1;
+  }
+  let inRight = wide;
+  while (inRight > inLeft && wall(inRight - 1, probe)) {
+    inRight -= 1;
+  }
+  let ceiling = roofRow;
+  while (ceiling < high && wall(inLeft, ceiling)) {
+    ceiling += 1;
+  }
+  return { inLeft, inRight, ceiling };
+}
+
 /** One cell of a base, from the base's top-left corner. */
 export interface BaseCell {
   column: number;
@@ -112,19 +216,7 @@ export function bakeMoonBase(
     // The interior: below the roof, between the side walls. The side walls
     // are found on a row in the middle of the inside, the roof down the
     // first inside column.
-    let ceiling = roofRow;
-    const probe = Math.min(high - 3, roofRow + 3);
-    let inLeft = 0;
-    while (inLeft < wide && wall(inLeft, probe)) {
-      inLeft += 1;
-    }
-    let inRight = wide;
-    while (inRight > inLeft && wall(inRight - 1, probe)) {
-      inRight -= 1;
-    }
-    while (ceiling < high && wall(inLeft, ceiling)) {
-      ceiling += 1;
-    }
+    const { inLeft, inRight, ceiling } = baseInside(walls, wide, high);
     const x0 = inLeft * TILE;
     const x1 = inRight * TILE;
     const y0 = top + ceiling * TILE;
@@ -209,7 +301,7 @@ export function bakeMoonBase(
       g.fillStyle(0x5a606c, 1);
       g.fillRect(cx - 8, floor - 15, 16, 1);
     };
-    consoleAt(x0 + 28);
+    consoleAt(x0 + LAB_CONSOLE_X);
     // A second one only where there is room for it before the window.
     if (x0 + 60 + 14 < mid - 22) {
       consoleAt(x0 + 60);

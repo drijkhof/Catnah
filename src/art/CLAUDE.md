@@ -34,7 +34,9 @@ binary assets but the portal picture and runs straight after clone.
   block with two cracked stages.
 - `base.ts` — the moon base as one picture (hull, doors, and the whole
   laboratory inside, benches included; what fits is fitted to its size) and
-  the American flag.
+  the American flag, and the alien who works in the lab (typing frames and
+  a blink, as the `alien-work` animation). `baseInside` finds the inside of
+  a base the same way for the bake and for the scene that places the alien.
 - `ui.ts` — the touch-button glyphs.
 - `portal.ts` — the way out of a level. The portal is a picture,
   `public/assets/portal.png`, the one real asset; `shadePortal` copies it to

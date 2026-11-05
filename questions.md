@@ -1856,3 +1856,10 @@ Then: the base smaller.
   inside, though a robot from outside can roll in.
 - **The helmet is on the moon too**, not only on the flight: there is no air
   there either. It stays on inside the base.
+
+## The alien in the lab, and the map's question under the planets
+
+- **One alien, at the computers**, typing and blinking; it does not walk
+  about and cannot be touched. Asked for only as "an alien at work".
+- **"Where should we go?" is under the row of planets now**, and comes up
+  once they are there, as asked: the planets in a row, and then the question.

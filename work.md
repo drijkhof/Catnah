@@ -51,6 +51,7 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | robotje | `robot` | the moon's walker: comes for you to grab you |
 | maanbasis | `moon base` | the moon's `M`: a module with doors at both ends and a lab inside |
 | laboratorium | `laboratory` | inside the moon base |
+| alien | `alien` | works at the computers in the lab; friendly |
 | ruimtehelm | `space helmet` | the glass bubble the cat wears in space and on the moon |
 | grijs blok | `grey block` / `hatch` | the moon's `D`: a robot comes out every five seconds; hold down to break it |
 
@@ -640,8 +641,8 @@ yourself, any direction, with the same keys and stick as walking — out
 through stars in three layers, clouds of glowing gas and planets drifting
 by, a trail of sparks behind you. Nothing out here can hurt you. Once you
 are far enough from the Earth, or after forty seconds whatever happens, the
-**map** comes up under the question **"Where should we go?"**: the Earth,
-the Moon, Mars and Saturn in a row. Only the
+**map** comes up: the Earth, the Moon, Mars and Saturn in a row, and
+under them the question **"Where should we go?"**. Only the
 Moon can be picked — tap it, click it, or press any key — and Mars and
 Saturn are dimmed. The run's clock does not count while you fly.
 
@@ -672,6 +673,9 @@ out the other. Inside is the **laboratory**: lights along the ceiling, a
 round window with the Earth in it, computers with lines on their screens, a
 shelf of flasks and test tubes, a tall tank of bubbling green with a moon
 rock floating in it, a white lab bench to jump on, hearts, and a checkpoint.
+And an **alien at work**: green, big black eyes, two antennae with lights
+on them and a white lab coat, typing away at the computers and blinking now
+and then. It is friendly and does nothing to you.
 
 **American flags** stand planted in the dust at the start and outside the
 base, and one on the hills on the horizon.
