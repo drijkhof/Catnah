@@ -1953,3 +1953,9 @@ Asked for: robots do not want to go into pits. They turn at the edge of a
 gap or a crater like every other walker now; the one edge they still roll
 off is the top of their own grey block. A robot written into a crater in a
 level (`h` on its floor) stays down there.
+
+## The cat says "That's no moon"
+
+Asked for: near the Death Star, the cat says "That's no moon". It is a
+speech bubble over the cat's head now, following it, instead of a line
+under the station.

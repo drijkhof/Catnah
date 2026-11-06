@@ -50,6 +50,8 @@ export class SpaceScene extends Phaser.Scene {
   /** The battle station, and the line that comes up when the cat is near it. */
   private station!: Phaser.GameObjects.Image;
   private stationWords!: CrispText;
+  /** The cat's speech bubble, behind those words. */
+  private catBubble!: Phaser.GameObjects.Graphics;
   private starLayers: Array<{ sprite: Phaser.GameObjects.TileSprite; factor: number }> = [];
   private flownMs = 0;
   private trailIn = 0;
@@ -127,18 +129,19 @@ export class SpaceScene extends Phaser.Scene {
     }
 
     // The battle station, out there between the Earth and the rest: seen,
-    // never entered. Come near and a line comes up under it.
+    // never entered. Come near and the cat says so, in a bubble over its
+    // head that follows it about.
     this.station = this.add
       .image(this.earth.x + 600, this.earth.y - 470, 'battle-station')
       .setDepth(-38);
-    this.stationWords = crispText(this, this.station.x, this.station.y + 92, "That's no moon...", {
+    this.catBubble = this.add.graphics().setDepth(12).setAlpha(0);
+    this.stationWords = crispText(this, 0, 0, "That's no moon...", {
       fontFamily: 'monospace',
-      fontSize: '12px',
-      color: '#ffffff',
-      stroke: '#02030a',
-      strokeThickness: 3,
+      fontSize: '11px',
+      color: '#1a2030',
     })
       .setOrigin(0.5)
+      .setDepth(13)
       .setAlpha(0);
     this.words.push(this.stationWords);
 
@@ -219,9 +222,19 @@ export class SpaceScene extends Phaser.Scene {
 
     this.fly(delta);
 
-    // Near the battle station, its line fades up; away from it, out.
+    // Near the battle station, the cat says what it sees; away, it stops.
     const near = Phaser.Math.Distance.Between(this.cat.x, this.cat.y, this.station.x, this.station.y) < 220;
-    this.stationWords.setAlpha(Phaser.Math.Linear(this.stationWords.alpha, near ? 1 : 0, 0.08));
+    const shown = Phaser.Math.Linear(this.stationWords.alpha, near ? 1 : 0, 0.08);
+    const width = this.stationWords.width + 12;
+    const height = 18;
+    const x = this.cat.x - width / 2;
+    const y = this.cat.y - 22 - height;
+    this.catBubble.clear();
+    this.catBubble.fillStyle(0xffffff, 0.95);
+    this.catBubble.fillRoundedRect(x, y, width, height, 5);
+    this.catBubble.fillTriangle(this.cat.x - 3, y + height, this.cat.x + 3, y + height, this.cat.x, y + height + 5);
+    this.catBubble.setAlpha(shown);
+    this.stationWords.setPosition(this.cat.x, y + height / 2).setAlpha(shown);
 
     this.flownMs += delta;
     const away = Phaser.Math.Distance.Between(this.cat.x, this.cat.y, this.start.x, this.start.y);
@@ -306,7 +319,7 @@ export class SpaceScene extends Phaser.Scene {
   private showMap(): void {
     this.mapShown = true;
     // Whatever was said during the flight goes.
-    this.tweens.add({ targets: [...this.words], alpha: 0, duration: 300 });
+    this.tweens.add({ targets: [...this.words, this.catBubble], alpha: 0, duration: 300 });
 
     const veil = this.add
       .rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x02030a, 0.93)
