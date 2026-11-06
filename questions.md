@@ -2029,3 +2029,19 @@ fly to a planet, and its level starts.
 - **Arrows at the screen's edge** point to the open worlds out of sight --
   nothing asked for this, but space is big and a planet off screen is easy
   to lose.
+
+## Hit by the Death Star's beam, and Bob's warning
+
+Asked for: if the Death Star fires and you get in between, you are hit and
+lose the parts; and Bob also says "but look out, there are not two
+moons...".
+
+- **The station still never aims at the cat.** It is flying into the green
+  beam while it is there -- most of its 0.7 seconds -- that hits.
+- **Hit costs every part found**, not one: they go back where they were on
+  their worlds, to be found again, and the counts under the planets drop.
+  With all ten lost the Moon shuts again. No heart is lost.
+- **The starship's orange phaser does not hit the cat**: only the Death
+  Star's was asked for.
+- **Bob's line is written** "But look out: there are not two moons...",
+  just before "Can you do it, kitty?".

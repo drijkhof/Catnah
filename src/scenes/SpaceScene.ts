@@ -80,6 +80,10 @@ export class SpaceScene extends Phaser.Scene {
   /** The battle station, and the line that comes up when the cat is near it. */
   private station!: Phaser.GameObjects.Image;
   private stationWords!: CrispText;
+  /** The station's beam while it can hit: its ends, and until when. */
+  private deadly?: { from: Phaser.Math.Vector2; to: Phaser.Math.Vector2; until: number };
+  /** Each world's name under it, to be written again when the parts change. */
+  private labels: Array<{ level: string; text: CrispText }> = [];
   /** Where the station drifts about, and the starship going round it. */
   private stationHome = new Phaser.Math.Vector2();
   private ship!: Phaser.GameObjects.Image;
@@ -105,6 +109,8 @@ export class SpaceScene extends Phaser.Scene {
     this.words = [];
     this.planets = [];
     this.worlds = [];
+    this.labels = [];
+    this.deadly = undefined;
   }
 
   create(): void {
@@ -171,23 +177,19 @@ export class SpaceScene extends Phaser.Scene {
       if (world.level !== 'Moon' && world.level !== '') {
         this.planets.push(image);
       }
-      const definition = LEVELS.find((level) => level.name === world.level);
-      const total = definition ? definition.rows.join('').split('K').length - 1 : 0;
-      const got = (this.carry.parts ?? []).filter((id) => id.startsWith(`${world.level}:`)).length;
-      const name = world.level || 'Earth';
-      const label = rocket && total > 0 ? `${name} ${got}/${total}` : name;
-      this.words.push(
-        crispText(this, x, y + radius + 12, label, {
-          fontFamily: 'monospace',
-          fontSize: '12px',
-          color: open ? '#ffe9a8' : '#8a94a8',
-          stroke: '#02030a',
-          strokeThickness: 3,
-        })
-          .setOrigin(0.5)
-          .setDepth(-39),
-      );
+      const text = crispText(this, x, y + radius + 12, '', {
+        fontFamily: 'monospace',
+        fontSize: '12px',
+        color: open ? '#ffe9a8' : '#8a94a8',
+        stroke: '#02030a',
+        strokeThickness: 3,
+      })
+        .setOrigin(0.5)
+        .setDepth(-39);
+      this.words.push(text);
+      this.labels.push({ level: world.level, text });
     }
+    this.refreshLabels();
 
     // The battle station, out there between the Earth and the rest: seen,
     // never entered. Come near and the cat says so, in a bubble over its
@@ -287,6 +289,24 @@ export class SpaceScene extends Phaser.Scene {
     this.fly(delta);
     this.pointAtWorlds();
 
+    // Into the station's beam while it lasts: hit.
+    if (this.deadly) {
+      if (this.time.now > this.deadly.until) {
+        this.deadly = undefined;
+      } else {
+        const line = new Phaser.Geom.Line(this.deadly.from.x, this.deadly.from.y, this.deadly.to.x, this.deadly.to.y);
+        const nearest = Phaser.Geom.Line.GetNearestPoint(line, new Phaser.Math.Vector2(this.cat.x, this.cat.y));
+        const along = Phaser.Math.Distance.Between(this.deadly.from.x, this.deadly.from.y, nearest.x, nearest.y);
+        const length = Phaser.Geom.Line.Length(line);
+        const between =
+          along <= length &&
+          Phaser.Math.Distance.Between(this.deadly.to.x, this.deadly.to.y, nearest.x, nearest.y) <= length;
+        if (between && Phaser.Math.Distance.Between(this.cat.x, this.cat.y, nearest.x, nearest.y) < 10) {
+          this.hitByLaser();
+        }
+      }
+    }
+
     // Into an open world: its level starts.
     for (const world of this.worlds) {
       if (world.open && Phaser.Math.Distance.Between(this.cat.x, this.cat.y, world.x, world.y) < world.radius * 0.85) {
@@ -308,6 +328,27 @@ export class SpaceScene extends Phaser.Scene {
     this.catBubble.fillTriangle(this.cat.x - 3, y + height, this.cat.x + 3, y + height, this.cat.x, y + height + 5);
     this.catBubble.setAlpha(shown);
     this.stationWords.setPosition(this.cat.x, y + height / 2).setAlpha(shown);
+  }
+
+  /**
+   * Each world's name, and in the rocket how many of its parts are found;
+   * and whether it is open, which changes with the parts (the Moon opens
+   * with all of them, and shuts again if they are lost).
+   */
+  private refreshLabels(): void {
+    const rocket = this.carry.rocket ?? false;
+    const complete = (this.carry.parts ?? []).length >= PARTS.total;
+    for (const world of this.worlds) {
+      world.open = world.level === 'Moon' ? !rocket || complete : world.level !== '' && rocket;
+    }
+    for (const { level, text } of this.labels) {
+      text.setColor(this.worlds.find((world) => world.level === level)?.open ? '#ffe9a8' : '#8a94a8');
+      const definition = LEVELS.find((candidate) => candidate.name === level);
+      const total = definition ? definition.rows.join('').split('K').length - 1 : 0;
+      const got = (this.carry.parts ?? []).filter((id) => id.startsWith(`${level}:`)).length;
+      const name = level || 'Earth';
+      text.setText(this.carry.rocket && total > 0 ? `${name} ${got}/${total}` : name);
+    }
   }
 
   /**
@@ -387,6 +428,35 @@ export class SpaceScene extends Phaser.Scene {
     this.tweens.add({ targets: beam, alpha: 0, duration: LASER.beamMs, ease: 'Cubic.easeIn', onComplete: () => beam.destroy() });
   }
 
+  /**
+   * The cat has flown into the station's beam: a flash, a jolt, a knock away
+   * from the beam -- and every part it had found is lost, back where it was
+   * on its world, to be found again.
+   */
+  private hitByLaser(): void {
+    this.deadly = undefined;
+    sound.play('hurt');
+    this.cameras.main.shake(260, 0.012);
+    this.cameras.main.flash(250, 120, 255, 120);
+    this.cat.setTint(0xff6b6b);
+    this.time.delayedCall(400, () => this.cat.clearTint());
+    this.velocity.scale(-0.8);
+    const lost = (this.carry.parts ?? []).length;
+    this.carry = { ...this.carry, parts: [] };
+    this.refreshLabels();
+    const words = crispText(this, GAME_WIDTH / 2, GAME_HEIGHT * 0.3, lost > 0 ? 'Hit! All the parts are lost!' : 'Hit!', {
+      fontFamily: 'monospace',
+      fontSize: `${Math.round(GAME_HEIGHT * 0.07)}px`,
+      color: '#ff8a7a',
+      stroke: '#2a0a0a',
+      strokeThickness: 4,
+    })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(300);
+    this.tweens.add({ targets: words, alpha: 0, delay: 1600, duration: 700, onComplete: () => words.destroy() });
+  }
+
   /** A flash where a beam lands. Nothing is hurt by it. */
   private impact(at: Phaser.Math.Vector2, tint: number): void {
     const flash = this.add.image(at.x, at.y, 'spark').setTint(tint).setBlendMode(Phaser.BlendModes.ADD).setDepth(-36).setScale(2);
@@ -437,6 +507,9 @@ export class SpaceScene extends Phaser.Scene {
         // The ship has moved on a little while the dish charged: aim again.
         const end = hits ? new Phaser.Math.Vector2(this.ship.x, this.ship.y) : aim;
         this.drawBeam(dish, end, 0x3aff5a, 0x9fff9f);
+        // The station never aims at the cat -- but a cat that flies into the
+        // beam while it lasts is hit.
+        this.deadly = { from: dish.clone(), to: end.clone(), until: this.time.now + LASER.beamMs * 0.7 };
         if (hits) {
           this.impact(end, 0x9fff9f);
         }

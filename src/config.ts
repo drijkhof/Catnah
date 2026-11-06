@@ -508,6 +508,7 @@ export const BOB = {
     'What a cute little kitty!',
     'The robots have taken over the planets:\nthe Moon, Mars, Saturn, Jupiter, Venus,\nUranus, Neptune and Pluto!',
     'I need 10 parts to destroy the robots.\nI built a rocket, but I do not know where Mars is.',
+    'But look out:\nthere are not two moons...',
     'Can you do it, kitty?',
   ],
   /** The button under the last line: the answer, and off in the rocket. */

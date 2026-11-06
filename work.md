@@ -539,7 +539,7 @@ the sea. Each level starts at one end and ends at a **portal**, which takes
 you to the next: the cave is the descent into the volcano, the volcano's
 portal — which only appears once the beetle is dead — leads out into the
 desert, the desert runs down to the beach, and the beach into the sand path,
-which ends at the **big portal**. That one sends you off into **space**, to
+which ends at the **big portal**. That one sends you off into **space**,
 where you fly to the **moon**. There Bob the alien tells you the
 robots have taken over the planets and sends you off in his rocket for the
 **ten parts** he needs to destroy them, spread over the seven worlds.
@@ -687,7 +687,10 @@ station's dish glows green and its laser goes at the starship, and every
 seven seconds the starship's orange phaser hits the station, each with a
 flash where it lands. Neither is ever hurt, and neither ever fires at the
 cat or across a planet: if the way is not clear, the station fires out into
-empty space instead and the starship holds its fire.
+empty space instead and the starship holds its fire. **But get between them**: fly into the
+station's green beam while it is there and you are hit — a jolt, and **every
+part you have found is lost**, back where it was on its world, to be found
+again.
 
 ### 10 — Moon
 
@@ -780,7 +783,8 @@ clock go away and the camera zooms in on the lab, Bob and you. He says
 *"Hi, my name is Bob!"*, Next (tap it, or jump) and *"What a cute little
 kitty!"*, then *"The robots have taken over the planets: the Moon, Mars,
 Saturn, Jupiter, Venus, Uranus, Neptune and Pluto!"*, then *"I need 10 parts to destroy the robots. I built a rocket, but I do not know where Mars
-is."*, and last *"Can you do it, kitty?"* — and the button under that says
+is."*, *"But look out: there are not two moons..."*, and last *"Can you
+do it, kitty?"* — and the button under that says
 **Yes!**. Press it and the screen flashes white and you are off into space
 in his rocket. Nothing can hurt you while you talk.
 
