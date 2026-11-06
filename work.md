@@ -669,6 +669,8 @@ Moon, under *"Find the parts!"*.
 Out there you can see, but never land on, the **ISS** going round the Earth
 and a **battle station** — the Death Star — hanging in space. Fly near it
 and the cat says, in a little bubble over its head: *"That's no moon..."*.
+Every ten seconds the station's dish glows green and it fires a laser —
+out into empty space, never at the cat and never across a planet.
 
 **The map** shows the worlds in two rows, in their order out from the sun:
 Venus, the Earth, the Moon, Mars, Jupiter; and under them Saturn, Uranus,

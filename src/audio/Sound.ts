@@ -32,6 +32,7 @@ export type Voice =
   | 'beep'
   | 'crunch'
   | 'whoosh'
+  | 'laser'
   | 'checkpoint'
   | 'portal'
   | 'wings'
@@ -331,6 +332,12 @@ class SoundBoard {
         // A robot block breaking: a dry crack and a low bump.
         this.hiss(at, 0.18, 900, 0.35);
         this.thud(at, 0.22, 0.4);
+        break;
+
+      case 'laser':
+        // The battle station's beam: a long falling zap, with a hum under it.
+        this.blip(at, 1800, 120, 0.6, 'sawtooth', 0.06);
+        this.blip(at, 90, 60, 0.7, 'sine', 0.12);
         break;
 
       case 'whoosh':

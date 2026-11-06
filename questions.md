@@ -1964,3 +1964,12 @@ under the station.
 
 Asked for: a grey block lets a robot out every fifteen seconds, not every
 five, which made it too hard (`ROBOT.spawnEveryMs`).
+
+## The Death Star's laser
+
+Asked for: the Death Star fires lasers, but not at the cat or the planets,
+just once every ten seconds into space. Its dish glows for a moment and a
+green beam goes out; the way it fires is picked so the beam passes well
+clear of the cat, the Earth, the Moon and every planet out there, and if no
+way is clear it skips that shot. It is heard only when the cat is within a
+screen of it. Nothing it does can hurt.

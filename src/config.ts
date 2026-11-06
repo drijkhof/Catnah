@@ -524,6 +524,20 @@ export const BOB = {
  * once it is `mapDistance` from the Earth, or after `mapAfterMs` whatever
  * happens, so nobody is lost out there.
  */
+/**
+ * The battle station's laser: every `everyMs` it charges for `chargeMs` and
+ * fires a beam `length` long from its dish, out into empty space -- never at
+ * the cat, never across a planet. The beam lasts `beamMs`, fading.
+ */
+export const LASER = {
+  everyMs: 10000,
+  chargeMs: 600,
+  beamMs: 700,
+  length: 1100,
+  /** How far a beam must pass from the cat or a planet, px. */
+  clearance: 140,
+} as const;
+
 export const SPACE = {
   worldSize: 6000,
   accel: 420,
