@@ -739,13 +739,29 @@ now — robots and grey blocks as on the moon, the helmet on, lighter gravity
   pits. They come back after a while.
 
 **The ten parts**: two each on Mars, Saturn and Jupiter, one each on Venus,
-Uranus, Neptune and Pluto. They are brass cogs, turning, and **hard to
-find**: each shows only faintly until you are close to it, and each is
-hidden — every world has one down a hole in the ground, along a low pocket
-you sneak to the end of, and the worlds with two have the other shut in a
-cage of grey blocks (break one to get in). The count is in the corner under
-the little hearts (*"3/10"*), and each one found says so across the
-screen. A part once found stays found for the run.
+Uranus, Neptune and Pluto. They are brass cogs, turning, they show only
+faintly until you are close, and **every one is well hidden**, each world
+in its own way:
+
+- **Mars**: down a hole under a long slab of rock, along a low pocket only
+  a sneaking cat finds; and in a cage of grey blocks on top of a tall
+  tower, up its chain.
+- **Venus**: in a room inside a rock, reached only by dropping into the gap
+  on top.
+- **Neptune**: in an underwater cave off the bottom of a sea, running on
+  under the floor.
+- **Uranus**: on a shelf above the top of the screen, reached only off a
+  bounce pad.
+- **Jupiter**: in a room inside a bank of cloud; and at the end of a cloud
+  ride from the top of a tower, on a ledge in the sky.
+- **Saturn**: in a tunnel under a block of ice, behind thorns — sneak
+  through both; and in a room inside a block of ice.
+- **Pluto**: under the floor — fall through a crumbling bridge onto a ledge
+  down in the pit, and the part is in a tunnel off it, with a way back up.
+
+The count is in the corner under the little hearts (*"3/10"*), and each one
+found says so across the screen. A part once found stays found for the
+run.
 
 **What they look like** — each has its own ground and its own colours, and
 no world has itself in its own sky; from each you see the others:

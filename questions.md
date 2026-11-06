@@ -2045,3 +2045,19 @@ moons...".
   Star's was asked for.
 - **Bob's line is written** "But look out: there are not two moons...",
   just before "Can you do it, kitty?".
+
+## Every part well hidden
+
+Asked for: in every level the parts well hidden. Each world hides its own
+way now, mostly with its own obstacle: under a slab and in a cage on a
+tower (Mars), in a room inside a rock (Venus, and inside cloud on Jupiter
+and ice on Saturn), in an underwater cave (Neptune), on a shelf above the
+screen off a bounce pad (Uranus), at the end of a high cloud ride (Jupiter),
+behind thorns under the ice (Saturn), and down a pit under a crumbling
+bridge (Pluto). Each was tried in the game: every one can be reached, and
+left again.
+
+A bounce pad throws harder now. The cat's speed is capped for falling, and
+the cap held going up too, so a pad could never throw it higher than about
+two hundred pixels; the cap is lifted for a bounce until the cat starts to
+fall.

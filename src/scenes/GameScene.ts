@@ -207,6 +207,8 @@ export class GameScene extends Phaser.Scene {
   private baseRects: Phaser.Geom.Rectangle[] = [];
   /** The robots' worlds' own obstacles: bounce pads, moving platforms, crumbling ice. */
   private pads: Array<{ image: Phaser.GameObjects.Image; x: number; y: number }> = [];
+  /** True from a bounce until the cat starts to fall: its speed cap is lifted. */
+  private bouncing = false;
   private movers: Array<{ body: Phaser.Types.Physics.Arcade.ImageWithDynamicBody; from: number; to: number; width: number }> = [];
   private crumbles: Array<{ tile: Phaser.Types.Physics.Arcade.ImageWithStaticBody; x: number; y: number; timer: number; gone: number }> = [];
   /** Bob's parts lying in this level, not yet taken. */
@@ -312,6 +314,7 @@ export class GameScene extends Phaser.Scene {
     this.partSprites = [];
     this.partsText = undefined;
     this.pads = [];
+    this.bouncing = false;
     this.movers = [];
     this.crumbles = [];
     this.talk = undefined;
@@ -1148,11 +1151,20 @@ export class GameScene extends Phaser.Scene {
   /** The obstacles, once a frame: pads to bounce on, platforms to move, ice to crumble. */
   private stepObstacles(delta: number): void {
     const cat = this.player.body;
+    if (this.bouncing && cat.velocity.y >= 0) {
+      this.bouncing = false;
+      cat.maxVelocity.y = CAT.maxFallSpeed;
+    }
 
     for (const pad of this.pads) {
       const top = pad.y - PAD_SIZE.height + 3;
       const over = cat.right > pad.x - 7 && cat.x < pad.x + 7;
       if (over && cat.velocity.y >= 0 && cat.bottom >= top && cat.bottom <= pad.y + 1 && !this.player.climbing && !this.player.swimming) {
+        // The cat's speed is capped for falling (`CAT.maxFallSpeed`), and the
+        // cap holds going up too: lifted for the bounce, put back once it
+        // starts to fall.
+        this.player.body.maxVelocity.y = Math.abs(OBSTACLES.bounce);
+        this.bouncing = true;
         this.player.setVelocityY(OBSTACLES.bounce);
         sound.play('boing');
         pad.image.setTexture('bounce-pad-down');
