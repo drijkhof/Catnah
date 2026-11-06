@@ -373,12 +373,20 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
 
   /** Is there still floor under the step it is about to take? */
   /**
-   * Whether it may walk on: ground ahead, or -- for a moon robot, which is
-   * the only walker that steps off edges -- anything at all. A robot climbs
-   * out on top of its grey block, and has to be able to roll off it.
+   * Whether it may walk on: ground ahead -- or, for a robot standing on the
+   * grey block it climbed out of, the edge of the block, so it can roll off
+   * it. Anywhere else a robot turns at an edge like everything else: it
+   * does not go into pits or craters.
    */
   private groundOrDrop(): boolean {
-    return this.kind === 'robot' || this.groundAhead();
+    return this.groundAhead() || (this.kind === 'robot' && this.onHatch());
+  }
+
+  /** Whether it is standing on a grey block (`D`), which the scene marks `hatch`. */
+  private onHatch(): boolean {
+    const body = this.body;
+    const found = this.scene.physics.overlapRect(body.x, body.bottom, body.width, 2, false, true) as Phaser.Physics.Arcade.StaticBody[];
+    return found.some((under) => under.gameObject?.getData('hatch') === true);
   }
 
   private groundAhead(): boolean {

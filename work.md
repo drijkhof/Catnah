@@ -686,8 +686,9 @@ sky black and full of stars with the Earth hanging in it, Saturn and
 Mars further off, and grey hills on the horizon.
 
 - **Robots** roll about on treads with a grabbing arm out front, and come
-  for you once they see you, wanting to pick you up. They roll off edges
-  and drop down; nothing stops them but a wall.
+  for you once they see you, wanting to pick you up. They turn at the edge
+  of a pit or a crater, like everything else, and never go into one; only
+  off their own grey block do they roll down.
 - **Grey blocks** are where they come from: while you are near, a robot
   climbs out of the top of each every **five seconds**, up to two of its own
   at a time. **Hold down** on a block or against its side and it cracks and

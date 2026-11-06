@@ -1743,7 +1743,7 @@ export class GameScene extends Phaser.Scene {
       // A grey block can be broken, so it is never flattened into the
       // scenery: it has to be able to crack and disappear.
       if (solid.glyph === 'D') {
-        tile.setData(KEEP_LIVE, true).setDepth(-0.25);
+        tile.setData(KEEP_LIVE, true).setData('hatch', true).setDepth(-0.25);
         this.hatches.push({ tile, x: solid.x, y: solid.y, spawnIn: ROBOT.spawnEveryMs, breaking: 0, robots: [] });
       }
 
