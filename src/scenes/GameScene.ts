@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { AWAKE_RANGE, BOB, RAIN, ROBOT, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
+import { AWAKE_RANGE, BOB, PARTS, RAIN, ROBOT, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
 import { Controls, IdleControls, type PlayerInput } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -78,6 +78,15 @@ export class GameScene extends Phaser.Scene {
    * is a life and no single level holds a hundred.
    */
   private collected = 0;
+  /**
+   * Bob's parts found so far this run, each as `<level>:<x>,<y>`, so a part
+   * once taken is never there again and a planet knows how many of its own
+   * are found.
+   */
+  private parts: string[] = [];
+  /** Whether Bob has sent the cat off in his rocket: the parts are being looked for. */
+  private rocket = false;
+  private partsText?: CrispText;
 
   /**
    * Time left before god mode will acknowledge another hit, ms.
@@ -194,6 +203,8 @@ export class GameScene extends Phaser.Scene {
   private busyWords?: CrispText;
   /** Each moon base, door to door, which no robot may enter. */
   private baseRects: Phaser.Geom.Rectangle[] = [];
+  /** Bob's parts lying in this level, not yet taken. */
+  private partSprites: Phaser.Types.Physics.Arcade.ImageWithStaticBody[] = [];
   /** `=` cells inside a moon base, which the base draws as lab benches. */
   private benchCells = new Set<string>();
   private hatches: Array<{
@@ -248,6 +259,8 @@ export class GameScene extends Phaser.Scene {
     elapsedMs?: number;
     deaths?: number;
     title?: boolean;
+    parts?: string[];
+    rocket?: boolean;
   }): void {
     this.titleMode = data.title ?? false;
     // The scene instance is reused from run to run, so a flag set on the
@@ -266,6 +279,8 @@ export class GameScene extends Phaser.Scene {
     this.lives = Math.min(data.lives ?? carried?.lives ?? LIVES, MAX_LIVES);
     this.maxLives = Math.min(Math.max(LIVES, this.lives, data.maxLives ?? carried?.maxLives ?? 0), MAX_LIVES);
     this.collected = data.collected ?? carried?.collected ?? 0;
+    this.parts = [...(data.parts ?? carried?.parts ?? [])];
+    this.rocket = data.rocket ?? carried?.rocket ?? false;
 
     // God mode lives in the registry, and a hot reload builds a new game
     // with a new registry: it rides in the snapshot and is put back here,
@@ -288,6 +303,8 @@ export class GameScene extends Phaser.Scene {
     this.benchCells = new Set();
     this.bob = undefined;
     this.baseRects = [];
+    this.partSprites = [];
+    this.partsText = undefined;
     this.talk = undefined;
     this.busyWords = undefined;
     this.lifeIcons = [];
@@ -336,6 +353,7 @@ export class GameScene extends Phaser.Scene {
     this.jellyRects = this.buildJellies();
     this.worms = this.level.mounds.map((mound, index) => new Worm(this, mound, index + 1));
     this.charms = this.buildCharms();
+    this.buildParts();
     this.checkpoints = this.buildCheckpoints();
     this.respawnPoint = { x: this.level.spawn.x, y: this.level.spawn.y };
 
@@ -364,6 +382,9 @@ export class GameScene extends Phaser.Scene {
       });
       this.physics.add.overlap(this.player, this.checkpoints, (_cat, checkpoint) => {
         this.activateCheckpoint(checkpoint as Phaser.Physics.Arcade.Sprite);
+      });
+      this.physics.add.overlap(this.player, this.partSprites, (_cat, part) => {
+        this.takePart(part as Phaser.Types.Physics.Arcade.ImageWithStaticBody);
       });
 
       this.buildWeather();
@@ -529,6 +550,8 @@ export class GameScene extends Phaser.Scene {
       lives: this.lives,
       maxLives: this.maxLives,
       collected: this.collected,
+      parts: [...this.parts],
+      rocket: this.rocket,
       godMode: isGodMode(this),
     };
   }
@@ -1034,33 +1057,86 @@ export class GameScene extends Phaser.Scene {
     this.blackout(0, 1, Math.max(EXIT.fadeMs, drawIn), () => {
       // The sand path's portal goes off into space, to the map; the level
       // after it is picked up from there.
+      // With all of Bob's parts, the robots can be stopped: that is the end
+      // of the game, the victory screen with the run's time and deaths.
+      if (this.parts.length >= PARTS.total) {
+        this.scene.start('Victory', { elapsedMs: this.elapsedMs, deaths: this.deaths, parts: this.parts.length });
+        return;
+      }
       if (this.level.next === 'space') {
-        this.scene.start('Space', {
-          levelIndex: this.levelIndex + 1,
-          lives: this.lives,
-          maxLives: this.maxLives,
-          collected: this.collected,
-          elapsedMs: this.elapsedMs,
-          deaths: this.deaths,
-        });
+        this.scene.start('Space', this.carry(this.levelIndex + 1));
         return;
       }
-      // The last level's portal is the end of the game: the victory screen,
-      // with the run's time and deaths as its score. Every other portal is
-      // the next level, with everything the run has gathered.
-      if (this.levelIndex + 1 >= LEVELS.length) {
-        this.scene.start('Victory', { elapsedMs: this.elapsedMs, deaths: this.deaths });
-        return;
-      }
-      this.scene.start('Game', {
-        levelIndex: this.levelIndex + 1,
-        lives: this.lives,
-        maxLives: this.maxLives,
-        collected: this.collected,
-        elapsedMs: this.elapsedMs,
-        deaths: this.deaths,
-      });
+      this.scene.start('Game', this.carry(this.levelIndex + 1));
     });
+  }
+
+  /** Everything the run carries into the next level, or into space. */
+  private carry(levelIndex: number): {
+    levelIndex: number;
+    lives: number;
+    maxLives: number;
+    collected: number;
+    elapsedMs: number;
+    deaths: number;
+    parts: string[];
+    rocket: boolean;
+  } {
+    return {
+      levelIndex,
+      lives: this.lives,
+      maxLives: this.maxLives,
+      collected: this.collected,
+      elapsedMs: this.elapsedMs,
+      deaths: this.deaths,
+      parts: [...this.parts],
+      rocket: this.rocket,
+    };
+  }
+
+  /**
+   * Bob's parts in this level (`K`): a brass cog each, bobbing and turning
+   * slowly, except the ones already found this run. Touching one takes it:
+   * a sound, "Part 3/10" grown and faded over the screen, and the count in
+   * the HUD.
+   */
+  private buildParts(): void {
+    if (this.titleMode) {
+      return;
+    }
+    for (const part of this.level.parts) {
+      const id = `${this.level.name}:${part.x},${part.y}`;
+      if (this.parts.includes(id)) {
+        continue;
+      }
+      const sprite = this.physics.add.staticImage(part.x, part.y, 'part');
+      sprite.setDepth(7);
+      this.tweens.add({ targets: sprite, angle: 360, duration: 4000, repeat: -1 });
+      sprite.setData('partId', id);
+      this.partSprites.push(sprite);
+    }
+  }
+
+  /** The cat has touched a part: it is Bob's, and one more found. */
+  private takePart(sprite: Phaser.Types.Physics.Arcade.ImageWithStaticBody): void {
+    const id = sprite.getData('partId') as string;
+    if (this.parts.includes(id)) {
+      return;
+    }
+    this.parts.push(id);
+    sprite.destroy();
+    this.partSprites = this.partSprites.filter((other) => other !== sprite);
+    sound.play('checkpoint');
+    this.announceBonus(`Part ${this.parts.length}/${PARTS.total}`);
+    this.refreshParts();
+  }
+
+  /** The parts count in the HUD: shown once there are parts to find. */
+  private refreshParts(): void {
+    if (!this.partsText) {
+      return;
+    }
+    this.partsText.setText(`${this.parts.length}/${PARTS.total}`);
   }
 
   /**
@@ -2347,7 +2423,7 @@ export class GameScene extends Phaser.Scene {
     }
     sound.play('beep');
     talk.words.setText(BOB.lines[talk.line]);
-    talk.next.setText(talk.line === BOB.lines.length - 1 ? 'Bye ▸' : 'Next ▸');
+    talk.next.setText(talk.line === BOB.lines.length - 1 ? BOB.lastButton : 'Next ▸');
     this.placeBubble();
   }
 
@@ -2380,28 +2456,45 @@ export class GameScene extends Phaser.Scene {
     talk.next.setPosition(x + width / 2, y + 29);
   }
 
-  /** The talk is over: bubble gone, HUD back, the camera back on the cat. */
+  /** The talk is over: the cat said yes, and Bob's rocket takes it. */
   private endTalk(): void {
-    const talk = this.talk;
-    if (!talk || !this.bob) {
+    if (!this.talk || !this.bob) {
       return;
     }
     this.bob.met = true;
-    talk.bubble.destroy();
-    talk.words.destroy();
-    talk.next.destroy();
-    this.cameras.remove(talk.camera);
-    for (const child of talk.hidden) {
-      (child as unknown as Phaser.GameObjects.Components.Visible).setVisible(true);
+    // The end of Bob's story is the rocket: the cat said yes, and is off.
+    // The bubble and the zoom stay up under the fade; the next scene starts
+    // clean.
+    this.launchRocket();
+  }
+
+  /**
+   * Off in Bob's rocket: a whoosh, the screen goes white and then black,
+   * and the flight starts -- with Mars and Saturn open on the map now, and
+   * the parts to find. The talk's bubble and zoom stay up until the fade
+   * covers them; the next scene starts clean.
+   */
+  private launchRocket(): void {
+    if (this.leaving) {
+      return;
     }
-    this.talk = undefined;
-    const camera = this.cameras.main;
-    camera.zoomTo(1, BOB.zoomMs, 'Sine.easeInOut');
-    camera.pan(this.player.x, this.player.y, BOB.zoomMs, 'Sine.easeInOut', false, (_camera, progress) => {
-      if (progress === 1) {
-        camera.startFollow(this.player, true, 0.12, 0.14);
-        camera.setDeadzone(140, 44);
-      }
+    this.leaving = true;
+    this.rocket = true;
+    sound.play('whoosh');
+    this.cameras.main.flash(300, 255, 255, 255);
+    const black = this.add
+      .rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x000000)
+      .setOrigin(0, 0)
+      .setScrollFactor(0)
+      .setDepth(3000)
+      .setAlpha(0);
+    this.talk?.camera.ignore(black);
+    this.tweens.add({
+      targets: black,
+      alpha: 1,
+      delay: 300,
+      duration: 700,
+      onComplete: () => this.scene.start('Space', this.carry(this.levelIndex + 1)),
     });
   }
 
@@ -3380,6 +3473,26 @@ export class GameScene extends Phaser.Scene {
 
     this.refreshLives();
     this.buildMuteButton();
+
+    // Bob's parts, under the little hearts: a cog and the count, once the
+    // cat is looking for them or the level has some.
+    if (this.rocket || this.level.parts.length > 0) {
+      this.add
+        .image(GAME_WIDTH - TILE - 16, TILE * 3 + 10, 'part')
+        .setScrollFactor(0)
+        .setDepth(1000);
+      this.partsText = crispText(this, GAME_WIDTH - TILE - 26, TILE * 3 + 2, '', {
+        fontFamily: 'monospace',
+        fontSize: '14px',
+        color: '#ffd34d',
+        stroke: '#2f2a1a',
+        strokeThickness: 3,
+      })
+        .setOrigin(1, 0)
+        .setScrollFactor(0)
+        .setDepth(1000);
+      this.refreshParts();
+    }
 
     this.scoreText = crispText(
       this,GAME_WIDTH - TILE - 26, TILE * 2 - 4, this.formatScore(), {

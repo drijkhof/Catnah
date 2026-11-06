@@ -42,6 +42,9 @@ export interface GameSnapshot {
   lives?: number;
   maxLives?: number;
   collected?: number;
+  /** Bob's parts found, and whether the rocket has been taken. */
+  parts?: string[];
+  rocket?: boolean;
   godMode?: boolean;
 }
 

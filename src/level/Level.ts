@@ -235,6 +235,8 @@ export interface ParsedLevel {
   helmet: boolean;
   /** Planted flags (`F`), by the foot of the pole. Scenery. */
   flags: Point[];
+  /** Parts for Bob's machine (`K`), by their middle. */
+  parts: Point[];
   /** The moon's grey blocks (`D`), by their top-left corner. Robots come out of them. */
   hatches: Point[];
   /** Water, grouped into connected pools. A piranha never leaves its own. */
@@ -328,6 +330,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const exits: Point[] = [];
   const hatches: Point[] = [];
   const flags: Point[] = [];
+  const parts: Point[] = [];
 
   /**
    * A thin one-way ledge, used for the tops of trees and for nests. Invisible
@@ -512,7 +515,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           walkers.push({
             x: x + TILE / 2,
             y: y + TILE,
-            kind: definition.theme === 'beach' ? 'crab' : definition.theme === 'moon' ? 'robot' : 'hedgehog',
+            kind: definition.theme === 'beach' ? 'crab' : ROBOT_THEMES.includes(definition.theme) ? 'robot' : 'hedgehog',
           });
           break;
 
@@ -520,6 +523,11 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
         // inside it as one picture (`art/base.ts`).
         case 'M':
           block(x, y, 'base-wall', column, row);
+          break;
+
+        // One of the ten parts Bob needs for his machine.
+        case 'K':
+          parts.push({ x: x + TILE / 2, y: y + TILE / 2 });
           break;
 
         // A flag planted in the dust. Scenery only.
@@ -531,11 +539,11 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
         // ground: the cat can break it, so nothing around it may switch a
         // face off against it -- see `FULL_CELL`, which leaves it out.
         case 'D':
-          // Only on the moon. A stray `D` sat harmlessly in the cave for a
-          // long time, meaning nothing, and became a robot block the day the
-          // letter got a meaning -- so a level elsewhere refuses to load.
-          if (definition.theme !== 'moon') {
-            throw new Error(`${definition.name}: a grey block 'D' at ${column},${row}, but those are only on the moon.`);
+          // Only where the robots are. A stray `D` sat harmlessly in the cave
+          // for a long time, meaning nothing, and became a robot block the
+          // day the letter got a meaning -- so a level elsewhere refuses to load.
+          if (!ROBOT_THEMES.includes(definition.theme)) {
+            throw new Error(`${definition.name}: a grey block 'D' at ${column},${row}, but those are only where the robots are.`);
           }
           hatches.push({ x, y });
           solids.push({
@@ -695,6 +703,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     next: definition.next ?? null,
     helmet: definition.helmet ?? false,
     flags,
+    parts,
     hatches,
     waterZones,
     pools,
@@ -973,6 +982,9 @@ function variantOf(base: string, column: number, row: number): string {
 
   return variant === 0 ? base : `${base}-${variant}`;
 }
+
+/** The places the robots have taken over: their walker is a robot, and `D` is allowed. */
+const ROBOT_THEMES: string[] = ['moon', 'mars', 'saturn'];
 
 /** Solids that fill their whole cell, as opposed to a platform's thin bar. */
 const FULL_CELL = new Set(['#', 'B', 'R', 'G', 'Q', '_', 'M']);

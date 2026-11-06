@@ -1888,3 +1888,33 @@ A stray `D` had sat in one of the cave's rows for a long time, meaning
 nothing, and the day `D` became the moon's grey block it put a block in the
 cave, with robots coming out of it. It is gone, and a `D` anywhere but the
 moon now stops the level loading rather than slipping through again.
+
+## Bob's story, the rocket, Mars and Saturn
+
+Asked for: Bob also tells the cat the robots have taken over the planets --
+the Moon, Mars and Saturn; he needs ten parts to destroy them; he built a
+rocket but does not know where Mars is; he asks whether the cat can do it,
+and then the cat is sent into space in the rocket. The first time in space
+you fly to the Moon and only the Moon can be chosen. The parts are not on
+the Moon nor on the Earth. Mars and Saturn have the parts; some easy to
+find, some harder.
+
+- **Five parts on each of Mars and Saturn.** "Mars en Saturnus hebben 5
+  onderdelen in totaal" read as five each: five in all would never make the
+  ten Bob needs.
+- **Bob's lines, in English like the rest of the game**: "The robots have
+  taken over the planets: the Moon, Mars and Saturn." / "I need 10 parts to
+  destroy the robots. I built a rocket, but I do not know where Mars is." /
+  "Can you do it, kitty?" -- answered with a **Yes!** button, which launches
+  the rocket.
+- **The moon has no portal any more**: Bob is the way on, so the base moved
+  to the end of the level and the last run of blocks before it.
+- **With the rocket, the map opens Mars and Saturn and closes the Moon**,
+  shows each planet's parts found ("Mars 2/5"), and each planet's portal
+  comes back to the map, so a missed part can be fetched later.
+- **Leaving a planet with all ten is the win.** Nothing was said about what
+  happens with the parts; the victory screen says "All 10 parts! Bob can
+  stop the robots."
+
+> **Still open:** whether to fly back to Bob with the parts and see him
+> destroy the robots, rather than winning on the spot.

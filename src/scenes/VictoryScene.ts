@@ -34,13 +34,17 @@ export class VictoryScene extends Phaser.Scene {
 
   private deaths = 0;
 
+  /** Bob's parts brought back, if the run was won by finding them. */
+  private parts = 0;
+
   constructor() {
     super({ key: 'Victory' });
   }
 
-  init(data: { elapsedMs?: number; deaths?: number }): void {
+  init(data: { elapsedMs?: number; deaths?: number; parts?: number }): void {
     this.elapsedMs = data.elapsedMs ?? 0;
     this.deaths = data.deaths ?? 0;
+    this.parts = data.parts ?? 0;
   }
 
   create(): void {
@@ -80,6 +84,19 @@ export class VictoryScene extends Phaser.Scene {
         strokeThickness: 6,
       })
       .setOrigin(0.5), 1);
+
+    // What the win was: every part Bob needed, so the robots can be stopped.
+    if (this.parts > 0) {
+      fadeUp(crispText(
+        this, GAME_WIDTH / 2, GAME_HEIGHT * 0.465, `All ${this.parts} parts! Bob can stop the robots.`, {
+          fontFamily: 'monospace',
+          fontSize: `${Math.round(GAME_WIDTH * 0.03)}px`,
+          color: '#bfe3ff',
+          stroke: '#0a1430',
+          strokeThickness: 3,
+        })
+        .setOrigin(0.5), 1);
+    }
 
     const time = formatClock(scoreMs(this.elapsedMs, this.deaths));
 

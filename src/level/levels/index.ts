@@ -9,6 +9,8 @@ import { DESERT } from './desert';
 import { BEACH } from './beach';
 import { PATH } from './path';
 import { MOON } from './moon';
+import { MARS } from './mars';
+import { SATURN } from './saturn';
 
 /**
  * The levels, in the order they are played.
@@ -19,8 +21,12 @@ import { MOON } from './moon';
  * the descent, and what it descends into is the volcano. The volcano's
  * portal only appears once the beetle is dead, and it leads out into the
  * desert, then the beach, and last the sand path, which ends at the big
- * portal. That one sends the cat off into space, past the planets, to a map
- -- and the Moon, picked on the map, is the last level: its portal is the
- end of the game.
+ * portal. That one sends the cat off into space, past the planets, to a map,
+ where only the Moon can be picked. On the moon Bob tells it the robots have
+ taken the planets and sends it off in his rocket for the ten parts he
+ needs: back on the map, Mars and Saturn are open, five parts on each, and
+ each one's portal goes back to the map. Leaving a planet with all ten is
+ the end of the game. Mars and Saturn are only reached from the map; their
+ place in this list is only so there is one.
  */
-export const LEVELS: LevelDefinition[] = [CITY, FOREST, CANOPY, SWAMP, CAVE, VOLCANO, DESERT, BEACH, PATH, MOON];
+export const LEVELS: LevelDefinition[] = [CITY, FOREST, CANOPY, SWAMP, CAVE, VOLCANO, DESERT, BEACH, PATH, MOON, MARS, SATURN];

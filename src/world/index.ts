@@ -47,7 +47,9 @@ export function createBackdrop(
       new CityBackdrop(scene, level, levelWidth, groundLine);
       break;
     case 'moon':
-      new MoonBackdrop(scene, levelWidth, groundLine);
+    case 'mars':
+    case 'saturn':
+      new MoonBackdrop(scene, theme, levelWidth, groundLine);
       break;
     case 'path':
       // The forest's sky, sun, distant trees and bushes, out in the open:

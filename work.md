@@ -49,6 +49,8 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | kaart | `map` | the Earth, the Moon, Mars and Saturn; only the Moon can be picked |
 | maan | `moon` | the last level |
 | robotje | `robot` | the moon's walker: comes for you to grab you |
+| onderdeel | `part` | one of the ten cogs Bob needs; `K`, five on Mars and five on Saturn |
+| raket | `rocket` | Bob's: the way from the moon to Mars and Saturn |
 | maanbasis | `moon base` | the moon's `M`: a module with doors at both ends and a lab inside |
 | laboratorium | `laboratory` | inside the moon base |
 | alien | `alien` / Bob | works at the computers in the lab; talks to you once, then is too busy |
@@ -504,7 +506,9 @@ and touching an **earlier** one after passing a later one moves the point back
 | Volcano | 104 |
 | Desert | 109 |
 | Sand path | 66 |
-| Moon | 180 |
+| Moon | 179 |
+| Mars | 124 |
+| Saturn | 124 |
 
 Every level is **written out** in its file, row by row.
 
@@ -514,18 +518,22 @@ level: what they lost was the reason to walk through them. The cave is the one
 exception, and it was never stretched — it is long because it was designed long,
 as a descent.
 
-## The ten levels
+## The twelve levels
 
 **City, forest, canopy, swamp, cave, volcano, desert, beach, sand path,
-and — after a flight through space — the moon.**
+and — after a flight through space — the moon; then, in Bob's rocket, Mars
+and Saturn, in either order.**
 Out of town into the wild, down through the fire, and out the other side to
 the sea. Each level starts at one end and ends at a **portal**, which takes
 you to the next: the cave is the descent into the volcano, the volcano's
 portal — which only appears once the beetle is dead — leads out into the
 desert, the desert runs down to the beach, and the beach into the sand path,
 which ends at the **big portal**. That one sends you off into **space**, to
-a map, and from the map to the **moon**, whose portal ends the game. Little
-hearts are optional everywhere.
+a map, and from the map to the **moon**. There Bob the alien tells you the
+robots have taken over the planets and sends you off in his rocket for the
+**ten parts** he needs to destroy them: five on **Mars**, five on
+**Saturn**. Leaving a planet with all ten ends the game. Little hearts are
+optional everywhere.
 
 ### 1 — City
 
@@ -636,7 +644,7 @@ space.
 
 ### Space, and the map
 
-Not a level: a flight. You start beside the Earth and **fly** the cat
+Not a level: a flight. The first time, you start beside the Earth and **fly** the cat
 yourself, any direction, with the same keys and stick as walking — out
 through stars in three layers, clouds of glowing gas and planets drifting
 by, a trail of sparks behind you. Nothing out here can hurt you. Once you
@@ -646,9 +654,17 @@ under them the question **"Where should we go?"**. Only the
 Moon can be picked — tap it, click it, or press any key — and Mars and
 Saturn are dimmed. The run's clock does not count while you fly.
 
+**In Bob's rocket**, after the moon, you fly the rocket instead — white,
+red nose and fins, the cat in its window, a flame behind — from beside the
+Moon, under *"Find the parts!"*. On the map only **Mars and Saturn** can be
+picked now, each with how many of its five parts you have found
+(*"Mars 2/5"*); there are none on the Earth or the Moon. On a keyboard,
+left and right choose between them and any other key goes. Each planet's
+portal brings you back here, to choose again.
+
 ### 10 — Moon
 
-180 tiles of grey dust over grey rock, craters, moon rocks to climb, and the
+179 tiles of grey dust over grey rock, craters, moon rocks to climb, and the
 sky black and full of stars with the Earth hanging in it, Saturn and
 Mars further off, and grey hills on the horizon.
 
@@ -661,10 +677,39 @@ Mars further off, and grey hills on the horizon.
   breaks, and nothing comes out of it again. Holding down is sneaking, so
   no robot can hurt you while you do it.
 
+**There is no portal on the moon.** The way on is Bob, in the base at the
+end of the level.
+
 After the first stretch comes a staircase of rock up to a plateau with a
 block on top, a wide crater with robots in the bottom and shelves over it, a
 chain up a tall tower with a spare heart on top, then the **moon base**, and
-a last run of blocks to the way out. Its portal ends the game.
+a last run of blocks to the way out. It has no portal: Bob's rocket is the way on.
+
+### 11 — Mars, and 12 — Saturn
+
+Picked from the map in Bob's rocket, either first, as often as you like.
+Both are the robots' now: robots and grey blocks as on the moon, and the
+helmet on. Each has **five parts** — brass cogs, turning — some on the way,
+some hard to get. The count is in the corner under the little hearts
+(*"3/10"*), and each one found says so across the screen.
+
+**Mars**: rust-red rock and dust under a butterscotch sky with two little
+moons. A part on the ground near the start; one on a shelf above the
+rocks; one on top of a tall tower, up its chain; one under a long slab of
+rock where only a sneaking cat goes; and one at the top of a staircase of
+shelves.
+
+**Saturn**: out on the rings — blue-white ice under a black sky with
+Saturn itself filling it, and gaps in the ice to jump (falling costs a
+heart). A part on the ice near the start; one in the air over a gap, caught
+in the jump; one under a big block of ice, sneaking; one at the top of a
+zigzag of shelves; and one **past the portal**, on a pillar — walk into the
+portal and it is missed, so jump over it.
+
+A part once found stays found for the run, on whichever planet. Each
+planet's portal goes back to the map — **unless you have all ten**: then it
+is the end of the game, and the victory screen says *"All 10 parts! Bob can
+stop the robots."*
 
 **The moon base** is a small white module, sixteen tiles across, with a
 blue and red stripe, a radar dish and an antenna on its roof, and an open
@@ -681,8 +726,12 @@ lights on them and a white lab coat, typing away at the computers and
 blinking now and then. Walk up to him and you **talk**: the hearts and the
 clock go away and the camera zooms in on the lab, Bob and you. He says
 *"Hi, my name is Bob!"*, Next (tap it, or jump) and *"What a cute little
-kitty!"*, and Bye ends it and the camera goes back. Walk up to him again and
-all he says is *"Too busy!"*. Nothing can hurt you while you talk.
+kitty!"*, then *"The robots have taken over the planets: the Moon, Mars and
+Saturn."*, then *"I need 10 parts to destroy the robots. I built a rocket,
+but I do not know where Mars is."*, and last *"Can you do it, kitty?"* — and
+the button under that says **Yes!**. Press it and the screen flashes white
+and you are off into space in his rocket. Nothing can hurt you while you
+talk.
 
 **American flags** stand planted in the dust at the start and outside the
 base, and one on the hills on the horizon.
@@ -739,7 +788,7 @@ remembers nothing.
 
 ## Winning, and the score
 
-Walk into the portal at the end of the moon and the sunlit forest comes up out of the
+Leave Mars or Saturn with all ten of Bob's parts and the sunlit forest comes up out of the
 black with **"You actually won!"** in gold over it, your **time** under
 that, and how often you died. The time is the score, and lower is better:
 every second you spend in a level counts, from the moment it starts until the

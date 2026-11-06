@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH, SPACE } from '../config';
+import { GAME_HEIGHT, GAME_WIDTH, PARTS, SPACE } from '../config';
+import { LEVELS } from '../level/levels';
 import { Controls } from '../input/Controls';
 import { HEAD_IN_POSE, PLANET_SIZES, STARFIELD_SIZE, createRandom, type PlanetName } from '../art';
 import { sound } from '../audio/Sound';
@@ -13,6 +14,10 @@ interface Carry {
   collected?: number;
   elapsedMs?: number;
   deaths?: number;
+  /** Bob's parts found so far, as `<level>:<x>,<y>`. */
+  parts?: string[];
+  /** In Bob's rocket, after the moon: Mars and Saturn are open, the Moon not. */
+  rocket?: boolean;
 }
 
 /**
@@ -37,6 +42,11 @@ export class SpaceScene extends Phaser.Scene {
   private helmet!: Phaser.GameObjects.Image;
   private velocity = new Phaser.Math.Vector2();
   private earth = new Phaser.Math.Vector2();
+  /** Where the flight starts: the map comes up once the cat is far enough from here. */
+  private start = new Phaser.Math.Vector2();
+  /** On the map: the planets that can be picked, and which one the keyboard is on. */
+  private choices: Array<{ level: string; ring: Phaser.GameObjects.Arc }> = [];
+  private chosen = 0;
   private starLayers: Array<{ sprite: Phaser.GameObjects.TileSprite; factor: number }> = [];
   private flownMs = 0;
   private trailIn = 0;
@@ -57,6 +67,8 @@ export class SpaceScene extends Phaser.Scene {
     this.mapShown = false;
     this.going = false;
     this.words = [];
+    this.choices = [];
+    this.chosen = 0;
   }
 
   create(): void {
@@ -118,11 +130,16 @@ export class SpaceScene extends Phaser.Scene {
       .setScale(1.1)
       .setDepth(-40);
 
-    // The cat, just off the Earth, heading out.
+    // The cat, just off the Earth, heading out -- or, in Bob's rocket, just
+    // off the Moon, with the cat in its window.
+    const moon = new Phaser.Math.Vector2(this.earth.x + 330, this.earth.y - 190);
+    this.start = this.carry.rocket
+      ? new Phaser.Math.Vector2(moon.x + 90, moon.y - 20)
+      : new Phaser.Math.Vector2(this.earth.x + PLANET_SIZES.earth * 1.4, this.earth.y - 40);
     this.cat = this.add
-      .image(this.earth.x + PLANET_SIZES.earth * 1.4, this.earth.y - 40, 'cat-swim-a')
+      .image(this.start.x, this.start.y, this.carry.rocket ? 'rocket' : 'cat-swim-a')
       .setDepth(10);
-    this.helmet = this.add.image(0, 0, 'space-helmet').setDepth(11);
+    this.helmet = this.add.image(0, 0, 'space-helmet').setDepth(11).setVisible(!this.carry.rocket);
     this.velocity.set(90, -30);
     this.cameras.main.startFollow(this.cat, true, 0.1, 0.1);
 
@@ -139,7 +156,7 @@ export class SpaceScene extends Phaser.Scene {
       .setDepth(3000);
     this.tweens.add({ targets: black, alpha: 0, duration: 900, onComplete: () => black.destroy() });
 
-    const hint = crispText(this, GAME_WIDTH / 2, GAME_HEIGHT * 0.14, 'Fly away from Earth!', {
+    const hint = crispText(this, GAME_WIDTH / 2, GAME_HEIGHT * 0.14, this.carry.rocket ? 'Find the parts!' : 'Fly away from Earth!', {
       fontFamily: 'monospace',
       fontSize: `${Math.round(GAME_HEIGHT * 0.07)}px`,
       color: '#bfe3ff',
@@ -169,7 +186,7 @@ export class SpaceScene extends Phaser.Scene {
     this.fly(delta);
 
     this.flownMs += delta;
-    const away = Phaser.Math.Distance.Between(this.cat.x, this.cat.y, this.earth.x, this.earth.y);
+    const away = Phaser.Math.Distance.Between(this.cat.x, this.cat.y, this.start.x, this.start.y);
     if (away >= SPACE.mapDistance || this.flownMs >= SPACE.mapAfterMs) {
       this.showMap();
     }
@@ -203,7 +220,10 @@ export class SpaceScene extends Phaser.Scene {
     this.cat.x = Phaser.Math.Clamp(this.cat.x + this.velocity.x * dt, margin, SPACE.worldSize - margin);
     this.cat.y = Phaser.Math.Clamp(this.cat.y + this.velocity.y * dt, margin, SPACE.worldSize - margin);
 
-    if (this.velocity.lengthSq() > 25) {
+    if (this.carry.rocket && this.velocity.lengthSq() > 25) {
+      // A rocket points where it goes, all the way round.
+      this.cat.setRotation(Math.atan2(this.velocity.y, this.velocity.x));
+    } else if (this.velocity.lengthSq() > 25) {
       // Facing the way it flies: the picture faces right, so a cat flying
       // left is flipped rather than turned upside down.
       const left = this.velocity.x < 0;
@@ -223,9 +243,16 @@ export class SpaceScene extends Phaser.Scene {
     this.trailIn -= delta;
     if (this.trailIn <= 0 && this.velocity.lengthSq() > 900) {
       this.trailIn = 45;
+      // Behind it: the cat's sparks, or the rocket's flame from its nozzle.
+      const back = this.carry.rocket ? 22 : 0;
+      const heading = this.velocity.clone().normalize();
       const spark = this.add
-        .image(this.cat.x - this.velocity.x * 0.05, this.cat.y - this.velocity.y * 0.05 + 3, 'spark')
-        .setTint(0x9fd8ff)
+        .image(
+          this.cat.x - heading.x * back - this.velocity.x * 0.05,
+          this.cat.y - heading.y * back - this.velocity.y * 0.05 + (this.carry.rocket ? 0 : 3),
+          'spark',
+        )
+        .setTint(this.carry.rocket ? 0xffa040 : 0x9fd8ff)
         .setBlendMode(Phaser.BlendModes.ADD)
         .setDepth(9);
       this.tweens.add({ targets: spark, alpha: 0, scale: 0.2, duration: 600, onComplete: () => spark.destroy() });
@@ -244,7 +271,7 @@ export class SpaceScene extends Phaser.Scene {
     this.tweens.add({ targets: [...this.words], alpha: 0, duration: 300 });
 
     const veil = this.add
-      .rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x02030a, 0.8)
+      .rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x02030a, 0.93)
       .setOrigin(0, 0)
       .setScrollFactor(0)
       .setDepth(100)
@@ -253,11 +280,17 @@ export class SpaceScene extends Phaser.Scene {
 
     // The row of worlds a little above the middle, the question under it.
     const y = GAME_HEIGHT * 0.4;
-    const stops: Array<{ name: PlanetName; label: string; x: number; scale: number; open: boolean }> = [
-      { name: 'earth', label: 'Earth', x: 0.13, scale: 0.42, open: false },
-      { name: 'moon', label: 'Moon', x: 0.38, scale: 0.9, open: true },
-      { name: 'mars', label: 'Mars', x: 0.62, scale: 0.8, open: false },
-      { name: 'saturn', label: 'Saturn', x: 0.86, scale: 0.6, open: false },
+    // The first time out, only the Moon can be picked. In Bob's rocket only
+    // Mars and Saturn, where the parts are, each with how many of its five
+    // are found; there are none on the Earth or the Moon.
+    const rocket = this.carry.rocket ?? false;
+    const found = (level: string): string =>
+      ` ${(this.carry.parts ?? []).filter((id) => id.startsWith(`${level}:`)).length}/${PARTS.perPlanet}`;
+    const stops: Array<{ name: PlanetName; label: string; x: number; scale: number; open: boolean; level: string }> = [
+      { name: 'earth', label: 'Earth', x: 0.13, scale: 0.42, open: false, level: '' },
+      { name: 'moon', label: 'Moon', x: 0.38, scale: 0.9, open: !rocket, level: 'Moon' },
+      { name: 'mars', label: rocket ? `Mars${found('Mars')}` : 'Mars', x: 0.62, scale: 0.8, open: rocket, level: 'Mars' },
+      { name: 'saturn', label: rocket ? `Saturn${found('Saturn')}` : 'Saturn', x: 0.86, scale: 0.6, open: rocket, level: 'Saturn' },
     ];
 
     const line = this.add.graphics().setScrollFactor(0).setDepth(101).setAlpha(0);
@@ -310,13 +343,13 @@ export class SpaceScene extends Phaser.Scene {
         .setDepth(101);
       this.tweens.add({ targets: ring, alpha: { from: 0.9, to: 0.2 }, duration: 900, yoyo: true, repeat: -1 });
       // A generous target: the planet and some room round it.
-      planet.setInteractive(
-        new Phaser.Geom.Circle(PLANET_SIZES.moon / 2, PLANET_SIZES.moon / 2, PLANET_SIZES.moon * 0.8),
-        Phaser.Geom.Circle.Contains,
-      );
+      const size = planet.width;
+      planet.setInteractive(new Phaser.Geom.Circle(size / 2, planet.height / 2, PLANET_SIZES.moon * 0.8 / stop.scale), Phaser.Geom.Circle.Contains);
       planet.input!.cursor = 'pointer';
-      planet.on('pointerdown', () => this.goToMoon());
+      planet.on('pointerdown', () => this.goTo(stop.level));
+      this.choices.push({ level: stop.level, ring });
     }
+    this.showChoice();
 
     const title = crispText(this, GAME_WIDTH / 2, GAME_HEIGHT * 0.84, 'Where should we go?', {
       fontFamily: 'monospace',
@@ -332,19 +365,38 @@ export class SpaceScene extends Phaser.Scene {
     // Asked once the worlds are there to choose from.
     this.tweens.add({ targets: title, alpha: 1, delay: 900, duration: 700 });
 
-    // On a keyboard, the only choice is a key away. Held keys from flying do
-    // not count: a fresh press, after the map has had a moment.
+    // On a keyboard: left and right move between the planets that can be
+    // picked, and any other key goes to the one the ring is bright on. Held
+    // keys from flying do not count: a fresh press, after a moment.
     this.time.delayedCall(700, () => {
       this.input.keyboard?.on('keydown', (event: KeyboardEvent) => {
-        if (!event.repeat) {
-          this.goToMoon();
+        if (event.repeat) {
+          return;
         }
+        if (['ArrowLeft', 'KeyA'].includes(event.code)) {
+          this.chosen = (this.chosen + this.choices.length - 1) % this.choices.length;
+          this.showChoice();
+          return;
+        }
+        if (['ArrowRight', 'KeyD'].includes(event.code)) {
+          this.chosen = (this.chosen + 1) % this.choices.length;
+          this.showChoice();
+          return;
+        }
+        this.goTo(this.choices[this.chosen].level);
       });
     });
   }
 
-  /** Off to the moon: fade to black and start its level, with the run as it was. */
-  private goToMoon(): void {
+  /** The keyboard's planet: its ring full, the others' rings faint. */
+  private showChoice(): void {
+    this.choices.forEach((choice, index) => {
+      choice.ring.setStrokeStyle(index === this.chosen ? 3 : 1, 0xffe9a8, index === this.chosen ? 1 : 0.4);
+    });
+  }
+
+  /** Off to a planet: fade to black and start its level, with the run as it was. */
+  private goTo(levelName: string): void {
     if (this.going) {
       return;
     }
@@ -361,7 +413,11 @@ export class SpaceScene extends Phaser.Scene {
       targets: black,
       alpha: 1,
       duration: 650,
-      onComplete: () => this.scene.start('Game', this.carry),
+      onComplete: () =>
+        this.scene.start('Game', {
+          ...this.carry,
+          levelIndex: Math.max(0, LEVELS.findIndex((level) => level.name === levelName)),
+        }),
     });
   }
 }

@@ -484,12 +484,26 @@ export const ROBOT = {
  * coming back says `busy` for `busyMs`, and nothing more. The cat has to
  * walk `rearm` away before he will talk again.
  */
+/**
+ * The parts Bob needs to destroy the robots: ten, five on Mars and five on
+ * Saturn, none on the Earth or the Moon. Found once and kept for the run.
+ */
+export const PARTS = { total: 10, perPlanet: 5 } as const;
+
 export const BOB = {
   reach: 14,
   rearm: 36,
   zoom: 2.4,
   zoomMs: 600,
-  lines: ['Hi, my name is Bob!', 'What a cute little kitty!'],
+  lines: [
+    'Hi, my name is Bob!',
+    'What a cute little kitty!',
+    'The robots have taken over the planets:\nthe Moon, Mars and Saturn.',
+    'I need 10 parts to destroy the robots.\nI built a rocket, but I do not know where Mars is.',
+    'Can you do it, kitty?',
+  ],
+  /** The button under the last line: the answer, and off in the rocket. */
+  lastButton: 'Yes! ▸',
   busy: 'Too busy!',
   busyMs: 1800,
 } as const;

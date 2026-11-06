@@ -36,6 +36,88 @@ export function generateSpaceTextures(scene: Phaser.Scene): void {
   generateRobot(scene);
   generateHatch(scene);
   generateHelmet(scene);
+  generatePart(scene);
+  generateRocket(scene);
+  bakeTexture(scene, 'mars-sky', GAME_WIDTH, GAME_HEIGHT, (g) => {
+    // Mars by day: a butterscotch haze, paler towards the ground.
+    fillVerticalGradient(g, GAME_WIDTH, GAME_HEIGHT, 0x8a4a3a, 0xe0a878);
+  });
+}
+
+/** A part for Bob's machine, px. */
+export const PART_SIZE = 14;
+
+/**
+ * One of the ten parts Bob needs: a brass cog with a bolt through it, lit
+ * from the top left, so it reads at a glance as a piece of machinery and
+ * not as anything else that is picked up.
+ */
+function generatePart(scene: Phaser.Scene): void {
+  const d = PART_SIZE;
+  const c = d / 2;
+  bakeTexture(scene, 'part', d, d, (g) => {
+    // Teeth.
+    g.fillStyle(0x9a6a1a, 1);
+    for (let i = 0; i < 8; i += 1) {
+      const a = (i / 8) * Math.PI * 2;
+      g.fillRect(Math.round(c + Math.cos(a) * 5.5) - 1, Math.round(c + Math.sin(a) * 5.5) - 1, 3, 3);
+    }
+    g.fillStyle(0xd8a838, 1);
+    g.fillCircle(c, c, 5);
+    g.fillStyle(0xf4d878, 1);
+    g.fillCircle(c - 1, c - 1, 3);
+    // The bolt through the middle.
+    g.fillStyle(0x6a737a, 1);
+    g.fillCircle(c, c, 2);
+    g.fillStyle(0xc8d0d6, 1);
+    g.fillRect(c - 1, c - 1, 1, 1);
+  });
+}
+
+/** Bob's rocket, px; it points right. */
+export const ROCKET_SIZE = { width: 44, height: 22 };
+
+/**
+ * Bob's rocket, pointing right: a white body with a red nose and fins, a
+ * round window with the cat in it -- helmet and all -- and the nozzle at
+ * the back. The flame is the scene's: sparks, while it flies.
+ */
+function generateRocket(scene: Phaser.Scene): void {
+  const { width, height } = ROCKET_SIZE;
+  const cy = height / 2;
+  bakeTexture(scene, 'rocket', width, height, (g) => {
+    // Fins, top and bottom, at the back.
+    g.fillStyle(0xc8283a, 1);
+    g.fillTriangle(6, cy - 4, 16, cy - 4, 6, 1);
+    g.fillTriangle(6, cy + 4, 16, cy + 4, 6, height - 1);
+    // The nozzle.
+    g.fillStyle(0x4a4e58, 1);
+    g.fillRect(2, cy - 4, 5, 8);
+    // The body.
+    g.fillStyle(0xe8ecf2, 1);
+    g.fillRoundedRect(6, cy - 6, 30, 12, 4);
+    g.fillStyle(0xb8bec8, 1);
+    g.fillRect(6, cy + 3, 30, 3);
+    // The nose.
+    g.fillStyle(0xc8283a, 1);
+    g.fillTriangle(34, cy - 6, 34, cy + 6, width - 1, cy);
+    // A stripe.
+    g.fillStyle(0x3a5aa8, 1);
+    g.fillRect(12, cy - 6, 2, 12);
+    // The window, and the cat in it: ginger, an ear, an eye.
+    g.fillStyle(0x6e7684, 1);
+    g.fillCircle(25, cy - 1, 5);
+    g.fillStyle(0x1a2434, 1);
+    g.fillCircle(25, cy - 1, 4);
+    g.fillStyle(0xe8873a, 1);
+    g.fillCircle(25, cy, 3);
+    g.fillTriangle(23, cy - 2, 25, cy - 2, 23, cy - 5);
+    g.fillTriangle(26, cy - 2, 28, cy - 2, 28, cy - 5);
+    g.fillStyle(0x3a8a3a, 1);
+    g.fillRect(26, cy - 1, 1, 1);
+    g.fillStyle(0xffffff, 0.6);
+    g.fillRect(22, cy - 4, 2, 1);
+  });
 }
 
 /** The space helmet's glass bubble, px across. */
