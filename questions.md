@@ -1959,3 +1959,8 @@ level (`h` on its floor) stays down there.
 Asked for: near the Death Star, the cat says "That's no moon". It is a
 speech bubble over the cat's head now, following it, instead of a line
 under the station.
+
+## A robot every fifteen seconds
+
+Asked for: a grey block lets a robot out every fifteen seconds, not every
+five, which made it too hard (`ROBOT.spawnEveryMs`).

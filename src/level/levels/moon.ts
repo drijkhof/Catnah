@@ -19,7 +19,7 @@ import type { LevelDefinition } from '../Level';
  * - **Robots** (`h`, the hedgehog's letter, on the moon) roll about and
  *   come for the cat once they see it, wanting to grab it.
  * - **Grey blocks** (`D`) are where they come from: one climbs out every
- *   five seconds while the cat is near. Hold down on or beside a block and
+ *   fifteen seconds while the cat is near. Hold down on or beside a block and
  *   it breaks, and nothing comes out of it again.
  */
 
