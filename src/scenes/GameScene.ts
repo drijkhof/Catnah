@@ -196,6 +196,8 @@ export class GameScene extends Phaser.Scene {
     words: CrispText;
     next: CrispText;
     hidden: Phaser.GameObjects.GameObject[];
+    /** What Bob says this time: his story, or his thanks. */
+    lines: readonly string[];
     /** The camera the bubble is drawn by: unzoomed, so the words stay crisp and in place. */
     camera: Phaser.Cameras.Scene2D.Camera;
   };
@@ -368,6 +370,17 @@ export class GameScene extends Phaser.Scene {
       [...(this.level.columnsAreClimbable ? climbZones : []), ...lianaZones],
       waterZones,
     );
+
+    // Back on the moon with every part: the rocket lands by the base, and
+    // the cat starts beside Bob's door rather than at the far end.
+    // (Read through a cast: `create` cleared it above, and TypeScript does
+    // not see `buildBases` setting it again.)
+    const bob = this.bob as GameScene['bob'];
+    if (bob && this.rocket && this.hasAllParts()) {
+      const x = bob.sprite.x - 80;
+      this.player.body.reset(x, bob.sprite.y);
+      this.respawnPoint = { x, y: bob.sprite.y };
+    }
 
     this.physics.add.collider(this.player, blocks);
     this.physics.add.collider(
@@ -649,6 +662,12 @@ export class GameScene extends Phaser.Scene {
     // The camels' backs are floors, before the cat decides what it is doing
     // this frame -- it has to see itself standing on one to jump from it.
     this.rideCamels(delta);
+
+    // A part shows faintly until the cat is near it: they are to be looked for.
+    for (const part of this.partSprites) {
+      const near = Phaser.Math.Distance.Between(part.x, part.y, this.player.x, this.player.y - 9) < BOB.partSeen;
+      part.setAlpha(near ? 1 : BOB.partFaint);
+    }
 
     if (this.talk) {
       // In a conversation the cat stands and listens: Next is all it does.
@@ -1057,12 +1076,6 @@ export class GameScene extends Phaser.Scene {
     this.blackout(0, 1, Math.max(EXIT.fadeMs, drawIn), () => {
       // The sand path's portal goes off into space, to the map; the level
       // after it is picked up from there.
-      // With all of Bob's parts, the robots can be stopped: that is the end
-      // of the game, the victory screen with the run's time and deaths.
-      if (this.parts.length >= PARTS.total) {
-        this.scene.start('Victory', { elapsedMs: this.elapsedMs, deaths: this.deaths, parts: this.parts.length });
-        return;
-      }
       if (this.level.next === 'space') {
         this.scene.start('Space', this.carry(this.levelIndex + 1));
         return;
@@ -2405,7 +2418,7 @@ export class GameScene extends Phaser.Scene {
       .setInteractive();
     next.on('pointerdown', () => this.nextLine());
     camera.ignore([bubble, words, next]);
-    this.talk = { line: -1, bubble, words, next, hidden, camera: overlay };
+    this.talk = { line: -1, bubble, words, next, hidden, camera: overlay, lines: this.hasAllParts() ? BOB.thanks : BOB.lines };
     this.nextLine();
   }
 
@@ -2417,13 +2430,14 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     talk.line += 1;
-    if (talk.line >= BOB.lines.length) {
+    if (talk.line >= talk.lines.length) {
       this.endTalk();
       return;
     }
     sound.play('beep');
-    talk.words.setText(BOB.lines[talk.line]);
-    talk.next.setText(talk.line === BOB.lines.length - 1 ? BOB.lastButton : 'Next ▸');
+    talk.words.setText(talk.lines[talk.line]);
+    const last = talk.line === talk.lines.length - 1;
+    talk.next.setText(last ? (this.hasAllParts() ? BOB.thanksButton : BOB.lastButton) : 'Next ▸');
     this.placeBubble();
   }
 
@@ -2443,7 +2457,8 @@ export class GameScene extends Phaser.Scene {
     const headX = (bob.sprite.x - view.x) * camera.zoom;
     const headY = (bob.sprite.y - 26 - view.y) * camera.zoom;
     const width = Math.max(talk.words.width, talk.next.width) + 16;
-    const height = 40;
+    // As tall as the words need: some of Bob's lines are two or three.
+    const height = talk.words.height + 26;
     const x = Phaser.Math.Clamp(headX - width / 2, 4, GAME_WIDTH - width - 4);
     const y = Math.max(4, headY - height - 8);
     talk.bubble.clear();
@@ -2452,8 +2467,8 @@ export class GameScene extends Phaser.Scene {
     talk.bubble.fillTriangle(headX - 5, y + height, headX + 5, y + height, headX, y + height + 7);
     talk.bubble.lineStyle(1, 0x9aa4b2, 1);
     talk.bubble.strokeRoundedRect(x, y, width, height, 6);
-    talk.words.setPosition(x + width / 2, y + 13);
-    talk.next.setPosition(x + width / 2, y + 29);
+    talk.words.setPosition(x + width / 2, y + 6 + talk.words.height / 2);
+    talk.next.setPosition(x + width / 2, y + height - 11);
   }
 
   /** The talk is over: the cat said yes, and Bob's rocket takes it. */
@@ -2462,10 +2477,44 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     this.bob.met = true;
-    // The end of Bob's story is the rocket: the cat said yes, and is off.
-    // The bubble and the zoom stay up under the fade; the next scene starts
-    // clean.
+    // With every part brought back, that is the end of the game: Bob can
+    // destroy the robots.
+    if (this.hasAllParts()) {
+      this.giveBobTheParts();
+      return;
+    }
+    // Otherwise the end of Bob's story is the rocket: the cat said yes, and
+    // is off. The bubble and the zoom stay up under the fade; the next scene
+    // starts clean.
     this.launchRocket();
+  }
+
+  /** Whether the cat has found every one of Bob's parts. */
+  private hasAllParts(): boolean {
+    return this.parts.length >= PARTS.total;
+  }
+
+  /** The parts are Bob's: fade to the victory screen, the run won. */
+  private giveBobTheParts(): void {
+    if (this.leaving) {
+      return;
+    }
+    this.leaving = true;
+    sound.play('checkpoint');
+    const black = this.add
+      .rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x000000)
+      .setOrigin(0, 0)
+      .setScrollFactor(0)
+      .setDepth(3000)
+      .setAlpha(0);
+    this.talk?.camera.ignore(black);
+    this.tweens.add({
+      targets: black,
+      alpha: 1,
+      duration: 900,
+      onComplete: () =>
+        this.scene.start('Victory', { elapsedMs: this.elapsedMs, deaths: this.deaths, parts: this.parts.length }),
+    });
   }
 
   /**

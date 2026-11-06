@@ -49,7 +49,12 @@ export function createBackdrop(
     case 'moon':
     case 'mars':
     case 'saturn':
-      new MoonBackdrop(scene, theme, levelWidth, groundLine);
+    case 'jupiter':
+    case 'venus':
+    case 'uranus':
+    case 'neptune':
+    case 'pluto':
+      new MoonBackdrop(scene, theme, level, levelWidth, groundLine);
       break;
     case 'path':
       // The forest's sky, sun, distant trees and bushes, out in the open:

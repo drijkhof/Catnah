@@ -47,6 +47,9 @@ export class SpaceScene extends Phaser.Scene {
   /** On the map: the planets that can be picked, and which one the keyboard is on. */
   private choices: Array<{ level: string; ring: Phaser.GameObjects.Arc }> = [];
   private chosen = 0;
+  /** The battle station, and the line that comes up when the cat is near it. */
+  private station!: Phaser.GameObjects.Image;
+  private stationWords!: CrispText;
   private starLayers: Array<{ sprite: Phaser.GameObjects.TileSprite; factor: number }> = [];
   private flownMs = 0;
   private trailIn = 0;
@@ -107,7 +110,7 @@ export class SpaceScene extends Phaser.Scene {
     }
 
     // Planets, scattered, none too near the Earth.
-    const kinds: PlanetName[] = ['mars', 'saturn', 'jupiter', 'ice', 'violet', 'moon'];
+    const kinds: PlanetName[] = ['mars', 'saturn', 'jupiter', 'venus', 'uranus', 'neptune', 'pluto', 'ice', 'violet', 'moon'];
     let placed = 0;
     while (placed < 30) {
       const x = random() * size;
@@ -122,6 +125,33 @@ export class SpaceScene extends Phaser.Scene {
         .setDepth(-50);
       placed += 1;
     }
+
+    // The battle station, out there between the Earth and the rest: seen,
+    // never entered. Come near and a line comes up under it.
+    this.station = this.add
+      .image(this.earth.x + 600, this.earth.y - 470, 'battle-station')
+      .setDepth(-38);
+    this.stationWords = crispText(this, this.station.x, this.station.y + 92, "That's no moon...", {
+      fontFamily: 'monospace',
+      fontSize: '12px',
+      color: '#ffffff',
+      stroke: '#02030a',
+      strokeThickness: 3,
+    })
+      .setOrigin(0.5)
+      .setAlpha(0);
+    this.words.push(this.stationWords);
+
+    // The ISS, going round the Earth -- only ever seen, never landed on.
+    const iss = this.add.image(0, 0, 'planet-iss').setScale(0.7).setDepth(-39);
+    const orbit = { angle: -0.6 };
+    const radius = PLANET_SIZES.earth * 1.3 + 30;
+    const placeIss = (): void => {
+      iss.setPosition(this.earth.x + Math.cos(orbit.angle) * radius, this.earth.y + Math.sin(orbit.angle) * radius * 0.55);
+      iss.setRotation(orbit.angle * 0.2);
+    };
+    placeIss();
+    this.tweens.add({ targets: orbit, angle: orbit.angle + Math.PI * 2, duration: 40000, repeat: -1, onUpdate: placeIss });
 
     // The Earth, big, with the Moon beside it.
     this.add.image(this.earth.x, this.earth.y, 'planet-earth').setScale(2.6).setDepth(-40);
@@ -156,7 +186,11 @@ export class SpaceScene extends Phaser.Scene {
       .setDepth(3000);
     this.tweens.add({ targets: black, alpha: 0, duration: 900, onComplete: () => black.destroy() });
 
-    const hint = crispText(this, GAME_WIDTH / 2, GAME_HEIGHT * 0.14, this.carry.rocket ? 'Find the parts!' : 'Fly away from Earth!', {
+    const hint = crispText(this, GAME_WIDTH / 2, GAME_HEIGHT * 0.14, !this.carry.rocket
+        ? 'Fly away from Earth!'
+        : (this.carry.parts ?? []).length >= PARTS.total
+          ? 'Take the parts to Bob!'
+          : 'Find the parts!', {
       fontFamily: 'monospace',
       fontSize: `${Math.round(GAME_HEIGHT * 0.07)}px`,
       color: '#bfe3ff',
@@ -184,6 +218,10 @@ export class SpaceScene extends Phaser.Scene {
     }
 
     this.fly(delta);
+
+    // Near the battle station, its line fades up; away from it, out.
+    const near = Phaser.Math.Distance.Between(this.cat.x, this.cat.y, this.station.x, this.station.y) < 220;
+    this.stationWords.setAlpha(Phaser.Math.Linear(this.stationWords.alpha, near ? 1 : 0, 0.08));
 
     this.flownMs += delta;
     const away = Phaser.Math.Distance.Between(this.cat.x, this.cat.y, this.start.x, this.start.y);
@@ -278,42 +316,55 @@ export class SpaceScene extends Phaser.Scene {
       .setAlpha(0);
     this.tweens.add({ targets: veil, alpha: 1, duration: 700 });
 
-    // The row of worlds a little above the middle, the question under it.
-    const y = GAME_HEIGHT * 0.4;
-    // The first time out, only the Moon can be picked. In Bob's rocket only
-    // Mars and Saturn, where the parts are, each with how many of its five
-    // are found; there are none on the Earth or the Moon.
+    // The worlds in two rows, in their order out from the sun, the question
+    // under them. The first time out only the Moon can be picked. In Bob's
+    // rocket every world the robots hold is open but the Moon -- the parts
+    // are on Mars and Saturn, each shown with how many of its five are
+    // found -- until all ten are found: then the Moon opens again, to take
+    // them to Bob. The Earth never.
     const rocket = this.carry.rocket ?? false;
-    const found = (level: string): string =>
-      ` ${(this.carry.parts ?? []).filter((id) => id.startsWith(`${level}:`)).length}/${PARTS.perPlanet}`;
-    const stops: Array<{ name: PlanetName; label: string; x: number; scale: number; open: boolean; level: string }> = [
-      { name: 'earth', label: 'Earth', x: 0.13, scale: 0.42, open: false, level: '' },
-      { name: 'moon', label: 'Moon', x: 0.38, scale: 0.9, open: !rocket, level: 'Moon' },
-      { name: 'mars', label: rocket ? `Mars${found('Mars')}` : 'Mars', x: 0.62, scale: 0.8, open: rocket, level: 'Mars' },
-      { name: 'saturn', label: rocket ? `Saturn${found('Saturn')}` : 'Saturn', x: 0.86, scale: 0.6, open: rocket, level: 'Saturn' },
+    const parts = (this.carry.parts ?? []).length;
+    const complete = parts >= PARTS.total;
+    // A world's parts: how many of its own are found, out of how many it
+    // has -- counted off its map, where each is a `K`.
+    const found = (level: string): string => {
+      const definition = LEVELS.find((candidate) => candidate.name === level);
+      const total = definition ? definition.rows.join('').split('K').length - 1 : 0;
+      const got = (this.carry.parts ?? []).filter((id) => id.startsWith(`${level}:`)).length;
+      return `\n${got}/${total}`;
+    };
+    const label = (level: string): string => (rocket ? `${level}${found(level)}` : level);
+    const top = GAME_HEIGHT * 0.27;
+    const bottom = GAME_HEIGHT * 0.56;
+    const stops: Array<{ name: PlanetName; label: string; x: number; y: number; scale: number; open: boolean; level: string }> = [
+      { name: 'venus', label: label('Venus'), x: 0.12, y: top, scale: 0.55, open: rocket, level: 'Venus' },
+      { name: 'earth', label: 'Earth', x: 0.31, y: top, scale: 0.28, open: false, level: '' },
+      { name: 'moon', label: 'Moon', x: 0.5, y: top, scale: 0.6, open: !rocket || complete, level: 'Moon' },
+      { name: 'mars', label: label('Mars'), x: 0.69, y: top, scale: 0.65, open: rocket, level: 'Mars' },
+      { name: 'jupiter', label: label('Jupiter'), x: 0.88, y: top, scale: 0.4, open: rocket, level: 'Jupiter' },
+      { name: 'saturn', label: label('Saturn'), x: 0.18, y: bottom, scale: 0.42, open: rocket, level: 'Saturn' },
+      { name: 'uranus', label: label('Uranus'), x: 0.42, y: bottom, scale: 0.6, open: rocket, level: 'Uranus' },
+      { name: 'neptune', label: label('Neptune'), x: 0.64, y: bottom, scale: 0.6, open: rocket, level: 'Neptune' },
+      { name: 'pluto', label: label('Pluto'), x: 0.85, y: bottom, scale: 0.9, open: rocket, level: 'Pluto' },
     ];
+    // With all the parts, the Moon is where the keyboard starts.
+    const firstChoice = complete ? 'Moon' : '';
 
-    const line = this.add.graphics().setScrollFactor(0).setDepth(101).setAlpha(0);
-    line.fillStyle(0x8fa8d8, 0.6);
-    for (let x = GAME_WIDTH * 0.13; x < GAME_WIDTH * 0.86; x += 8) {
-      line.fillRect(x, y, 4, 1);
-    }
-    this.tweens.add({ targets: line, alpha: 1, duration: 700 });
-
-    const labelSize = Math.round(GAME_HEIGHT * 0.055);
+    const labelSize = Math.round(GAME_HEIGHT * 0.042);
     for (const stop of stops) {
       const planet = this.add
-        .image(GAME_WIDTH * stop.x, y, `planet-${stop.name}`)
+        .image(GAME_WIDTH * stop.x, stop.y, `planet-${stop.name}`)
         .setScale(stop.scale)
         .setScrollFactor(0)
         .setDepth(102)
         .setAlpha(0);
-      const shown = stop.open || stop.name === 'earth' ? 1 : 0.45;
+      const shown = stop.open ? 1 : 0.4;
       this.tweens.add({ targets: planet, alpha: shown, duration: 700 });
 
-      const label = crispText(this, GAME_WIDTH * stop.x, y + PLANET_SIZES.moon * 0.75, stop.label, {
+      const label = crispText(this, GAME_WIDTH * stop.x, stop.y + (stop.label.includes('\n') ? 34 : 30), stop.label, {
         fontFamily: 'monospace',
         fontSize: `${labelSize}px`,
+        align: 'center',
         color: stop.open ? '#ffe9a8' : '#8a94a8',
         stroke: '#02030a',
         strokeThickness: 3,
@@ -337,21 +388,22 @@ export class SpaceScene extends Phaser.Scene {
         ease: 'Sine.easeInOut',
       });
       const ring = this.add
-        .circle(GAME_WIDTH * stop.x, y, PLANET_SIZES.moon * stop.scale * 0.72)
+        .circle(GAME_WIDTH * stop.x, stop.y, Math.min(26, PLANET_SIZES[stop.name] * stop.scale * 0.62))
         .setStrokeStyle(2, 0xffe9a8, 0.8)
         .setScrollFactor(0)
         .setDepth(101);
       this.tweens.add({ targets: ring, alpha: { from: 0.9, to: 0.2 }, duration: 900, yoyo: true, repeat: -1 });
       // A generous target: the planet and some room round it.
       const size = planet.width;
-      planet.setInteractive(new Phaser.Geom.Circle(size / 2, planet.height / 2, PLANET_SIZES.moon * 0.8 / stop.scale), Phaser.Geom.Circle.Contains);
+      planet.setInteractive(new Phaser.Geom.Circle(size / 2, planet.height / 2, 28 / stop.scale), Phaser.Geom.Circle.Contains);
       planet.input!.cursor = 'pointer';
       planet.on('pointerdown', () => this.goTo(stop.level));
       this.choices.push({ level: stop.level, ring });
     }
+    this.chosen = Math.max(0, this.choices.findIndex((choice) => choice.level === firstChoice));
     this.showChoice();
 
-    const title = crispText(this, GAME_WIDTH / 2, GAME_HEIGHT * 0.84, 'Where should we go?', {
+    const title = crispText(this, GAME_WIDTH / 2, GAME_HEIGHT * 0.86, 'Where should we go?', {
       fontFamily: 'monospace',
       fontSize: `${Math.round(GAME_HEIGHT * 0.075)}px`,
       color: '#ffe9a8',

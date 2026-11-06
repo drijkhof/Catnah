@@ -35,9 +35,9 @@ its platforms must attach to a column. Everything else is derived.
 | `W` | water with a spare heart floating in it — use this instead of `+` inside a pool, or it punches a hole in the water |
 | `h` | hedgehog, `r` rat — walkers, only ever on plain `#` floor. On the moon `h` is a **robot**. On the beach `h` is a **crab**: the letters are the same in every level, and the place decides what walks |
 | `M` | the hull of a **moon base**: solid, every cluster of touching `M` drawn as one base by `art/base.ts`, the inside and the doors included. Write a roof over side walls that stop two rows short of the ground: those gaps are the doors. `=` inside is drawn as a lab bench |
-| `K` | one of Bob's ten **parts**: a cog to pick up, kept for the run by `<level name>:<x>,<y>` so it never comes back. Five on Mars, five on Saturn |
+| `K` | one of Bob's hundred **parts**: a cog to pick up, faint until the cat is near (`BOB.partSeen`), kept for the run by `<level name>:<x>,<y>` so it never comes back. Fifteen each on Mars and Saturn, fourteen on each other robots' world; the map counts each world's off its rows |
 | `F` | an American flag planted in the dust. Scenery only, at the cell's floor |
-| `D` | a **grey block**, only on the moon, Mars and Saturn (`ROBOT_THEMES`; anywhere else the level refuses to load): solid, a robot climbs out of its top every `ROBOT.spawnEveryMs` while the cat is near, and holding down against it breaks it. Deliberately *not* in `FULL_CELL`, so no neighbour switches a face off against it and nothing is left with a hole when it goes |
+| `D` | a **grey block**, only on the robots' worlds (`ROBOT_THEMES`; anywhere else the level refuses to load): solid, a robot climbs out of its top every `ROBOT.spawnEveryMs` while the cat is near, and holding down against it breaks it. Deliberately *not* in `FULL_CELL`, so no neighbour switches a face off against it and nothing is left with a hole when it goes |
 | `j` | jellyfish — a mine washed up on the sand: lies on its cell's floor, pulsing, and kills from any side; needs something solid under it like a cactus does |
 | `k` | camel — ambles on plain `#` floor, harmless: the cat jumps on its back and rides |
 | `u` | a mound of sand with a worm in it, on plain `#` floor. The worm shows itself only for a cat: it comes up to look at one that comes near, then hunts it — travels under the sand along this row, mound and all, as far as the sand goes (open cells on plain `#` either side; a rock, wall, cactus or drop ends the run — `Mound.from`/`to`), and lunges out at the cat. The part that is out kills. A `u` in a one-tile pocket is a worm that can only peek and lunge where it is |
@@ -266,10 +266,12 @@ backdrop keeps bushes clear of the portal; see `world/index.ts`.
 
 The run carries `parts` (the ids of the parts found) and `rocket` (whether
 Bob has sent the cat off) through every level, through `SpaceScene` and
-through a hot reload. With `rocket`, the map opens Mars and Saturn instead
-of the Moon. A level with `next: 'space'` goes to the map -- unless all
-`PARTS.total` are found, and then to the victory screen. The moon has no
-`E`: Bob's talk ends in `launchRocket`.
+through a hot reload. With `rocket`, the map opens the robots' worlds
+instead of the Moon, and the Moon again once all `PARTS.total` are found. A
+level with `next: 'space'` goes to the map. The moon has no `E`: Bob's talk
+ends in `launchRocket` -- or, with every part, the cat lands by the base
+(`create` puts it beside Bob) and his thanks end in the victory screen.
+The worlds after the moon in `LEVELS` are only ever reached from the map.
 
 ## No air
 

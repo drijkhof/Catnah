@@ -36,8 +36,12 @@ off the display list with only their bodies, costing nothing per frame.
   lit windows (a church tower in the far one), rooted on the ground line,
   and street lamps wherever the pavement is clear between houses. The
   rain is `objects/Rain.ts`, built by the scene: weather, in screen space.
-- `MoonBackdrop` — black sky, stars in three layers, the Earth, Saturn and
-  Mars sliding a little, grey hills rooted on the ground line.
+- `MoonBackdrop` — the sky of every robots' world (`SKIES`): a sky picture,
+  stars in three layers where it is night, the *other* planets hanging in
+  it (a world never has itself in its own sky), a range of landmarks on the
+  horizon (ice spires, mesas, cloud towers, volcanoes; pale textures tinted
+  per world), two ranks of tinted hills rooted on the ground line, and
+  rocks or crystals scattered on the floor.
 - The sand path uses `Backdrop` with no canopy, fewer bushes, and the floor
   around the big portal kept clear of them.
 

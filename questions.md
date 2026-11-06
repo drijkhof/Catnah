@@ -1918,3 +1918,31 @@ find, some harder.
 
 > **Still open:** whether to fly back to Bob with the parts and see him
 > destroy the robots, rather than winning on the spot.
+
+## Winning at Bob's, a hundred parts, more worlds, and the Death Star
+
+Asked for, in turn: you win when you have given all the parts to Bob; more
+planets -- Jupiter, Venus, Uranus, Neptune, Pluto and the ISS -- and Bob
+talks about them; the ISS cannot be landed on but is seen in space; lots of
+obstacles on the planets; the parts harder to find; Mars and the others
+looking good too; no planet with itself in its own background; a hundred
+parts needed; and the Death Star, not enterable, with a small readable
+"That's no moon" when you come near.
+
+- **The win**: with all hundred parts the Moon opens on the map again, the
+  cat lands by the base, and Bob's thanks end in the victory screen.
+- **A hundred parts: 15 on Mars and Saturn, 14 on each of the other five.**
+  The earlier "five each on Mars and Saturn" is gone with the hundred.
+- **Harder to find**: every part is faint until the cat is within about
+  three tiles, and they are hidden in cages of grey blocks, down holes,
+  among thorns, high up, beside towers, under slabs.
+- **The new worlds are each about 250 tiles**, as long as they need to be
+  to hold their parts among the obstacles. They were laid out by a script
+  from a set of obstacles in a different order per world, then frozen.
+- **Each world shows the others in its sky**: Saturn sees Jupiter and
+  Uranus, Uranus sees Saturn and Neptune, and so on.
+- **The Death Star** is a generic grey battle station with a trench and a
+  dish, between the Earth and the rest, so most flights pass it.
+
+> **Still open:** a hundred is a lot to find; the map shows each world's
+> count so a missing one can be gone back for.

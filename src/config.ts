@@ -485,10 +485,12 @@ export const ROBOT = {
  * walk `rearm` away before he will talk again.
  */
 /**
- * The parts Bob needs to destroy the robots: ten, five on Mars and five on
- * Saturn, none on the Earth or the Moon. Found once and kept for the run.
+ * The parts Bob needs to destroy the robots: a hundred, spread over the
+ * seven worlds the robots hold -- fifteen each on Mars and Saturn, fourteen
+ * each on Jupiter, Venus, Uranus, Neptune and Pluto -- and none on the Earth
+ * or the Moon. Found once and kept for the run.
  */
-export const PARTS = { total: 10, perPlanet: 5 } as const;
+export const PARTS = { total: 100 } as const;
 
 export const BOB = {
   reach: 14,
@@ -498,12 +500,19 @@ export const BOB = {
   lines: [
     'Hi, my name is Bob!',
     'What a cute little kitty!',
-    'The robots have taken over the planets:\nthe Moon, Mars and Saturn.',
-    'I need 10 parts to destroy the robots.\nI built a rocket, but I do not know where Mars is.',
+    'The robots have taken over the planets:\nthe Moon, Mars, Saturn, Jupiter, Venus,\nUranus, Neptune and Pluto!',
+    'I need 100 parts to destroy the robots.\nI built a rocket, but I do not know where Mars is.',
     'Can you do it, kitty?',
   ],
   /** The button under the last line: the answer, and off in the rocket. */
   lastButton: 'Yes! ▸',
+  /** What he says when the cat comes back with every part. */
+  thanks: ['You found all 100 parts!', 'Now I can destroy the robots!', 'Thank you, cute little kitty!'],
+  /** The button under his last thanks: the end of the game. */
+  thanksButton: 'Bye ▸',
+  /** How near the cat has to be before a part shows clearly, px; further off it is faint. */
+  partSeen: 56,
+  partFaint: 0.2,
   busy: 'Too busy!',
   busyMs: 1800,
 } as const;

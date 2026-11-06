@@ -984,7 +984,7 @@ function variantOf(base: string, column: number, row: number): string {
 }
 
 /** The places the robots have taken over: their walker is a robot, and `D` is allowed. */
-const ROBOT_THEMES: string[] = ['moon', 'mars', 'saturn'];
+const ROBOT_THEMES: string[] = ['moon', 'mars', 'saturn', 'jupiter', 'venus', 'uranus', 'neptune', 'pluto'];
 
 /** Solids that fill their whole cell, as opposed to a platform's thin bar. */
 const FULL_CELL = new Set(['#', 'B', 'R', 'G', 'Q', '_', 'M']);

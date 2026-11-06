@@ -11,6 +11,11 @@ import { PATH } from './path';
 import { MOON } from './moon';
 import { MARS } from './mars';
 import { SATURN } from './saturn';
+import { JUPITER } from './jupiter';
+import { VENUS } from './venus';
+import { URANUS } from './uranus';
+import { NEPTUNE } from './neptune';
+import { PLUTO } from './pluto';
 
 /**
  * The levels, in the order they are played.
@@ -26,7 +31,9 @@ import { SATURN } from './saturn';
  taken the planets and sends it off in his rocket for the ten parts he
  needs: back on the map, Mars and Saturn are open, five parts on each, and
  each one's portal goes back to the map. Leaving a planet with all ten is
- the end of the game. Mars and Saturn are only reached from the map; their
+ the end of the game. Mars and Saturn, and the other worlds the robots hold -- Jupiter, Venus,
+ Uranus, Neptune and Pluto, with no parts on them -- are only reached from the
+ map; their
  place in this list is only so there is one.
  */
-export const LEVELS: LevelDefinition[] = [CITY, FOREST, CANOPY, SWAMP, CAVE, VOLCANO, DESERT, BEACH, PATH, MOON, MARS, SATURN];
+export const LEVELS: LevelDefinition[] = [CITY, FOREST, CANOPY, SWAMP, CAVE, VOLCANO, DESERT, BEACH, PATH, MOON, MARS, SATURN, JUPITER, VENUS, URANUS, NEPTUNE, PLUTO];

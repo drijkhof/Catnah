@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../config';
 import { MOON_HILLS_SIZE, PLANET_SIZES, STARFIELD_SIZE, createRandom, type PlanetName } from '../art';
+import { TILE } from '../config';
+import type { ParsedLevel } from '../level/Level';
 
 /** What the sky of one of the robots' worlds looks like. */
 interface Sky {
@@ -14,9 +16,19 @@ interface Sky {
   hills: number;
   /** An American flag on the near hills. Only on the moon. */
   flag: boolean;
+  /**
+   * The world's landmarks on the horizon, behind the hills: what they are
+   * (a texture), their tint, and how far apart. A key ending in `-` is one
+   * of two variants, `a` or `b`.
+   */
+  range?: { key: string; tint: number; spacing: number; scale: number };
+  /** Little things lying on the ground -- rocks, or crystals of ice -- and their tint. */
+  decor?: { key: string; tint: number };
 }
 
-const SKIES: Record<'moon' | 'mars' | 'saturn', Sky> = {
+export type SpaceTheme = 'moon' | 'mars' | 'saturn' | 'jupiter' | 'venus' | 'uranus' | 'neptune' | 'pluto';
+
+const SKIES: Record<SpaceTheme, Sky> = {
   moon: {
     sky: 'space-sky',
     stars: true,
@@ -27,6 +39,7 @@ const SKIES: Record<'moon' | 'mars' | 'saturn', Sky> = {
     ],
     hills: 0xffffff,
     flag: true,
+    decor: { key: 'ground-rock', tint: 0xb8b8bc },
   },
   // A butterscotch day; two little grey moons, Phobos and Deimos.
   mars: {
@@ -38,17 +51,81 @@ const SKIES: Record<'moon' | 'mars' | 'saturn', Sky> = {
     ],
     hills: 0xd07a52,
     flag: false,
+    range: { key: 'mesa', tint: 0xb8603a, spacing: 300, scale: 1 },
+    decor: { key: 'ground-rock', tint: 0xa04a2a },
   },
-  // Out on the rings: Saturn itself, huge, filling the sky.
+  // Out on the rings, looking away from Saturn: Jupiter and Uranus.
   saturn: {
     sky: 'space-sky',
     stars: true,
     planets: [
-      { name: 'saturn', x: 0.55, y: 0.22, scale: 2.4, factor: 0.03 },
-      { name: 'ice', x: 0.12, y: 0.12, scale: 0.4, factor: 0.05 },
+      { name: 'jupiter', x: 0.28, y: 0.2, scale: 0.9, factor: 0.03 },
+      { name: 'uranus', x: 0.78, y: 0.14, scale: 0.6, factor: 0.05 },
     ],
     hills: 0xa8c8e8,
     flag: false,
+    range: { key: 'spires-', tint: 0xb8d4f0, spacing: 150, scale: 1 },
+    decor: { key: 'crystal', tint: 0xcfeaff },
+  },
+  // Inside the cloud bands, with Io and Europa going by.
+  jupiter: {
+    sky: 'jupiter-sky',
+    stars: false,
+    planets: [
+      { name: 'moon', x: 0.75, y: 0.14, scale: 0.3, factor: 0.04 },
+      { name: 'ice', x: 0.3, y: 0.1, scale: 0.35, factor: 0.03 },
+    ],
+    hills: 0xd8b088,
+    flag: false,
+    range: { key: 'cloud-tower', tint: 0xf0d8b0, spacing: 170, scale: 1.1 },
+    decor: { key: 'ground-rock', tint: 0xd8b888 },
+  },
+  // A yellow haze, and the sun a blur in it.
+  venus: {
+    sky: 'venus-sky',
+    stars: false,
+    planets: [],
+    hills: 0xc87a3a,
+    flag: false,
+    range: { key: 'mountain-far-', tint: 0xffb070, spacing: 260, scale: 0.7 },
+    decor: { key: 'ground-rock', tint: 0x8a4418 },
+  },
+  uranus: {
+    sky: 'space-sky',
+    stars: true,
+    planets: [
+      { name: 'saturn', x: 0.32, y: 0.2, scale: 1, factor: 0.03 },
+      { name: 'neptune', x: 0.82, y: 0.13, scale: 0.6, factor: 0.05 },
+    ],
+    hills: 0xa8e0e8,
+    flag: false,
+    range: { key: 'spires-', tint: 0xa8eef4, spacing: 160, scale: 1 },
+    decor: { key: 'crystal', tint: 0xd0fafc },
+  },
+  neptune: {
+    sky: 'space-sky',
+    stars: true,
+    planets: [
+      { name: 'uranus', x: 0.3, y: 0.2, scale: 0.9, factor: 0.03 },
+      { name: 'pluto', x: 0.82, y: 0.12, scale: 0.6, factor: 0.05 },
+    ],
+    hills: 0x7a98e0,
+    flag: false,
+    range: { key: 'spires-', tint: 0x6a8ae8, spacing: 140, scale: 1.1 },
+    decor: { key: 'crystal', tint: 0xa8c0ff },
+  },
+  // So far out that the sun is only a bright star.
+  pluto: {
+    sky: 'space-sky',
+    stars: true,
+    planets: [
+      { name: 'neptune', x: 0.65, y: 0.18, scale: 0.7, factor: 0.03 },
+      { name: 'moon', x: 0.25, y: 0.12, scale: 0.35, factor: 0.05 },
+    ],
+    hills: 0xd8c4a8,
+    flag: false,
+    range: { key: 'spires-', tint: 0xe8dcc8, spacing: 190, scale: 0.9 },
+    decor: { key: 'ground-rock', tint: 0xc8b090 },
   },
 };
 
@@ -61,7 +138,7 @@ const SKIES: Record<'moon' | 'mars' | 'saturn', Sky> = {
  * on the near hills.
  */
 export class MoonBackdrop {
-  constructor(scene: Phaser.Scene, theme: 'moon' | 'mars' | 'saturn', levelWidth: number, groundLine: number) {
+  constructor(scene: Phaser.Scene, theme: SpaceTheme, level: ParsedLevel, levelWidth: number, groundLine: number) {
     const look = SKIES[theme];
     scene.add.image(0, 0, look.sky).setOrigin(0, 0).setScrollFactor(0).setDepth(-100);
 
@@ -101,6 +178,33 @@ export class MoonBackdrop {
     }
 
     const random = createRandom(7707);
+
+    // The landmarks: behind the hills, rooted on the ground line, sliding
+    // slower than them. Mars's great volcano stands once, far off.
+    if (look.range) {
+      const { key, tint, spacing, scale } = look.range;
+      const factor = 0.12;
+      for (let x = -spacing; x < levelWidth * factor + GAME_WIDTH + spacing; x += spacing) {
+        const name = key.endsWith('-') ? `${key}${random() < 0.5 ? 'a' : 'b'}` : key;
+        scene.add
+          .image(x + (random() - 0.5) * spacing * 0.5, groundLine + 18, name)
+          .setOrigin(0.5, 1)
+          .setScale(scale * (0.75 + random() * 0.4))
+          .setFlipX(random() < 0.5)
+          .setTint(tint)
+          .setScrollFactor(factor, 1)
+          .setDepth(-88);
+      }
+    }
+    if (theme === 'mars') {
+      scene.add
+        .image(GAME_WIDTH * 0.7, groundLine + 16, 'shield')
+        .setOrigin(0.5, 1)
+        .setTint(0x9a4a2e)
+        .setScrollFactor(0.06, 1)
+        .setDepth(-89);
+    }
+
     for (const [rank, factor, depth, sink] of [
       ['far', 0.2, -80, 14],
       ['near', 0.4, -70, 8],
@@ -113,6 +217,28 @@ export class MoonBackdrop {
           .setScrollFactor(factor, 1)
           .setDepth(depth)
           .setTint(look.hills);
+      }
+    }
+
+    // Things lying on the ground, here and there, on top of the floor.
+    if (look.decor) {
+      const scatter = createRandom(9907);
+      const open = new Set(level.solids.map((solid) => `${solid.x / TILE},${solid.y / TILE}`));
+      for (const solid of level.solids) {
+        if (solid.isBranch || solid.y !== groundLine || open.has(`${solid.x / TILE},${solid.y / TILE - 1}`)) {
+          continue;
+        }
+        if (scatter() > 0.18) {
+          continue;
+        }
+        const crystal = look.decor.key === 'crystal';
+        scene.add
+          .image(solid.x + 2 + scatter() * (TILE - 4), solid.y + (crystal ? 3 : 2), look.decor.key)
+          .setOrigin(0.5, 1)
+          .setScale(crystal ? 0.55 + scatter() * 0.3 : 0.7 + scatter() * 0.5)
+          .setFlipX(scatter() < 0.5)
+          .setTint(look.decor.tint)
+          .setDepth(-0.45);
       }
     }
 

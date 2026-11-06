@@ -15,6 +15,11 @@ export const PLANET_SIZES = {
   jupiter: 120,
   ice: 48,
   violet: 56,
+  venus: 66,
+  uranus: 76,
+  neptune: 74,
+  pluto: 40,
+  iss: 60,
 } as const;
 
 export type PlanetName = keyof typeof PLANET_SIZES;
@@ -38,9 +43,26 @@ export function generateSpaceTextures(scene: Phaser.Scene): void {
   generateHelmet(scene);
   generatePart(scene);
   generateRocket(scene);
+  generateWorldScenery(scene);
+  generateBattleStation(scene);
   bakeTexture(scene, 'mars-sky', GAME_WIDTH, GAME_HEIGHT, (g) => {
     // Mars by day: a butterscotch haze, paler towards the ground.
     fillVerticalGradient(g, GAME_WIDTH, GAME_HEIGHT, 0x8a4a3a, 0xe0a878);
+  });
+  bakeTexture(scene, 'venus-sky', GAME_WIDTH, GAME_HEIGHT, (g) => {
+    // Under Venus's cloud: thick orange-yellow haze, darker above.
+    fillVerticalGradient(g, GAME_WIDTH, GAME_HEIGHT, 0x8a5a1a, 0xf0c060);
+  });
+  bakeTexture(scene, 'jupiter-sky', GAME_WIDTH, GAME_HEIGHT, (g) => {
+    // In Jupiter's clouds: bands of cream and brown, streaming past.
+    fillVerticalGradient(g, GAME_WIDTH, GAME_HEIGHT, 0x6a4a32, 0xe8c8a0);
+    const bands = [0.15, 0.32, 0.5, 0.66];
+    for (const at of bands) {
+      g.fillStyle(0xb8865a, 0.35);
+      g.fillRect(0, Math.round(GAME_HEIGHT * at), GAME_WIDTH, 8);
+      g.fillStyle(0xf4e4c8, 0.25);
+      g.fillRect(0, Math.round(GAME_HEIGHT * at) + 8, GAME_WIDTH, 4);
+    }
   });
 }
 
@@ -384,6 +406,89 @@ function generatePlanets(scene: Phaser.Scene): void {
       nightSide(g, d / 2, d / 2, r);
     });
   }
+
+  // Venus: thick yellow cloud, banded softly.
+  {
+    const d = PLANET_SIZES.venus;
+    const r = d / 2 - 1;
+    bakeTexture(scene, 'planet-venus', d, d, (g) => {
+      sphere(g, d / 2, d / 2, r, 0xe8c878, 0xb08a48, 0xfaeab0);
+      for (const [at, colour] of [[-0.4, 0xf4dc98], [0.0, 0xd8b062], [0.4, 0xf0d48c]] as const) {
+        const y = d / 2 + at * r;
+        const half = Math.sqrt(Math.max(0, r * r - (y - d / 2) ** 2)) - 4;
+        g.fillStyle(colour, 0.6);
+        g.fillEllipse(d / 2, y, half * 2, 7);
+      }
+      nightSide(g, d / 2, d / 2, r);
+    });
+  }
+
+  // Uranus: pale cyan, featureless, with a thin ring standing on end.
+  {
+    const d = PLANET_SIZES.uranus;
+    const r = d / 2 - 12;
+    bakeTexture(scene, 'planet-uranus', d, d, (g) => {
+      g.lineStyle(1, 0xc8f0f4, 0.6);
+      g.strokeEllipse(d / 2, d / 2, 14, d - 4);
+      sphere(g, d / 2, d / 2, r, 0x9ae0e8, 0x5aa8b8, 0xd8f8fa);
+      nightSide(g, d / 2, d / 2, r);
+      // The near half of the ring, over the planet.
+      g.lineStyle(1, 0xc8f0f4, 0.8);
+      g.strokeEllipse(d / 2, d / 2, 14, d - 4);
+    });
+  }
+
+  // Neptune: deep blue, a dark storm and a white streak of cloud.
+  {
+    const d = PLANET_SIZES.neptune;
+    const r = d / 2 - 1;
+    bakeTexture(scene, 'planet-neptune', d, d, (g) => {
+      sphere(g, d / 2, d / 2, r, 0x3a62d8, 0x1e3a8a, 0x7a9af0);
+      g.fillStyle(0x16286a, 1);
+      g.fillEllipse(d / 2 - 8, d / 2 + 6, 14, 8);
+      g.fillStyle(0xe8f0ff, 0.8);
+      g.fillEllipse(d / 2 + 6, d / 2 - 10, 16, 3);
+      nightSide(g, d / 2, d / 2, r);
+    });
+  }
+
+  // Pluto: small, beige and pale, with the big pale heart on its face.
+  {
+    const d = PLANET_SIZES.pluto;
+    const r = d / 2 - 1;
+    bakeTexture(scene, 'planet-pluto', d, d, (g) => {
+      sphere(g, d / 2, d / 2, r, 0xc8a888, 0x8a6a52, 0xe8d0b8);
+      g.fillStyle(0xf4ece0, 1);
+      g.fillCircle(d / 2 - 3, d / 2 + 1, 5);
+      g.fillCircle(d / 2 + 4, d / 2 + 1, 5);
+      g.fillTriangle(d / 2 - 8, d / 2 + 3, d / 2 + 9, d / 2 + 3, d / 2 + 1, d / 2 + 12);
+      nightSide(g, d / 2, d / 2, r);
+    });
+  }
+
+  // The ISS: a long truss with four pairs of solar panels and the modules
+  // in the middle.
+  {
+    const d = PLANET_SIZES.iss;
+    const c = d / 2;
+    bakeTexture(scene, 'planet-iss', d, d, (g) => {
+      g.fillStyle(0xb8bec8, 1);
+      g.fillRect(4, c - 1, d - 8, 2);
+      for (const x of [6, 16, d - 22, d - 12]) {
+        g.fillStyle(0x2a3a7a, 1);
+        g.fillRect(x, c - 14, 6, 12);
+        g.fillRect(x, c + 2, 6, 12);
+        g.fillStyle(0x5a7ad8, 1);
+        g.fillRect(x + 1, c - 13, 1, 10);
+        g.fillRect(x + 1, c + 3, 1, 10);
+      }
+      g.fillStyle(0xe8ecf2, 1);
+      g.fillRoundedRect(c - 9, c - 4, 18, 8, 3);
+      g.fillRect(c - 2, c - 10, 4, 20);
+      g.fillStyle(0xa8aeba, 1);
+      g.fillRect(c - 9, c + 2, 18, 2);
+    });
+  }
 }
 
 /** The moon's horizon: low grey hills with craters in their faces. */
@@ -506,5 +611,158 @@ function generateHatch(scene: Phaser.Scene): void {
   bakeTexture(scene, 'hatch-chip', 3, 3, (g) => {
     g.fillStyle(0x8a909c, 1);
     g.fillRect(0, 0, 3, 3);
+  });
+}
+
+/** The far landmarks of the robots' worlds, px; all drawn pale, to be tinted per world. */
+export const LANDMARK_SIZES = {
+  spires: { width: 90, height: 120 },
+  mesa: { width: 170, height: 70 },
+  shield: { width: 320, height: 80 },
+  cloud: { width: 130, height: 110 },
+  rock: { width: 14, height: 8 },
+} as const;
+
+/**
+ * The landmarks on the horizons of the robots' worlds, each drawn in pale
+ * greys so one picture serves several worlds by tint: **spires** of ice,
+ * tall shards leaning together (Saturn's rings, Uranus, Neptune, Pluto); a
+ * **mesa**, flat-topped, banded (Mars); a **shield** volcano, wide and low
+ * with a caldera (Olympus Mons, on Mars); a **cloud** tower, piled up out
+ * of round puffs (Jupiter); and a little **rock** to scatter on the ground.
+ * Lit from the left, shaded right, like everything else.
+ */
+function generateWorldScenery(scene: Phaser.Scene): void {
+  const light = 0xffffff;
+  const mid = 0xc8c8c8;
+  const dark = 0x8a8a8a;
+  for (const variant of ['a', 'b'] as const) {
+    const random = createRandom(variant === 'a' ? 811 : 823);
+    const { width, height } = LANDMARK_SIZES.spires;
+    bakeTexture(scene, `spires-${variant}`, width, height, (g) => {
+      // Five to seven shards, the tallest in the middle.
+      const count = 5 + Math.floor(random() * 3);
+      for (let i = 0; i < count; i += 1) {
+        const cx = 10 + random() * (width - 20);
+        const tall = height * (0.35 + random() * 0.6) * (1 - Math.abs(cx - width / 2) / width);
+        const half = 6 + random() * 8;
+        const lean = (random() - 0.5) * 10;
+        g.fillStyle(mid, 1);
+        g.fillTriangle(cx - half, height, cx + half, height, cx + lean, height - tall);
+        g.fillStyle(light, 1);
+        g.fillTriangle(cx - half, height, cx, height, cx + lean, height - tall);
+        g.fillStyle(dark, 1);
+        g.fillTriangle(cx + half * 0.4, height, cx + half, height, cx + lean, height - tall);
+      }
+    });
+  }
+  {
+    const { width, height } = LANDMARK_SIZES.mesa;
+    bakeTexture(scene, 'mesa', width, height, (g) => {
+      g.fillStyle(mid, 1);
+      g.fillPoints([
+        new Phaser.Math.Vector2(0, height),
+        new Phaser.Math.Vector2(28, 14),
+        new Phaser.Math.Vector2(width - 34, 10),
+        new Phaser.Math.Vector2(width, height),
+      ], true);
+      g.fillStyle(light, 1);
+      g.fillRect(30, 10, width - 66, 4);
+      g.fillStyle(dark, 1);
+      for (const y of [26, 40, 54]) {
+        g.fillRect(18 + (y - 26) / 3, y, width - 40 - (y - 26) / 2, 2);
+      }
+      g.fillPoints([
+        new Phaser.Math.Vector2(width - 34, 10),
+        new Phaser.Math.Vector2(width, height),
+        new Phaser.Math.Vector2(width - 20, height),
+      ], true);
+    });
+  }
+  {
+    const { width, height } = LANDMARK_SIZES.shield;
+    bakeTexture(scene, 'shield', width, height, (g) => {
+      g.fillStyle(mid, 1);
+      g.fillEllipse(width / 2, height, width, height * 2 - 10);
+      g.fillStyle(light, 1);
+      g.fillEllipse(width / 2 - 30, height - 6, width * 0.6, height * 1.3);
+      g.fillStyle(mid, 1);
+      g.fillEllipse(width / 2 + 10, height + 4, width * 0.9, height * 1.4);
+      // The caldera at the top.
+      g.fillStyle(dark, 1);
+      g.fillEllipse(width / 2, 10, 50, 8);
+      g.fillStyle(mid, 1);
+      g.fillEllipse(width / 2 + 4, 9, 34, 4);
+    });
+  }
+  {
+    const { width, height } = LANDMARK_SIZES.cloud;
+    const random = createRandom(857);
+    bakeTexture(scene, 'cloud-tower', width, height, (g) => {
+      for (let i = 0; i < 14; i += 1) {
+        const up = random();
+        const x = width / 2 + (random() - 0.5) * width * (0.8 - up * 0.4);
+        const y = height - 14 - up * (height - 40);
+        const r = 14 + random() * 14;
+        g.fillStyle(mid, 1);
+        g.fillCircle(x + 3, y + 3, r);
+        g.fillStyle(light, 1);
+        g.fillCircle(x, y, r);
+      }
+    });
+  }
+  {
+    const { width, height } = LANDMARK_SIZES.rock;
+    bakeTexture(scene, 'ground-rock', width, height, (g) => {
+      g.fillStyle(dark, 1);
+      g.fillEllipse(width / 2 + 1, height / 2 + 1, width - 2, height - 1);
+      g.fillStyle(mid, 1);
+      g.fillEllipse(width / 2, height / 2, width - 3, height - 2);
+      g.fillStyle(light, 1);
+      g.fillRect(4, 2, 3, 1);
+    });
+  }
+}
+
+/** The battle station in space -- the Death Star -- px across. */
+export const STATION_SIZE = 150;
+
+/**
+ * A moon-sized battle station: a grey sphere covered in panel lines, a dark
+ * trench round its middle, and a great round dish in its upper half with a
+ * point of light at its centre. Seen in space, never visited.
+ */
+function generateBattleStation(scene: Phaser.Scene): void {
+  const d = STATION_SIZE;
+  const c = d / 2;
+  const r = c - 2;
+  const random = createRandom(4004);
+  bakeTexture(scene, 'battle-station', d, d, (g) => {
+    sphere(g, c, c, r, 0x9aa0a8, 0x5e646c, 0xc8ccd2);
+    // Panels: short lines in rows, following the curve a little.
+    for (let y = c - r + 8; y < c + r - 6; y += 7) {
+      const half = Math.sqrt(Math.max(0, r * r - (y - c) ** 2)) - 4;
+      for (let x = c - half; x < c + half - 6; x += 6 + random() * 10) {
+        g.fillStyle(random() < 0.5 ? 0x6e747c : 0xb4b8be, 0.8);
+        g.fillRect(Math.round(x), Math.round(y), 3 + Math.floor(random() * 6), 1);
+      }
+    }
+    // The trench round the middle.
+    g.fillStyle(0x3a3e44, 1);
+    g.fillRect(c - r + 2, c + 1, r * 2 - 4, 3);
+    g.fillStyle(0xc8ccd2, 0.6);
+    g.fillRect(c - r + 4, c + 4, r * 2 - 8, 1);
+    // The dish, up and to the right.
+    const dx = c + r * 0.35;
+    const dy = c - r * 0.4;
+    g.fillStyle(0x6e747c, 1);
+    g.fillCircle(dx, dy, 19);
+    g.fillStyle(0x8a9098, 1);
+    g.fillCircle(dx + 2, dy + 2, 15);
+    g.lineStyle(1, 0x5a6068, 1);
+    g.strokeCircle(dx + 2, dy + 2, 9);
+    g.fillStyle(0x9fff9f, 1);
+    g.fillCircle(dx + 2, dy + 2, 2);
+    nightSide(g, c, c, r);
   });
 }
