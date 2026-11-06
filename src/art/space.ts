@@ -46,6 +46,7 @@ export function generateSpaceTextures(scene: Phaser.Scene): void {
   generateWorldScenery(scene);
   generateBattleStation(scene);
   generateStarship(scene);
+  generateObstacles(scene);
   bakeTexture(scene, 'mars-sky', GAME_WIDTH, GAME_HEIGHT, (g) => {
     // Mars by day: a butterscotch haze, paler towards the ground.
     fillVerticalGradient(g, GAME_WIDTH, GAME_HEIGHT, 0x8a4a3a, 0xe0a878);
@@ -814,5 +815,76 @@ function generateStarship(scene: Phaser.Scene): void {
     for (const x of [38, 42, 54, 58]) {
       g.fillRect(x, 12, 1, 1);
     }
+  });
+}
+
+/** A bounce pad, px: it stands on its cell's floor. */
+export const PAD_SIZE = { width: 16, height: 9 };
+
+/**
+ * The robots' worlds' own obstacles: a **bounce pad** (a red plate on a
+ * coiled spring, and the same squashed), a block of **crumbling ice** (pale,
+ * cracked, tinted per world), and the puffs a **cloud platform** is drawn
+ * from (baked per width by the scene with `bakeCloudPlatform`).
+ */
+function generateObstacles(scene: Phaser.Scene): void {
+  const { width, height } = PAD_SIZE;
+  for (const [key, squash] of [['bounce-pad', 0], ['bounce-pad-down', 3]] as const) {
+    bakeTexture(scene, key, width, height, (g) => {
+      g.fillStyle(0x4a4e58, 1);
+      g.fillRect(1, height - 2, width - 2, 2);
+      g.fillStyle(0xb8bec8, 1);
+      for (let y = squash + 3; y < height - 2; y += 2) {
+        g.fillRect(4, y, width - 8, 1);
+      }
+      g.fillStyle(0xe8483a, 1);
+      g.fillRoundedRect(0, squash, width, 3, 1);
+      g.fillStyle(0xff9a8a, 1);
+      g.fillRect(2, squash, width - 4, 1);
+    });
+  }
+  bakeTexture(scene, 'crumble-ice', TILE, TILE, (g) => {
+    g.fillStyle(0xb8c8d8, 1);
+    g.fillRect(0, 0, TILE, TILE);
+    g.fillStyle(0xe8f4ff, 1);
+    g.fillRect(0, 0, TILE, 2);
+    g.fillRect(0, 0, 2, TILE);
+    g.fillStyle(0x7890a8, 1);
+    g.fillRect(TILE - 2, 0, 2, TILE);
+    g.fillRect(0, TILE - 2, TILE, 2);
+    // Cracks: this one is not to be trusted.
+    g.fillStyle(0x5a7088, 1);
+    g.fillRect(4, 3, 1, 4);
+    g.fillRect(5, 6, 3, 1);
+    g.fillRect(8, 7, 1, 4);
+    g.fillRect(11, 2, 1, 3);
+    g.fillRect(10, 10, 3, 1);
+  });
+}
+
+/**
+ * A cloud platform `cells` tiles wide: a flat top to stand on, the
+ * `BRANCH_THICKNESS` the cat lands on, with puffs of cloud bulging under it.
+ * Cream, lit from above.
+ */
+export function bakeCloudPlatform(scene: Phaser.Scene, key: string, cells: number): void {
+  const width = cells * TILE + 8;
+  const height = 22;
+  const random = createRandom(cells * 97 + 13);
+  bakeTexture(scene, key, width, height, (g) => {
+    for (let i = 0; i < cells * 3; i += 1) {
+      const x = 6 + random() * (width - 12);
+      const r = 5 + random() * 4;
+      g.fillStyle(0xc8b090, 1);
+      g.fillCircle(x + 1, 9 + random() * 4, r);
+    }
+    for (let i = 0; i < cells * 3; i += 1) {
+      const x = 6 + random() * (width - 12);
+      const r = 5 + random() * 4;
+      g.fillStyle(0xf4e8d4, 1);
+      g.fillCircle(x, 7 + random() * 3, r);
+    }
+    g.fillStyle(0xfffaf0, 1);
+    g.fillRoundedRect(2, 0, width - 4, 4, 2);
   });
 }

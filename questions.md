@@ -2005,3 +2005,27 @@ pocket, and the second on the three with two in a cage of grey blocks. The
 other places a part used to be have a little heart now, as far as the
 level's budget of hearts allows, and are empty after that -- including the
 pillar past Saturn's portal.
+
+## Each world its own obstacle, its own look, and no more map
+
+Asked for: the levels not all with the same obstacles but new, more fun
+ones; every planet its own colour and look; and no menu of planets --
+fly to a planet, and its level starts.
+
+- **One obstacle of its own per world**, found nowhere else: worms on Mars,
+  lava on Venus, seas to swim on Neptune, bounce pads on Uranus, moving
+  clouds on Jupiter, slippery ice on Saturn, crumbling ice on Pluto. Bounce
+  pads, moving platforms, crumbling ice and slippery ice are new to the
+  game; worms, lava and swimming were already in it. Some plain pieces --
+  thorns, a tower with a chain, a slab -- are still between them.
+- **The worlds are shorter now**, 105 to 160 tiles, being built around one
+  idea each rather than everything at once.
+- **Each world's own ground**: fractured rock for Venus and Saturn, a cloud
+  fringe for Jupiter, ice tiles for Uranus, frost for Pluto, dust for Mars
+  and Neptune, each in its own colours.
+- **The map is gone.** The worlds hang in space round the Earth, and
+  flying into an open one lands on it. The question "Where should we go?"
+  went with the map; the hint at the top says where to go instead.
+- **Arrows at the screen's edge** point to the open worlds out of sight --
+  nothing asked for this, but space is big and a planet off screen is easy
+  to lose.

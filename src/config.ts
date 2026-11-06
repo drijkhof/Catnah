@@ -524,11 +524,9 @@ export const BOB = {
 } as const;
 
 /**
- * The flight through space, between the sand path and the moon. The cat is
- * flown, not walked: it accelerates towards whatever direction is held, up
- * to `maxSpeed`, and drifts to a stop with nothing held. The map comes up
- * once it is `mapDistance` from the Earth, or after `mapAfterMs` whatever
- * happens, so nobody is lost out there.
+ * Space, between the worlds. The cat is flown, not walked: it accelerates
+ * towards whatever direction is held, up to `maxSpeed`, and drifts to a stop
+ * with nothing held. Flying into an open world lands on it.
  */
 /**
  * The battle station's laser: every `everyMs` it charges for `chargeMs` and
@@ -552,13 +550,26 @@ export const LASER = {
   clearance: 140,
 } as const;
 
+/**
+ * The robots' worlds' own obstacles. A **bounce pad** throws the cat up at
+ * `bounce`, px/s, about sixteen tiles under the planets' gravity. A
+ * **moving platform** slides at `moverSpeed` along its track. A block of
+ * **crumbling ice** holds for `crumbleMs` once stood on, falls, and is back
+ * after `crumbleBackMs`. **Ice** grips at `iceGrip` of the ground's.
+ */
+export const OBSTACLES = {
+  bounce: -800,
+  moverSpeed: 45,
+  crumbleMs: 650,
+  crumbleBackMs: 4000,
+  iceGrip: 0.12,
+} as const;
+
 export const SPACE = {
   worldSize: 6000,
   accel: 420,
   maxSpeed: 230,
   drag: 160,
-  mapDistance: 1500,
-  mapAfterMs: 40000,
 } as const;
 
 /**

@@ -32,6 +32,9 @@ const WALL_PROBE = 2;
 export class Player extends Phaser.Physics.Arcade.Sprite {
   declare body: Phaser.Physics.Arcade.Body;
 
+  /** How well the feet grip: 1 on ground, less on ice. Set by the scene. */
+  grip = 1;
+
   /** Time remaining, in ms, during which a late jump still counts as grounded. */
   private coyoteTimer = 0;
 
@@ -689,7 +692,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const topSpeed = this.isSneaking
       ? CAT.speed * CAT.sneakSpeedMultiplier
       : CAT.speed;
-    const accel = onGround ? CAT.accel : CAT.accel * CAT.airControl;
+    // On ice the feet barely grip: speeding up, turning and stopping are all
+    // slow, and the cat slides.
+    const accel = onGround ? CAT.accel * this.grip : CAT.accel * CAT.airControl;
 
     if (direction !== 0) {
       const target = direction * topSpeed;
@@ -704,7 +709,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       return;
     }
 
-    const friction = CAT.friction * dt;
+    const friction = CAT.friction * (onGround ? this.grip : 1) * dt;
     const speed = Math.abs(this.body.velocity.x);
 
     this.setVelocityX(

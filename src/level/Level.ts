@@ -121,6 +121,8 @@ export interface LevelDefinition {
    * creatures alike.
    */
   gravity?: number;
+  /** Ice underfoot: the cat speeds up and slows down slowly, and slides. */
+  slippery?: boolean;
   rows: string[];
 }
 
@@ -241,6 +243,16 @@ export interface ParsedLevel {
   helmet: boolean;
   /** Gravity against the Earth's: 1, or less off the Earth. */
   gravity: number;
+  slippery: boolean;
+  /** Bounce pads (`J`), by the middle of their cell's floor. */
+  bouncePads: Point[];
+  /**
+   * Moving platforms: a run of `m` cells is the platform, and the `~` cells
+   * in the same run are the track it slides along, back and forth.
+   */
+  movers: Array<{ x: number; y: number; width: number; from: number; to: number }>;
+  /** Blocks of ice that crumble when stood on (`Z`), by their top-left corner. */
+  crumbles: Point[];
   /** Planted flags (`F`), by the foot of the pole. Scenery. */
   flags: Point[];
   /** Parts for Bob's machine (`K`), by their middle. */
@@ -339,6 +351,9 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const hatches: Point[] = [];
   const flags: Point[] = [];
   const parts: Point[] = [];
+  const bouncePads: Point[] = [];
+  const crumbles: Point[] = [];
+  const movers: Array<{ x: number; y: number; width: number; from: number; to: number }> = [];
 
   /**
    * A thin one-way ledge, used for the tops of trees and for nests. Invisible
@@ -533,6 +548,21 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           block(x, y, 'base-wall', column, row);
           break;
 
+        // A bounce pad: step on it and it throws the cat high.
+        case 'J':
+          bouncePads.push({ x: x + TILE / 2, y: y + TILE });
+          break;
+
+        // A block of ice that crumbles under the cat, falls, and comes back.
+        case 'Z':
+          crumbles.push({ x, y });
+          break;
+
+        // A moving platform and its track: handled per run below.
+        case 'm':
+        case '~':
+          break;
+
         // One of the ten parts Bob needs for his machine.
         case 'K':
           parts.push({ x: x + TILE / 2, y: y + TILE / 2 });
@@ -697,6 +727,34 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     ),
   }));
 
+  // Moving platforms: each run of `m` and `~` along a row is one platform
+  // (the `m` cells) on its track (the whole run).
+  rows.forEach((tiles, row) => {
+    let column = 0;
+    while (column < width) {
+      if (!'m~'.includes(tiles[column])) {
+        column += 1;
+        continue;
+      }
+      const start = column;
+      while (column < width && 'm~'.includes(tiles[column])) {
+        column += 1;
+      }
+      const run = tiles.slice(start, column);
+      const first = run.indexOf('m');
+      const cells = run.split('').filter((ch) => ch === 'm').length;
+      if (first >= 0 && cells > 0) {
+        movers.push({
+          x: (start + first) * TILE,
+          y: row * TILE,
+          width: cells * TILE,
+          from: start * TILE,
+          to: column * TILE,
+        });
+      }
+    }
+  });
+
   return {
     name: definition.name,
     theme: definition.theme,
@@ -711,6 +769,10 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     next: definition.next ?? null,
     helmet: definition.helmet ?? false,
     gravity: definition.gravity ?? 1,
+    slippery: definition.slippery ?? false,
+    bouncePads,
+    movers,
+    crumbles,
     flags,
     parts,
     hatches,

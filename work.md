@@ -45,8 +45,10 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | rat | `rat` | the city's walker, quicker than a hedgehog |
 | zandpad | `sand path` | the last level: stones in sand, ending at the big portal |
 | groot portaal | `big portal` | the sand path's way out, three times the size; it sends you into space |
-| ruimte | `space` | the flight from the Earth to the map, between the sand path and the moon |
-| kaart | `map` | the Earth, the Moon, Mars and Saturn; only the Moon can be picked |
+| ruimte | `space` | where the cat flies between the worlds, and flies into one to land on it |
+| springkussen | `bounce pad` | Uranus's `J`: throws the cat high |
+| wolkenplatform | `moving platform` | Jupiter's `m` on its `~` track: slides back and forth |
+| brokkelijs | `crumbling ice` | Pluto's `Z`: falls once stood on, comes back |
 | maan | `moon` | the last level |
 | robotje | `robot` | the walker of the robots' worlds: comes for you to grab you |
 | onderdeel | `part` | one of the ten cogs Bob needs; `K`, spread over the seven robots' worlds |
@@ -538,7 +540,7 @@ you to the next: the cave is the descent into the volcano, the volcano's
 portal — which only appears once the beetle is dead — leads out into the
 desert, the desert runs down to the beach, and the beach into the sand path,
 which ends at the **big portal**. That one sends you off into **space**, to
-a map, and from the map to the **moon**. There Bob the alien tells you the
+where you fly to the **moon**. There Bob the alien tells you the
 robots have taken over the planets and sends you off in his rocket for the
 **ten parts** he needs to destroy them, spread over the seven worlds.
 With all ten, you fly back to the moon and give them to Bob — and that
@@ -651,21 +653,30 @@ bushes kept back from it. It **pulls**: come within four tiles of its rim
 and it sucks you in, slowly at first and faster as you go — and out into
 space.
 
-### Space, and the map
+### Space
 
-Not a level: a flight. The first time, you start beside the Earth and **fly** the cat
-yourself, any direction, with the same keys and stick as walking — out
-through stars in three layers, clouds of glowing gas and planets drifting
-by, a trail of sparks behind you. Nothing out here can hurt you. Once you
-are far enough from the Earth, or after forty seconds whatever happens, the
-**map** comes up: the Earth, the Moon, Mars and Saturn in a row, and
-under them the question **"Where should we go?"**. Only the
-Moon can be picked — tap it, click it, or press any key — and Mars and
-Saturn are dimmed. The run's clock does not count while you fly.
+Not a level: a flight. You **fly** the cat yourself, any direction, with
+the same keys and stick as walking — through stars in three layers, clouds
+of glowing gas, a trail of sparks behind you. Nothing out here can hurt
+you, and the run's clock does not count while you fly.
 
-**In Bob's rocket**, after the moon, you fly the rocket instead — white,
-red nose and fins, the cat in its window, a flame behind — from beside the
-Moon, under *"Find the parts!"*.
+**Every world hangs out here**: the Earth in the middle, the Moon beside
+it, and around them Venus, Mars, Jupiter, Saturn, Uranus, Neptune and
+Pluto, each with its name under it. **Fly into a world and its level
+starts** — if it is open: the name is gold when it is, grey when it is not.
+Arrows at the edge of the screen point the way to the open worlds you
+cannot see.
+
+- **The first time** (from the sand path): only the Moon is open. *"Fly to
+  the Moon!"*
+- **In Bob's rocket** (white, red nose and fins, the cat in its window, a
+  flame behind): every robots' world is open, each with its parts found
+  under its name (*"Mars 1/2"*). *"Fly to a planet and find the parts!"*
+- **With all ten parts**: the Moon is open again. *"Take the parts to Bob on
+  the Moon!"*
+- **Never the Earth.**
+
+You set off beside the world you have just left.
 
 Out there you can see, but never land on, the **ISS** going round the Earth
 and a **battle station** — the Death Star — hanging in space. Fly near it
@@ -677,15 +688,6 @@ seven seconds the starship's orange phaser hits the station, each with a
 flash where it lands. Neither is ever hurt, and neither ever fires at the
 cat or across a planet: if the way is not clear, the station fires out into
 empty space instead and the starship holds its fire.
-
-**The map** shows the worlds in two rows, in their order out from the sun:
-Venus, the Earth, the Moon, Mars, Jupiter; and under them Saturn, Uranus,
-Neptune, Pluto. The first time, only the Moon can be picked. In the rocket,
-every world the robots hold can, each with its parts found under its name
-(*"Mars 1/2"*) — but not the Earth, and not the Moon, where there are no
-parts. **With all ten**, the Moon opens again: *"Take the parts to
-Bob!"*. On a keyboard, left and right choose and any other key goes. Each
-world's portal brings you back here, to choose again.
 
 ### 10 — Moon
 
@@ -713,12 +715,25 @@ a last run of blocks to the way out. It has no portal: Bob's rocket is the way o
 
 ### The robots' worlds
 
-Picked from the map in Bob's rocket, in any order, as often as you like:
-**Mars, Saturn, Jupiter, Venus, Uranus, Neptune and Pluto**, each about 250
-tiles. They are the robots' now — robots and grey blocks as on the moon,
-the helmet on — and **full of obstacles**: gaps to jump (falling costs a
-heart) or craters, thorns, rock to climb, towers with chains, zigzags of
-shelves, slabs to sneak under.
+Flown to in Bob's rocket, in any order, as often as you like: **Mars,
+Saturn, Jupiter, Venus, Uranus, Neptune and Pluto**. They are the robots'
+now — robots and grey blocks as on the moon, the helmet on, lighter gravity
+— and **each has an obstacle of its own**, found on no other world:
+
+- **Mars — sand worms.** Long red dunes with a worm in each mound, that
+  comes up to look, hunts you under the sand and lunges.
+- **Venus — lava lakes** to jump, the wide ones with a stepping rock in the
+  middle.
+- **Neptune — seas to swim**, three deep, with alien fish in them.
+- **Uranus — bounce pads.** Step on one and it throws you high: over walls
+  too tall to jump, and up to shelves too high to reach.
+- **Jupiter — clouds that move.** Wide gaps with a cloud platform sliding
+  back and forth across each: jump on and ride it over.
+- **Saturn — ice.** Your feet barely grip: slow to start, slow to stop, and
+  you slide — and past every gap there are thorns to slide into.
+- **Pluto — crumbling ice.** Gaps bridged by blocks of ice that crack and
+  fall once you stand on them — run! — and crumbling steps up to ledges over
+  pits. They come back after a while.
 
 **The ten parts**: two each on Mars, Saturn and Jupiter, one each on Venus,
 Uranus, Neptune and Pluto. They are brass cogs, turning, and **hard to
@@ -729,23 +744,24 @@ cage of grey blocks (break one to get in). The count is in the corner under
 the little hearts (*"3/10"*), and each one found says so across the
 screen. A part once found stays found for the run.
 
-**What they look like** — no world has itself in its own sky; from each you
-see the others:
+**What they look like** — each has its own ground and its own colours, and
+no world has itself in its own sky; from each you see the others:
 
 - **Mars**: rust-red rock under a butterscotch sky, two little moons, mesas
   and a great shield volcano on the horizon, red rocks on the ground.
-- **Saturn**: out on the rings, blue-white ice, Jupiter and Uranus in the
-  black sky, spires of ice behind, crystals on the ground.
-- **Jupiter**: drifts of frozen cloud in banded cream and brown, towers of
-  cloud behind, Io and Europa going by.
-- **Venus**: scorched orange rock under a thick yellow haze, smoking
-  volcanoes on the horizon.
-- **Uranus**: pale cyan ice, Saturn and Neptune in the sky, cyan spires.
+- **Saturn**: out on the rings, floes of fractured pale blue ice, Jupiter
+  and Uranus in the black sky, spires of ice behind, crystals on the ground.
+- **Jupiter**: drifts of frozen cloud with a fluffy fringe, in banded cream
+  and brown, towers of cloud behind, Io and Europa going by.
+- **Venus**: cracked dark basalt, glowing orange at its edges, under a thick
+  yellow haze, smoking volcanoes on the horizon.
+- **Uranus**: pale cyan ice laid in flat tiles, Saturn and Neptune in the
+  sky, cyan spires.
 - **Neptune**: deep blue ice, Uranus and Pluto in the sky, blue spires.
-- **Pluto**: beige rock and white ice, Neptune and its moon in the sky, pale
-  spires, so far out the sun is a star.
+- **Pluto**: beige rock with white frost standing along every top, Neptune
+  and its moon in the sky, pale spires, so far out the sun is a star.
 
-Each world's portal goes back to the map.
+Each world's portal goes back out into space.
 
 **The moon base** is a small white module, sixteen tiles across, with a
 blue and red stripe, a radar dish and an antenna on its roof, and an open
@@ -768,7 +784,7 @@ is."*, and last *"Can you do it, kitty?"* — and the button under that says
 **Yes!**. Press it and the screen flashes white and you are off into space
 in his rocket. Nothing can hurt you while you talk.
 
-**Bringing him the parts**: with all ten, pick the Moon on the map and
+**Bringing him the parts**: with all ten, fly to the Moon and
 you land right by the base. Walk up to Bob and he says *"You found all 10 parts!"*, *"Now I can destroy the robots!"* and *"Thank you, cute little
 kitty!"* — and **Bye** is the win: the victory screen, which says *"All 10 parts! Bob can stop the robots."*
 

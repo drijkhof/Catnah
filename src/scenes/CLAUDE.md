@@ -6,12 +6,14 @@ Phaser scenes. Registered in order in `src/main.ts`; the first one starts.
 - **`TitleScene`** — the title screen, and where a finished run ends up.
 - **`GameScene`** — builds the level, owns the player, camera, HUD and the
   update loop.
-- **`SpaceScene`** — between the sand path and the moon: the cat flown
+- **`SpaceScene`** — between the worlds: the cat (or Bob's rocket) flown
   through space (`SPACE` in `config.ts`), stars scrolled by hand in three
-  pinned layers, then the map, where only the Moon is interactive (a tap,
-  a click, or any fresh key after 700ms). It carries the run through
-  untouched and starts `Game` at the level after the sand path. The clock
-  does not run here.
+  pinned layers. Every world hangs there (`WORLDS`, around the Earth) with
+  its name under it; flying into an open one starts its level, with the run
+  carried through untouched. Arrows on the screen's edge point to the open
+  worlds out of sight. The ISS circles the Earth, and a battle station and
+  a starship drift and fire at each other, never at the cat or a planet.
+  The clock does not run here.
 - **Talking to Bob** (`GameScene.startTalk` and on): the HUD and touch
   buttons are hidden, the main camera stops following and pans and zooms
   (`BOB`), and the speech bubble is drawn by a **second camera that does

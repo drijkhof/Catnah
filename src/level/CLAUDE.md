@@ -36,6 +36,9 @@ its platforms must attach to a column. Everything else is derived.
 | `h` | hedgehog, `r` rat — walkers, only ever on plain `#` floor. On the moon `h` is a **robot**. On the beach `h` is a **crab**: the letters are the same in every level, and the place decides what walks |
 | `M` | the hull of a **moon base**: solid, every cluster of touching `M` drawn as one base by `art/base.ts`, the inside and the doors included. Write a roof over side walls that stop two rows short of the ground: those gaps are the doors. `=` inside is drawn as a lab bench |
 | `K` | one of Bob's hundred **parts**: a cog to pick up, faint until the cat is near (`BOB.partSeen`), kept for the run by `<level name>:<x>,<y>` so it never comes back. Two each on Mars, Saturn and Jupiter, one on each other robots' world; the map counts each world's off its rows |
+| `J` | a **bounce pad** (Uranus): stands on the floor of its cell; a cat stepping or landing on it is thrown up at `OBSTACLES.bounce` |
+| `m`, `~` | a **moving platform** (Jupiter): a run of `m` is the platform, one-way like a branch, and the `m` and `~` of the run together are the track it slides along, back and forth, carrying a cat that stands on it |
+| `Z` | **crumbling ice** (Pluto): solid until stood on, then it shakes for `crumbleMs`, falls, and is back after `crumbleBackMs`. Not part of the ground, so it can go |
 | `F` | an American flag planted in the dust. Scenery only, at the cell's floor |
 | `D` | a **grey block**, only on the robots' worlds (`ROBOT_THEMES`; anywhere else the level refuses to load): solid, a robot climbs out of its top every `ROBOT.spawnEveryMs` while the cat is near, and holding down against it breaks it. Deliberately *not* in `FULL_CELL`, so no neighbour switches a face off against it and nothing is left with a hole when it goes |
 | `j` | jellyfish — a mine washed up on the sand: lies on its cell's floor, pulsing, and kills from any side; needs something solid under it like a cactus does |
@@ -266,7 +269,7 @@ backdrop keeps bushes clear of the portal; see `world/index.ts`.
 
 The run carries `parts` (the ids of the parts found) and `rocket` (whether
 Bob has sent the cat off) through every level, through `SpaceScene` and
-through a hot reload. With `rocket`, the map opens the robots' worlds
+through a hot reload. With `rocket`, space opens the robots' worlds
 instead of the Moon, and the Moon again once all `PARTS.total` are found. A
 level with `next: 'space'` goes to the map. The moon has no `E`: Bob's talk
 ends in `launchRocket` -- or, with every part, the cat lands by the base
@@ -288,9 +291,10 @@ jump-release and swim gravity are scaled off the world's, not `CAT.gravity`.
 ## Off into space
 
 `next: 'space'` on a level sends its portal to `SpaceScene` instead of the
-next level, carrying the run (`levelIndex` of the next level, lives, hearts,
-time, deaths) through; the map there starts that next level. The sand path
-has it, so the moon comes after the flight.
+next level, carrying the run through, with `from` -- the level's name -- so
+the flight sets off beside the world just left. There the worlds hang in
+space, and flying into an open one starts its level. `slippery: true` is
+ice underfoot: the player's `grip` drops to `OBSTACLES.iceGrip`.
 
 ## The title level
 

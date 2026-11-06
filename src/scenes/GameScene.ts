@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { AWAKE_RANGE, BOB, CAT, PARTS, RAIN, ROBOT, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
+import { AWAKE_RANGE, BOB, CAT, OBSTACLES, PARTS, RAIN, ROBOT, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
 import { Controls, IdleControls, type PlayerInput } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -15,7 +15,7 @@ import { KEEP_LIVE, addGroundShade, bakeScenery, createBackdrop } from '../world
 import { parseLevel, type ClimbZone, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
 import { TITLE } from '../level/levels/title';
-import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, CASTLE_FLAG_HEADROOM, HEAD_IN_POSE, BASE_HEADROOM, LAB_CONSOLE_X, LAB_TANK, baseInside, bakeMoonBase, AWNING_BULGE, HOUSE_HEADROOM, bakeAwning, bakeHouse, GRASS_FRINGE_HEIGHT, JELLY_SIZE, LOG_BULGE, PALM_BULGE, PALM_CROWN_ANCHOR, PALM_CROWN_SIZE, bakePalmTrunk, bakeSandCastle, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeCactus, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
+import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, CASTLE_FLAG_HEADROOM, PAD_SIZE, BRANCH_THICKNESS, bakeCloudPlatform, HEAD_IN_POSE, BASE_HEADROOM, LAB_CONSOLE_X, LAB_TANK, baseInside, bakeMoonBase, AWNING_BULGE, HOUSE_HEADROOM, bakeAwning, bakeHouse, GRASS_FRINGE_HEIGHT, JELLY_SIZE, LOG_BULGE, PALM_BULGE, PALM_CROWN_ANCHOR, PALM_CROWN_SIZE, bakePalmTrunk, bakeSandCastle, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeCactus, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { GOD_MODE_KEY, installGodMode, isGodMode } from '../dev/godMode';
@@ -205,6 +205,10 @@ export class GameScene extends Phaser.Scene {
   private busyWords?: CrispText;
   /** Each moon base, door to door, which no robot may enter. */
   private baseRects: Phaser.Geom.Rectangle[] = [];
+  /** The robots' worlds' own obstacles: bounce pads, moving platforms, crumbling ice. */
+  private pads: Array<{ image: Phaser.GameObjects.Image; x: number; y: number }> = [];
+  private movers: Array<{ body: Phaser.Types.Physics.Arcade.ImageWithDynamicBody; from: number; to: number; width: number }> = [];
+  private crumbles: Array<{ tile: Phaser.Types.Physics.Arcade.ImageWithStaticBody; x: number; y: number; timer: number; gone: number }> = [];
   /** Bob's parts lying in this level, not yet taken. */
   private partSprites: Phaser.Types.Physics.Arcade.ImageWithStaticBody[] = [];
   /** `=` cells inside a moon base, which the base draws as lab benches. */
@@ -307,6 +311,9 @@ export class GameScene extends Phaser.Scene {
     this.baseRects = [];
     this.partSprites = [];
     this.partsText = undefined;
+    this.pads = [];
+    this.movers = [];
+    this.crumbles = [];
     this.talk = undefined;
     this.busyWords = undefined;
     this.lifeIcons = [];
@@ -424,6 +431,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.buildCreatures(blocks, branches);
+    this.buildObstacles();
     this.buildHelmet();
     this.buildExit();
     this.gatherCover();
@@ -707,6 +715,7 @@ export class GameScene extends Phaser.Scene {
     // is up, and a robot born then would be drawn twice.
     if (!this.titleMode && !this.dying && !this.leaving && !this.talk) {
       this.stepHatches(delta);
+      this.stepObstacles(delta);
     }
     for (const piranha of this.piranhas) {
       if (this.awake(piranha)) {
@@ -1088,6 +1097,114 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
+  /**
+   * The robots' worlds' own obstacles, wired to the cat once it exists:
+   *
+   * - **bounce pads**, which throw a cat that steps or lands on one high
+   *   into the air (`OBSTACLES.bounce`);
+   * - **moving platforms**, one-way like a branch, sliding back and forth
+   *   along their track and carrying whoever stands on them;
+   * - **crumbling ice**, solid until stood on, then shaking, falling, and
+   *   back a few seconds later;
+   * - and **ice** underfoot, where the cat's feet barely grip.
+   */
+  private buildObstacles(): void {
+    this.player.grip = this.level.slippery ? OBSTACLES.iceGrip : 1;
+
+    for (const pad of this.level.bouncePads) {
+      const image = this.add.image(pad.x, pad.y, 'bounce-pad').setOrigin(0.5, 1).setDepth(-0.2).setData(KEEP_LIVE, true);
+      this.pads.push({ image, x: pad.x, y: pad.y });
+    }
+
+    for (const mover of this.level.movers) {
+      const cells = mover.width / TILE;
+      const key = `cloud-platform-${cells}`;
+      if (!this.textures.exists(key)) {
+        bakeCloudPlatform(this, key, cells);
+      }
+      const body = this.physics.add.image(mover.x - 4, mover.y, key).setOrigin(0, 0).setDepth(-0.2);
+      body.body.setAllowGravity(false);
+      body.body.setImmovable(true);
+      body.body.pushable = false;
+      body.body.setSize(mover.width, BRANCH_THICKNESS, false).setOffset(4, 0);
+      body.body.setVelocityX(OBSTACLES.moverSpeed);
+      body.setData(KEEP_LIVE, true);
+      this.physics.add.collider(this.player, body, undefined, () => landsOnBranch(this.player, body as unknown as Phaser.Physics.Arcade.Sprite));
+      this.movers.push({ body, from: mover.from, to: mover.to, width: mover.width });
+    }
+
+    if (this.level.crumbles.length > 0) {
+      const group = this.physics.add.staticGroup({ classType: Phaser.Physics.Arcade.Image });
+      for (const cell of this.level.crumbles) {
+        const tile = group.create(cell.x, cell.y, 'crumble-ice').setOrigin(0, 0).refreshBody() as Phaser.Types.Physics.Arcade.ImageWithStaticBody;
+        tile.setDepth(-0.2).setData(KEEP_LIVE, true).setData('solid', true);
+        this.crumbles.push({ tile, x: cell.x, y: cell.y, timer: -1, gone: 0 });
+      }
+      this.physics.add.collider(this.player, group);
+      this.physics.add.collider(this.walkers, group);
+    }
+  }
+
+  /** The obstacles, once a frame: pads to bounce on, platforms to move, ice to crumble. */
+  private stepObstacles(delta: number): void {
+    const cat = this.player.body;
+
+    for (const pad of this.pads) {
+      const top = pad.y - PAD_SIZE.height + 3;
+      const over = cat.right > pad.x - 7 && cat.x < pad.x + 7;
+      if (over && cat.velocity.y >= 0 && cat.bottom >= top && cat.bottom <= pad.y + 1 && !this.player.climbing && !this.player.swimming) {
+        this.player.setVelocityY(OBSTACLES.bounce);
+        sound.play('boing');
+        pad.image.setTexture('bounce-pad-down');
+        this.time.delayedCall(160, () => pad.image.setTexture('bounce-pad'));
+      }
+    }
+
+    for (const mover of this.movers) {
+      const left = mover.body.body.x;
+      const right = left + mover.width;
+      if (right >= mover.to && mover.body.body.velocity.x > 0) {
+        mover.body.body.setVelocityX(-OBSTACLES.moverSpeed);
+      } else if (left <= mover.from && mover.body.body.velocity.x < 0) {
+        mover.body.body.setVelocityX(OBSTACLES.moverSpeed);
+      }
+    }
+
+    for (const crumble of this.crumbles) {
+      if (crumble.gone > 0) {
+        crumble.gone -= delta;
+        const inTheWay = cat.right > crumble.x && cat.x < crumble.x + TILE && cat.bottom > crumble.y && cat.y < crumble.y + TILE;
+        if (crumble.gone <= 0 && !inTheWay) {
+          crumble.tile.setPosition(crumble.x, crumble.y).setAlpha(1);
+          crumble.tile.body.enable = true;
+          crumble.tile.refreshBody();
+          crumble.timer = -1;
+        } else if (crumble.gone <= 0) {
+          crumble.gone = 200;
+        }
+        continue;
+      }
+      const standing =
+        cat.blocked.down &&
+        Math.abs(cat.bottom - crumble.y) < 2 &&
+        cat.right > crumble.x + 2 &&
+        cat.x < crumble.x + TILE - 2;
+      if (crumble.timer < 0 && standing) {
+        crumble.timer = 0;
+        sound.play('crack');
+      }
+      if (crumble.timer >= 0) {
+        crumble.timer += delta;
+        crumble.tile.x = crumble.x + (Math.floor(crumble.timer / 40) % 2 === 0 ? 0.6 : -0.6);
+        if (crumble.timer >= OBSTACLES.crumbleMs) {
+          crumble.tile.body.enable = false;
+          crumble.gone = OBSTACLES.crumbleBackMs;
+          this.tweens.add({ targets: crumble.tile, y: crumble.y + 60, alpha: 0, duration: 500, ease: 'Cubic.easeIn' });
+        }
+      }
+    }
+  }
+
   /** Everything the run carries into the next level, or into space. */
   private carry(levelIndex: number): {
     levelIndex: number;
@@ -1098,8 +1215,11 @@ export class GameScene extends Phaser.Scene {
     deaths: number;
     parts: string[];
     rocket: boolean;
+    from: string;
   } {
     return {
+      // Where the cat comes from: in space it sets off beside this world.
+      from: this.level.name,
       levelIndex,
       lives: this.lives,
       maxLives: this.maxLives,

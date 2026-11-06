@@ -384,10 +384,10 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     lavaDeep: 0x8f2d10,
     lavaBright: 0xffc44d,
   },
-  // Saturn's rings: ice. Pale blue frost over blue-grey ice, under a black sky with Saturn in it.
+  // Saturn's rings: ice, fractured into floes like the cave's rock, pale blue.
   saturn: {
     surfaceStyle: 'dust',
-    groundStyle: 'earth',
+    groundStyle: 'stone',
     shade: 0x10182a,
     columnStyle: 'chain',
     platformStyle: 'shelf',
@@ -415,15 +415,16 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     lavaDeep: 0x8f2d10,
     lavaBright: 0xffc44d,
   },
-  // Jupiter: no ground, so the robots stand on drifts of frozen cloud, cream and tan.
+  // Jupiter: no ground, so the robots stand on drifts of frozen cloud, cream
+  // and tan, with a fluffy fringe of cloud along every top.
   jupiter: {
-    surfaceStyle: 'dust',
+    surfaceStyle: 'grass',
     groundStyle: 'earth',
     shade: 0x2a1a10,
     columnStyle: 'chain',
     platformStyle: 'shelf',
-    grass: 0xf0dcb8,
-    grassDark: 0xc8a478,
+    grass: 0xfff2dc,
+    grassDark: 0xe0c8a0,
     dirt: 0x8a6440,
     dirtDark: 0x6a4a30,
     rock: 0xc89a6a,
@@ -446,20 +447,21 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     lavaDeep: 0x8f2d10,
     lavaBright: 0xffc44d,
   },
-  // Venus: scorched orange rock under a yellow haze.
+  // Venus: cracked dark basalt, fractured like the cave's rock, glowing orange
+  // at the edges, under a yellow haze.
   venus: {
     surfaceStyle: 'dust',
-    groundStyle: 'earth',
+    groundStyle: 'stone',
     shade: 0x2a1408,
     columnStyle: 'chain',
     platformStyle: 'shelf',
-    grass: 0xe8a048,
-    grassDark: 0xb8762a,
-    dirt: 0x7a4418,
-    dirtDark: 0x5a3010,
-    rock: 0xb86a2a,
-    rockDark: 0x7a4418,
-    rockLight: 0xe0965a,
+    grass: 0xe08a3a,
+    grassDark: 0x9a4a1a,
+    dirt: 0x3a2014,
+    dirtDark: 0x26140c,
+    rock: 0x4a2a1e,
+    rockDark: 0x2a160e,
+    rockLight: 0xe07a2a,
     branch: 0xb86a2a,
     branchDark: 0x7a4418,
     leaf: 0xb86a2a,
@@ -477,9 +479,9 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     lavaDeep: 0x8f2d10,
     lavaBright: 0xffc44d,
   },
-  // Uranus: pale cyan ice.
+  // Uranus: pale cyan ice laid in flat tiles, like a path of stones.
   uranus: {
-    surfaceStyle: 'dust',
+    surfaceStyle: 'path',
     groundStyle: 'earth',
     shade: 0x0e2028,
     columnStyle: 'chain',
@@ -539,15 +541,16 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     lavaDeep: 0x8f2d10,
     lavaBright: 0xffc44d,
   },
-  // Pluto: beige rock and white nitrogen ice, far from the sun.
+  // Pluto: beige rock with white frost standing up along every top, far from
+  // the sun.
   pluto: {
-    surfaceStyle: 'dust',
+    surfaceStyle: 'grass',
     groundStyle: 'earth',
     shade: 0x1a1410,
     columnStyle: 'chain',
     platformStyle: 'shelf',
-    grass: 0xf4ece0,
-    grassDark: 0xd0c0a8,
+    grass: 0xffffff,
+    grassDark: 0xd8e4ec,
     dirt: 0x8a7058,
     dirtDark: 0x6a5442,
     rock: 0xb89a7a,
