@@ -1,4 +1,5 @@
 import type { LevelDefinition } from '../Level';
+import { CAT } from '../../config';
 
 /**
  * Neptune, taken over by the robots. 259 tiles.
@@ -67,6 +68,8 @@ export const NEPTUNE: LevelDefinition = {
   branchesNeedTrunks: false,
   // No air.
   helmet: true,
+  // Off the Earth: lighter, so the cat jumps higher.
+  gravity: CAT.offEarthGravity,
   // Back out into space, to the map.
   next: 'space',
   rows: ROWS,

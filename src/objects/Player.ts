@@ -251,7 +251,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // is additive on top of world gravity in Arcade, so this cancels most of
     // it and leaves only the fraction meant to act underwater.
     this.body.setAllowGravity(true);
-    this.body.setGravityY(CAT.swimGravity - CAT.gravity);
+    this.body.setGravityY(CAT.swimGravity - this.scene.physics.world.gravity.y);
 
     if (controls.jumpJustPressed) {
       this.setVelocityY(CAT.swimStrokeVelocity);
@@ -763,7 +763,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     if (!controls.jumpHeld) {
-      this.setVelocityY(this.body.velocity.y + CAT.jumpReleaseGravity * dt);
+      // Scaled with the world's gravity, so letting go cuts a jump short by
+      // the same share on the moon as on the Earth.
+      this.setVelocityY(this.body.velocity.y + CAT.jumpReleaseGravity * (this.scene.physics.world.gravity.y / CAT.gravity) * dt);
     }
   }
 

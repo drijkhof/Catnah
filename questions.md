@@ -1973,3 +1973,14 @@ green beam goes out; the way it fires is picked so the beam passes well
 clear of the cat, the Earth, the Moon and every planet out there, and if no
 way is clear it skips that shot. It is heard only when the cat is within a
 screen of it. Nothing it does can hurt.
+
+## Lighter gravity on the other worlds
+
+Asked for: on every planet but the Earth you can jump higher. The moon and
+the seven robots' worlds have six tenths of the Earth's gravity
+(`CAT.offEarthGravity`, a level's `gravity`): measured, a held jump goes
+146px there against 86px at home. Letting go of the jump early cuts it
+short by the same share. Everything there falls by it, the robots too.
+
+> **Still open:** 0.6 is a gameplay number, not the real one (the moon's is
+> about a sixth). Lower makes the obstacles too easy to jump.

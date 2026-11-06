@@ -1,4 +1,5 @@
 import type { LevelDefinition } from '../Level';
+import { CAT } from '../../config';
 
 /**
  * Venus, taken over by the robots. 258 tiles.
@@ -67,6 +68,8 @@ export const VENUS: LevelDefinition = {
   branchesNeedTrunks: false,
   // No air.
   helmet: true,
+  // Off the Earth: lighter, so the cat jumps higher.
+  gravity: CAT.offEarthGravity,
   // Back out into space, to the map.
   next: 'space',
   rows: ROWS,

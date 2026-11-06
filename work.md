@@ -777,6 +777,11 @@ base, and one on the hills on the horizon.
 **A space helmet**: in space and on the moon the cat wears a glass bubble
 over its head, which stays on in every pose.
 
+**Lighter gravity off the Earth**: on the moon and on every robots' world
+gravity is six tenths of the Earth's, so the cat jumps higher — 146 pixels
+with the jump held, against 86 at home — and falls more slowly. Robots too.
+Every level on the Earth, from the city to the sand path, keeps the Earth's.
+
 ### Cacti come tall
 
 A column of cactus cells in the map is one tall cactus, drawn as one with an

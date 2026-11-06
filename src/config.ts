@@ -208,6 +208,12 @@ export const CAT = {
   sneakSpeedMultiplier: 0.42,
 
   gravity: 1500,
+  /**
+   * Gravity on the other worlds -- the moon and the robots' planets -- as a
+   * share of the Earth's. Lighter, so the cat jumps higher: about half as
+   * high again at 0.6.
+   */
+  offEarthGravity: 0.6,
   /** Upward velocity applied on jump, px/sec. Negative is up. */
   jumpVelocity: -520,
   /** Cap on falling speed so long drops stay readable, px/sec. */

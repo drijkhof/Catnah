@@ -273,6 +273,13 @@ ends in `launchRocket` -- or, with every part, the cat lands by the base
 (`create` puts it beside Bob) and his thanks end in the victory screen.
 The worlds after the moon in `LEVELS` are only ever reached from the map.
 
+## Lighter gravity
+
+`gravity` on a level is a share of the Earth's; `GameScene.create` sets the
+physics world's gravity from it on every level, since the scene is reused.
+The moon and the robots' worlds use `CAT.offEarthGravity`. The player's
+jump-release and swim gravity are scaled off the world's, not `CAT.gravity`.
+
 ## No air
 
 `helmet: true` puts the space helmet on the cat for the whole level

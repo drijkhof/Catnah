@@ -115,6 +115,12 @@ export interface LevelDefinition {
   next?: 'space';
   /** Whether the cat wears a space helmet here: there is no air. */
   helmet?: boolean;
+  /**
+   * Gravity here against the Earth's: 1 on Earth, less on every other world,
+   * so the cat jumps higher there. Everything falls by it, the cat and the
+   * creatures alike.
+   */
+  gravity?: number;
   rows: string[];
 }
 
@@ -233,6 +239,8 @@ export interface ParsedLevel {
   portalPull: number;
   next: 'space' | null;
   helmet: boolean;
+  /** Gravity against the Earth's: 1, or less off the Earth. */
+  gravity: number;
   /** Planted flags (`F`), by the foot of the pole. Scenery. */
   flags: Point[];
   /** Parts for Bob's machine (`K`), by their middle. */
@@ -702,6 +710,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     portalPull: definition.portalPull ?? 0,
     next: definition.next ?? null,
     helmet: definition.helmet ?? false,
+    gravity: definition.gravity ?? 1,
     flags,
     parts,
     hatches,

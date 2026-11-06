@@ -1,4 +1,5 @@
 import type { LevelDefinition } from '../Level';
+import { CAT } from '../../config';
 
 /**
  * Level 10: the moon. 179 tiles.
@@ -70,5 +71,7 @@ export const MOON: LevelDefinition = {
   branchesNeedTrunks: false,
   // No air: the cat wears its space helmet here.
   helmet: true,
+  // Off the Earth: lighter, so the cat jumps higher.
+  gravity: CAT.offEarthGravity,
   rows: ROWS,
 };

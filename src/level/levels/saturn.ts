@@ -1,4 +1,5 @@
 import type { LevelDefinition } from '../Level';
+import { CAT } from '../../config';
 
 /**
  * Saturn, taken over by the robots. 272 tiles.
@@ -68,6 +69,8 @@ export const SATURN: LevelDefinition = {
   branchesNeedTrunks: false,
   // No air.
   helmet: true,
+  // Off the Earth: lighter, so the cat jumps higher.
+  gravity: CAT.offEarthGravity,
   // Back out into space, to the map.
   next: 'space',
   rows: ROWS,

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { AWAKE_RANGE, BOB, PARTS, RAIN, ROBOT, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
+import { AWAKE_RANGE, BOB, CAT, PARTS, RAIN, ROBOT, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
 import { Controls, IdleControls, type PlayerInput } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -312,6 +312,10 @@ export class GameScene extends Phaser.Scene {
     this.lifeIcons = [];
     this.dying = false;
     this.leaving = false;
+
+    // Gravity is the place's: the Earth's, or lighter on the other worlds.
+    // Set every time, since the scene is reused from level to level.
+    this.physics.world.gravity.y = CAT.gravity * this.level.gravity;
 
     // The world is taller than the level so a cat that misses a jump falls into
     // empty space and respawns, rather than landing on an invisible floor.
