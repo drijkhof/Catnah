@@ -50,6 +50,9 @@ export class SpaceScene extends Phaser.Scene {
   /** The battle station, and the line that comes up when the cat is near it. */
   private station!: Phaser.GameObjects.Image;
   private stationWords!: CrispText;
+  /** Where the station drifts about, and the starship going round it. */
+  private stationHome = new Phaser.Math.Vector2();
+  private ship!: Phaser.GameObjects.Image;
   /** Planets out here, for the laser to keep clear of. */
   private planets: Phaser.GameObjects.Image[] = [];
   /** The cat's speech bubble, behind those words. */
@@ -134,9 +137,11 @@ export class SpaceScene extends Phaser.Scene {
     // The battle station, out there between the Earth and the rest: seen,
     // never entered. Come near and the cat says so, in a bubble over its
     // head that follows it about.
-    this.station = this.add
-      .image(this.earth.x + 600, this.earth.y - 470, 'battle-station')
-      .setDepth(-38);
+    this.stationHome = new Phaser.Math.Vector2(this.earth.x + 600, this.earth.y - 470);
+    this.station = this.add.image(this.stationHome.x, this.stationHome.y, 'battle-station').setDepth(-38);
+    // And the starship, going round it, the two of them firing at each other.
+    this.ship = this.add.image(0, 0, 'starship').setDepth(-37);
+    this.drift();
     this.catBubble = this.add.graphics().setDepth(12).setAlpha(0);
     this.stationWords = crispText(this, 0, 0, "That's no moon...", {
       fontFamily: 'monospace',
@@ -150,6 +155,7 @@ export class SpaceScene extends Phaser.Scene {
 
     // It fires, now and then, out into nothing.
     this.time.addEvent({ delay: LASER.everyMs, loop: true, callback: () => this.fireLaser() });
+    this.time.addEvent({ delay: LASER.shipEveryMs, loop: true, callback: () => this.fireShip() });
 
     // The ISS, going round the Earth -- only ever seen, never landed on.
     const iss = this.add.image(0, 0, 'planet-iss').setScale(0.7).setDepth(-39);
@@ -222,6 +228,8 @@ export class SpaceScene extends Phaser.Scene {
       layer.sprite.tilePositionY = (camera.scrollY * layer.factor) % STARFIELD_SIZE;
     }
 
+    this.drift();
+
     if (this.mapShown) {
       return;
     }
@@ -250,48 +258,87 @@ export class SpaceScene extends Phaser.Scene {
   }
 
   /**
+   * Things a beam must keep clear of: the cat, the Earth, the Moon and every
+   * planet out here. Nothing that is fired out here is fired at any of them.
+   */
+  private avoidList(): Array<{ x: number; y: number; r: number }> {
+    return [
+      { x: this.cat.x, y: this.cat.y, r: LASER.clearance },
+      { x: this.earth.x, y: this.earth.y, r: 260 },
+      { x: this.earth.x + 330, y: this.earth.y - 190, r: 80 },
+      ...this.planets.map((planet) => ({ x: planet.x, y: planet.y, r: planet.displayWidth / 2 + 40 })),
+    ];
+  }
+
+  /** Whether a beam from one point to another keeps clear of all of those. */
+  private beamIsClear(from: Phaser.Math.Vector2, to: Phaser.Math.Vector2): boolean {
+    const line = new Phaser.Geom.Line(from.x, from.y, to.x, to.y);
+    return this.avoidList().every((thing) => {
+      const nearest = Phaser.Geom.Line.GetNearestPoint(line, new Phaser.Math.Vector2(thing.x, thing.y));
+      const onSegment =
+        Math.min(from.x, to.x) - 1 <= nearest.x && nearest.x <= Math.max(from.x, to.x) + 1 &&
+        Math.min(from.y, to.y) - 1 <= nearest.y && nearest.y <= Math.max(from.y, to.y) + 1;
+      const point = onSegment
+        ? nearest
+        : Phaser.Math.Distance.Between(thing.x, thing.y, from.x, from.y) < Phaser.Math.Distance.Between(thing.x, thing.y, to.x, to.y)
+          ? from
+          : to;
+      return Phaser.Math.Distance.Between(thing.x, thing.y, point.x, point.y) > thing.r;
+    });
+  }
+
+  /** A beam: a bright core in a coloured glow, fading out. */
+  private drawBeam(from: Phaser.Math.Vector2, to: Phaser.Math.Vector2, glow: number, core: number): void {
+    const beam = this.add.graphics().setDepth(-37).setBlendMode(Phaser.BlendModes.ADD);
+    beam.lineStyle(7, glow, 0.35);
+    beam.lineBetween(from.x, from.y, to.x, to.y);
+    beam.lineStyle(3, core, 0.9);
+    beam.lineBetween(from.x, from.y, to.x, to.y);
+    beam.lineStyle(1, 0xffffff, 1);
+    beam.lineBetween(from.x, from.y, to.x, to.y);
+    if (Phaser.Math.Distance.Between(this.cat.x, this.cat.y, from.x, from.y) < GAME_WIDTH) {
+      sound.play('laser');
+    }
+    this.tweens.add({ targets: beam, alpha: 0, duration: LASER.beamMs, ease: 'Cubic.easeIn', onComplete: () => beam.destroy() });
+  }
+
+  /** A flash where a beam lands. Nothing is hurt by it. */
+  private impact(at: Phaser.Math.Vector2, tint: number): void {
+    const flash = this.add.image(at.x, at.y, 'spark').setTint(tint).setBlendMode(Phaser.BlendModes.ADD).setDepth(-36).setScale(2);
+    this.tweens.add({ targets: flash, scale: 8, alpha: 0, duration: 450, ease: 'Cubic.easeOut', onComplete: () => flash.destroy() });
+  }
+
+  /**
    * The battle station fires: its dish glows green for a moment, and then a
-   * beam goes out from it into empty space. The way it fires is picked so
-   * the beam passes well clear of the cat, the Earth, the Moon and every
-   * planet out here -- it is a sight, not a danger. If no way is clear it
-   * does not fire this time.
+   * beam goes out -- at the starship, if the way to it is clear of the cat
+   * and the planets, or otherwise out into empty space where it is clear.
+   * If nothing is clear it does not fire this time.
    */
   private fireLaser(): void {
     if (this.mapShown) {
       return;
     }
     const dish = new Phaser.Math.Vector2(this.station.x + 27, this.station.y - 27);
-    const avoid: Array<{ x: number; y: number; r: number }> = [
-      { x: this.cat.x, y: this.cat.y, r: LASER.clearance },
-      { x: this.earth.x, y: this.earth.y, r: 260 },
-      { x: this.earth.x + 330, y: this.earth.y - 190, r: 80 },
-      ...this.planets.map((planet) => ({ x: planet.x, y: planet.y, r: planet.displayWidth / 2 + 40 })),
-    ];
-    // Distance from a point to the beam's segment.
-    const clear = (angle: number): boolean => {
-      const end = new Phaser.Math.Vector2(dish.x + Math.cos(angle) * LASER.length, dish.y + Math.sin(angle) * LASER.length);
-      const line = new Phaser.Geom.Line(dish.x, dish.y, end.x, end.y);
-      return avoid.every((thing) => {
-        const nearest = Phaser.Geom.Line.GetNearestPoint(line, new Phaser.Math.Vector2(thing.x, thing.y));
-        const onSegment =
-          Math.min(dish.x, end.x) - 1 <= nearest.x && nearest.x <= Math.max(dish.x, end.x) + 1 &&
-          Math.min(dish.y, end.y) - 1 <= nearest.y && nearest.y <= Math.max(dish.y, end.y) + 1;
-        const point = onSegment ? nearest : Phaser.Math.Distance.Between(thing.x, thing.y, dish.x, dish.y) < Phaser.Math.Distance.Between(thing.x, thing.y, end.x, end.y) ? dish : end;
-        return Phaser.Math.Distance.Between(thing.x, thing.y, point.x, point.y) > thing.r;
-      });
-    };
-    const start = Math.random() * Math.PI * 2;
-    let angle: number | undefined;
-    for (let i = 0; i < 24; i += 1) {
-      const candidate = start + (i / 24) * Math.PI * 2;
-      if (clear(candidate)) {
-        angle = candidate;
-        break;
+    let target: Phaser.Math.Vector2 | undefined;
+    const ship = new Phaser.Math.Vector2(this.ship.x, this.ship.y);
+    let hits = false;
+    if (this.beamIsClear(dish, ship)) {
+      target = ship;
+      hits = true;
+    } else {
+      const start = Math.random() * Math.PI * 2;
+      for (let i = 0; i < 24 && !target; i += 1) {
+        const angle = start + (i / 24) * Math.PI * 2;
+        const end = new Phaser.Math.Vector2(dish.x + Math.cos(angle) * LASER.length, dish.y + Math.sin(angle) * LASER.length);
+        if (this.beamIsClear(dish, end)) {
+          target = end;
+        }
       }
     }
-    if (angle === undefined) {
+    if (!target) {
       return;
     }
+    const aim = target;
 
     // The charge.
     const glow = this.add.image(dish.x, dish.y, 'spark').setTint(0x7aff7a).setBlendMode(Phaser.BlendModes.ADD).setDepth(-37).setScale(1);
@@ -302,21 +349,46 @@ export class SpaceScene extends Phaser.Scene {
       ease: 'Sine.easeIn',
       onComplete: () => {
         glow.destroy();
-        // The beam: a bright core in a green glow, out to its length.
-        const beam = this.add.graphics().setDepth(-37).setBlendMode(Phaser.BlendModes.ADD);
-        const end = new Phaser.Math.Vector2(dish.x + Math.cos(angle) * LASER.length, dish.y + Math.sin(angle) * LASER.length);
-        beam.lineStyle(7, 0x3aff5a, 0.35);
-        beam.lineBetween(dish.x, dish.y, end.x, end.y);
-        beam.lineStyle(3, 0x9fff9f, 0.9);
-        beam.lineBetween(dish.x, dish.y, end.x, end.y);
-        beam.lineStyle(1, 0xffffff, 1);
-        beam.lineBetween(dish.x, dish.y, end.x, end.y);
-        if (Phaser.Math.Distance.Between(this.cat.x, this.cat.y, dish.x, dish.y) < GAME_WIDTH) {
-          sound.play('laser');
+        // The ship has moved on a little while the dish charged: aim again.
+        const end = hits ? new Phaser.Math.Vector2(this.ship.x, this.ship.y) : aim;
+        this.drawBeam(dish, end, 0x3aff5a, 0x9fff9f);
+        if (hits) {
+          this.impact(end, 0x9fff9f);
         }
-        this.tweens.add({ targets: beam, alpha: 0, duration: LASER.beamMs, ease: 'Cubic.easeIn', onComplete: () => beam.destroy() });
       },
     });
+  }
+
+  /**
+   * The starship fires back: a short orange phaser from its saucer to the
+   * station's near side, if the way is clear of the cat and the planets.
+   */
+  private fireShip(): void {
+    if (this.mapShown) {
+      return;
+    }
+    const facing = this.ship.flipX ? -1 : 1;
+    const from = new Phaser.Math.Vector2(this.ship.x + 16 * facing, this.ship.y - 5);
+    const toward = new Phaser.Math.Vector2(this.station.x - from.x, this.station.y - from.y).normalize();
+    const to = new Phaser.Math.Vector2(this.station.x - toward.x * 70, this.station.y - toward.y * 70);
+    if (!this.beamIsClear(from, to)) {
+      return;
+    }
+    this.drawBeam(from, to, 0xff7a2a, 0xffc080);
+    this.impact(to, 0xffb060);
+  }
+
+  /**
+   * The station and the starship drift: the station round a small, slow
+   * circle about where it was put, the ship round the station, facing it.
+   */
+  private drift(): void {
+    const t = this.time.now;
+    const a = (t / LASER.stationDriftMs) * Math.PI * 2;
+    this.station.setPosition(this.stationHome.x + Math.cos(a) * LASER.stationDrift, this.stationHome.y + Math.sin(a) * LASER.stationDrift * 0.6);
+    const b = (t / LASER.shipOrbitMs) * Math.PI * 2;
+    this.ship.setPosition(this.station.x + Math.cos(b) * LASER.shipOrbit.x, this.station.y + Math.sin(b) * LASER.shipOrbit.y);
+    this.ship.setFlipX(this.station.x < this.ship.x);
   }
 
   /**

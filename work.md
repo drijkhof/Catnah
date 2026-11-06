@@ -52,6 +52,7 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | onderdeel | `part` | one of the hundred cogs Bob needs; `K`, spread over the seven robots' worlds |
 | Death Star | `battle station` | seen in space, never entered: "That's no moon..." |
 | ISS | `ISS` | goes round the Earth in space; seen, never landed on |
+| Enterprise | `starship` | goes round the Death Star in space, the two firing at each other |
 | raket | `rocket` | Bob's: the way from the moon to Mars and Saturn |
 | maanbasis | `moon base` | the moon's `M`: a module with doors at both ends and a lab inside |
 | laboratorium | `laboratory` | inside the moon base |
@@ -669,8 +670,13 @@ Moon, under *"Find the parts!"*.
 Out there you can see, but never land on, the **ISS** going round the Earth
 and a **battle station** — the Death Star — hanging in space. Fly near it
 and the cat says, in a little bubble over its head: *"That's no moon..."*.
-Every ten seconds the station's dish glows green and it fires a laser —
-out into empty space, never at the cat and never across a planet.
+A **starship** — the Enterprise — goes slowly round the station, and the
+station drifts slowly too. They fire at each other: every ten seconds the
+station's dish glows green and its laser goes at the starship, and every
+seven seconds the starship's orange phaser hits the station, each with a
+flash where it lands. Neither is ever hurt, and neither ever fires at the
+cat or across a planet: if the way is not clear, the station fires out into
+empty space instead and the starship holds its fire.
 
 **The map** shows the worlds in two rows, in their order out from the sun:
 Venus, the Earth, the Moon, Mars, Jupiter; and under them Saturn, Uranus,

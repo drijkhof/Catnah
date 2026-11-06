@@ -45,6 +45,7 @@ export function generateSpaceTextures(scene: Phaser.Scene): void {
   generateRocket(scene);
   generateWorldScenery(scene);
   generateBattleStation(scene);
+  generateStarship(scene);
   bakeTexture(scene, 'mars-sky', GAME_WIDTH, GAME_HEIGHT, (g) => {
     // Mars by day: a butterscotch haze, paler towards the ground.
     fillVerticalGradient(g, GAME_WIDTH, GAME_HEIGHT, 0x8a4a3a, 0xe0a878);
@@ -764,5 +765,54 @@ function generateBattleStation(scene: Phaser.Scene): void {
     g.fillStyle(0x9fff9f, 1);
     g.fillCircle(dx + 2, dy + 2, 2);
     nightSide(g, c, c, r);
+  });
+}
+
+/** The starship -- the Enterprise -- px; it faces right. */
+export const STARSHIP_SIZE = { width: 64, height: 32 };
+
+/**
+ * A starship facing right: a round saucer up front, a neck down to the
+ * engineering hull behind it, and two long engine nacelles raised on
+ * pylons at the back, glowing blue along their sides and red at the front.
+ */
+function generateStarship(scene: Phaser.Scene): void {
+  const { width, height } = STARSHIP_SIZE;
+  bakeTexture(scene, 'starship', width, height, (g) => {
+    const hull = 0xd8dce4;
+    const shade = 0x9aa0aa;
+    // Nacelles, on pylons, at the back and top.
+    g.fillStyle(shade, 1);
+    g.fillRect(14, 9, 3, 6);
+    g.fillRect(14, 4, 3, 2);
+    for (const y of [2, 8]) {
+      g.fillStyle(hull, 1);
+      g.fillRoundedRect(2, y, 26, 4, 2);
+      g.fillStyle(0x6ab0ff, 1);
+      g.fillRect(5, y + 2, 20, 1);
+      g.fillStyle(0xff4a3a, 1);
+      g.fillRect(26, y, 2, 4);
+    }
+    // The engineering hull, and its deflector dish.
+    g.fillStyle(hull, 1);
+    g.fillEllipse(24, 20, 26, 8);
+    g.fillStyle(shade, 1);
+    g.fillRect(12, 21, 24, 2);
+    g.fillStyle(0xffa040, 1);
+    g.fillCircle(36, 20, 2);
+    // The neck.
+    g.fillStyle(hull, 1);
+    g.fillTriangle(30, 18, 36, 18, 40, 12);
+    // The saucer, seen a little from above.
+    g.fillStyle(shade, 1);
+    g.fillEllipse(48, 12, 30, 10);
+    g.fillStyle(hull, 1);
+    g.fillEllipse(48, 11, 30, 9);
+    g.fillStyle(0xffffff, 1);
+    g.fillEllipse(48, 10, 8, 3);
+    g.fillStyle(0x6ab0ff, 0.8);
+    for (const x of [38, 42, 54, 58]) {
+      g.fillRect(x, 12, 1, 1);
+    }
   });
 }

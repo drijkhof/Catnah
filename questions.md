@@ -1984,3 +1984,14 @@ short by the same share. Everything there falls by it, the robots too.
 
 > **Still open:** 0.6 is a gameplay number, not the real one (the moon's is
 > about a sixth). Lower makes the obstacles too easy to jump.
+
+## The Enterprise and the Death Star, at it
+
+Asked for: the Enterprise hangs in space too, fires at the Death Star and
+the Death Star at it, and both move slowly. The starship is a generic one
+-- saucer, neck, hull, two nacelles -- going round the station once every
+seventy seconds; the station drifts round a small circle once every ninety.
+The station's laser now goes at the starship when the way is clear (else
+into empty space, as before); the starship's phaser goes at the station
+every seven seconds when its way is clear, else it waits. Nothing is ever
+fired at the cat or across a planet, and nothing is hurt.

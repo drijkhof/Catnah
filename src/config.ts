@@ -537,6 +537,14 @@ export const BOB = {
  */
 export const LASER = {
   everyMs: 10000,
+  /** The starship's phaser at the station, every so often, ms. */
+  shipEveryMs: 7000,
+  /** How long the station takes to go round its little circle, and its size, ms and px. */
+  stationDriftMs: 90000,
+  stationDrift: 120,
+  /** How long the starship takes to go round the station, and how far out, ms and px. */
+  shipOrbitMs: 70000,
+  shipOrbit: { x: 380, y: 230 },
   chargeMs: 600,
   beamMs: 700,
   length: 1100,
