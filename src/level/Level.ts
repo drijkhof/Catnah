@@ -531,6 +531,12 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
         // ground: the cat can break it, so nothing around it may switch a
         // face off against it -- see `FULL_CELL`, which leaves it out.
         case 'D':
+          // Only on the moon. A stray `D` sat harmlessly in the cave for a
+          // long time, meaning nothing, and became a robot block the day the
+          // letter got a meaning -- so a level elsewhere refuses to load.
+          if (definition.theme !== 'moon') {
+            throw new Error(`${definition.name}: a grey block 'D' at ${column},${row}, but those are only on the moon.`);
+          }
           hatches.push({ x, y });
           solids.push({
             x,

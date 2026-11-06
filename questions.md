@@ -1881,3 +1881,10 @@ robots cannot get into the moon base.
   small again, as if the next one is growing.
 - **Robots turn at the base's doors**, chasing or not. One already inside
   (none can be, now) would not be thrown out.
+
+## No grey blocks or robots in the cave
+
+A stray `D` had sat in one of the cave's rows for a long time, meaning
+nothing, and the day `D` became the moon's grey block it put a block in the
+cave, with robots coming out of it. It is gone, and a `D` anywhere but the
+moon now stops the level loading rather than slipping through again.
