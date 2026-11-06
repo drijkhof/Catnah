@@ -49,7 +49,7 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | kaart | `map` | the Earth, the Moon, Mars and Saturn; only the Moon can be picked |
 | maan | `moon` | the last level |
 | robotje | `robot` | the walker of the robots' worlds: comes for you to grab you |
-| onderdeel | `part` | one of the hundred cogs Bob needs; `K`, spread over the seven robots' worlds |
+| onderdeel | `part` | one of the ten cogs Bob needs; `K`, spread over the seven robots' worlds |
 | Death Star | `battle station` | seen in space, never entered: "That's no moon..." |
 | ISS | `ISS` | goes round the Earth in space; seen, never landed on |
 | Enterprise | `starship` | goes round the Death Star in space, the two firing at each other |
@@ -540,8 +540,8 @@ desert, the desert runs down to the beach, and the beach into the sand path,
 which ends at the **big portal**. That one sends you off into **space**, to
 a map, and from the map to the **moon**. There Bob the alien tells you the
 robots have taken over the planets and sends you off in his rocket for the
-**hundred parts** he needs to destroy them, spread over the seven worlds.
-With all hundred, you fly back to the moon and give them to Bob — and that
+**ten parts** he needs to destroy them, spread over the seven worlds.
+With all ten, you fly back to the moon and give them to Bob — and that
 is the win. Little hearts are optional everywhere.
 
 ### 1 — City
@@ -682,8 +682,8 @@ empty space instead and the starship holds its fire.
 Venus, the Earth, the Moon, Mars, Jupiter; and under them Saturn, Uranus,
 Neptune, Pluto. The first time, only the Moon can be picked. In the rocket,
 every world the robots hold can, each with its parts found under its name
-(*"Pluto 3/14"*) — but not the Earth, and not the Moon, where there are no
-parts. **With all hundred**, the Moon opens again: *"Take the parts to
+(*"Mars 1/2"*) — but not the Earth, and not the Moon, where there are no
+parts. **With all ten**, the Moon opens again: *"Take the parts to
 Bob!"*. On a keyboard, left and right choose and any other key goes. Each
 world's portal brings you back here, to choose again.
 
@@ -720,15 +720,13 @@ the helmet on — and **full of obstacles**: gaps to jump (falling costs a
 heart) or craters, thorns, rock to climb, towers with chains, zigzags of
 shelves, slabs to sneak under.
 
-**The hundred parts**: fifteen each on Mars and Saturn, fourteen each on the
-other five. They are brass cogs, turning, and **hard to find**: each shows
-only faintly until you are close to it, and most are hidden — shut in a
-cage of grey blocks (break one to get in), down a hole in the ground along a
-low pocket (sneak to the end), in the middle of a patch of thorns (sneak
-under the points), at the top of a long stair of shelves, beside and on top
-of towers, on the rocks, under the slabs. On Saturn one is past the portal,
-on a pillar: jump over the portal for it. The count is in the corner under
-the little hearts (*"37/100"*), and each one found says so across the
+**The ten parts**: two each on Mars, Saturn and Jupiter, one each on Venus,
+Uranus, Neptune and Pluto. They are brass cogs, turning, and **hard to
+find**: each shows only faintly until you are close to it, and each is
+hidden — every world has one down a hole in the ground, along a low pocket
+you sneak to the end of, and the worlds with two have the other shut in a
+cage of grey blocks (break one to get in). The count is in the corner under
+the little hearts (*"3/10"*), and each one found says so across the
 screen. A part once found stays found for the run.
 
 **What they look like** — no world has itself in its own sky; from each you
@@ -765,17 +763,14 @@ blinking now and then. Walk up to him and you **talk**: the hearts and the
 clock go away and the camera zooms in on the lab, Bob and you. He says
 *"Hi, my name is Bob!"*, Next (tap it, or jump) and *"What a cute little
 kitty!"*, then *"The robots have taken over the planets: the Moon, Mars,
-Saturn, Jupiter, Venus, Uranus, Neptune and Pluto!"*, then *"I need 100
-parts to destroy the robots. I built a rocket, but I do not know where Mars
+Saturn, Jupiter, Venus, Uranus, Neptune and Pluto!"*, then *"I need 10 parts to destroy the robots. I built a rocket, but I do not know where Mars
 is."*, and last *"Can you do it, kitty?"* — and the button under that says
 **Yes!**. Press it and the screen flashes white and you are off into space
 in his rocket. Nothing can hurt you while you talk.
 
-**Bringing him the parts**: with all hundred, pick the Moon on the map and
-you land right by the base. Walk up to Bob and he says *"You found all 100
-parts!"*, *"Now I can destroy the robots!"* and *"Thank you, cute little
-kitty!"* — and **Bye** is the win: the victory screen, which says *"All 100
-parts! Bob can stop the robots."*
+**Bringing him the parts**: with all ten, pick the Moon on the map and
+you land right by the base. Walk up to Bob and he says *"You found all 10 parts!"*, *"Now I can destroy the robots!"* and *"Thank you, cute little
+kitty!"* — and **Bye** is the win: the victory screen, which says *"All 10 parts! Bob can stop the robots."*
 
 **American flags** stand planted in the dust at the start and outside the
 base, and one on the hills on the horizon.
@@ -837,7 +832,7 @@ remembers nothing.
 
 ## Winning, and the score
 
-Give Bob all hundred parts and the sunlit forest comes up out of the
+Give Bob all ten parts and the sunlit forest comes up out of the
 black with **"You actually won!"** in gold over it, your **time** under
 that, and how often you died. The time is the score, and lower is better:
 every second you spend in a level counts, from the moment it starts until the

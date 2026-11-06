@@ -1995,3 +1995,13 @@ The station's laser now goes at the starship when the way is clear (else
 into empty space, as before); the starship's phaser goes at the station
 every seven seconds when its way is clear, else it waits. Nothing is ever
 fired at the cat or across a planet, and nothing is hurt.
+
+## Ten parts again
+
+Asked for: ten parts to find, not a hundred. Two each on Mars, Saturn and
+Jupiter, one each on Venus, Uranus, Neptune and Pluto. The ones kept are
+the best hidden: every world's part down a hole in the ground along a low
+pocket, and the second on the three with two in a cage of grey blocks. The
+other places a part used to be have a little heart now, as far as the
+level's budget of hearts allows, and are empty after that -- including the
+pillar past Saturn's portal.
