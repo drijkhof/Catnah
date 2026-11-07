@@ -1294,8 +1294,8 @@ export class GameScene extends Phaser.Scene {
    * **Breaking**: holding down while touching a block -- standing on it, or
    * pressed against its side -- cracks it, and after `ROBOT.breakMs` it is
    * gone, collision and all. Letting go mends the cracks: it has to be one
-   * hold. A cat holding down is sneaking, which no robot can hurt, so
-   * breaking a block is safe while it lasts.
+   * hold. Sneaking does not keep a robot off, so breaking a block with one
+   * coming is a risk.
    *
    * **Spawning**: an awake block lets a robot out every `ROBOT.spawnEveryMs`,
    * standing on its top, unless `ROBOT.maxAlivePerBlock` of its own are
@@ -1356,7 +1356,7 @@ export class GameScene extends Phaser.Scene {
     this.physics.add.collider(robot, this.branchGroup, undefined, (walker, branch) =>
       landsOnBranch(walker as Phaser.Physics.Arcade.Sprite, branch as Phaser.Physics.Arcade.Sprite),
     );
-    this.physics.add.overlap(this.player, robot, () => this.bitten());
+    this.physics.add.overlap(this.player, robot, () => this.bitten(false));
     robot.setScale(1, 0.2);
     this.tweens.add({ targets: robot, scaleY: 1, duration: 260, ease: 'Back.easeOut' });
     sound.playAt('beep', x, y);
@@ -1493,7 +1493,8 @@ export class GameScene extends Phaser.Scene {
         continue;
       }
       if (!this.titleMode) {
-        this.physics.add.overlap(this.player, creature, () => this.bitten());
+        const sneakSafe = creature instanceof Crow;
+        this.physics.add.overlap(this.player, creature, () => this.bitten(sneakSafe));
       }
     }
   }
@@ -1565,7 +1566,8 @@ export class GameScene extends Phaser.Scene {
     const boss = this.buildBoss(at);
     this.physics.add.collider(boss, this.blocks);
     if (!this.titleMode) {
-      this.physics.add.overlap(this.player, boss, () => this.bitten());
+      // The beetle cannot get at a cat sneaking under the thorns -- and only there.
+      this.physics.add.overlap(this.player, boss, () => this.bitten(this.underThorns()));
     }
     return boss;
   }
@@ -1714,10 +1716,10 @@ export class GameScene extends Phaser.Scene {
       return true;
     }
 
-    // A worm kills by the part of it that is out of the sand this frame --
-    // unless the cat is sneaking, which no creature can get at.
+    // A worm kills by the part of it that is out of the sand this frame,
+    // sneaking or not.
     for (const worm of this.worms) {
-      if (!this.player.sneaking && worm.touches(body)) {
+      if (worm.touches(body)) {
         return true;
       }
     }
@@ -1755,14 +1757,21 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
-   * A creature has touched the cat. A sneaking cat is out of reach of every
-   * one of them -- hedgehog, rat, crab, bird, spider, worm and the beetle --
-   * the way it already was under the thorns, where the beetle could not get
-   * at it either. Lava, cacti and jellyfish are not creatures reaching for
-   * it, and still kill a sneaking cat like any other.
+   * A creature has touched the cat. Sneaking saves it only from the ones
+   * that come down at it from above: a bird anywhere, and the beetle, but
+   * only while the cat crawls under the thorns. Everything that
+   * walks the ground -- hedgehog, rat, crab, robot -- and spiders and worms
+   * get a sneaking cat like any other.
    */
-  private bitten(): void {
-    if (this.player.sneaking) {
+  private underThorns(): boolean {
+    const body = this.player.body;
+    return this.thornRects.some(
+      (zone) => body.right > zone.x && body.x < zone.right && body.bottom > zone.y && body.y < zone.bottom,
+    );
+  }
+
+  private bitten(sneakSafe: boolean): void {
+    if (sneakSafe && this.player.sneaking) {
       return;
     }
     this.kill();

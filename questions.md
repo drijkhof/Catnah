@@ -2062,3 +2062,12 @@ A bounce pad throws harder now. The cat's speed is capped for falling, and
 the cap held going up too, so a pad could never throw it higher than about
 two hundred pixels; the cap is lifted for a bounce until the cat starts to
 fall.
+
+## Sneaking: only birds, and the beetle under the thorns
+
+Asked for: sneaking under the spikes only works against the evil beetle,
+and against no other animal except birds. So a sneaking cat is safe from a
+crow or a gull anywhere, and from the beetle only while it is in thorns;
+hedgehogs, rats, crabs, robots, spiders and worms get it sneaking or not.
+This replaces "sneaking, nothing alive can get at you" above. Breaking a
+grey block on the moon is no longer safe with a robot coming.
