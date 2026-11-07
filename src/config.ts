@@ -942,6 +942,21 @@ export const RAIN = {
   patterMaxMs: 300,
 } as const;
 
+/**
+ * The park in the city: a bench and a fountain, both stood on. Both are
+ * one-way ledges, so nothing walking the pavement is stopped by them.
+ */
+export const PARK = {
+  /** Pixels from the top of a bench's tile down to its seat. */
+  benchSeat: 7,
+  /** Pixels from the top of a fountain's tile down to the basin's rim. */
+  fountainRim: 5,
+  /** How high the fountain throws its water, px above the rim. */
+  jet: 30,
+  /** Drops the fountain throws a second. */
+  dropsPerSecond: 40,
+} as const;
+
 export const EXIT = {
   /** The disc as shown, px. Round, so it can simply be turned. */
   diameter: 32,

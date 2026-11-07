@@ -21,6 +21,7 @@ binary assets but the portal picture and runs straight after clone.
   and the volcano's ridged mountains with lava running down them (`drawMountain`).
 - `creatures.ts` — hedgehog, rat, piranha, crow, crocodile, spider, the beetle,
   and the desert's camel, worm, mound and cactus.
+- `park.ts` — the city's park: `bakeBench`, `bakeFountain` (and the `fountain-drop` its jet throws), `bakeLawn`, and the `park-tree`. Drawn per run of cells by `GameScene.buildPark`.
 - `house.ts` — the city: `bakeHouse` draws a cluster of cells as one town
   house (stepped gable, sash windows, door, arcade arches under it),
   `bakeAwning` a run of `=` as one striped awning, and the skyline textures

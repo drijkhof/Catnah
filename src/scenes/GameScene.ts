@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { AWAKE_RANGE, BOB, CAT, OBSTACLES, PARTS, RAIN, ROBOT, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
+import { AWAKE_RANGE, BOB, PARK, CAT, OBSTACLES, PARTS, RAIN, ROBOT, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
 import { Controls, IdleControls, type PlayerInput } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -15,7 +15,7 @@ import { KEEP_LIVE, addGroundShade, bakeScenery, createBackdrop } from '../world
 import { parseLevel, type ClimbZone, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
 import { TITLE } from '../level/levels/title';
-import { BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, CASTLE_FLAG_HEADROOM, PAD_SIZE, BRANCH_THICKNESS, bakeCloudPlatform, HEAD_IN_POSE, BASE_HEADROOM, LAB_CONSOLE_X, LAB_TANK, baseInside, bakeMoonBase, AWNING_BULGE, HOUSE_HEADROOM, bakeAwning, bakeHouse, GRASS_FRINGE_HEIGHT, JELLY_SIZE, LOG_BULGE, PALM_BULGE, PALM_CROWN_ANCHOR, PALM_CROWN_SIZE, bakePalmTrunk, bakeSandCastle, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeCactus, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
+import { BENCH_HEADROOM, FOUNTAIN_HEADROOM, bakeBench, bakeFountain, bakeLawn, BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, CASTLE_FLAG_HEADROOM, PAD_SIZE, BRANCH_THICKNESS, bakeCloudPlatform, HEAD_IN_POSE, BASE_HEADROOM, LAB_CONSOLE_X, LAB_TANK, baseInside, bakeMoonBase, AWNING_BULGE, HOUSE_HEADROOM, bakeAwning, bakeHouse, GRASS_FRINGE_HEIGHT, JELLY_SIZE, LOG_BULGE, PALM_BULGE, PALM_CROWN_ANCHOR, PALM_CROWN_SIZE, bakePalmTrunk, bakeSandCastle, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeCactus, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { GOD_MODE_KEY, installGodMode, isGodMode } from '../dev/godMode';
@@ -1944,6 +1944,7 @@ export class GameScene extends Phaser.Scene {
     this.buildStoneMass();
     this.buildBoulders();
     this.buildBases();
+    this.buildPark();
     this.buildLogs();
     this.buildBranches();
     this.buildFillets();
@@ -2712,6 +2713,81 @@ export class GameScene extends Phaser.Scene {
    * down past the hull to the ground, for the inside and the doors; `=`
    * cells inside are its lab benches, and `buildBranches` leaves them be.
    */
+  /**
+   * The city's park: each run of `b` cells one bench and each run of `O`
+   * cells one fountain, throwing drops up out of its bowl, with a strip of
+   * lawn under the lot and a tree at each end. The seat and the rim are
+   * one-way ledges already, from the parser; this is only what they look
+   * like.
+   */
+  private buildPark(): void {
+    const runs = (cells: Array<{ x: number; y: number }>): Array<{ x: number; y: number; cells: number }> => {
+      const set = new Set(cells.map((cell) => `${cell.x},${cell.y}`));
+      return cells
+        .filter((cell) => !set.has(`${cell.x - TILE},${cell.y}`))
+        .map((cell) => {
+          let length = 1;
+          while (set.has(`${cell.x + length * TILE},${cell.y}`)) {
+            length += 1;
+          }
+          return { x: cell.x, y: cell.y, cells: length };
+        });
+    };
+    const benches = runs(this.level.benches);
+    const fountains = runs(this.level.fountains);
+    const all = [...benches, ...fountains];
+    if (all.length === 0) {
+      return;
+    }
+
+    // The lawn, from a tile before the first thing to a tile after the last.
+    const left = Math.min(...all.map((run) => run.x)) - TILE;
+    const right = Math.max(...all.map((run) => run.x + run.cells * TILE)) + TILE;
+    const floor = all[0].y + TILE;
+    const lawnCells = (right - left) / TILE;
+    const lawnKey = `park-lawn:${lawnCells}:${left}`;
+    if (!this.textures.exists(lawnKey)) {
+      bakeLawn(this, lawnKey, lawnCells, 5501 + left);
+    }
+    this.add.image(left, floor - 3, lawnKey).setOrigin(0, 0).setDepth(-0.9);
+    for (const x of [left + 6, right - 6]) {
+      this.add.image(x, floor, 'park-tree').setOrigin(0.5, 1).setDepth(-3);
+    }
+
+    for (const bench of benches) {
+      const key = `park-bench:${bench.cells}`;
+      if (!this.textures.exists(key)) {
+        bakeBench(this, key, bench.cells);
+      }
+      this.add.image(bench.x, bench.y - BENCH_HEADROOM, key).setOrigin(0, 0).setDepth(-0.8);
+    }
+
+    for (const fountain of fountains) {
+      const key = `park-fountain:${fountain.cells}`;
+      if (!this.textures.exists(key)) {
+        bakeFountain(this, key, fountain.cells);
+      }
+      this.add.image(fountain.x, fountain.y - FOUNTAIN_HEADROOM, key).setOrigin(0, 0).setDepth(-0.8);
+
+      // The jet: drops thrown up from the finial, falling back into the
+      // bowl and over its edge into the basin.
+      const gravity = 420;
+      const speed = Math.sqrt(2 * gravity * PARK.jet);
+      const emitter = this.add.particles(fountain.x + (fountain.cells * TILE) / 2, fountain.y - FOUNTAIN_HEADROOM, 'fountain-drop', {
+        speedY: { min: -speed, max: -speed * 0.8 },
+        speedX: { min: -22, max: 22 },
+        gravityY: gravity,
+        // Long enough to fall from the finial back down to the basin's rim.
+        lifespan: ((speed + Math.sqrt(speed * speed + 2 * gravity * (FOUNTAIN_HEADROOM + PARK.fountainRim))) / gravity) * 1000,
+        frequency: 1000 / PARK.dropsPerSecond,
+        alpha: { start: 0.9, end: 0.5 },
+        tint: [0xbfe3f5, 0x8ec4e6, 0xffffff],
+        scale: { min: 0.5, max: 1 },
+      });
+      emitter.setDepth(-0.85).setData(KEEP_LIVE, true);
+    }
+  }
+
   private buildBases(): void {
     const walls = this.level.solids.filter((solid) => solid.glyph === 'M');
     const cells = new Set(walls.map((solid) => `${solid.x / TILE},${solid.y / TILE}`));

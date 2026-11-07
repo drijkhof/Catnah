@@ -40,6 +40,9 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | stad | `city` | level 1: a street of Dutch gabled houses |
 | huis | `house` | the city's `R`: one picture per house, a stepped gable on top |
 | regenpijp | `drainpipe` | the city's climbable `T`, up the side of a house |
+| park | `park` | in the city, after the third house: lawn, benches, a fountain |
+| bankje | `bench` | in the park; you can stand on it |
+| fontein | `fountain` | in the park; you can stand on its rim |
 | luifel | `awning` | the city's one-way platform, striped, sticking out of a wall |
 | poort | `arcade` | an opening under a house, walked or sneaked through |
 | rat | `rat` | the city's walker, quicker than a hedgehog |
@@ -574,7 +577,7 @@ a way through:
 **Rats** run the pavement between the houses and under the arches, but only
 in the middle of the street: none on the first stretch, none on the last one
 before the portal, and two to a gap after the checkpoint, so the middle is
-where the level asks something of you. There is no water in the city. The tallest house
+where the level asks something of you. There is no water in the city. After the third house is a **park**: a strip of lawn with a tree at each end, two wooden **benches** you can jump up and stand on, and between them a stone **fountain** throwing water up out of its bowl, whose rim you can stand on too. A rat runs the park, under the benches. The tallest house
 has a spare heart floating over the gap beside it, and there is a checkpoint
 after the awnings.
 

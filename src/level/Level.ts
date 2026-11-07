@@ -1,4 +1,4 @@
-import { MAX_CHARMS_PER_LEVEL, SPIDER, TILE } from '../config';
+import { MAX_CHARMS_PER_LEVEL, PARK, SPIDER, TILE } from '../config';
 import { BRANCH_THICKNESS, TILE_VARIANTS } from '../art';
 import type { ThemeName } from './themes';
 import type { GroundEnemyKind } from '../config';
@@ -64,6 +64,8 @@ export type CrowBehaviour = 'attack' | 'flyby' | 'swoop';
  *        drops on a thread. Needs solid rock directly above it
  *   `S`  the same, ten times the size. One of them, guarding the cave's heart
  *   `X`  the boss, which guards the end of the level it is placed in
+ *   `b`  park bench -- its seat a one-way ledge; a run of cells is one bench
+ *   `O`  fountain -- its rim a one-way ledge; a run of cells is one fountain
  *   `.`  empty
  *
  * Rows may be written short; they are padded out with empty tiles.
@@ -255,6 +257,10 @@ export interface ParsedLevel {
   crumbles: Point[];
   /** Planted flags (`F`), by the foot of the pole. Scenery. */
   flags: Point[];
+  /** Park benches (`b`), each run of cells one bench, by its cells' top-left corners. */
+  benches: Point[];
+  /** Fountains (`O`), each run of cells one fountain, by its cells' top-left corners. */
+  fountains: Point[];
   /** Parts for Bob's machine (`K`), by their middle. */
   parts: Point[];
   /** The moon's grey blocks (`D`), by their top-left corner. Robots come out of them. */
@@ -350,6 +356,8 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const exits: Point[] = [];
   const hatches: Point[] = [];
   const flags: Point[] = [];
+  const benches: Point[] = [];
+  const fountains: Point[] = [];
   const parts: Point[] = [];
   const bouncePads: Point[] = [];
   const crumbles: Point[] = [];
@@ -573,6 +581,21 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           flags.push({ x: x + 4, y: y + TILE });
           break;
 
+        // A park bench: its seat is a one-way ledge, so the cat jumps up
+        // and stands on it and a rat runs underneath. Drawn by the scene,
+        // a run of cells as one bench.
+        case 'b':
+          benches.push({ x, y });
+          solids.push(platform(x, y + PARK.benchSeat, 'bench-ledge'));
+          break;
+
+        // A fountain: the basin's rim is a one-way ledge, stood on the same
+        // way. Drawn by the scene, a run of cells as one fountain.
+        case 'O':
+          fountains.push({ x, y });
+          solids.push(platform(x, y + PARK.fountainRim, 'fountain-ledge'));
+          break;
+
         // A grey block a robot climbs out of. Solid, but not part of the
         // ground: the cat can break it, so nothing around it may switch a
         // face off against it -- see `FULL_CELL`, which leaves it out.
@@ -774,6 +797,8 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     movers,
     crumbles,
     flags,
+    benches,
+    fountains,
     parts,
     hatches,
     waterZones,
