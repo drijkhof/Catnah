@@ -60,7 +60,7 @@ const ROWS: string[] = [
   '..........RRRRRR.....TGGGGGGQQQQ...oooo......RRRRRGGGGGG.....R.....GGGGG.TQQQQQ.ooo==RRRRRR..GGG',
   '.....ooo..RRRRRR.....TGGGGGGQQQQ...........==RRRRRGGGGGG....RRR....GGGGG.TQQQQQ......RRRRRR.GGGGG',
   '..........RRRRRR.....TGGGGGGQQQQ.............RRRRRGGGGGG...RRRRR...GGGGG.TQQQQQ......RRRRRR.GGGGG',
-  '.....................TGGGGGGQQQQ.............RRRRRGGGGGG...RRRRR.........TQQQQQ......RRRRRR.GGGGG',
+  '.....................TGGGGGGQQQQ.oo......oo..RRRRRGGGGGG...RRRRR.........TQQQQQ......RRRRRR.GGGGG',
   '..P........oooo......TGGGGGGQQQQ.bb.OOOO.bb.rRRRRRGGGGGG*..RRRRR.r..ooo.rTQQQQQ..r.r..oooo..GGGGG....E',
   '########################################################################################################',
   '########################################################################################################',

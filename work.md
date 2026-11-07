@@ -577,7 +577,7 @@ a way through:
 **Rats** run the pavement between the houses and under the arches, but only
 in the middle of the street: none on the first stretch, none on the last one
 before the portal, and two to a gap after the checkpoint, so the middle is
-where the level asks something of you. There is no water in the city. After the third house is a **park**: a strip of lawn with a tree at each end, two wooden **benches** you can jump up and stand on, and between them a stone **fountain** throwing water up out of its bowl, whose rim you can stand on too. A rat runs the park, under the benches. The tallest house
+where the level asks something of you. There is no water in the city. After the third house is a **park**: a strip of lawn with a tree at each end, two wooden **benches** you can jump up and stand on, two hearts on each, and between them a stone **fountain** throwing water up out of its bowl, whose rim you can stand on too. A rat runs the park, under the benches. The tallest house
 has a spare heart floating over the gap beside it, and there is a checkpoint
 after the awnings.
 
