@@ -1,5 +1,5 @@
 import type { LevelDefinition } from '../Level';
-import { CAT } from '../../config';
+import { GRAVITY } from '../../config';
 
 /**
  * Uranus, taken over by the robots. 101 tiles.
@@ -64,8 +64,8 @@ export const URANUS: LevelDefinition = {
   branchesNeedTrunks: false,
   // No air.
   helmet: true,
-  // Off the Earth: lighter, so the cat jumps higher.
-  gravity: CAT.offEarthGravity,
+  // Its own gravity, as a share of the Earth's: near enough the real one.
+  gravity: GRAVITY.uranus,
   // Back out into space.
   next: 'space',
   rows: ROWS,

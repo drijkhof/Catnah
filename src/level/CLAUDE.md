@@ -285,7 +285,7 @@ The worlds after the moon in `LEVELS` are only ever reached from the map.
 
 `gravity` on a level is a share of the Earth's; `GameScene.create` sets the
 physics world's gravity from it on every level, since the scene is reused.
-The moon and the robots' worlds use `CAT.offEarthGravity`. The player's
+The moon and the robots' worlds each use their own, near the real one (`GRAVITY`). Bounce pads are scaled to it so they throw as high anywhere. The player's
 jump-release and swim gravity are scaled off the world's, not `CAT.gravity`.
 
 ## No air

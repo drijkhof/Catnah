@@ -1215,9 +1215,11 @@ export class GameScene extends Phaser.Scene {
         // The cat's speed is capped for falling (`CAT.maxFallSpeed`), and the
         // cap holds going up too: lifted for the bounce, put back once it
         // starts to fall.
-        this.player.body.maxVelocity.y = Math.abs(OBSTACLES.bounce);
+        // As high on any world: scaled from the gravity it was set for.
+        const throwSpeed = OBSTACLES.bounce * Math.sqrt(this.physics.world.gravity.y / (CAT.gravity * OBSTACLES.bounceGravity));
+        this.player.body.maxVelocity.y = Math.abs(throwSpeed);
         this.bouncing = true;
-        this.player.setVelocityY(OBSTACLES.bounce);
+        this.player.setVelocityY(throwSpeed);
         sound.play('boing');
         pad.image.setTexture('bounce-pad-down');
         this.time.delayedCall(160, () => pad.image.setTexture('bounce-pad'));

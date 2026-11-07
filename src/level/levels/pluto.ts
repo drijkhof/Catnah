@@ -1,5 +1,5 @@
 import type { LevelDefinition } from '../Level';
-import { CAT } from '../../config';
+import { GRAVITY } from '../../config';
 
 /**
  * Pluto, taken over by the robots. 115 tiles.
@@ -65,8 +65,8 @@ export const PLUTO: LevelDefinition = {
   branchesNeedTrunks: false,
   // No air.
   helmet: true,
-  // Off the Earth: lighter, so the cat jumps higher.
-  gravity: CAT.offEarthGravity,
+  // Its own gravity, as a share of the Earth's: near enough the real one.
+  gravity: GRAVITY.pluto,
   // Back out into space.
   next: 'space',
   rows: ROWS,

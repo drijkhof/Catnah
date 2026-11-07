@@ -208,12 +208,6 @@ export const CAT = {
   sneakSpeedMultiplier: 0.42,
 
   gravity: 1500,
-  /**
-   * Gravity on the other worlds -- the moon and the robots' planets -- as a
-   * share of the Earth's. Lighter, so the cat jumps higher: about half as
-   * twice as high at 0.45.
-   */
-  offEarthGravity: 0.45,
   /** Upward velocity applied on jump, px/sec. Negative is up. */
   jumpVelocity: -520,
   /** Cap on falling speed so long drops stay readable, px/sec. */
@@ -563,7 +557,13 @@ export const LASER = {
  * after `crumbleBackMs`. **Ice** grips at `iceGrip` of the ground's.
  */
 export const OBSTACLES = {
+  /**
+   * A bounce pad's throw, px/sec, at `bounceGravity` (a share of the
+   * Earth's). It is a machine, not a jump: it throws as high on any world,
+   * so it is scaled to the level's gravity to reach the same height.
+   */
   bounce: -800,
+  bounceGravity: 0.6,
   moverSpeed: 45,
   crumbleMs: 650,
   crumbleBackMs: 4000,
@@ -1005,6 +1005,24 @@ export const BAR = {
   /** Rocket fuel: how many times as fast the cat flies in space after. */
   fuelBoost: 10,
   replyMs: 2200,
+} as const;
+
+/**
+ * Each world's gravity as a share of the Earth's -- near enough the real
+ * one (at the surface, or for the gas giants at the cloud tops). A jump goes
+ * as high as one over this: on Pluto a jump floats up off the screen, on
+ * Jupiter it is barely two tiles. The levels are built so every part can
+ * still be reached on each.
+ */
+export const GRAVITY = {
+  moon: 0.165,
+  mars: 0.38,
+  venus: 0.9,
+  jupiter: 2.53,
+  saturn: 1.07,
+  uranus: 0.89,
+  neptune: 1.14,
+  pluto: 0.063,
 } as const;
 
 export const EXIT = {

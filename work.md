@@ -890,9 +890,16 @@ base, and one on the hills on the horizon.
 **A space helmet**: in space and on the moon the cat wears a glass bubble
 over its head, which stays on in every pose.
 
-**Lighter gravity off the Earth**: on the moon and on every robots' world
-gravity is under half the Earth's (0.45), so the cat jumps higher — 196 pixels
-with the jump held, against 86 at home — and falls more slowly. Robots too.
+**Each world its own gravity**, near enough the real one, as a share of the
+Earth's: the Moon 0.165, Mars 0.38, Venus 0.9, Jupiter 2.53, Saturn 1.07,
+Uranus 0.89, Neptune 1.14, Pluto 0.063. A held jump goes about 86 pixels at
+home; on Jupiter barely 31 — not even two tiles — and on Venus, Uranus,
+Saturn and Neptune about as high as at home; on Mars 233; on the Moon and
+Pluto it floats up to the top of the sky. Robots fall by it too. So that
+every part can still be found: each rock with a room inside has a **chain
+up its side**, Jupiter's clouds ride **one tile off the floor**, its thorns
+come one at a time, and **bounce pads** throw as high on every world (they
+are machines, not jumps).
 Every level on the Earth, from the city to the sand path, keeps the Earth's. Piranhas leap as high there as on the Earth, and never from under a bank
 of ground: in a flooded tunnel they wait until they are back under open water.
 

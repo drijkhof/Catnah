@@ -1983,7 +1983,8 @@ for less gravity on the planets): measured, a held jump goes
 196px there against 86px at home. Letting go of the jump early cuts it
 short by the same share. Everything there falls by it, the robots too.
 
-> **Still open:** 0.45 is a gameplay number, not the real one (the moon's is
+> **Settled:** real gravity now, per world (`GRAVITY` in `config.ts`),
+> asked for "even if it gets in the way of jumping". This was: 0.45 is a gameplay number, not the real one (the moon's is
 > about a sixth). Lower makes the obstacles too easy to jump.
 
 ## The Enterprise and the Death Star, at it
@@ -2120,4 +2121,23 @@ Asked for: "I cannot find the Death Star nor the Enterprise" -- then no red
 arrow to it: it is an easter egg. It hung far out down and to the right,
 where nothing else is. It was moved to half as far, and then back: it is
 better in its old place (Earth + 900, 950), still with no arrow or name.
+
+## Real gravity on every world
+
+Asked for: the gravity on the other planets should be about right, even if
+that gets badly in the way of jumping. Each world now has its own
+(`GRAVITY`): Moon 0.165, Mars 0.38, Venus 0.9, Jupiter 2.53 (at the cloud
+tops; a gas giant has no ground), Saturn 1.07, Uranus 0.89, Neptune 1.14,
+Pluto 0.063. Decided without asking, so that nothing becomes impossible:
+
+- **Every rock with a room inside got a chain up its side** (Venus,
+  Saturn, Jupiter): seven tiles is out of reach of a jump on those worlds,
+  and parts are in there.
+- **Jupiter's clouds ride one tile off the floor**, not three: a jump there
+  is 31 px, under two tiles. Its first patch of thorns is one wide, not two.
+- **Bounce pads throw as high everywhere** -- scaled to the level's gravity
+  -- or Uranus's high shelf, with its part, would be out of reach.
+- On the Moon and Pluto a held jump goes to the top of the level; letting
+  go early makes it as short as you like.
+- Piranhas still leap as high as on the Earth.
 
