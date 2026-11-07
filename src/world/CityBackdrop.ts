@@ -5,7 +5,7 @@ import { KEEP_LIVE } from './BakeScenery';
 import { LAMP_GLOW, LAMP_SIZE, SKYLINE_SIZES, createRandom } from '../art';
 
 /**
- * The town at night: a dark sky with stars, the moon, two ranks of gables
+ * The town at night: a dark starless sky, the moon, two ranks of gables
  * with a lit window here and there going past at different speeds, and
  * street lamps along the pavement wherever there is room between the
  * houses. The ranks stand on the ground line, so they stay rooted however

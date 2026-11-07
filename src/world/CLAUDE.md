@@ -32,7 +32,7 @@ off the display list with only their bodies, costing nothing per frame.
   stand on real floors, read off the level's own cells. All static, so the
   scenery bake flattens the lot.
 
-- `CityBackdrop` — night: stars, the moon, two ranks of dark gables with
+- `CityBackdrop` — night: no stars, the moon, two ranks of dark gables with
   lit windows (a church tower in the far one), rooted on the ground line,
   and street lamps wherever the pavement is clear between houses. The
   rain is `objects/Rain.ts`, built by the scene: weather, in screen space.

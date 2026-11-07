@@ -19,8 +19,7 @@ import type { LevelDefinition } from '../Level';
  * `R`, `G` and `Q`. **Rats** (`r`) run the pavement between the houses in
  * the middle of the street, two to a gap past the checkpoint; the first
  * stretch and the last one before the portal are free of them, so the level
- * starts gently and ends without a rat on the doorstep. A canal crosses the
- * street halfway.
+ * starts gently and ends without a rat on the doorstep. No water anywhere.
  */
 
 /**
@@ -63,8 +62,8 @@ const ROWS: string[] = [
   '..........RRRRRR.....TGGGGGGQQQQ.............RRRRRGGGGGG...RRRRR...GGGGG.TQQQQQ......RRRRRR.GGGGG',
   '.....................TGGGGGGQQQQ.............RRRRRGGGGGG...RRRRR.........TQQQQQ......RRRRRR.GGGGG',
   '..P........oooo......TGGGGGGQQQQ..........r..RRRRRGGGGGG*..RRRRR.r..ooo.rTQQQQQ..r.r..oooo..GGGGG....E',
-  '##################################wwwwww################################################################',
-  '##################################wwwwww################################################################',
+  '########################################################################################################',
+  '########################################################################################################',
   '#'.repeat(104),
   '#'.repeat(104),
 ];

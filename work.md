@@ -87,7 +87,7 @@ not — a hedgehog simply walked into it. Both now start the cat on **a small
 boulder**, which a hedgehog turns at and cannot climb. In the city no rat
 can reach the start: the first house stands on arches, and a rat put before
 it would walk straight through them to the cat, so the first rat is past the
-canal, and the last gap before the portal is empty. The sand path has nothing living in it at all.
+third house, and the last gap before the portal is empty. The sand path has nothing living in it at all.
 
 A player who has not touched the controls yet should not be able to lose.
 
@@ -549,7 +549,7 @@ is the win. Little hearts are optional everywhere.
 ### 1 — City
 
 104 tiles. A Dutch town **at night, in the rain**: a street of wet brick
-pavers, the moon and stars, a skyline of dark gables with a lit window here
+pavers, the moon behind rain clouds (no stars), a skyline of dark gables with a lit window here
 and there and a church tower with a lit clock behind it, street lamps along
 the pavement between the houses, rain streaking down over everything and the
 patter of drops landing, and on the street a row of
@@ -574,8 +574,7 @@ a way through:
 **Rats** run the pavement between the houses and under the arches, but only
 in the middle of the street: none on the first stretch, none on the last one
 before the portal, and two to a gap after the checkpoint, so the middle is
-where the level asks something of you. Halfway
-down, a **canal** crosses the street: swim it or jump it. The tallest house
+where the level asks something of you. There is no water in the city. The tallest house
 has a spare heart floating over the gap beside it, and there is a checkpoint
 after the awnings.
 
