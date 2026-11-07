@@ -817,7 +817,7 @@ base, and one on the hills on the horizon.
 over its head, which stays on in every pose.
 
 **Lighter gravity off the Earth**: on the moon and on every robots' world
-gravity is six tenths of the Earth's, so the cat jumps higher — 146 pixels
+gravity is under half the Earth's (0.45), so the cat jumps higher — 196 pixels
 with the jump held, against 86 at home — and falls more slowly. Robots too.
 Every level on the Earth, from the city to the sand path, keeps the Earth's.
 

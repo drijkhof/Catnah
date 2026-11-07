@@ -1977,12 +1977,13 @@ screen of it. Nothing it does can hurt.
 ## Lighter gravity on the other worlds
 
 Asked for: on every planet but the Earth you can jump higher. The moon and
-the seven robots' worlds have six tenths of the Earth's gravity
-(`CAT.offEarthGravity`, a level's `gravity`): measured, a held jump goes
-146px there against 86px at home. Letting go of the jump early cuts it
+the seven robots' worlds have 0.45 of the Earth's gravity
+(`CAT.offEarthGravity`, a level's `gravity`; first 0.6, lowered when asked
+for less gravity on the planets): measured, a held jump goes
+196px there against 86px at home. Letting go of the jump early cuts it
 short by the same share. Everything there falls by it, the robots too.
 
-> **Still open:** 0.6 is a gameplay number, not the real one (the moon's is
+> **Still open:** 0.45 is a gameplay number, not the real one (the moon's is
 > about a sixth). Lower makes the obstacles too easy to jump.
 
 ## The Enterprise and the Death Star, at it
