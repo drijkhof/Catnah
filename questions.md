@@ -2118,6 +2118,6 @@ without asking:
 
 Asked for: "I cannot find the Death Star nor the Enterprise" -- then no red
 arrow to it: it is an easter egg. It hung far out down and to the right,
-where nothing else is; it now hangs about half as far from the Earth
-(Earth + 520, 560), the same direction, still with no arrow or name.
+where nothing else is. It was moved to half as far, and then back: it is
+better in its old place (Earth + 900, 950), still with no arrow or name.
 

@@ -198,11 +198,11 @@ export class SpaceScene extends Phaser.Scene {
     }
     this.refreshLabels();
 
-    // The battle station, not far from the Earth, down and to the right --
+    // The battle station, far out down and to the right of the Earth --
     // close enough to come across, with no arrow to it: seen,
     // never entered. Come near and the cat says so, in a bubble over its
     // head that follows it about.
-    this.stationHome = new Phaser.Math.Vector2(this.earth.x + 520, this.earth.y + 560);
+    this.stationHome = new Phaser.Math.Vector2(this.earth.x + 900, this.earth.y + 950);
     this.station = this.add.image(this.stationHome.x, this.stationHome.y, 'battle-station').setDepth(-38);
     // And the starship, going round it, the two of them firing at each other.
     this.ship = this.add.image(0, 0, 'starship').setDepth(-37);
