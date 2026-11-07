@@ -51,7 +51,8 @@ const ROWS: string[] = [
 ];
 
 export const PATH: LevelDefinition = {
-  name: 'Sand path',
+  // A mystery on purpose: the player is not told where the path leads.
+  name: '???',
   theme: 'path',
   groundRow: 30,
   branchesNeedTrunks: false,

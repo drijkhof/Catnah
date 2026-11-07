@@ -646,6 +646,8 @@ thing the beach has, so each can be looked at on its own:
 
 ### 9 — Sand path
 
+Its name on screen is **???**: where it leads is a surprise.
+
 The last walk, and a quiet one: 66 tiles where nothing hunts. A path of flat
 grey stones laid in sand, tufts of grass between them, bushes beside it and
 trees in the distance, out in the open under the sun with no leaves overhead.
