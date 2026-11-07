@@ -2114,3 +2114,10 @@ without asking:
   kept out of it like the moon base.
 - The menu is picked by tapping, or left/right and jump: no new buttons.
 
+## The Death Star is an easter egg
+
+Asked for: "I cannot find the Death Star nor the Enterprise" -- then no red
+arrow to it: it is an easter egg. It hung far out down and to the right,
+where nothing else is; it now hangs about half as far from the Earth
+(Earth + 520, 560), the same direction, still with no arrow or name.
+
