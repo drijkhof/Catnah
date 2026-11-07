@@ -87,7 +87,7 @@ not — a hedgehog simply walked into it. Both now start the cat on **a small
 boulder**, which a hedgehog turns at and cannot climb. In the city no rat
 can reach the start: the first house stands on arches, and a rat put before
 it would walk straight through them to the cat, so the first rat is past the
-canal. The sand path has nothing living in it at all.
+canal, and the last gap before the portal is empty. The sand path has nothing living in it at all.
 
 A player who has not touched the controls yet should not be able to lose.
 
@@ -571,7 +571,10 @@ a way through:
   you walk through; the low one near the end you **sneak** under, or go over
   by its awning.
 
-**Rats** run the pavement between the houses and under the arches. Halfway
+**Rats** run the pavement between the houses and under the arches, but only
+in the middle of the street: none on the first stretch, none on the last one
+before the portal, and two to a gap after the checkpoint, so the middle is
+where the level asks something of you. Halfway
 down, a **canal** crosses the street: swim it or jump it. The tallest house
 has a spare heart floating over the gap beside it, and there is a checkpoint
 after the awnings.
