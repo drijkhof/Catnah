@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { PIRANHA } from '../config';
+import { CAT, PIRANHA } from '../config';
 
 /**
  * A piranha, patrolling the pool it lives in.
@@ -106,7 +106,10 @@ export class Piranha extends Phaser.Physics.Arcade.Sprite {
       this.patrol(delta);
     }
 
-    if (this.timer >= PIRANHA.intervalMs) {
+    // Only where the pool is open to the sky: under a bank of ground --
+    // a flooded tunnel -- a leap would go straight up through the earth.
+    // There it waits until it has swum back out under open water.
+    if (this.timer >= PIRANHA.intervalMs && this.openAbove()) {
       this.beginLeap();
     }
 
@@ -191,8 +194,10 @@ export class Piranha extends Phaser.Physics.Arcade.Sprite {
 
     // Straight up. Keeping the swimming speed would carry the fish clean out of
     // its own pool during the second or so it is airborne, and it would come
-    // down on the bank.
-    this.setVelocity(0, PIRANHA.leapVelocity);
+    // down on the bank. Scaled to the level's gravity, so the leap is as high
+    // on a light planet as on the Earth instead of flying off over plateaus.
+    const lightness = Math.sqrt(this.scene.physics.world.gravity.y / CAT.gravity);
+    this.setVelocity(0, PIRANHA.leapVelocity * lightness);
   }
 
   private continueLeap(): void {
@@ -204,6 +209,14 @@ export class Piranha extends Phaser.Physics.Arcade.Sprite {
       this.body.setAllowGravity(false);
       this.setVelocityY(0);
     }
+  }
+
+  /**
+   * Whether the water at the fish's x reaches all the way up to the top of
+   * its pool. Where it does not, the fish is under a bank: a flooded tunnel.
+   */
+  private openAbove(): boolean {
+    return this.pool.some((tile) => tile.y === this.bounds.top && this.x >= tile.left && this.x < tile.right);
   }
 
   /** Is this point inside *this fish's* pool? Other water does not count. */

@@ -825,7 +825,8 @@ over its head, which stays on in every pose.
 **Lighter gravity off the Earth**: on the moon and on every robots' world
 gravity is under half the Earth's (0.45), so the cat jumps higher — 196 pixels
 with the jump held, against 86 at home — and falls more slowly. Robots too.
-Every level on the Earth, from the city to the sand path, keeps the Earth's.
+Every level on the Earth, from the city to the sand path, keeps the Earth's. Piranhas leap as high there as on the Earth, and never from under a bank
+of ground: in a flooded tunnel they wait until they are back under open water.
 
 ### Cacti come tall
 
