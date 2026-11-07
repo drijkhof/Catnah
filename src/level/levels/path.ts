@@ -1,11 +1,13 @@
 import type { LevelDefinition } from '../Level';
 
 /**
- * Level 9: the sand path. 66 tiles.
+ * Level 9: the sand path. 84 tiles.
  *
  * Nothing hunts here. A path of flat stones laid in sand, grass along its
- * edges and bushes beside it, out in the open under the sun, with a few
- * hearts to pick up and a boulder or two to hop -- and at the end of it
+ * edges and bushes beside it, out in the open under the sun. The path
+ * climbs over **plateaus** -- raised banks of earth two to four tiles high,
+ * one stepped -- and past **rocks** on the ground and on the plateaus, with
+ * hearts on top to pick up -- and at the end of it
  * the **big portal**, three times the size of any other, which sends the
  * cat off into space.
  */
@@ -38,16 +40,16 @@ const ROWS: string[] = [
   '',
   '',
   '',
-  '........................o',
-  '.......................o.o',
-  '.............oooo.....o...o.....ooo',
-  '.......ooo..............................ooo.....oo',
-  '..............RR.................G',
-  '..P...........RR................GGG...........R..........E',
-  '#'.repeat(66),
-  '#'.repeat(66),
-  '#'.repeat(66),
-  '#'.repeat(66),
+  '',
+  '...............................oooo',
+  '.....................oo.......######..oo.......oo.Q.oo',
+  '...........ooG.oo..........oo.######........o.#########.o.....o..oo',
+  '..........########...RR...##########.....G....#########...R.....####',
+  '..P...R...########...RR...##########....GGG...#########...RR....####.......E',
+  '#'.repeat(84),
+  '#'.repeat(84),
+  '#'.repeat(84),
+  '#'.repeat(84),
 ];
 
 export const PATH: LevelDefinition = {

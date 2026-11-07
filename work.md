@@ -510,7 +510,7 @@ and touching an **earlier** one after passing a later one moves the point back
 | Cave | 240 wide, 64 deep |
 | Volcano | 104 |
 | Desert | 109 |
-| Sand path | 66 |
+| Sand path | 84 |
 | Moon | 179 |
 | Mars | 248 |
 | Saturn | 272 |
@@ -648,10 +648,12 @@ thing the beach has, so each can be looked at on its own:
 
 Its name on screen is **???**: where it leads is a surprise.
 
-The last walk, and a quiet one: 66 tiles where nothing hunts. A path of flat
+The last walk, and a quiet one: 84 tiles where nothing hunts. A path of flat
 grey stones laid in sand, tufts of grass between them, bushes beside it and
 trees in the distance, out in the open under the sun with no leaves overhead.
-A few arcs of hearts, a couple of boulders to hop, and at the end the **big
+It climbs over **plateaus** — raised banks of earth two to four tiles high,
+one of them stepped — and past **rocks**, on the ground and on top of the
+plateaus, with hearts along the tops, and at the end the **big
 portal** — the same wormhole as every other, three times the size, with the
 bushes kept back from it. It **pulls**: come within four tiles of its rim
 and it sucks you in, slowly at first and faster as you go — and out into
