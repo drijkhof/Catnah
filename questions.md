@@ -2098,3 +2098,19 @@ hackers who lead you the wrong way to your death. Decided without asking:
   one line each when the cat comes near.
 - Earth's gravity in the internet, and no helmet.
 
+## The bar on Pluto
+
+Asked for: a bar on Pluto with aliens in summer-coloured T-shirts; talk to
+the bar alien, "Hi cat, what would you like to order?": a life for 50 pink
+hearts, milk for 10, rocket fuel to fly ten times as fast. Decided
+without asking:
+
+- **Rocket fuel costs 30** -- no price was given.
+- **What milk does**: gives back one lost heart, and is refused when the
+  cat is not hurt. A life adds a heart to hold *and* fills it.
+- **Rocket fuel lasts the rest of the run** and makes thrust, top speed and
+  drag in space ten times as much, so stopping is as quick as going.
+- The bar stands at the very start of Pluto, so it is found; robots are
+  kept out of it like the moon base.
+- The menu is picked by tapping, or left/right and jump: no new buttons.
+

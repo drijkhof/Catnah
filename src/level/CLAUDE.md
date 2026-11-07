@@ -40,6 +40,7 @@ its platforms must attach to a column. Everything else is derived.
 | `m`, `~` | a **moving platform** (Jupiter): a run of `m` is the platform, one-way like a branch, and the `m` and `~` of the run together are the track it slides along, back and forth, carrying a cat that stands on it |
 | `Z` | **crumbling ice** (Pluto): solid until stood on, then it shakes for `crumbleMs`, falls, and is back after `crumbleBackMs`. Not part of the ground, so it can go |
 | `F` | an American flag planted in the dust. Scenery only, at the cell's floor |
+| `a` | the aliens' **bar** (Pluto): its picture stands on the floor from this cell rightwards (`BAR_SIZE`), with the keeper to order from (`BAR`); robots are fenced out of it |
 | `I` | a **cable** (the internet): solid, a column of `I` is one cable with a plug on top; holding down against it for `INTERNET.scratchMs` scratches it through and the whole column goes. Not in `FULL_CELL`, like `D` |
 | `<` `>` `U` `H` | a **hacker** (the dark web) standing on the cell's floor, its sign pointing left, right, up or down: always the wrong way. Harmless; calls out when the cat comes near |
 | `b` | a park bench; its seat is a one-way ledge (`PARK.benchSeat`), so the cat stands on it and rats run under. A run of cells is one bench |

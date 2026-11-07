@@ -47,6 +47,9 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | kabel | `cable` | in the internet: scratched through with your claws |
 | krabben | `scratch` | hold down against a cable until it snaps |
 | hacker | `hacker` | on the dark web: a sign that always points the wrong way |
+| bar | `bar` | on Pluto: aliens in summer T-shirts; buy a life, milk or rocket fuel |
+| roze hartjes | `little hearts` | what you pay with at the bar |
+| raket benzine | `rocket fuel` | from the bar: ten times as fast in space |
 | luifel | `awning` | the city's one-way platform, striped, sticking out of a wall |
 | poort | `arcade` | an opening under a house, walked or sneaked through |
 | rat | `rat` | the city's walker, quicker than a hedgehog |
@@ -831,6 +834,25 @@ says *"You found all 10 parts!"*, *"Well... thank you, kitty."* and *"I'm
 sorry."* — and the button says **Huh?**. Press it and the machine **zaps
 you**: lightning from the zapper, the screen goes white, and you are inside
 **the internet**.
+
+### The bar on Pluto
+
+At the start of Pluto stands **a bar**: a round hut of ice blocks with
+**BAR** in pink neon over it, bottles on a shelf, a counter with red
+stools, and **aliens** on the stools in **summer T-shirts** — coral,
+turquoise, yellow, pink, green, with a flower on — bobbing to music. Behind
+the counter the barkeeper, in a white shirt and bow tie. Robots never come
+in. Walk up to him and he asks *"Hi cat, what would you like to order?"*,
+and you pay in **little pink hearts**, the ones counted in the corner:
+
+- **A life** — 50 hearts: one more heart to hold, and filled.
+- **Milk** — 10 hearts: one lost heart back. Not when you are not hurt.
+- **Rocket fuel** — 30 hearts: from then on you fly **ten times as fast**
+  in space, for the rest of the run.
+- **Bye**.
+
+Tap one, or pick with left and right and take it with jump. Too few hearts
+and he says so.
 
 ### The internet
 

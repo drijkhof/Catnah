@@ -64,6 +64,7 @@ export type CrowBehaviour = 'attack' | 'flyby' | 'swoop';
  *        drops on a thread. Needs solid rock directly above it
  *   `S`  the same, ten times the size. One of them, guarding the cave's heart
  *   `X`  the boss, which guards the end of the level it is placed in
+ *   `a`  the aliens' bar, standing on the floor from this cell rightwards
  *   `I`  cable, inside the internet -- solid until scratched through
  *   `<` `>` `U` `H`  a hacker on the dark web, its sign pointing left, right,
  *        up or down: always the wrong way
@@ -264,6 +265,8 @@ export interface ParsedLevel {
   cables: Point[];
   /** Hackers (`<`, `>`, `U`, `H`), by the foot, and which way their sign points: always the wrong way. */
   hackers: Array<Point & { points: 'left' | 'right' | 'up' | 'down' }>;
+  /** Aliens' bars (`a`), by the bottom-left corner of the bar's picture. */
+  bars: Point[];
   /** Park benches (`b`), each run of cells one bench, by its cells' top-left corners. */
   benches: Point[];
   /** Fountains (`O`), each run of cells one fountain, by its cells' top-left corners. */
@@ -364,6 +367,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const hatches: Point[] = [];
   const flags: Point[] = [];
   const benches: Point[] = [];
+  const bars: Point[] = [];
   const cables: Point[] = [];
   const hackers: Array<Point & { points: 'left' | 'right' | 'up' | 'down' }> = [];
   const fountains: Point[] = [];
@@ -588,6 +592,12 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
         // A flag planted in the dust. Scenery only.
         case 'F':
           flags.push({ x: x + 4, y: y + TILE });
+          break;
+
+        // The aliens' bar: a picture standing on the floor from this cell
+        // rightwards, with a barkeeper to order from. Walked in front of.
+        case 'a':
+          bars.push({ x, y: y + TILE });
           break;
 
         // A cable, inside the internet: solid, until the cat scratches
@@ -840,6 +850,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     fountains,
     cables,
     hackers,
+    bars,
     parts,
     hatches,
     waterZones,

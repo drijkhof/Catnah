@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { AWAKE_RANGE, BOB, INTERNET, PARK, CAT, OBSTACLES, PARTS, RAIN, ROBOT, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
+import { AWAKE_RANGE, BAR, BOB, INTERNET, PARK, CAT, OBSTACLES, PARTS, RAIN, ROBOT, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
 import { Controls, IdleControls, type PlayerInput } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -15,7 +15,7 @@ import { KEEP_LIVE, addGroundShade, bakeScenery, createBackdrop } from '../world
 import { parseLevel, type ClimbZone, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
 import { TITLE } from '../level/levels/title';
-import { HACKER_SIZE, MACHINE_SIZE, MACHINE_ZAPPER, BENCH_HEADROOM, FOUNTAIN_HEADROOM, bakeBench, bakeFountain, bakeLawn, BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, CASTLE_FLAG_HEADROOM, PAD_SIZE, BRANCH_THICKNESS, bakeCloudPlatform, HEAD_IN_POSE, BASE_HEADROOM, LAB_CONSOLE_X, LAB_TANK, baseInside, bakeMoonBase, AWNING_BULGE, HOUSE_HEADROOM, bakeAwning, bakeHouse, GRASS_FRINGE_HEIGHT, JELLY_SIZE, LOG_BULGE, PALM_BULGE, PALM_CROWN_ANCHOR, PALM_CROWN_SIZE, bakePalmTrunk, bakeSandCastle, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeCactus, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
+import { BAR_KEEPER_X, BAR_SIZE, BAR_STOOLS, SHIRT_COLOURS, HACKER_SIZE, MACHINE_SIZE, MACHINE_ZAPPER, BENCH_HEADROOM, FOUNTAIN_HEADROOM, bakeBench, bakeFountain, bakeLawn, BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, CASTLE_FLAG_HEADROOM, PAD_SIZE, BRANCH_THICKNESS, bakeCloudPlatform, HEAD_IN_POSE, BASE_HEADROOM, LAB_CONSOLE_X, LAB_TANK, baseInside, bakeMoonBase, AWNING_BULGE, HOUSE_HEADROOM, bakeAwning, bakeHouse, GRASS_FRINGE_HEIGHT, JELLY_SIZE, LOG_BULGE, PALM_BULGE, PALM_CROWN_ANCHOR, PALM_CROWN_SIZE, bakePalmTrunk, bakeSandCastle, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeCactus, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { GOD_MODE_KEY, installGodMode, isGodMode } from '../dev/godMode';
@@ -86,6 +86,22 @@ export class GameScene extends Phaser.Scene {
   private parts: string[] = [];
   /** Whether Bob has sent the cat off in his rocket: the parts are being looked for. */
   private rocket = false;
+  /** Whether the rocket has been filled up at the bar on Pluto: ten times as fast in space. */
+  private fuel = false;
+  /** The barkeeper on Pluto, and whether the cat is still standing where he last asked. */
+  private keeper?: { sprite: Phaser.GameObjects.Sprite; floor: number; near: boolean };
+  /** The bar's menu, while it is open. */
+  private shop?: {
+    panel: Phaser.GameObjects.Graphics;
+    words: CrispText[];
+    options: CrispText[];
+    reply: CrispText;
+    purse: CrispText;
+    selected: number;
+    wasLeft: boolean;
+    wasRight: boolean;
+    wasSneak: boolean;
+  };
   private partsText?: CrispText;
 
   /**
@@ -284,6 +300,7 @@ export class GameScene extends Phaser.Scene {
     title?: boolean;
     parts?: string[];
     rocket?: boolean;
+    fuel?: boolean;
   }): void {
     this.titleMode = data.title ?? false;
     // The scene instance is reused from run to run, so a flag set on the
@@ -304,6 +321,7 @@ export class GameScene extends Phaser.Scene {
     this.collected = data.collected ?? carried?.collected ?? 0;
     this.parts = [...(data.parts ?? carried?.parts ?? [])];
     this.rocket = data.rocket ?? carried?.rocket ?? false;
+    this.fuel = data.fuel ?? carried?.fuel ?? false;
 
     // God mode lives in the registry, and a hot reload builds a new game
     // with a new registry: it rides in the snapshot and is put back here,
@@ -324,6 +342,8 @@ export class GameScene extends Phaser.Scene {
     this.rain = undefined;
     this.hatches = [];
     this.cables = [];
+    this.keeper = undefined;
+    this.shop = undefined;
     this.cableTiles = new Map();
     this.hackers = [];
     this.machine = undefined;
@@ -599,6 +619,7 @@ export class GameScene extends Phaser.Scene {
       collected: this.collected,
       parts: [...this.parts],
       rocket: this.rocket,
+      fuel: this.fuel,
       godMode: isGodMode(this),
     };
   }
@@ -703,7 +724,11 @@ export class GameScene extends Phaser.Scene {
       part.setAlpha(near ? 1 : BOB.partFaint);
     }
 
-    if (this.talk) {
+    if (this.shop) {
+      // At the bar the cat stands still and orders.
+      this.player.setVelocity(0, this.player.body.velocity.y);
+      this.stepShop();
+    } else if (this.talk) {
       // In a conversation the cat stands and listens: Next is all it does.
       this.player.setVelocity(0, this.player.body.velocity.y);
       if (this.controls.jumpJustPressed) {
@@ -715,6 +740,7 @@ export class GameScene extends Phaser.Scene {
     }
     if (!this.titleMode && !this.dying && !this.leaving) {
       this.meetBob();
+      this.meetKeeper();
     }
 
     const cat = new Phaser.Math.Vector2(this.player.x, this.player.y);
@@ -1253,6 +1279,7 @@ export class GameScene extends Phaser.Scene {
     deaths: number;
     parts: string[];
     rocket: boolean;
+    fuel: boolean;
     from: string;
   } {
     return {
@@ -1266,6 +1293,7 @@ export class GameScene extends Phaser.Scene {
       deaths: this.deaths,
       parts: [...this.parts],
       rocket: this.rocket,
+      fuel: this.fuel,
     };
   }
 
@@ -1805,7 +1833,7 @@ export class GameScene extends Phaser.Scene {
 
   private kill(): void {
     // Nothing happens to a cat in the middle of a conversation.
-    if (this.dying || this.talk) {
+    if (this.dying || this.talk || this.shop) {
       return;
     }
 
@@ -1985,6 +2013,7 @@ export class GameScene extends Phaser.Scene {
     this.buildBoulders();
     this.buildBases();
     this.buildPark();
+    this.buildBars();
     this.buildCables();
     this.buildHackers();
     this.buildLogs();
@@ -2823,6 +2852,224 @@ export class GameScene extends Phaser.Scene {
    * down past the hull to the ground, for the inside and the doors; `=`
    * cells inside are its lab benches, and `buildBranches` leaves them be.
    */
+  /**
+   * The aliens' bar on Pluto: the hut with its shelf of bottles, the keeper
+   * behind the counter, and guests on the stools in summer T-shirts, each
+   * bobbing to music nobody else can hear. Robots are kept out, the way
+   * they are kept out of the moon base.
+   */
+  private buildBars(): void {
+    this.level.bars.forEach((bar, index) => {
+      const left = bar.x;
+      const floor = bar.y;
+      this.add.image(left, floor, 'pluto-bar').setOrigin(0, 1).setDepth(-0.33);
+      const keeper = this.add
+        .sprite(left + BAR_KEEPER_X, floor - 14, 'bar-keeper')
+        .setOrigin(0.5, 1)
+        .setDepth(-0.32)
+        .setData(KEEP_LIVE, true);
+      this.tweens.add({ targets: keeper, y: keeper.y - 1, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+      this.add.image(left, floor, 'pluto-bar-front').setOrigin(0, 1).setDepth(-0.31);
+      BAR_STOOLS.forEach((x, stool) => {
+        const guest = this.add
+          .sprite(left + x, floor - 9, `bar-alien-${(stool + index * 3) % SHIRT_COLOURS.length}`)
+          .setOrigin(0.5, 1)
+          .setDepth(-0.3)
+          .setFlipX(x > BAR_KEEPER_X)
+          .setData(KEEP_LIVE, true);
+        this.tweens.add({ targets: guest, y: guest.y - 1, angle: stool % 2 === 0 ? 4 : -4, duration: 380 + stool * 70, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+      });
+      this.baseRects.push(new Phaser.Geom.Rectangle(left, floor - BAR_SIZE.height, BAR_SIZE.width, BAR_SIZE.height));
+      this.keeper = { sprite: keeper, floor, near: false };
+    });
+  }
+
+  /** Standing in front of the keeper, on the floor, opens the menu -- once, until the cat walks off and back. */
+  private meetKeeper(): void {
+    const keeper = this.keeper;
+    if (!keeper || this.shop || this.talk) {
+      return;
+    }
+    const dx = Math.abs(this.player.x - keeper.sprite.x);
+    const dy = Math.abs(this.player.body.bottom - keeper.floor);
+    if (keeper.near) {
+      if (dx > BAR.rearm || dy > TILE) {
+        keeper.near = false;
+      }
+      return;
+    }
+    if (dx > BAR.reach || dy > 4 || !this.player.body.blocked.down) {
+      return;
+    }
+    keeper.near = true;
+    this.openShop();
+  }
+
+  /**
+   * The menu: the keeper's question, the three things on offer with their
+   * price in pink hearts, Bye, and how many hearts the cat has. Tap one, or
+   * pick with left and right and take it with jump. Pinned to the screen,
+   * over everything; no zoom, so the words stay put.
+   */
+  private openShop(): void {
+    this.player.setVelocity(0, 0);
+    const style = { fontFamily: 'monospace', fontSize: '11px', color: '#2a1030' };
+    const width = 280;
+    const height = 112;
+    const x = Math.round(GAME_WIDTH / 2 - width / 2);
+    const y = 34;
+    const panel = this.add.graphics().setScrollFactor(0).setDepth(2000);
+    panel.fillStyle(0xfff4fa, 0.96);
+    panel.fillRoundedRect(x, y, width, height, 8);
+    panel.lineStyle(2, 0xff6fb5, 1);
+    panel.strokeRoundedRect(x, y, width, height, 8);
+    const question = crispText(this, GAME_WIDTH / 2, y + 12, BAR.greeting, { ...style, fontSize: '11px' })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(2001);
+    const labels = [...BAR.items.map((item) => `${item.label} — ${item.price} ♥`), BAR.bye];
+    const options = labels.map((label, i) => {
+      const option = crispText(this, x + 22, y + 32 + i * 14, label, style)
+        .setOrigin(0, 0.5)
+        .setScrollFactor(0)
+        .setDepth(2001)
+        .setInteractive();
+      option.on('pointerdown', () => {
+        if (this.shop) {
+          this.shop.selected = i;
+          this.chooseInShop();
+        }
+      });
+      return option;
+    });
+    const purse = crispText(this, x + width - 10, y + height - 12, '', { ...style, color: '#c0306a', align: 'right' })
+      .setOrigin(1, 0.5)
+      .setScrollFactor(0)
+      .setDepth(2001);
+    const reply = crispText(this, x + 10, y + height - 12, '', { ...style, color: '#3a5aa8' })
+      .setOrigin(0, 0.5)
+      .setScrollFactor(0)
+      .setDepth(2001);
+    this.shop = {
+      panel,
+      words: [question],
+      options,
+      reply,
+      purse,
+      selected: 0,
+      wasLeft: this.controls.left,
+      wasRight: this.controls.right,
+      wasSneak: this.controls.sneak,
+    };
+    sound.play('beep');
+    this.refreshShop();
+  }
+
+  /** The highlight on the chosen line, and the hearts in the purse. */
+  private refreshShop(): void {
+    const shop = this.shop;
+    if (!shop) {
+      return;
+    }
+    const labels = [...BAR.items.map((item) => `${item.label} — ${item.price} ♥`), BAR.bye];
+    shop.options.forEach((option, i) => {
+      option.setText(`${i === shop.selected ? '▸ ' : '  '}${labels[i]}`);
+      option.setColor(i === shop.selected ? '#c0306a' : '#2a1030');
+    });
+    shop.purse.setText(`${this.collected} ♥`);
+  }
+
+  /** Left and right move the highlight, a step per press; jump takes what it is on. */
+  private stepShop(): void {
+    const shop = this.shop;
+    if (!shop) {
+      return;
+    }
+    const count = shop.options.length;
+    const left = this.controls.left;
+    const right = this.controls.right || this.controls.sneak;
+    if (left && !shop.wasLeft) {
+      shop.selected = (shop.selected + count - 1) % count;
+      this.refreshShop();
+    }
+    if (right && !(shop.wasRight || shop.wasSneak)) {
+      shop.selected = (shop.selected + 1) % count;
+      this.refreshShop();
+    }
+    shop.wasLeft = left;
+    shop.wasRight = this.controls.right;
+    shop.wasSneak = this.controls.sneak;
+    if (this.controls.jumpJustPressed) {
+      this.chooseInShop();
+    }
+  }
+
+  /** Buys what is highlighted -- if the cat can pay and can use it -- or says goodbye. */
+  private chooseInShop(): void {
+    const shop = this.shop;
+    if (!shop) {
+      return;
+    }
+    const item = BAR.items[shop.selected];
+    if (!item) {
+      this.closeShop();
+      return;
+    }
+    const say = (line: string): void => {
+      shop.reply.setText(line);
+      this.time.delayedCall(BAR.replyMs, () => {
+        if (this.shop === shop && shop.reply.text === line) {
+          shop.reply.setText('');
+        }
+      });
+    };
+    if (this.collected < item.price) {
+      sound.play('hurt');
+      say(BAR.replies.poor);
+      return;
+    }
+    if (item.id === 'life' && this.maxLives >= MAX_LIVES && this.lives >= MAX_LIVES) {
+      say(BAR.replies.full);
+      return;
+    }
+    if (item.id === 'milk' && this.lives >= this.maxLives) {
+      say(BAR.replies.notHurt);
+      return;
+    }
+    if (item.id === 'fuel' && this.fuel) {
+      say(BAR.replies.fueled);
+      return;
+    }
+    this.collected -= item.price;
+    if (item.id === 'life') {
+      // One more heart to hold, and filled.
+      this.maxLives = Math.min(this.maxLives + 1, MAX_LIVES);
+      this.lives = Math.min(this.lives + 1, this.maxLives);
+    } else if (item.id === 'milk') {
+      this.lives += 1;
+    } else {
+      this.fuel = true;
+    }
+    this.refreshLives();
+    this.scoreText.setText(this.formatScore());
+    sound.play('checkpoint');
+    say(BAR.replies[item.id]);
+    this.refreshShop();
+  }
+
+  /** Bye: the menu goes, and the cat can walk again. */
+  private closeShop(): void {
+    const shop = this.shop;
+    if (!shop) {
+      return;
+    }
+    shop.panel.destroy();
+    for (const word of [...shop.words, ...shop.options, shop.reply, shop.purse]) {
+      word.destroy();
+    }
+    this.shop = undefined;
+  }
+
   /**
    * The internet's cables: each column of `I` cells is one cable, with a
    * plug on top. Scratched through as one.

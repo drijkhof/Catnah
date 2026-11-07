@@ -977,6 +977,36 @@ export const INTERNET = {
   hackerLines: ['This way!', 'Trust me!', 'Shortcut!', "It's safe!", 'Go on!'],
 } as const;
 
+/**
+ * The aliens' bar on Pluto. Walk up to the barkeeper and he asks what you
+ * would like; you pay in little pink hearts, the ones in the corner.
+ */
+export const BAR = {
+  /** How near the keeper the cat has to stand, px, and how far it must go before he asks again. */
+  reach: 16,
+  rearm: 40,
+  greeting: 'Hi cat, what would you like to order?',
+  items: [
+    { id: 'life', label: 'A life', price: 50 },
+    { id: 'milk', label: 'Milk', price: 10 },
+    { id: 'fuel', label: 'Rocket fuel', price: 30 },
+  ],
+  bye: 'Bye',
+  /** What the keeper says back. */
+  replies: {
+    life: 'One life, coming up!',
+    milk: 'A nice glass of milk!',
+    fuel: 'Your rocket flies ten times as fast now!',
+    poor: 'You need more pink hearts for that.',
+    full: 'You cannot carry any more lives!',
+    notHurt: 'You are not hurt! Have it another time.',
+    fueled: 'Your rocket is already full!',
+  },
+  /** Rocket fuel: how many times as fast the cat flies in space after. */
+  fuelBoost: 10,
+  replyMs: 2200,
+} as const;
+
 export const EXIT = {
   /** The disc as shown, px. Round, so it can simply be turned. */
   diameter: 32,

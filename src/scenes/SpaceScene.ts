@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH, LASER, PARTS, SPACE } from '../config';
+import { BAR, GAME_HEIGHT, GAME_WIDTH, LASER, PARTS, SPACE } from '../config';
 import { LEVELS } from '../level/levels';
 import { Controls } from '../input/Controls';
 import { HEAD_IN_POSE, PLANET_SIZES, STARFIELD_SIZE, createRandom, type PlanetName } from '../art';
@@ -20,6 +20,8 @@ interface Carry {
   rocket?: boolean;
   /** The world the cat has just come from, if any: the flight starts beside it. */
   from?: string;
+  /** Rocket fuel from the bar on Pluto: ten times as fast out here. */
+  fuel?: boolean;
 }
 
 /** A world out here: where it hangs, how big, and which level it is. */
@@ -98,6 +100,11 @@ export class SpaceScene extends Phaser.Scene {
 
   constructor() {
     super('Space');
+  }
+
+  /** How many times as fast the cat flies: the bar's rocket fuel. */
+  private boost(): number {
+    return this.carry.fuel ? BAR.fuelBoost : 1;
   }
 
   init(data: Carry): void {
@@ -561,16 +568,16 @@ export class SpaceScene extends Phaser.Scene {
     );
 
     if (input.lengthSq() > 0) {
-      input.normalize().scale(SPACE.accel * dt);
+      input.normalize().scale(SPACE.accel * this.boost() * dt);
       this.velocity.add(input);
     } else {
       const speed = this.velocity.length();
       if (speed > 0) {
-        this.velocity.scale(Math.max(0, speed - SPACE.drag * dt) / speed);
+        this.velocity.scale(Math.max(0, speed - SPACE.drag * this.boost() * dt) / speed);
       }
     }
-    if (this.velocity.length() > SPACE.maxSpeed) {
-      this.velocity.setLength(SPACE.maxSpeed);
+    if (this.velocity.length() > SPACE.maxSpeed * this.boost()) {
+      this.velocity.setLength(SPACE.maxSpeed * this.boost());
     }
 
     const margin = 40;
