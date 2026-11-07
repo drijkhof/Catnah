@@ -261,6 +261,10 @@ function drawGrassTop(
     drawPathTop(g, palette, random);
     return;
   }
+  if (palette.surfaceStyle === 'circuit') {
+    drawCircuitTop(g, palette, random);
+    return;
+  }
 
   const light = lighten(palette.grass, 16);
   const seam = shade(palette.grassDark, 30);
@@ -354,6 +358,35 @@ function drawPavedTop(
 }
 
 /**
+ * The inside of a computer: a glowing line along the top, the colour of the
+ * site it is, over a dark board with copper traces running into it and a
+ * solder point here and there.
+ */
+function drawCircuitTop(
+  g: Phaser.GameObjects.Graphics,
+  palette: TilePalette,
+  random: () => number,
+): void {
+  g.fillStyle(palette.dirtDark, 1);
+  g.fillRect(0, 0, TILE, 8);
+  g.fillStyle(palette.grass, 1);
+  g.fillRect(0, 0, TILE, 2);
+  g.fillStyle(lighten(palette.grass, 40), 1);
+  g.fillRect(0, 0, TILE, 1);
+  g.fillStyle(palette.grassDark, 1);
+  g.fillRect(0, 2, TILE, 1);
+  // A trace or two running down from the line, ending in a solder point.
+  for (let i = 0; i < 2; i += 1) {
+    const x = 2 + Math.floor(random() * (TILE - 4));
+    const depth = 3 + Math.floor(random() * 4);
+    g.fillStyle(palette.grassDark, 1);
+    g.fillRect(x, 3, 1, depth);
+    g.fillStyle(palette.grass, 1);
+    g.fillRect(x - 1, 3 + depth, 3, 2);
+  }
+}
+
+/**
  * A path of stones laid in sand: the sand is the tile, and two or three
  * flat stones lie in its top, each lit on top and shadowed under, with a
  * blade or two of grass in the gaps.
@@ -396,8 +429,8 @@ function drawGrassFringe(
   palette: TilePalette,
   random: () => number,
 ): void {
-  if (palette.surfaceStyle === 'paved') {
-    // Swept pavement: nothing stands on it.
+  if (palette.surfaceStyle === 'paved' || palette.surfaceStyle === 'circuit') {
+    // Swept pavement, or a circuit board: nothing stands on it.
     return;
   }
   if (palette.surfaceStyle === 'path') {
@@ -505,7 +538,7 @@ function drawMossCap(
   palette: TilePalette,
   random: () => number,
 ): void {
-  if (palette.surfaceStyle === 'dust' || palette.surfaceStyle === 'paved') {
+  if (palette.surfaceStyle === 'dust' || palette.surfaceStyle === 'paved' || palette.surfaceStyle === 'circuit') {
     g.fillStyle(palette.grass, 1);
     g.fillRect(0, 0, TILE, 1);
     for (let x = 0; x < TILE - 1; x += 3) {
@@ -562,7 +595,7 @@ export type PlatformStyle = 'branch' | 'shelf' | 'awning';
  * level's: flat stones (`rock*`) laid in sand (`dirt*`), with tufts of grass
  * (`grass*`) here and there between them.
  */
-export type SurfaceStyle = 'grass' | 'dust' | 'paved' | 'path';
+export type SurfaceStyle = 'grass' | 'dust' | 'paved' | 'path' | 'circuit';
 
 /** What the ground is made of: earth with stones in it, or fitted stone. */
 export type GroundStyle = 'earth' | 'stone';

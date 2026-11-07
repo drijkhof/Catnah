@@ -2071,3 +2071,30 @@ crow or a gull anywhere, and from the beetle only while it is in thorns;
 hedgehogs, rats, crabs, robots, spiders and worms get it sneaking or not.
 This replaces "sneaking, nothing alive can get at you" above. Breaking a
 grey block on the moon is no longer safe with a robot coming.
+
+## The internet
+
+Asked for: back on the moon Bob has built a machine, puts the parts in,
+says "well thank you kitty, I'm sorry", and the machine zaps the cat into
+computer levels: YouTube, Insta, Facebook, Catnah, the dark web. Cables to
+scratch through with your claws; spikes the only enemies; on the dark web
+hackers who lead you the wrong way to your death. Decided without asking:
+
+- **The win moved** from giving Bob the parts to leaving the dark web.
+- **Bob's lines**: "You found all 10 parts!", "Well... thank you, kitty.",
+  "I'm sorry.", and the button **Huh?**. The parts fly into the machine as
+  the talk starts.
+- **Scratching is holding down** against a cable, the same gesture as
+  breaking a grey block on the moon: there is no claw button, and a new
+  button would be one more thing on a phone screen. 900 ms of one hold.
+- **Cables are twelve tiles tall**, so a jump plus a wall jump off the cable
+  (about 172 px) cannot get over one: the only way is through.
+- **No real logos.** Each site is drawn as what it is about, in its
+  colours: videos, photos, thumbs up, cats, skulls. The names are the level
+  names.
+- **Hackers are signs, not monsters**: they do not hurt; the lie does. Each
+  points at a way that kills -- spikes too wide to jump, a hole, a stair
+  that ends over spikes -- and the safe way is the other one. They speak
+  one line each when the cat comes near.
+- Earth's gravity in the internet, and no helmet.
+

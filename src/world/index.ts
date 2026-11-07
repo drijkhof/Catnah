@@ -9,6 +9,7 @@ import { CityBackdrop } from './CityBackdrop';
 import { MoonBackdrop } from './MoonBackdrop';
 import { SwampBackdrop } from './SwampBackdrop';
 import { VolcanoBackdrop } from './VolcanoBackdrop';
+import { InternetBackdrop } from './InternetBackdrop';
 
 export { addGroundShade } from './GroundShade';
 export { KEEP_LIVE, bakeScenery } from './BakeScenery';
@@ -55,6 +56,13 @@ export function createBackdrop(
     case 'neptune':
     case 'pluto':
       new MoonBackdrop(scene, theme, level, levelWidth, groundLine);
+      break;
+    case 'youtube':
+    case 'insta':
+    case 'facebook':
+    case 'catnah':
+    case 'darkweb':
+      new InternetBackdrop(scene, theme, levelWidth, groundLine);
       break;
     case 'path':
       // The forest's sky, sun, distant trees and bushes, out in the open:

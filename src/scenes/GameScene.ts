@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { AWAKE_RANGE, BOB, PARK, CAT, OBSTACLES, PARTS, RAIN, ROBOT, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
+import { AWAKE_RANGE, BOB, INTERNET, PARK, CAT, OBSTACLES, PARTS, RAIN, ROBOT, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
 import { Controls, IdleControls, type PlayerInput } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -15,7 +15,7 @@ import { KEEP_LIVE, addGroundShade, bakeScenery, createBackdrop } from '../world
 import { parseLevel, type ClimbZone, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
 import { TITLE } from '../level/levels/title';
-import { BENCH_HEADROOM, FOUNTAIN_HEADROOM, bakeBench, bakeFountain, bakeLawn, BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, CASTLE_FLAG_HEADROOM, PAD_SIZE, BRANCH_THICKNESS, bakeCloudPlatform, HEAD_IN_POSE, BASE_HEADROOM, LAB_CONSOLE_X, LAB_TANK, baseInside, bakeMoonBase, AWNING_BULGE, HOUSE_HEADROOM, bakeAwning, bakeHouse, GRASS_FRINGE_HEIGHT, JELLY_SIZE, LOG_BULGE, PALM_BULGE, PALM_CROWN_ANCHOR, PALM_CROWN_SIZE, bakePalmTrunk, bakeSandCastle, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeCactus, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
+import { HACKER_SIZE, MACHINE_SIZE, MACHINE_ZAPPER, BENCH_HEADROOM, FOUNTAIN_HEADROOM, bakeBench, bakeFountain, bakeLawn, BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, CASTLE_FLAG_HEADROOM, PAD_SIZE, BRANCH_THICKNESS, bakeCloudPlatform, HEAD_IN_POSE, BASE_HEADROOM, LAB_CONSOLE_X, LAB_TANK, baseInside, bakeMoonBase, AWNING_BULGE, HOUSE_HEADROOM, bakeAwning, bakeHouse, GRASS_FRINGE_HEIGHT, JELLY_SIZE, LOG_BULGE, PALM_BULGE, PALM_CROWN_ANCHOR, PALM_CROWN_SIZE, bakePalmTrunk, bakeSandCastle, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeCactus, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { GOD_MODE_KEY, installGodMode, isGodMode } from '../dev/godMode';
@@ -215,6 +215,21 @@ export class GameScene extends Phaser.Scene {
   private partSprites: Phaser.Types.Physics.Arcade.ImageWithStaticBody[] = [];
   /** `=` cells inside a moon base, which the base draws as lab benches. */
   private benchCells = new Set<string>();
+  /** The internet's cables: each column of `I` cells, and how far it has been scratched through. */
+  private cables: Array<{
+    tiles: Phaser.Physics.Arcade.Sprite[];
+    plug: Phaser.GameObjects.Image;
+    x: number;
+    top: number;
+    bottom: number;
+    scratched: number;
+  }> = [];
+  /** The dark web's hackers, and whether each has called out to the cat since it came near. */
+  private hackers: Array<{ sprite: Phaser.GameObjects.Sprite; line: string; called: boolean; words?: CrispText }> = [];
+  /** Bob's machine in the lab, there once the cat has every part. */
+  private machine?: Phaser.GameObjects.Image;
+  /** Every cable cell's tile, by `column,row`, gathered into columns by `buildCables`. */
+  private cableTiles = new Map<string, Phaser.Physics.Arcade.Sprite>();
   private hatches: Array<{
     tile: Phaser.Physics.Arcade.Sprite;
     x: number;
@@ -308,6 +323,10 @@ export class GameScene extends Phaser.Scene {
     this.spiders = [];
     this.rain = undefined;
     this.hatches = [];
+    this.cables = [];
+    this.cableTiles = new Map();
+    this.hackers = [];
+    this.machine = undefined;
     this.benchCells = new Set();
     this.bob = undefined;
     this.baseRects = [];
@@ -718,6 +737,8 @@ export class GameScene extends Phaser.Scene {
     // is up, and a robot born then would be drawn twice.
     if (!this.titleMode && !this.dying && !this.leaving && !this.talk) {
       this.stepHatches(delta);
+      this.stepCables(delta);
+      this.stepHackers();
       this.stepObstacles(delta);
     }
     for (const piranha of this.piranhas) {
@@ -1094,6 +1115,11 @@ export class GameScene extends Phaser.Scene {
       // after it is picked up from there.
       if (this.level.next === 'space') {
         this.scene.start('Space', this.carry(this.levelIndex + 1));
+        return;
+      }
+      // The dark web's portal is the way out of the internet, and the end.
+      if (this.level.next === 'victory') {
+        this.scene.start('Victory', { elapsedMs: this.elapsedMs, deaths: this.deaths, parts: this.parts.length });
         return;
       }
       this.scene.start('Game', this.carry(this.levelIndex + 1));
@@ -1878,7 +1904,7 @@ export class GameScene extends Phaser.Scene {
           solid.x,
           solid.y,
           // A grey block looks the same wherever it is: its texture is not the theme's.
-          solid.glyph === 'D'
+          solid.glyph === 'D' || solid.glyph === 'I'
             ? solid.textureKey
             : this.tile(invisible ? 'branch-mid' : isVoid || solid.glyph === 'M' ? 'ground-fill' : solid.textureKey),
         )
@@ -1887,6 +1913,11 @@ export class GameScene extends Phaser.Scene {
 
       // A grey block can be broken, so it is never flattened into the
       // scenery: it has to be able to crack and disappear.
+      // A cable is scratched through and goes, so it is never baked either.
+      if (solid.glyph === 'I') {
+        tile.setData(KEEP_LIVE, true).setDepth(-0.25);
+        this.cableTiles.set(`${solid.x / TILE},${solid.y / TILE}`, tile);
+      }
       if (solid.glyph === 'D') {
         tile.setData(KEEP_LIVE, true).setData('hatch', true).setDepth(-0.25);
         this.hatches.push({ tile, x: solid.x, y: solid.y, spawnIn: ROBOT.spawnEveryMs, breaking: 0, robots: [] });
@@ -1954,6 +1985,8 @@ export class GameScene extends Phaser.Scene {
     this.buildBoulders();
     this.buildBases();
     this.buildPark();
+    this.buildCables();
+    this.buildHackers();
     this.buildLogs();
     this.buildBranches();
     this.buildFillets();
@@ -2566,6 +2599,9 @@ export class GameScene extends Phaser.Scene {
     camera.ignore([bubble, words, next]);
     this.talk = { line: -1, bubble, words, next, hidden, camera: overlay, lines: this.hasAllParts() ? BOB.thanks : BOB.lines };
     this.nextLine();
+    if (this.hasAllParts()) {
+      this.feedTheMachine();
+    }
   }
 
   /** On to Bob's next line, or the end of the talk after the last. */
@@ -2623,10 +2659,10 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     this.bob.met = true;
-    // With every part brought back, that is the end of the game: Bob can
-    // destroy the robots.
+    // With every part brought back, Bob's machine has them -- and turns on
+    // the cat.
     if (this.hasAllParts()) {
-      this.giveBobTheParts();
+      this.zapTheCat();
       return;
     }
     // Otherwise the end of Bob's story is the rocket: the cat said yes, and
@@ -2635,32 +2671,97 @@ export class GameScene extends Phaser.Scene {
     this.launchRocket();
   }
 
-  /** Whether the cat has found every one of Bob's parts. */
-  private hasAllParts(): boolean {
-    return this.parts.length >= PARTS.total;
+  /** The cat's parts go into Bob's machine: one after another, up and into its funnel. */
+  private feedTheMachine(): void {
+    const machine = this.machine;
+    const talk = this.talk;
+    if (!machine || !talk) {
+      return;
+    }
+    const funnel = { x: machine.x - MACHINE_SIZE.width / 2 + 17, y: machine.y - MACHINE_SIZE.height + 2 };
+    for (let i = 0; i < PARTS.total; i += 1) {
+      const part = this.add.image(this.player.x, this.player.y - 6, 'part').setDepth(1).setScale(0.6).setAlpha(0);
+      talk.camera.ignore(part);
+      this.tweens.add({
+        targets: part,
+        alpha: 1,
+        x: funnel.x,
+        y: { value: funnel.y, ease: 'Back.easeIn' },
+        angle: 360,
+        delay: 300 + i * 160,
+        duration: 520,
+        onComplete: () => {
+          part.destroy();
+          sound.play('beep');
+          this.tweens.add({ targets: machine, scaleY: 0.92, duration: 60, yoyo: true });
+        },
+      });
+    }
   }
 
-  /** The parts are Bob's: fade to the victory screen, the run won. */
-  private giveBobTheParts(): void {
+  /**
+   * "I'm sorry": the machine zaps the cat. Lightning from its zapper to the
+   * cat, the screen flashes white, and the cat is inside the internet --
+   * the first of its levels.
+   */
+  private zapTheCat(): void {
     if (this.leaving) {
       return;
     }
     this.leaving = true;
-    sound.play('checkpoint');
-    const black = this.add
-      .rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x000000)
+    const machine = this.machine;
+    const talk = this.talk;
+    const from = machine
+      ? { x: machine.x - MACHINE_SIZE.width / 2 + MACHINE_ZAPPER.x, y: machine.y - MACHINE_SIZE.height + MACHINE_ZAPPER.y }
+      : { x: this.player.x + 40, y: this.player.y - 20 };
+    const bolt = this.add.graphics().setDepth(5).setBlendMode(Phaser.BlendModes.ADD);
+    talk?.camera.ignore(bolt);
+    const strike = (): void => {
+      bolt.clear();
+      for (const [width, colour] of [[3, 0x4aa8ff], [1, 0xffffff]] as const) {
+        bolt.lineStyle(width, colour, 1);
+        bolt.beginPath();
+        bolt.moveTo(from.x, from.y);
+        const steps = 6;
+        for (let i = 1; i < steps; i += 1) {
+          const t = i / steps;
+          bolt.lineTo(
+            Phaser.Math.Linear(from.x, this.player.x, t) + (Math.random() - 0.5) * 6,
+            Phaser.Math.Linear(from.y, this.player.y - 4, t) + (Math.random() - 0.5) * 10,
+          );
+        }
+        bolt.lineTo(this.player.x, this.player.y - 4);
+        bolt.strokePath();
+      }
+    };
+    sound.play('laser');
+    strike();
+    this.time.addEvent({ delay: 60, repeat: 12, callback: strike });
+    this.player.setTint(0x8ad8ff);
+    this.tweens.add({ targets: this.player, alpha: 0.3, duration: 70, yoyo: true, repeat: 6 });
+    this.cameras.main.shake(700, 0.01);
+    const white = this.add
+      .rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0xffffff)
       .setOrigin(0, 0)
       .setScrollFactor(0)
       .setDepth(3000)
       .setAlpha(0);
-    this.talk?.camera.ignore(black);
+    talk?.camera.ignore(white);
     this.tweens.add({
-      targets: black,
+      targets: white,
       alpha: 1,
-      duration: 900,
-      onComplete: () =>
-        this.scene.start('Victory', { elapsedMs: this.elapsedMs, deaths: this.deaths, parts: this.parts.length }),
+      delay: 500,
+      duration: 500,
+      onComplete: () => {
+        sound.play('whoosh');
+        this.scene.start('Game', this.carry(LEVELS.findIndex((level) => level.theme === 'youtube')));
+      },
     });
+  }
+
+  /** Whether the cat has found every one of Bob's parts. */
+  private hasAllParts(): boolean {
+    return this.parts.length >= PARTS.total;
   }
 
   /**
@@ -2722,6 +2823,168 @@ export class GameScene extends Phaser.Scene {
    * down past the hull to the ground, for the inside and the doors; `=`
    * cells inside are its lab benches, and `buildBranches` leaves them be.
    */
+  /**
+   * The internet's cables: each column of `I` cells is one cable, with a
+   * plug on top. Scratched through as one.
+   */
+  private buildCables(): void {
+    const seen = new Set<string>();
+    const cells = [...this.cableTiles.keys()].map((key) => key.split(',').map(Number));
+    cells.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+    for (const [column, row] of cells) {
+      if (seen.has(`${column},${row}`)) {
+        continue;
+      }
+      const tiles: Phaser.Physics.Arcade.Sprite[] = [];
+      let bottom = row;
+      while (this.cableTiles.has(`${column},${bottom}`)) {
+        seen.add(`${column},${bottom}`);
+        tiles.push(this.cableTiles.get(`${column},${bottom}`) as Phaser.Physics.Arcade.Sprite);
+        bottom += 1;
+      }
+      const plug = this.add
+        .image(column * TILE, row * TILE - 10, 'cable-plug')
+        .setOrigin(0, 0)
+        .setDepth(-0.25)
+        .setData(KEEP_LIVE, true);
+      this.cables.push({ tiles, plug, x: column * TILE, top: row * TILE, bottom: bottom * TILE, scratched: 0 });
+    }
+  }
+
+  /**
+   * Scratching: holding down against a cable -- pressed to its side, or
+   * standing on top of it -- claws at it, and after `INTERNET.scratchMs` of
+   * one hold it snaps and the whole column goes. Letting go and the claw
+   * marks stay, but the count starts again.
+   */
+  private stepCables(delta: number): void {
+    if (this.cables.length === 0) {
+      return;
+    }
+    const cat = this.player.body;
+    const reach = INTERNET.scratchReach;
+    const holding = this.controls.sneak && !this.player.climbing && !this.player.swimming;
+    for (const cable of this.cables) {
+      if (cable.tiles.length === 0) {
+        continue;
+      }
+      const touching =
+        cat.right > cable.x - reach &&
+        cat.x < cable.x + TILE + reach &&
+        cat.bottom > cable.top - reach &&
+        cat.y < cable.bottom + reach;
+      if (!(holding && touching)) {
+        if (cable.scratched > 0) {
+          cable.scratched = 0;
+          for (const tile of cable.tiles) {
+            tile.x = cable.x;
+          }
+        }
+        continue;
+      }
+      const before = cable.scratched;
+      cable.scratched += delta;
+      const stage = cable.scratched / INTERNET.scratchMs;
+      for (const tile of cable.tiles) {
+        tile.setTexture(stage < 1 / 3 ? 'cable' : stage < 2 / 3 ? 'cable-1' : 'cable-2');
+        tile.x = cable.x + (Math.floor(cable.scratched / 40) % 2 === 0 ? 0.5 : -0.5);
+      }
+      // A scratch sound every so often while the claws are at it.
+      if (Math.floor(before / 220) !== Math.floor(cable.scratched / 220)) {
+        sound.play('crunch');
+      }
+      if (cable.scratched >= INTERNET.scratchMs) {
+        this.snapCable(cable);
+      }
+    }
+  }
+
+  /** A cable snaps: gone, with sparks and shreds of it flying. */
+  private snapCable(cable: GameScene['cables'][number]): void {
+    sound.play('crack');
+    this.cameras.main.shake(140, 0.005);
+    const middle = (cable.top + cable.bottom) / 2;
+    for (let i = 0; i < 14; i += 1) {
+      const y = cable.top + Math.random() * (cable.bottom - cable.top);
+      const bit = this.add.image(cable.x + TILE / 2, y, i % 2 === 0 ? 'cable-bit' : 'spark').setDepth(1);
+      if (i % 2 === 1) {
+        bit.setTint(0x8ad8ff).setBlendMode(Phaser.BlendModes.ADD);
+      }
+      const angle = Math.random() * Math.PI * 2;
+      this.tweens.add({
+        targets: bit,
+        x: bit.x + Math.cos(angle) * (16 + Math.random() * 18),
+        y: bit.y + Math.sin(angle) * (16 + Math.random() * 18) + (y > middle ? 6 : -6),
+        alpha: 0,
+        angle: Math.random() * 360,
+        duration: 420 + Math.random() * 260,
+        ease: 'Cubic.easeOut',
+        onComplete: () => bit.destroy(),
+      });
+    }
+    for (const tile of cable.tiles) {
+      tile.destroy();
+    }
+    cable.tiles = [];
+    cable.plug.destroy();
+  }
+
+  /**
+   * The dark web's hackers: a hooded figure at a laptop, and beside it a
+   * sign with an arrow -- always pointing the wrong way, at spikes or a
+   * drop. Harmless themselves; the lie is the danger.
+   */
+  private buildHackers(): void {
+    this.level.hackers.forEach((at, index) => {
+      const sprite = this.add
+        .sprite(at.x, at.y, 'hacker')
+        .setOrigin(0.5, 1)
+        .setDepth(-0.3)
+        .setFlipX(at.points === 'left')
+        .setData(KEEP_LIVE, true);
+      this.tweens.add({ targets: sprite, scaleY: 0.96, duration: 700 + index * 90, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+      const side = at.points === 'left' ? -1 : 1;
+      const sign = this.add
+        .image(at.x + side * (HACKER_SIZE.width / 2 + 8), at.y, 'hacker-sign')
+        .setOrigin(0.5, 1)
+        .setDepth(-0.31)
+        .setData(KEEP_LIVE, true);
+      if (at.points === 'left') {
+        sign.setFlipX(true);
+      }
+      if (at.points === 'up' || at.points === 'down') {
+        // The board turned on its post: the arrow up, or down at the ground.
+        sign.setOrigin(0.5, 0.5).setY(at.y - 11).setAngle(at.points === 'up' ? -90 : 90);
+      }
+      this.tweens.add({ targets: sign, angle: sign.angle + 4, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+      this.hackers.push({ sprite, line: INTERNET.hackerLines[index % INTERNET.hackerLines.length], called: false });
+    });
+  }
+
+  /** A hacker calls out to a cat that comes near -- once, until it goes away again. */
+  private stepHackers(): void {
+    for (const hacker of this.hackers) {
+      const near = Phaser.Math.Distance.Between(hacker.sprite.x, hacker.sprite.y, this.player.x, this.player.y) < INTERNET.hackerCalls;
+      if (near && !hacker.called) {
+        hacker.called = true;
+        hacker.words?.destroy();
+        const words = crispText(this, hacker.sprite.x, hacker.sprite.y - HACKER_SIZE.height - 8, hacker.line, {
+          fontFamily: 'monospace',
+          fontSize: '10px',
+          color: '#39ff6a',
+          stroke: '#000000',
+          strokeThickness: 3,
+        })
+          .setOrigin(0.5)
+          .setDepth(21);
+        hacker.words = words;
+        this.tweens.add({ targets: words, alpha: 0, delay: 1800, duration: 400, onComplete: () => words.destroy() });
+      } else if (!near && hacker.called && Phaser.Math.Distance.Between(hacker.sprite.x, hacker.sprite.y, this.player.x, this.player.y) > INTERNET.hackerCalls * 1.6) {
+        hacker.called = false;
+      }
+    }
+  }
+
   /**
    * The city's park: each run of `b` cells one bench and each run of `O`
    * cells one fountain, throwing drops up out of its bowl, with a strip of
@@ -2874,6 +3137,16 @@ export class GameScene extends Phaser.Scene {
         .setData(KEEP_LIVE, true)
         .play('alien-work');
       this.bob = { sprite: bob, near: false, met: false };
+
+      // Back with every part: Bob has built his machine, beside him on the
+      // lab floor, its zapper facing the room.
+      if (this.rocket && this.hasAllParts()) {
+        this.machine = this.add
+          .image(bob.x + 50, (bottom + 1) * TILE - 3, 'bob-machine')
+          .setOrigin(0.5, 1)
+          .setDepth(-0.285)
+          .setData(KEEP_LIVE, true);
+      }
 
       // A little robot growing in the specimen tank: small at first, filling
       // out over a long minute, bobbing in the liquid, and starting again

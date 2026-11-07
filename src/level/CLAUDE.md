@@ -40,6 +40,8 @@ its platforms must attach to a column. Everything else is derived.
 | `m`, `~` | a **moving platform** (Jupiter): a run of `m` is the platform, one-way like a branch, and the `m` and `~` of the run together are the track it slides along, back and forth, carrying a cat that stands on it |
 | `Z` | **crumbling ice** (Pluto): solid until stood on, then it shakes for `crumbleMs`, falls, and is back after `crumbleBackMs`. Not part of the ground, so it can go |
 | `F` | an American flag planted in the dust. Scenery only, at the cell's floor |
+| `I` | a **cable** (the internet): solid, a column of `I` is one cable with a plug on top; holding down against it for `INTERNET.scratchMs` scratches it through and the whole column goes. Not in `FULL_CELL`, like `D` |
+| `<` `>` `U` `H` | a **hacker** (the dark web) standing on the cell's floor, its sign pointing left, right, up or down: always the wrong way. Harmless; calls out when the cat comes near |
 | `b` | a park bench; its seat is a one-way ledge (`PARK.benchSeat`), so the cat stands on it and rats run under. A run of cells is one bench |
 | `O` | a fountain; its basin's rim is a one-way ledge (`PARK.fountainRim`). A run of cells is one fountain, throwing drops |
 | `D` | a **grey block**, only on the robots' worlds (`ROBOT_THEMES`; anywhere else the level refuses to load): solid, a robot climbs out of its top every `ROBOT.spawnEveryMs` while the cat is near, and holding down against it breaks it. Deliberately *not* in `FULL_CELL`, so no neighbour switches a face off against it and nothing is left with a hole when it goes |
@@ -289,6 +291,13 @@ jump-release and swim gravity are scaled off the world's, not `CAT.gravity`.
 
 `helmet: true` puts the space helmet on the cat for the whole level
 (`GameScene.buildHelmet`); `SpaceScene` puts it on in space.
+
+## Into the internet, and out
+
+The five internet levels come after Pluto in `LEVELS`, reached only by
+Bob's machine (`GameScene.zapTheCat` starts the first `youtube` theme
+level). Each portal goes to the next; the dark web has `next: 'victory'`,
+which sends its portal to the victory screen.
 
 ## Off into space
 

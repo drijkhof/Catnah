@@ -64,6 +64,9 @@ export type CrowBehaviour = 'attack' | 'flyby' | 'swoop';
  *        drops on a thread. Needs solid rock directly above it
  *   `S`  the same, ten times the size. One of them, guarding the cave's heart
  *   `X`  the boss, which guards the end of the level it is placed in
+ *   `I`  cable, inside the internet -- solid until scratched through
+ *   `<` `>` `U` `H`  a hacker on the dark web, its sign pointing left, right,
+ *        up or down: always the wrong way
  *   `b`  park bench -- its seat a one-way ledge; a run of cells is one bench
  *   `O`  fountain -- its rim a one-way ledge; a run of cells is one fountain
  *   `.`  empty
@@ -112,9 +115,9 @@ export interface LevelDefinition {
   /**
    * Where this level's portal goes, if not simply to the next level:
    * `space` is the flight to the moon, which ends at a map and picks up
-   * again with the level after this one.
+   * again with the level after this one; `victory` is the end of the game.
    */
-  next?: 'space';
+  next?: 'space' | 'victory';
   /** Whether the cat wears a space helmet here: there is no air. */
   helmet?: boolean;
   /**
@@ -241,7 +244,7 @@ export interface ParsedLevel {
   portalScale: number;
   /** How far from its rim a portal pulls the cat in, tiles; 0 for not at all. */
   portalPull: number;
-  next: 'space' | null;
+  next: 'space' | 'victory' | null;
   helmet: boolean;
   /** Gravity against the Earth's: 1, or less off the Earth. */
   gravity: number;
@@ -257,6 +260,10 @@ export interface ParsedLevel {
   crumbles: Point[];
   /** Planted flags (`F`), by the foot of the pole. Scenery. */
   flags: Point[];
+  /** Cables (`I`), by their cells' top-left corners. Scratched through, a whole column at a time. */
+  cables: Point[];
+  /** Hackers (`<`, `>`, `U`, `H`), by the foot, and which way their sign points: always the wrong way. */
+  hackers: Array<Point & { points: 'left' | 'right' | 'up' | 'down' }>;
   /** Park benches (`b`), each run of cells one bench, by its cells' top-left corners. */
   benches: Point[];
   /** Fountains (`O`), each run of cells one fountain, by its cells' top-left corners. */
@@ -357,6 +364,8 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const hatches: Point[] = [];
   const flags: Point[] = [];
   const benches: Point[] = [];
+  const cables: Point[] = [];
+  const hackers: Array<Point & { points: 'left' | 'right' | 'up' | 'down' }> = [];
   const fountains: Point[] = [];
   const parts: Point[] = [];
   const bouncePads: Point[] = [];
@@ -581,6 +590,36 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           flags.push({ x: x + 4, y: y + TILE });
           break;
 
+        // A cable, inside the internet: solid, until the cat scratches
+        // through it -- holding down against it -- and then the whole
+        // column of it goes. Like a grey block, not a full cell, so nothing
+        // switches a face off against it and nothing is left with a hole.
+        case 'I':
+          cables.push({ x, y });
+          solids.push({
+            x,
+            y,
+            width: TILE,
+            height: TILE,
+            textureKey: 'cable',
+            isBranch: false,
+            faces: { up: true, down: true, left: true, right: true },
+            glyph: 'I',
+          });
+          break;
+
+        // A hacker on the dark web, with a sign pointing the wrong way.
+        case '<':
+        case '>':
+        case 'U':
+        case 'H':
+          hackers.push({
+            x: x + TILE / 2,
+            y: y + TILE,
+            points: tiles[column] === '<' ? 'left' : tiles[column] === '>' ? 'right' : tiles[column] === 'U' ? 'up' : 'down',
+          });
+          break;
+
         // A park bench: its seat is a one-way ledge, so the cat jumps up
         // and stands on it and a rat runs underneath. Drawn by the scene,
         // a run of cells as one bench.
@@ -799,6 +838,8 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     flags,
     benches,
     fountains,
+    cables,
+    hackers,
     parts,
     hatches,
     waterZones,

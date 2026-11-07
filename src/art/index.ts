@@ -8,6 +8,7 @@ import { generateUiTextures } from './ui';
 import { generateTileset } from './tiles';
 import { generateCityTextures } from './house';
 import { generateParkTextures } from './park';
+import { generateInternetTextures } from './internet';
 import { generateSpaceTextures } from './space';
 import { generateAlienTextures, generateFlagTexture } from './base';
 import { THEMES } from '../level/themes';
@@ -48,6 +49,7 @@ export { PALM_BULGE, bakePalmTrunk } from './palm';
 export { ALIEN_SIZE, BASE_HEADROOM, FLAG_SIZE, LAB_CONSOLE_X, LAB_TANK, bakeMoonBase, baseInside } from './base';
 export { HEAD_IN_POSE, HELMET_SIZE, LANDMARK_SIZES, PAD_SIZE, PART_SIZE, ROCKET_SIZE, bakeCloudPlatform } from './space';
 export { MOON_HILLS_SIZE, PLANET_SIZES, SATURN_RING_SPREAD, STARFIELD_SIZE, type PlanetName } from './space';
+export { HACKER_SIZE, MACHINE_SIZE, MACHINE_ZAPPER, NET_ICONS, type NetSite } from './internet';
 export { BENCH_HEADROOM, FOUNTAIN_HEADROOM, PARK_TREE_SIZE, bakeBench, bakeFountain, bakeLawn } from './park';
 export { AWNING_BULGE, HOUSE_HEADROOM, LAMP_GLOW, LAMP_SIZE, MOON_SIZE, SKYLINE_SIZES, bakeAwning, bakeHouse, type HouseCell } from './house';
 export {
@@ -81,6 +83,7 @@ export function generatePlaceholderArt(scene: Phaser.Scene): void {
   generateCaveWall(scene);
   generateCityTextures(scene);
   generateParkTextures(scene);
+  generateInternetTextures(scene);
   generateSpaceTextures(scene);
   generateFlagTexture(scene);
   generateAlienTextures(scene);

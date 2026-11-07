@@ -508,15 +508,19 @@ export const BOB = {
     'What a cute little kitty!',
     'The robots have taken over the planets:\nthe Moon, Mars, Saturn, Jupiter, Venus,\nUranus, Neptune and Pluto!',
     "I need 10 parts to destroy the robots.\nI built a rocket, but I don't know where I can find the planets.",
-    'But look out:\nthere are not two moons...',
     'Can you do it, kitty?',
+    'But look out:\nthere are not two moons...',
   ],
   /** The button under the last line: the answer, and off in the rocket. */
   lastButton: 'Yes! ▸',
-  /** What he says when the cat comes back with every part. */
-  thanks: ['You found all 10 parts!', 'Now I can destroy the robots!', 'Thank you, cute little kitty!'],
-  /** The button under his last thanks: the end of the game. */
-  thanksButton: 'Bye ▸',
+  /**
+   * What he says when the cat comes back with every part. The parts go into
+   * his machine as the talk starts; after the last line it zaps the cat into
+   * the internet.
+   */
+  thanks: ['You found all 10 parts!', 'Well... thank you, kitty.', "I'm sorry."],
+  /** The button under his last line, just before the zap. */
+  thanksButton: 'Huh? ▸',
   /** How near the cat has to be before a part shows clearly, px; further off it is faint. */
   partSeen: 56,
   partFaint: 0.2,
@@ -955,6 +959,22 @@ export const PARK = {
   jet: 30,
   /** Drops the fountain throws a second. */
   dropsPerSecond: 40,
+} as const;
+
+/**
+ * Inside the internet, where Bob's machine zapped the cat: five sites, one
+ * level each, cables to scratch through and spikes to keep off, and on the
+ * dark web hackers pointing the wrong way.
+ */
+export const INTERNET = {
+  /** How long the cat has to scratch a cable, holding down against it, before it snaps, ms. */
+  scratchMs: 900,
+  /** How far off the cable still counts as touching it, px. */
+  scratchReach: 3,
+  /** How near the cat has to come before a hacker calls out, px. */
+  hackerCalls: 120,
+  /** What the hackers call out, one per hacker, in turn. */
+  hackerLines: ['This way!', 'Trust me!', 'Shortcut!', "It's safe!", 'Go on!'],
 } as const;
 
 export const EXIT = {

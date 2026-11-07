@@ -43,6 +43,10 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | park | `park` | in the city, after the third house: lawn, benches, a fountain |
 | bankje | `bench` | in the park; you can stand on it |
 | fontein | `fountain` | in the park; you can stand on its rim |
+| internet | `internet` | where Bob's machine zaps the cat: YouTube, Insta, Facebook, Catnah, dark web |
+| kabel | `cable` | in the internet: scratched through with your claws |
+| krabben | `scratch` | hold down against a cable until it snaps |
+| hacker | `hacker` | on the dark web: a sign that always points the wrong way |
 | luifel | `awning` | the city's one-way platform, striped, sticking out of a wall |
 | poort | `arcade` | an opening under a house, walked or sneaked through |
 | rat | `rat` | the city's walker, quicker than a hedgehog |
@@ -522,6 +526,11 @@ and touching an **earlier** one after passing a later one moves the point back
 | Uranus | 264 |
 | Neptune | 259 |
 | Pluto | 262 |
+| YouTube | 110 |
+| Insta | 120 |
+| Facebook | 125 |
+| Catnah | 130 |
+| Dark web | 140 |
 
 Every level is **written out** in its file, row by row.
 
@@ -536,7 +545,8 @@ as a descent.
 **City, forest, canopy, swamp, cave, volcano, desert, beach, sand path,
 and — after a flight through space — the moon; then, in Bob's rocket, the
 seven worlds the robots hold, in any order: Mars, Saturn, Jupiter, Venus,
-Uranus, Neptune and Pluto.**
+Uranus, Neptune and Pluto; and last, zapped in by Bob's machine, the
+internet: YouTube, Insta, Facebook, Catnah and the dark web.**
 Out of town into the wild, down through the fire, and out the other side to
 the sea. Each level starts at one end and ends at a **portal**, which takes
 you to the next: the cave is the descent into the volcano, the volcano's
@@ -546,8 +556,9 @@ which ends at the **big portal**. That one sends you off into **space**,
 where you fly to the **moon**. There Bob the alien tells you the
 robots have taken over the planets and sends you off in his rocket for the
 **ten parts** he needs to destroy them, spread over the seven worlds.
-With all ten, you fly back to the moon and give them to Bob — and that
-is the win. Little hearts are optional everywhere.
+With all ten, you fly back to the moon and give them to Bob — who puts
+them in the machine he has built, says he is sorry, and **zaps you into
+the internet**. Through its five sites to the dark web's portal is the win. Little hearts are optional everywhere.
 
 ### 1 — City
 
@@ -807,14 +818,49 @@ blinking now and then. Walk up to him and you **talk**: the hearts and the
 clock go away and the camera zooms in on the lab, Bob and you. He says
 *"Hi, my name is Bob!"*, Next (tap it, or jump) and *"What a cute little
 kitty!"*, then *"The robots have taken over the planets: the Moon, Mars,
-Saturn, Jupiter, Venus, Uranus, Neptune and Pluto!"*, then *"I need 10 parts to destroy the robots. I built a rocket, but I don't know where I can find the planets."*, *"But look out: there are not two moons..."*, and last *"Can you
-do it, kitty?"* — and the button under that says
+Saturn, Jupiter, Venus, Uranus, Neptune and Pluto!"*, then *"I need 10 parts to destroy the robots. I built a rocket, but I don't know where I can find the planets."*, *"Can you do it, kitty?"*, and last *"But look
+out: there are not two moons..."* — and the button under that says
 **Yes!**. Press it and the screen flashes white and you are off into space
 in his rocket. Nothing can hurt you while you talk.
 
 **Bringing him the parts**: with all ten, fly to the Moon and
-you land right by the base. Walk up to Bob and he says *"You found all 10 parts!"*, *"Now I can destroy the robots!"* and *"Thank you, cute little
-kitty!"* — and **Bye** is the win: the victory screen, which says *"All 10 parts! Bob can stop the robots."*
+you land right by the base, and beside Bob stands **a machine** he has
+built: a steel cabinet with a funnel on top and a zapper on its side. Walk
+up to Bob and your ten parts fly out one by one into the funnel, and he
+says *"You found all 10 parts!"*, *"Well... thank you, kitty."* and *"I'm
+sorry."* — and the button says **Huh?**. Press it and the machine **zaps
+you**: lightning from the zapper, the screen goes white, and you are inside
+**the internet**.
+
+### The internet
+
+Five levels, one per site: **YouTube, Insta, Facebook, Catnah** (this
+game's own site) and **the dark web**, in that order, each portal to the
+next. Earth's gravity, no helmet. Inside a computer: the floor is a dark
+circuit board with a glowing line along its top in the site's colour, and
+behind it the site's sky — a gradient with a faint grid — with its pictures
+floating in it: videos and play buttons (YouTube, red and black), photos
+and hearts (Insta, pink, orange and purple), thumbs up and chat bubbles
+(Facebook, blue and white), paws and cat faces (Catnah, orange), and on the
+dark web skulls and locks, with green code falling behind. No real logos.
+
+- **Cables** stand across the way, twelve tiles tall with a plug on top:
+  too tall to jump, even with a wall jump. **Scratch through them with your
+  claws**: hold down against one — pressed to its side, or standing on it
+  — and the claw marks go in, the copper shows, and it **snaps**, the whole
+  cable gone in sparks and shreds. Letting go starts the count again.
+- **Spikes** are the only danger. Nothing alive is inside the internet.
+- **The dark web's hackers**: a black hood with two green eyes over a green
+  laptop, at every fork, with a sign — and the sign **always points the
+  wrong way**. Come near and the hacker calls out (*"This way!"*, *"Trust
+  me!"*, *"Shortcut!"*, *"It's safe!"*, *"Go on!"*). Straight on along the
+  ground leads into spikes too wide to jump (the way is up the shelves);
+  down a hole is down a hole (jump it); up a stair of shelves ends over a
+  roof of spikes (the way is along the ground, sneaking under that roof);
+  and the last one points back the way you came.
+
+The dark web's portal is the way out, and **the win**: the victory screen,
+which says *"All 10 parts! Bob can stop the robots."*
 
 **American flags** stand planted in the dust at the start and outside the
 base, and one on the hills on the horizon.
@@ -877,7 +923,7 @@ remembers nothing.
 
 ## Winning, and the score
 
-Give Bob all ten parts and the sunlit forest comes up out of the
+Come out of the dark web's portal and the sunlit forest comes up out of the
 black with **"You actually won!"** in gold over it, your **time** under
 that, and how often you died. The time is the score, and lower is better:
 every second you spend in a level counts, from the moment it starts until the

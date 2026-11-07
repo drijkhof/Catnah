@@ -22,6 +22,15 @@ Phaser scenes. Registered in order in `src/main.ts`; the first one starts.
   its place, which is why. That camera is told to ignore everything else and
   the main one the bubble; robots do not spawn during a talk, or the second
   camera would draw them too. `endTalk` undoes all of it.
+- **Bob's machine** (`GameScene.buildBases`, `feedTheMachine`,
+  `zapTheCat`): back on the moon with every part, the machine stands by
+  Bob; the talk sends the parts flying into its funnel, and the end of it
+  zaps the cat into the first internet level. Everything made during a talk
+  has to be ignored by the bubble's camera, or it is drawn twice.
+- **Cables and hackers** (`buildCables`/`stepCables`/`snapCable`,
+  `buildHackers`/`stepHackers`): a cable column scratched through by holding
+  down against it, the way the moon's grey blocks are broken; a hacker
+  calls out when the cat comes near and again after it has gone away.
 - **`GameOverScene`** — black, one line of red, and back to the title.
 - **`VictoryScene`** — the last level's portal leads here: the title-mode
   forest underneath (launched the same way `TitleScene` does it, and stopped

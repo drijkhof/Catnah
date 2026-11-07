@@ -16,6 +16,11 @@ import { VENUS } from './venus';
 import { URANUS } from './uranus';
 import { NEPTUNE } from './neptune';
 import { PLUTO } from './pluto';
+import { YOUTUBE } from './youtube';
+import { INSTA } from './insta';
+import { FACEBOOK } from './facebook';
+import { CATNAH } from './catnah';
+import { DARKWEB } from './darkweb';
 
 /**
  * The levels, in the order they are played.
@@ -36,4 +41,4 @@ import { PLUTO } from './pluto';
  map; their
  place in this list is only so there is one.
  */
-export const LEVELS: LevelDefinition[] = [CITY, FOREST, CANOPY, SWAMP, CAVE, VOLCANO, DESERT, BEACH, PATH, MOON, MARS, SATURN, JUPITER, VENUS, URANUS, NEPTUNE, PLUTO];
+export const LEVELS: LevelDefinition[] = [CITY, FOREST, CANOPY, SWAMP, CAVE, VOLCANO, DESERT, BEACH, PATH, MOON, MARS, SATURN, JUPITER, VENUS, URANUS, NEPTUNE, PLUTO, YOUTUBE, INSTA, FACEBOOK, CATNAH, DARKWEB];
