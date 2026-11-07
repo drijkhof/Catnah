@@ -552,7 +552,7 @@ is the win. Little hearts are optional everywhere.
 ### 1 — City
 
 104 tiles. A Dutch town **at night, in the rain**: a street of wet brick
-pavers, the moon behind rain clouds (no stars), a skyline of dark gables with a lit window here
+pavers, the moon and a sky full of stars, a skyline of dark gables with a lit window here
 and there and a church tower with a lit clock behind it, street lamps along
 the pavement between the houses, rain streaking down over everything and the
 patter of drops landing, and on the street a row of

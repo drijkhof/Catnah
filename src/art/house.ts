@@ -474,13 +474,27 @@ export const MOON_SIZE = 84;
  * and has a church tower with a lit clock face; the near one is the darker,
  * because at night distance is where the light is and the thing close to
  * you is the thing in front of it. Each rank is baked in two variants so
- * the row does not repeat in step. Plus the sky, starless under the rain clouds, and the moon.
+ * the row does not repeat in step. Plus the sky, full of stars, and the moon.
  */
 export function generateCityTextures(scene: Phaser.Scene): void {
   bakeTexture(scene, 'city-sky', GAME_WIDTH, GAME_HEIGHT, (g) => {
     // Night, with the orange wash a town throws up into low cloud.
     fillVerticalGradient(g, GAME_WIDTH, GAME_HEIGHT, 0x0b1030, 0x35283e);
-    // No stars: the rain clouds hide them.
+    // Lots of stars, thick high up and thinning toward the rooftops, a few
+    // of them bigger and brighter than the rest.
+    const random = createRandom(4441);
+    for (let i = 0; i < 220; i += 1) {
+      const y = random() * GAME_HEIGHT * 0.7;
+      const fade = 1 - y / (GAME_HEIGHT * 0.7);
+      g.fillStyle(random() < 0.15 ? 0xfff2c8 : 0xe8ecff, 0.3 + random() * 0.65 * fade);
+      const x = Math.floor(random() * GAME_WIDTH);
+      if (random() < 0.08) {
+        g.fillRect(x - 1, Math.floor(y), 3, 1);
+        g.fillRect(x, Math.floor(y) - 1, 1, 3);
+      } else {
+        g.fillRect(x, Math.floor(y), 1, 1);
+      }
+    }
   });
 
   bakeTexture(scene, 'moon', MOON_SIZE, MOON_SIZE, (g) => {
