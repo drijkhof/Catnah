@@ -807,8 +807,7 @@ blinking now and then. Walk up to him and you **talk**: the hearts and the
 clock go away and the camera zooms in on the lab, Bob and you. He says
 *"Hi, my name is Bob!"*, Next (tap it, or jump) and *"What a cute little
 kitty!"*, then *"The robots have taken over the planets: the Moon, Mars,
-Saturn, Jupiter, Venus, Uranus, Neptune and Pluto!"*, then *"I need 10 parts to destroy the robots. I built a rocket, but I do not know where Mars
-is."*, *"But look out: there are not two moons..."*, and last *"Can you
+Saturn, Jupiter, Venus, Uranus, Neptune and Pluto!"*, then *"I need 10 parts to destroy the robots. I built a rocket, but I don't know where I can find the planets."*, *"But look out: there are not two moons..."*, and last *"Can you
 do it, kitty?"* — and the button under that says
 **Yes!**. Press it and the screen flashes white and you are off into space
 in his rocket. Nothing can hurt you while you talk.
