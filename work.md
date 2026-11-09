@@ -527,7 +527,7 @@ and touching an **earlier** one after passing a later one moves the point back
 | Jupiter | 275 |
 | Venus | 258 |
 | Uranus | 264 |
-| Neptune | 259 |
+| Neptune | 137 |
 | Pluto | 262 |
 | YouTube | 110 |
 | Insta | 120 |
@@ -774,8 +774,8 @@ in its own way:
   tower, up its chain.
 - **Venus**: in a room inside a rock, reached only by dropping into the gap
   on top.
-- **Neptune**: in an underwater cave off the bottom of a sea, running on
-  under the floor.
+- **Neptune**: never in the water — in a room inside a rock, up the chain
+  on its side and down the shaft in its top.
 - **Uranus**: on a shelf above the top of the screen, reached only off a
   bounce pad.
 - **Jupiter**: in a room inside a bank of cloud; and at the end of a cloud

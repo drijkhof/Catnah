@@ -2,7 +2,7 @@ import type { LevelDefinition } from '../Level';
 import { GRAVITY } from '../../config';
 
 /**
- * Neptune, taken over by the robots. 130 tiles.
+ * Neptune, taken over by the robots. 137 tiles.
  *
  * Deep blue ice under a black sky with Uranus and Pluto in it, blue spires behind. Flown to in Bob's rocket.
  *
@@ -10,8 +10,8 @@ import { GRAVITY } from '../../config';
  * Robots and their grey blocks, as on every robots' world.
  *
  * **1 of Bob's 10 part** (`K`), faint until the cat is near, and well
- * hidden: in an underwater cave off the bottom of a sea, running on under
- * the floor.
+ * hidden -- never in the water: in a room inside a rock, up the chain on
+ * its side and down the shaft in its top.
  *
  * Its portal goes back out into space.
  */
@@ -44,17 +44,17 @@ const ROWS: string[] = [
   '............................................................TQQQ',
   '............................................................TQQQ',
   '............................................................TQQQ',
-  '............................................................TQQQ',
-  '............................................................TQQQ.................................oooooo',
-  '............................................................TQQQ................................RRRRRRRR',
-  '.......ooo...............ooo......ooo...............ooo..oooTQQQ..ooo......................ooo..RRRRRRRR.............ooo',
-  '............................................................TQQQ................................RRRRRRRR',
-  '............................................................TQQQ................................RRRRRRRR',
-  '..P.......................h...^^.....................D....h.TQQQ.............................h......o.........................E',
-  '###############wwwwwwww###############wwwwwwwwwwww#####################wwwwwwwwwwww#######################wwwwwwwww###############',
-  '###############wwwwfwww###############wwfwwwwwwwfw#####################wwwfwwwwfwwwwwwwww#################wwfwwwwfw###############',
-  '###############wwwWwwww###############wwwwwWwwwwww#####################wwwwwwwwwwwwwwwwwK#################wwwWwwwww###############',
-  '#'.repeat(130),
+  '............................................................TQQQ........................TR..RRRR',
+  '............................................................TQQQ........................TR..RRRR........oooooo',
+  '............................................................TQQQ........................TR..RRRR.......RRRRRRRR',
+  '.......ooo...............ooo......ooo...............ooo..oooTQQQ..ooo................oooTR..RRRR..ooo..RRRRRRRR.............ooo',
+  '............................................................TQQQ........................TR.....R.......RRRRRRRR',
+  '............................................................TQQQ........................TR....KR.......RRRRRRRR',
+  '..P.......................h...^^.....................D....h.TQQQ........................TRRRRRRR....h......o.........................E',
+  '###############wwwwwwww###############wwwwwwwwwwww#####################wwwwwwwwwwww##############################wwwwwwwww###############',
+  '###############wwwwfwww###############wwfwwwwwwwfw#####################wwfwwwwwwwfw##############################wwfwwwwfw###############',
+  '###############wwwWwwww###############wwwwwWwwwwww#####################wwwwwWwwwwww##############################wwwWwwwww###############',
+  '#'.repeat(137),
 ];
 
 export const NEPTUNE: LevelDefinition = {

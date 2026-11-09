@@ -2141,3 +2141,9 @@ Pluto 0.063. Decided without asking, so that nothing becomes impossible:
   go early makes it as short as you like.
 - Piranhas still leap as high as on the Earth.
 
+## No parts in the water on Neptune
+
+Asked for: on Neptune no parts lying in the water. The underwater cave is
+gone (its sea stays, without the cave); the part is in a rock with a room
+inside, up a chain, like Venus's, Saturn's and Jupiter's.
+
