@@ -449,8 +449,11 @@ at the start of the level, or at the **last checkpoint** it touched, if any.
 You get **three lives**, shown as red hearts in the top right. Each death dims
 one, and **little hearts you have already collected stay collected** between them.
 
-Lose the last heart and the whole game starts again from the forest, with three
-fresh hearts.
+Lose the last heart and the whole game starts again from the city, with three
+fresh hearts — **except out in space**: on the moon or any robots' world,
+*Game Over* says **Back to the Moon** under it, and you start again on the
+moon with three fresh hearts, keeping the parts you found, Bob's rocket, the
+little hearts and the clock.
 
 **Lives travel with you** from level to level, which is what makes finding a
 spare one worth the detour.

@@ -28,9 +28,16 @@ export class GameOverScene extends Phaser.Scene {
 
   private leaving = false;
 
+  /** Out in space, the run carried on from the moon instead: what to start it with. */
+  private restart?: object;
+
   constructor() {
     // Transparent, so the paused game shows through it.
     super({ key: 'GameOver' });
+  }
+
+  init(data: { restart?: object }): void {
+    this.restart = data?.restart;
   }
 
   create(): void {
@@ -53,6 +60,18 @@ export class GameOverScene extends Phaser.Scene {
     // Readable from the first frame, and *then* given a slow pulse. Fading it
     // up was prettier and made the one thing this screen exists to say depend
     // on a tween having run.
+    if (this.restart) {
+      crispText(this, GAME_WIDTH / 2, GAME_HEIGHT / 2 + Math.round(GAME_WIDTH * 0.07), 'Back to the Moon', {
+        fontFamily: 'monospace',
+        fontSize: `${Math.round(GAME_WIDTH * 0.03)}px`,
+        color: '#e8e8f0',
+        stroke: '#1a0507',
+        strokeThickness: 4,
+      })
+        .setOrigin(0.5)
+        .setDepth(2000);
+    }
+
     this.tweens.add({
       targets: text,
       alpha: { from: 1, to: 0.72 },
@@ -76,13 +95,18 @@ export class GameOverScene extends Phaser.Scene {
     });
   }
 
-  /** Back to the title, where a new run starts. */
+  /** Back to the title, where a new run starts -- or, out in space, onto the moon again. */
   private leave(): void {
     if (!this.ready || this.leaving) {
       return;
     }
 
     this.leaving = true;
+    if (this.restart) {
+      this.scene.stop('Game');
+      this.scene.start('Game', this.restart);
+      return;
+    }
     runEnded();
 
     // The game underneath is paused, not stopped. It has to be stopped here or

@@ -1906,6 +1906,14 @@ export class GameScene extends Phaser.Scene {
   private endRun(): void {
     this.cameras.main.filters.internal.addColorMatrix().colorMatrix.grayscale(1);
     this.scene.pause();
+    // Out in space -- the moon or a robots' world -- the run is not over:
+    // it starts again on the moon, with fresh hearts and everything found
+    // so far kept. Anywhere else, back to the title.
+    if (this.level.helmet) {
+      const moon = LEVELS.findIndex((level) => level.theme === 'moon');
+      this.scene.launch('GameOver', { restart: { ...this.carry(moon), lives: LIVES, maxLives: Math.max(LIVES, this.maxLives) } });
+      return;
+    }
     this.scene.launch('GameOver');
   }
 

@@ -2147,3 +2147,12 @@ Asked for: on Neptune no parts lying in the water. The underwater cave is
 gone (its sea stays, without the cave); the part is in a rock with a room
 inside, up a chain, like Venus's, Saturn's and Jupiter's.
 
+## Game over in space: back to the moon
+
+Asked for: a game over in space starts you again on the moon. "In space" is
+taken as any level with the helmet on -- the moon and the robots' worlds;
+the internet is not space, and a game over there still goes to the title.
+Kept: the parts found, Bob's rocket, rocket fuel, the little hearts and the
+clock. The hearts start again at three (the most held this run is kept as
+the number of heart slots).
+
