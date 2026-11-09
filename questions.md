@@ -2156,3 +2156,17 @@ Kept: the parts found, Bob's rocket, rocket fuel, the little hearts and the
 clock. The hearts start again at three (the most held this run is kept as
 the number of heart slots).
 
+## A secret place on the moon
+
+Asked for: on the moon a kind of secret level up above -- jump up and find a
+part there and two robot boxes. Decided without asking:
+
+- **Still ten parts**: the moon's comes from Jupiter, which had two and has
+  one now (its cloud room holds a spare heart instead). So the moon has a
+  part after all, where it had none.
+- **The Moon stays open in space while its part is still up there**, even
+  in Bob's rocket, or a cat that missed it could never finish. Landing
+  there again, Bob tells his story again and sends you off again.
+- The island is solid rock, so it is reached by jumping past its edge and
+  steering on, not through it. A trail of four hearts going up is the hint.
+

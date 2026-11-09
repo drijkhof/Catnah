@@ -485,10 +485,10 @@ export const ROBOT = {
  * walk `rearm` away before he will talk again.
  */
 /**
- * The parts Bob needs to destroy the robots: ten, spread over the seven
- * worlds the robots hold -- two each on Mars, Saturn and Jupiter, one each
- * on Venus, Uranus, Neptune and Pluto -- and none on the Earth or the Moon.
- * Found once and kept for the run.
+ * The parts Bob needs to destroy the robots: ten -- two each on Mars and
+ * Saturn, one each on Jupiter, Venus, Uranus, Neptune and Pluto, and one on
+ * the Moon, in a secret place high over it. None on the Earth. Found once
+ * and kept for the run.
  */
 export const PARTS = { total: 10 } as const;
 

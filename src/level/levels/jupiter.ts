@@ -9,10 +9,10 @@ import { GRAVITY } from '../../config';
  * Its own obstacle, found on no other world: **Clouds that move**: wide gaps with a cloud platform sliding back and forth across each -- jump on and ride it over.
  * Robots and their grey blocks, as on every robots' world.
  *
- * **2 of Bob's 10 parts** (`K`), faint until the cat is near, and well
- * hidden: one inside a bank of cloud, in a room reached only by dropping
- * into the gap on top; and one at the end of a cloud ride from the top of a
- * tower, on a ledge in the sky.
+ * **1 of Bob's 10 parts** (`K`), faint until the cat is near, and well
+ * hidden: at the end of a cloud ride from the top of a tower, on a ledge in
+ * the sky. The room inside the bank of cloud holds a spare heart now; its
+ * part went up to the moon's secret place.
  *
  * Its portal goes back out into space.
  */
@@ -50,7 +50,7 @@ const ROWS: string[] = [
   '............................................................TG..GGGG.......................TQQQ',
   '.......ooo.......oooooo.....ooo.....ooo...oooooo........ooo.TG..GGGG..ooo...oooooo......oooTQQQ.................ooo..oooooo..........ooo.....oooooo.......ooo',
   '............................................................TG.....G.......................TQQQ',
-  '............................................................TG....KG.......................TQQQ',
+  '............................................................TG....+G.......................TQQQ',
   '..P...........mmm~~~~~~~~~...h...^.....mmm~~~~~~~~~~~~...D..TGGGGGGG...h.mmm~~~~~~~~~~.....TQQQ...................mmm~~~~~~~~~~~~~~....h..mmm~~~~~~~~~~~...........E',
   '################........#################...........#######################.........################################.............###########..........#################',
   '################........#################...........#######################.........################################.............###########..........#################',

@@ -767,8 +767,8 @@ now — robots and grey blocks as on the moon, the helmet on, lighter gravity
   fall once you stand on them — run! — and crumbling steps up to ledges over
   pits. They come back after a while.
 
-**The ten parts**: two each on Mars, Saturn and Jupiter, one each on Venus,
-Uranus, Neptune and Pluto. They are brass cogs, turning, they show only
+**The ten parts**: two each on Mars and Saturn, one each on Jupiter, Venus,
+Uranus, Neptune and Pluto, and one on the Moon. They are brass cogs, turning, they show only
 faintly until you are close, and **every one is well hidden**, each world
 in its own way:
 
@@ -781,8 +781,13 @@ in its own way:
   on its side and down the shaft in its top.
 - **Uranus**: on a shelf above the top of the screen, reached only off a
   bounce pad.
-- **Jupiter**: in a room inside a bank of cloud; and at the end of a cloud
-  ride from the top of a tower, on a ledge in the sky.
+- **Jupiter**: at the end of a cloud ride from the top of a tower, on a
+  ledge in the sky. (The room inside the bank of cloud has a spare heart.)
+- **The Moon**: in **a secret place** high above the first stretch, out of
+  sight from the ground — jump straight up where a few hearts lead into the
+  dark, and there is an island of rock with the part on it and two grey
+  blocks with robots coming out. While it is still up there the Moon stays
+  open in space, so it can be fetched after Bob's rocket too.
 - **Saturn**: in a tunnel under a block of ice, behind thorns — sneak
   through both; and in a room inside a block of ice.
 - **Pluto**: under the floor — fall through a crumbling bridge onto a ledge
