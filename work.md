@@ -522,7 +522,7 @@ and touching an **earlier** one after passing a later one moves the point back
 | Desert | 109 |
 | Sand path | 84 |
 | Moon | 179 |
-| Mars | 248 |
+| Mars | 243 |
 | Saturn | 272 |
 | Jupiter | 275 |
 | Venus | 258 |
@@ -747,7 +747,10 @@ now — robots and grey blocks as on the moon, the helmet on, lighter gravity
 — and **each has an obstacle of its own**, found on no other world:
 
 - **Mars — sand worms.** Long red dunes with a worm in each mound, that
-  comes up to look, hunts you under the sand and lunges.
+  comes up to look, hunts you under the sand and lunges. And since a jump
+  on Mars goes high and far, the most obstacles of any world: three wide
+  **canyons** with a rock pillar in the middle of each, two **stairs of
+  red boulders** with thorns in the sand between, and long beds of thorns.
 - **Venus — lava lakes** to jump, the wide ones with a stepping rock in the
   middle.
 - **Neptune — seas to swim**, three deep, with alien fish in them.
