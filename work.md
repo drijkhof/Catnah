@@ -786,7 +786,9 @@ in its own way:
 - **The Moon**: in **a secret place** high above the first stretch, out of
   sight from the ground — jump straight up where a few hearts lead into the
   dark, and there is an island of rock with the part on it and two grey
-  blocks with robots coming out. While it is still up there the Moon stays
+  blocks with robots coming out. Six more islands of rock hang up there
+  along the whole level, well apart, a heart on most, to hop between over
+  the moon. While it is still up there the Moon stays
   open in space, so it can be fetched after Bob's rocket too.
 - **Saturn**: in a tunnel under a block of ice, behind thorns — sneak
   through both; and in a room inside a block of ice.
