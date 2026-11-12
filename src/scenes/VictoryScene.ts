@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH, SCORE } from '../config';
+import { ENDING, GAME_HEIGHT, GAME_WIDTH, SCORE } from '../config';
 import { formatClock, scoreMs } from '../score';
 import { stats } from '../stats';
 import { runEnded } from '../back';
@@ -41,7 +41,11 @@ export class VictoryScene extends Phaser.Scene {
     super({ key: 'Victory' });
   }
 
-  init(data: { elapsedMs?: number; deaths?: number; parts?: number }): void {
+  /** The end through Bob's empty lab: Bob will be back, in the next game. */
+  private bobGone = false;
+
+  init(data: { elapsedMs?: number; deaths?: number; parts?: number; bobGone?: boolean }): void {
+    this.bobGone = data.bobGone ?? false;
     this.elapsedMs = data.elapsedMs ?? 0;
     this.deaths = data.deaths ?? 0;
     this.parts = data.parts ?? 0;
@@ -88,7 +92,7 @@ export class VictoryScene extends Phaser.Scene {
     // What the win was: every part Bob needed, so the robots can be stopped.
     if (this.parts > 0) {
       fadeUp(crispText(
-        this, GAME_WIDTH / 2, GAME_HEIGHT * 0.465, `All ${this.parts} parts! Bob can stop the robots.`, {
+        this, GAME_WIDTH / 2, GAME_HEIGHT * 0.465, this.bobGone ? ENDING.sequel : `All ${this.parts} parts! Bob can stop the robots.`, {
           fontFamily: 'monospace',
           fontSize: `${Math.round(GAME_WIDTH * 0.03)}px`,
           color: '#bfe3ff',

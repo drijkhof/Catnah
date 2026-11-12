@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { AWAKE_RANGE, BAR, BOB, INTERNET, PARK, CAT, OBSTACLES, PARTS, RAIN, ROBOT, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
+import { AWAKE_RANGE, BAR, BOB, ENDING, INTERNET, PARK, CAT, OBSTACLES, PARTS, RAIN, ROBOT, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
 import { Controls, IdleControls, type PlayerInput } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -109,6 +109,8 @@ export class GameScene extends Phaser.Scene {
   private resume?: GameSnapshot;
   /** Came in through a door rather than a portal: no portal to arrive by. */
   private viaDoor = false;
+  /** Out of the internet, the end: back out of Bob's machine on the moon, and Bob is gone. */
+  private ending = false;
   /** Inside a house the view is close up; this camera draws the HUD unzoomed over it. */
   private hudCamera?: Phaser.Cameras.Scene2D.Camera;
   /** The bar's menu, while it is open. */
@@ -330,6 +332,7 @@ export class GameScene extends Phaser.Scene {
     outside?: GameSnapshot;
     resume?: GameSnapshot;
     viaDoor?: boolean;
+    ending?: boolean;
   }): void {
     this.titleMode = data.title ?? false;
     // The scene instance is reused from run to run, so a flag set on the
@@ -356,6 +359,7 @@ export class GameScene extends Phaser.Scene {
     this.outside = data.outside ?? carried?.outside;
     this.resume = data.resume;
     this.viaDoor = data.viaDoor ?? false;
+    this.ending = data.ending ?? false;
 
     // God mode lives in the registry, and a hot reload builds a new game
     // with a new registry: it rides in the snapshot and is put back here,
@@ -563,6 +567,9 @@ export class GameScene extends Phaser.Scene {
       this.resume = undefined;
     }
     this.buildHudCamera();
+    if (this.ending) {
+      this.playEnding();
+    }
   }
 
   /**
@@ -1219,9 +1226,11 @@ export class GameScene extends Phaser.Scene {
         this.scene.start('Space', this.carry(this.levelIndex + 1));
         return;
       }
-      // The dark web's portal is the way out of the internet, and the end.
+      // The dark web's portal is the way out of the internet: back out of
+      // Bob's machine on the moon, for the end.
       if (this.level.next === 'victory') {
-        this.scene.start('Victory', { elapsedMs: this.elapsedMs, deaths: this.deaths, parts: this.parts.length });
+        const moon = LEVELS.findIndex((level) => level.theme === 'moon');
+        this.scene.start('Game', { ...this.carry(moon), ending: true, viaDoor: true });
         return;
       }
       this.scene.start('Game', this.carry(this.levelIndex + 1));
@@ -2937,6 +2946,39 @@ export class GameScene extends Phaser.Scene {
   }
 
   /** Whether the cat has found every one of Bob's parts. */
+  /**
+   * The end. The cat comes back out of Bob's machine, in a flash, the way it
+   * went in -- and the lab is empty. It looks round, one way and the other;
+   * "Bob is gone..."; and the game is won, with Bob to be back in Catnah 2.
+   * The cat does not move meanwhile: it is a scene, not play.
+   */
+  private playEnding(): void {
+    const machine = this.machine;
+    if (!machine) {
+      return;
+    }
+    this.leaving = true;
+    this.player.respawnAt(machine.x - MACHINE_SIZE.width / 2 - 14, machine.y + 2);
+    this.player.setVelocity(0, 0);
+    this.player.setFlipX(true);
+    this.player.setVisible(false);
+    this.cameras.main.centerOn(this.player.x, this.player.y);
+    this.time.delayedCall(ENDING.outMs, () => {
+      sound.play('laser');
+      this.cameras.main.flash(400, 160, 210, 255);
+      this.player.setVisible(true).setTint(0x8ad8ff);
+      this.tweens.add({ targets: this.player, alpha: 0.3, duration: 70, yoyo: true, repeat: 5, onComplete: () => this.player.clearTint() });
+    });
+    this.time.delayedCall(ENDING.lookMs, () => this.player.setFlipX(false));
+    this.time.delayedCall(ENDING.lookMs * 2, () => this.player.setFlipX(true));
+    this.time.delayedCall(ENDING.goneMs, () => this.announceBonus(ENDING.gone));
+    this.time.delayedCall(ENDING.endMs, () =>
+      this.blackout(0, 1, EXIT.fadeMs, () =>
+        this.scene.start('Victory', { elapsedMs: this.elapsedMs, deaths: this.deaths, parts: this.parts.length, bobGone: true }),
+      ),
+    );
+  }
+
   private hasAllParts(): boolean {
     return this.parts.length >= PARTS.total;
   }
@@ -3619,20 +3661,24 @@ export class GameScene extends Phaser.Scene {
         right - left + 1,
         bottom - top + 1,
       );
-      const bob = this.add
-        .sprite((left + inside.inLeft) * TILE + LAB_CONSOLE_X + 15, (bottom + 1) * TILE - 3, 'alien-a')
-        .setOrigin(0.5, 1)
-        .setFlipX(true)
-        .setDepth(-0.28)
-        .setData(KEEP_LIVE, true)
-        .play('alien-work');
-      this.bob = { sprite: bob, near: false, met: false };
+      const bobX = (left + inside.inLeft) * TILE + LAB_CONSOLE_X + 15;
+      // At the end of the game Bob is gone: his chair is empty.
+      if (!this.ending) {
+        const bob = this.add
+          .sprite(bobX, (bottom + 1) * TILE - 3, 'alien-a')
+          .setOrigin(0.5, 1)
+          .setFlipX(true)
+          .setDepth(-0.28)
+          .setData(KEEP_LIVE, true)
+          .play('alien-work');
+        this.bob = { sprite: bob, near: false, met: false };
+      }
 
       // Back with every part: Bob has built his machine, beside him on the
       // lab floor, its zapper facing the room.
-      if (this.rocket && this.hasAllParts()) {
+      if ((this.rocket && this.hasAllParts()) || this.ending) {
         this.machine = this.add
-          .image(bob.x + 50, (bottom + 1) * TILE - 3, 'bob-machine')
+          .image(bobX + 50, (bottom + 1) * TILE - 3, 'bob-machine')
           .setOrigin(0.5, 1)
           .setDepth(-0.285)
           .setData(KEEP_LIVE, true);

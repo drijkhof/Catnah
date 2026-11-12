@@ -2283,3 +2283,13 @@ floor of each, in the stretches that were empty: YouTube six (spikes, a
 block, a hole, a three-tall block before the exit), Insta four, Facebook
 three, Google three, the dark web four. Still only spikes as enemies, as
 asked before; every exit still reachable.
+
+## The end: out of Bob's machine, and Bob is gone
+
+Asked for: after the internet you come out of Bob's machine and Bob is
+gone; then the game is over for now, "Bob Be Back" in Catnah 2. Decided
+without asking: it is a short scene, not play -- the cat appears out of
+the machine with a flash, looks left and right, "Bob is gone..." comes up,
+and after six and a half seconds the victory screen, whose second line is
+"Bob Be Back — in Catnah 2" instead of the parts. The moon's robots are
+still about, but the cat does not move and they keep out of the base.

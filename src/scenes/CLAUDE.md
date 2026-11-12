@@ -46,6 +46,9 @@ Phaser scenes. Registered in order in `src/main.ts`; the first one starts.
   `buildHackers`/`stepHackers`): a cable column scratched through by holding
   down against it, the way the moon's grey blocks are broken; a hacker
   calls out when the cat comes near and again after it has gone away.
+- **The end** (`playEnding`): the dark web's portal starts the moon level
+  with `ending` set -- no Bob, the machine there anyway -- and a short
+  scene (`ENDING`) out of the machine, then `Victory` with `bobGone`.
 - **`GameOverScene`** — black, one line of red, and back to the title. Out
   in space (a level with `helmet`), `endRun` hands it a `restart` carry
   instead: it says "Back to the Moon" and starts the moon level with fresh

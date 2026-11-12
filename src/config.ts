@@ -492,6 +492,21 @@ export const ROBOT = {
  */
 export const PARTS = { total: 10 } as const;
 
+/**
+ * The end of the game: out of the dark web and back out of Bob's machine,
+ * ms from arriving -- out of the machine, looking one way and the other,
+ * the line, and on to the win.
+ */
+export const ENDING = {
+  outMs: 700,
+  lookMs: 1300,
+  goneMs: 3600,
+  gone: 'Bob is gone...',
+  endMs: 6500,
+  /** On the win screen: Bob will be back. */
+  sequel: 'Bob Be Back — in Catnah 2',
+} as const;
+
 export const BOB = {
   reach: 14,
   rearm: 36,

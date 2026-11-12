@@ -936,8 +936,11 @@ dark web skulls and locks, with green code falling behind. No real logos.
   roof of spikes (the way is along the ground, sneaking under that roof);
   and the last one points back the way you came.
 
-The dark web's portal is the way out, and **the win**: the victory screen,
-which says *"All 10 parts! Bob can stop the robots."*
+The dark web's portal is the way out, and **the end**: in a flash of
+light the cat comes back out of **Bob's machine**, in the lab on the moon —
+and **Bob is gone**. His chair is empty. The cat looks round, one way and
+the other; *"Bob is gone..."*; and then the victory screen, which says
+*"Bob Be Back — in Catnah 2"*. That is the end of the game, for now.
 
 **American flags** stand planted in the dust at the start and outside the
 base, and one on the hills on the horizon.
