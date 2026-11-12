@@ -2267,3 +2267,11 @@ Asked for: fewer robots. A grey block now lets one out every 30 seconds
 of the robots placed at the start are gone on the Moon (6 to 3) and Mars
 (4 to 2), the two worlds that had the most. The other worlds kept their
 three or four.
+
+## The fourth internet level is Google
+
+Asked for: Catnah becomes Google. The level, its theme and its name are
+Google now; its look went with it -- the orange of the cat became a white,
+bright board with a blue line, and the paws and cat faces in the sky became
+magnifying glasses and search bars with four coloured dots. No real logo,
+like the other sites. The layout is unchanged.

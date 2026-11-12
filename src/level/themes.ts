@@ -1,7 +1,7 @@
 import type { TilePalette } from '../art/tiles';
 
 /** The places the game visits. */
-export type ThemeName = 'jungle' | 'forest' | 'swamp' | 'cave' | 'volcano' | 'desert' | 'beach' | 'city' | 'path' | 'moon' | 'mars' | 'saturn' | 'jupiter' | 'venus' | 'uranus' | 'neptune' | 'pluto' | 'youtube' | 'insta' | 'facebook' | 'catnah' | 'darkweb';
+export type ThemeName = 'jungle' | 'forest' | 'swamp' | 'cave' | 'volcano' | 'desert' | 'beach' | 'city' | 'path' | 'moon' | 'mars' | 'saturn' | 'jupiter' | 'venus' | 'uranus' | 'neptune' | 'pluto' | 'youtube' | 'insta' | 'facebook' | 'google' | 'darkweb';
 
 /**
  * One palette per place.
@@ -672,28 +672,28 @@ export const THEMES: Record<ThemeName, TilePalette> = {
     lavaBright: 0xffc44d,
   },
 
-  // The internet, level 4: this very game's own site. Orange, like the cat.
-  catnah: {
+  // The internet, level 4: the search engine. White and bright, a blue line.
+  google: {
     surfaceStyle: 'circuit',
     groundStyle: 'earth',
-    shade: 0x150c06,
+    shade: 0x8a96aa,
     columnStyle: 'chain',
     platformStyle: 'shelf',
     // `grass*` is the glowing line along the top of the board, `dirt*` the board.
-    grass: 0xffa23c,
-    grassDark: 0xc06a18,
-    dirt: 0x3b2414,
-    dirtDark: 0x2a180c,
-    rock: 0xf3d7a6,
-    rockDark: 0xc09a62,
-    rockLight: 0xfff0d0,
-    branch: 0xf3d7a6,
-    branchDark: 0xc09a62,
-    leaf: 0xffa23c,
-    leafLight: 0xfff0d0,
-    trunk: 0xc09a62,
-    trunkDark: 0x2a180c,
-    trunkLight: 0xf3d7a6,
+    grass: 0x4285f4,
+    grassDark: 0x2a62c8,
+    dirt: 0xe4e9f1,
+    dirtDark: 0xc4ccd8,
+    rock: 0xffffff,
+    rockDark: 0xb8c2d0,
+    rockLight: 0xffffff,
+    branch: 0xfbbc05,
+    branchDark: 0xc8920a,
+    leaf: 0x34a853,
+    leafLight: 0xa8e0b4,
+    trunk: 0xea4335,
+    trunkDark: 0xa82a20,
+    trunkLight: 0xff8a7e,
     water: 0x3f86b8,
     waterDeep: 0x2f6a95,
     waterFoam: 0xbfe3f5,

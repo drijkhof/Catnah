@@ -60,7 +60,7 @@ export function createBackdrop(
     case 'youtube':
     case 'insta':
     case 'facebook':
-    case 'catnah':
+    case 'google':
     case 'darkweb':
       new InternetBackdrop(scene, theme, levelWidth, groundLine);
       break;

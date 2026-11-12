@@ -1,10 +1,10 @@
 import type { LevelDefinition } from '../Level';
 
 /**
- * Level 21: catnah. 130 tiles.
+ * Level 21: Google. 130 tiles.
  *
- * The internet, level 4: this game's own site. Orange like the cat, paws
- * and cat faces floating behind. The hardest of the four: narrow shelves,
+ * The internet, level 4: the search engine. White and bright, with lines
+ * in its four colours, magnifying glasses and search bars floating behind. The hardest of the four: narrow shelves,
  * blocks between pits, and cables in pairs.
  *
  * Laid out once with a throwaway script and frozen into this file.
@@ -46,9 +46,9 @@ const ROWS: string[] = [
   '######################....#######################################################....#########...##...############################',
 ];
 
-export const CATNAH: LevelDefinition = {
-  name: 'Catnah',
-  theme: 'catnah',
+export const GOOGLE: LevelDefinition = {
+  name: 'Google',
+  theme: 'google',
   groundRow: 30,
   branchesNeedTrunks: false,
   rows: ROWS,

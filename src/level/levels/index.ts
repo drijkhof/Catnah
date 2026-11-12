@@ -20,7 +20,7 @@ import { PLUTO_BAR } from './pluto-bar';
 import { YOUTUBE } from './youtube';
 import { INSTA } from './insta';
 import { FACEBOOK } from './facebook';
-import { CATNAH } from './catnah';
+import { GOOGLE } from './google';
 import { DARKWEB } from './darkweb';
 
 /**
@@ -43,4 +43,4 @@ import { DARKWEB } from './darkweb';
  place in this list is only so there is one. So is the bar's, inside its
  hut on Pluto, which is only reached through its door.
  */
-export const LEVELS: LevelDefinition[] = [CITY, FOREST, CANOPY, SWAMP, CAVE, VOLCANO, DESERT, BEACH, PATH, MOON, MARS, SATURN, JUPITER, VENUS, URANUS, NEPTUNE, PLUTO, PLUTO_BAR, YOUTUBE, INSTA, FACEBOOK, CATNAH, DARKWEB];
+export const LEVELS: LevelDefinition[] = [CITY, FOREST, CANOPY, SWAMP, CAVE, VOLCANO, DESERT, BEACH, PATH, MOON, MARS, SATURN, JUPITER, VENUS, URANUS, NEPTUNE, PLUTO, PLUTO_BAR, YOUTUBE, INSTA, FACEBOOK, GOOGLE, DARKWEB];

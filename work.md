@@ -43,7 +43,7 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | park | `park` | in the city, after the third house: lawn, benches, a fountain |
 | bankje | `bench` | in the park; you can stand on it |
 | fontein | `fountain` | in the park; you can stand on its rim |
-| internet | `internet` | where Bob's machine zaps the cat: YouTube, Insta, Facebook, Catnah, dark web |
+| internet | `internet` | where Bob's machine zaps the cat: YouTube, Insta, Facebook, Google, dark web |
 | kabel | `cable` | in the internet: scratched through with your claws |
 | krabben | `scratch` | hold down against a cable until it snaps |
 | hacker | `hacker` | on the dark web: a sign that always points the wrong way |
@@ -536,7 +536,7 @@ and touching an **earlier** one after passing a later one moves the point back
 | YouTube | 110 |
 | Insta | 120 |
 | Facebook | 125 |
-| Catnah | 130 |
+| Google | 130 |
 | Dark web | 140 |
 
 Every level is **written out** in its file, row by row.
@@ -553,7 +553,7 @@ as a descent.
 and — after a flight through space — the moon; then, in Bob's rocket, the
 seven worlds the robots hold, in any order: Mars, Saturn, Jupiter, Venus,
 Uranus, Neptune and Pluto; and last, zapped in by Bob's machine, the
-internet: YouTube, Insta, Facebook, Catnah and the dark web.**
+internet: YouTube, Insta, Facebook, Google and the dark web.**
 Out of town into the wild, down through the fire, and out the other side to
 the sea. Each level starts at one end and ends at a **portal**, which takes
 you to the next: the cave is the descent into the volcano, the volcano's
@@ -907,14 +907,15 @@ and he says so.
 
 ### The internet
 
-Five levels, one per site: **YouTube, Insta, Facebook, Catnah** (this
-game's own site) and **the dark web**, in that order, each portal to the
+Five levels, one per site: **YouTube, Insta, Facebook, Google**
+and **the dark web**, in that order, each portal to the
 next. Earth's gravity, no helmet. Inside a computer: the floor is a dark
-circuit board with a glowing line along its top in the site's colour, and
+circuit board (a white one on Google) with a glowing line along its top in the site's colour, and
 behind it the site's sky — a gradient with a faint grid — with its pictures
 floating in it: videos and play buttons (YouTube, red and black), photos
 and hearts (Insta, pink, orange and purple), thumbs up and chat bubbles
-(Facebook, blue and white), paws and cat faces (Catnah, orange), and on the
+(Facebook, blue and white), magnifying glasses and search bars (Google, white and bright, with blue,
+red, yellow and green), and on the
 dark web skulls and locks, with green code falling behind. No real logos.
 
 - **Cables** stand across the way, twelve tiles tall with a plug on top:

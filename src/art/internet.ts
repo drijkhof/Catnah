@@ -12,7 +12,7 @@ import { bakeTexture, createRandom, fillVerticalGradient } from './canvas';
  */
 
 /** The internet sites, one level each, in the order they are played. */
-export type NetSite = 'youtube' | 'insta' | 'facebook' | 'catnah' | 'darkweb';
+export type NetSite = 'youtube' | 'insta' | 'facebook' | 'google' | 'darkweb';
 
 /** A hacker, px, planted by its feet. */
 export const HACKER_SIZE = { width: 16, height: 24 };
@@ -28,7 +28,7 @@ export const NET_ICONS: Record<NetSite, string[]> = {
   youtube: ['net-video', 'net-play'],
   insta: ['net-photo', 'net-heart'],
   facebook: ['net-like', 'net-chat'],
-  catnah: ['net-paw', 'net-cathead'],
+  google: ['net-search', 'net-searchbar'],
   darkweb: ['net-skull', 'net-lock', 'net-code'],
 };
 
@@ -36,7 +36,7 @@ const SKIES: Record<NetSite, { top: number; bottom: number; grid: number }> = {
   youtube: { top: 0x0e0e10, bottom: 0x3a1214, grid: 0xff3b3b },
   insta: { top: 0x3d1a5c, bottom: 0xd2547a, grid: 0xffc27a },
   facebook: { top: 0x0f1d44, bottom: 0x3561c4, grid: 0xbcd0ff },
-  catnah: { top: 0x2a1608, bottom: 0xb8641e, grid: 0xffd08a },
+  google: { top: 0xdfe8f6, bottom: 0xffffff, grid: 0x4285f4 },
   darkweb: { top: 0x000000, bottom: 0x06140a, grid: 0x1f8a3a },
 };
 
@@ -275,26 +275,28 @@ function generateIcons(scene: Phaser.Scene): void {
       g.fillCircle(x, 6, 1.5);
     }
   });
-  bakeTexture(scene, 'net-paw', 14, 14, (g) => {
-    g.fillStyle(0xfff0d0, 1);
-    g.fillEllipse(7, 10, 8, 6);
-    for (const [x, y] of [[2, 5], [5, 2], [9, 2], [12, 5]]) {
-      g.fillCircle(x, y, 2);
-    }
+  // A magnifying glass: searching.
+  bakeTexture(scene, 'net-search', 16, 16, (g) => {
+    g.lineStyle(3, 0x4285f4, 1);
+    g.strokeCircle(6, 6, 4);
+    g.fillStyle(0xeaf2ff, 1);
+    g.fillCircle(6, 6, 3);
+    g.lineStyle(3, 0x34a853, 1);
+    g.lineBetween(9, 9, 14, 14);
   });
-  // The cat, in a circle -- the game's own site.
-  bakeTexture(scene, 'net-cathead', 20, 18, (g) => {
-    g.fillStyle(0xffa23c, 1);
-    g.fillTriangle(2, 7, 4, 0, 9, 4);
-    g.fillTriangle(18, 7, 16, 0, 11, 4);
-    g.fillCircle(10, 10, 8);
-    g.fillStyle(0x2a180c, 1);
-    g.fillRect(6, 9, 2, 2);
-    g.fillRect(12, 9, 2, 2);
-    g.fillStyle(0xff7aa0, 1);
-    g.fillRect(9, 12, 2, 1);
-    g.fillStyle(0xc06a18, 1);
-    g.fillRect(9, 3, 2, 3);
+  // A search bar: white, rounded, a blinking-line cursor and four coloured
+  // dots for the button -- a search engine, not anyone's logo.
+  bakeTexture(scene, 'net-searchbar', 40, 12, (g) => {
+    g.fillStyle(0xc8d0dc, 1);
+    g.fillRoundedRect(0, 0, 40, 12, 6);
+    g.fillStyle(0xffffff, 1);
+    g.fillRoundedRect(1, 1, 38, 10, 5);
+    g.fillStyle(0x5a6270, 1);
+    g.fillRect(6, 3, 1, 6);
+    [0x4285f4, 0xea4335, 0xfbbc05, 0x34a853].forEach((colour, i) => {
+      g.fillStyle(colour, 1);
+      g.fillCircle(22 + i * 4, 6, 1.5);
+    });
   });
   bakeTexture(scene, 'net-skull', 14, 14, (g) => {
     g.fillStyle(0x9aff9a, 1);
