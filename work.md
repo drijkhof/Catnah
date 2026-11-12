@@ -682,12 +682,10 @@ space.
 
 ### Space
 
-Not a level: a flight. You **fly** the cat yourself, through stars in
-three layers and clouds of glowing gas, **steered like a rocket from the
-inside**: **left and right turn** it (its own left and right, not the
-screen's), **up or jump fires the engine** and pushes it the way it points,
-with a trail of sparks (or the rocket's flame) behind, and **down brakes**.
-With the engine off it drifts to a stop. The stick works the same way. The run's clock does not
+Not a level: a flight. You **fly** the cat yourself, any direction, with
+the same keys and stick as walking — up is up on the screen — through
+stars in three layers and clouds of glowing gas, a trail of sparks (or the
+rocket's flame) behind you. Let go and it drifts to a stop. The run's clock does not
 count while you fly.
 
 **Your hearts** are in the top right corner out here too, with the rocket

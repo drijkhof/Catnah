@@ -7,8 +7,8 @@ Phaser scenes. Registered in order in `src/main.ts`; the first one starts.
 - **`GameScene`** — builds the level, owns the player, camera, HUD and the
   update loop.
 - **`SpaceScene`** — between the worlds: the cat (or Bob's rocket) flown
-  through space (`SPACE` in `config.ts`), steered from inside (`heading`:
-  left/right turn at `turnSpeed`, up or jump thrusts along it, down brakes), stars scrolled by hand in three
+  through space (`SPACE` in `config.ts`), steered by screen direction
+  (up is up), stars scrolled by hand in three
   pinned layers. The sun is in the middle (`burn` when the cat comes within
   `SPACE.sunReach` of its rim: a heart, or game over launched over this
   scene with a restart onto the moon -- `GameOverScene` stops `Space` as

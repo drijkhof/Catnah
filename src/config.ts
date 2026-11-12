@@ -592,9 +592,6 @@ export const SPACE = {
   accel: 420,
   maxSpeed: 230,
   drag: 160,
-  /** How fast left and right turn the rocket, radians/s; and how much harder than drag down brakes. */
-  turnSpeed: 3.2,
-  brake: 3,
   yearMs: 50000,
   moonMonthMs: 40000,
   sunReach: 24,

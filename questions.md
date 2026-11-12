@@ -2237,10 +2237,8 @@ the rocket. Decided without asking:
   You can buy things with them."*, before *"Can you do it, kitty?"*. Told
   the story again (the moon's secret part), he leaves it out and gives none.
 - **Fuel**: 3x, and 200 seconds of flying with the engine on.
-- **The steering is the same on the stick**, not only the keyboard: the
-  game never asks which one is in use, and left/right/up/down mean the same
-  on both. Down brakes. The cat flying with its helmet (the first trip, to
-  the Moon) steers the same way as the rocket.
+- **The steering from inside the rocket was taken out again**, as asked:
+  space is steered by the screen's directions, as before.
 - The coins show in the corner under the parts, once there are any.
 
 ## Coins hidden in the levels, and none of Bob's parts on the Moon
