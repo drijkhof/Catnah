@@ -7,7 +7,8 @@ Phaser scenes. Registered in order in `src/main.ts`; the first one starts.
 - **`GameScene`** — builds the level, owns the player, camera, HUD and the
   update loop.
 - **`SpaceScene`** — between the worlds: the cat (or Bob's rocket) flown
-  through space (`SPACE` in `config.ts`), stars scrolled by hand in three
+  through space (`SPACE` in `config.ts`), steered from inside (`heading`:
+  left/right turn at `turnSpeed`, up or jump thrusts along it, down brakes), stars scrolled by hand in three
   pinned layers. The sun is in the middle (`burn` when the cat comes within
   `SPACE.sunReach` of its rim: a heart, or game over launched over this
   scene with a restart onto the moon -- `GameOverScene` stops `Space` as
@@ -40,7 +41,7 @@ Phaser scenes. Registered in order in `src/main.ts`; the first one starts.
   0 or more; `sortCameras` hands every object to one or the other each
   frame, since things are made all the time. `create` sets the main
   camera's zoom every time: it outlives a restart.
-- **The bar on Pluto** (`buildBars`, `meetKeeper`, `openShop`, `stepShop`, `chooseInShop`): standing at the keeper opens a menu pinned to the screen (no zoom); buying spends `collected`. Rocket fuel is the run's `fuel`, ms of thrust left (`BAR.fuelMs` a tank), carried to `SpaceScene`, where while it lasts it multiplies thrust, top speed and drag by `BAR.fuelBoost` and burns down while the thrust is on. `FuelMeter` (`src/fuelMeter.ts`) shows it beside the hearts in both scenes; `SpaceScene.refreshHud` draws the hearts out there.
+- **The bar on Pluto** (`buildBars`, `meetKeeper`, `openShop`, `stepShop`, `chooseInShop`): standing at the keeper opens a menu pinned to the screen (no zoom); buying spends the run's `coins` (Bob's, `BOB.coins`, given on his `coinsLine` the first time he tells his story, i.e. while `rocket` is still false). Rocket fuel is the run's `fuel`, ms of thrust left (`BAR.fuelMs` a tank), carried to `SpaceScene`, where while it lasts it multiplies thrust, top speed and drag by `BAR.fuelBoost` and burns down while the thrust is on. `FuelMeter` (`src/fuelMeter.ts`) shows it beside the hearts in both scenes; `SpaceScene.refreshHud` draws the hearts out there.
 - **Cables and hackers** (`buildCables`/`stepCables`/`snapCable`,
   `buildHackers`/`stepHackers`): a cable column scratched through by holding
   down against it, the way the moon's grey blocks are broken; a hacker

@@ -49,7 +49,8 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | hacker | `hacker` | on the dark web: a sign that always points the wrong way |
 | bar | `bar` | on Pluto: aliens in summer T-shirts; buy a life, milk or rocket fuel |
 | roze hartjes | `little hearts` | what you pay with at the bar |
-| raket benzine | `rocket fuel` | from the bar: ten times as fast in space, for 20 seconds of flying |
+| raket benzine | `rocket fuel` | from the bar: three times as fast in space, for 200 seconds of flying |
+| muntjes | `coins` | Bob's, 20 the first time he talks to you; spent at the bar |
 | luifel | `awning` | the city's one-way platform, striped, sticking out of a wall |
 | poort | `arcade` | an opening under a house, walked or sneaked through |
 | rat | `rat` | the city's walker, quicker than a hedgehog |
@@ -681,9 +682,12 @@ space.
 
 ### Space
 
-Not a level: a flight. You **fly** the cat yourself, any direction, with
-the same keys and stick as walking — through stars in three layers, clouds
-of glowing gas, a trail of sparks behind you. The run's clock does not
+Not a level: a flight. You **fly** the cat yourself, through stars in
+three layers and clouds of glowing gas, **steered like a rocket from the
+inside**: **left and right turn** it (its own left and right, not the
+screen's), **up or jump fires the engine** and pushes it the way it points,
+with a trail of sparks (or the rocket's flame) behind, and **down brakes**.
+With the engine off it drifts to a stop. The stick works the same way. The run's clock does not
 count while you fly.
 
 **Your hearts** are in the top right corner out here too, with the rocket
@@ -848,7 +852,9 @@ blinking now and then. Walk up to him and you **talk**: the hearts and the
 clock go away and the camera zooms in on the lab, Bob and you. He says
 *"Hi, my name is Bob!"*, Next (tap it, or jump) and *"What a cute little
 kitty!"*, then *"The robots have taken over the planets: the Moon, Mars,
-Saturn, Jupiter, Venus, Uranus, Neptune and Pluto!"*, then *"I need 10 parts to destroy the robots. I built a rocket, but I don't know where I can find the planets."*, *"Can you do it, kitty?"*, and last *"But look
+Saturn, Jupiter, Venus, Uranus, Neptune and Pluto!"*, then *"I need 10 parts to destroy the robots. I built a rocket, but I don't know where I can find the planets."*, *"Here are 20 coins for the trip. You can buy things with them."* — and
+you have **20 coins**, counted under the parts in the corner from then on
+(only the first time he tells it) — *"Can you do it, kitty?"*, and last *"But look
 out: there are not two moons..."* — and the button under that says
 **Yes!**. Press it and the screen flashes white and you are off into space
 in his rocket. Nothing can hurt you while you talk.
@@ -878,21 +884,21 @@ stools, and **aliens** on the stools in **summer T-shirts** — coral,
 turquoise, yellow, pink, green, with a flower on — bobbing to music. Behind
 the counter the barkeeper, in a white shirt and bow tie. Robots never come
 in. Walk up to him and he asks *"Hi cat, what would you like to order?"*,
-and you pay in **little pink hearts**, the ones counted in the corner:
+and you pay in **coins** — Bob's, counted in the corner:
 
-- **A life** — 50 hearts: one more heart to hold, and filled.
-- **Milk** — 10 hearts: **every empty heart filled again**. Not when you
+- **A life** — 10 coins: one more heart to hold, and filled.
+- **Milk** — 5 coins: **every empty heart filled again**. Not when you
   are not hurt.
-- **Rocket fuel** — 30 hearts: a full tank, and you fly **ten times as
-  fast** in space **for a while** — 20 seconds of flying with the thrust
-  on. A **fuel meter**, a red can and an orange bar, sits beside the
+- **Rocket fuel** — 5 coins: a full tank, and you fly **three times as
+  fast** in space **for a long while** — 200 seconds of flying with the
+  engine on. A **fuel meter**, a red can and an orange bar, sits beside the
   hearts and goes down as it burns (red when nearly empty); when it is
   empty the rocket slows back to its own speed. A full tank cannot be
   topped up; a part-used one can be filled again.
 - **Bye**.
 
-Tap one, or pick with left and right and take it with jump. Too few hearts
-and he says so.
+Tap one, or pick with left and right and take it with jump. Too few coins
+and he says so. Twenty coins do not buy everything: choose.
 
 ### The internet
 

@@ -37,11 +37,25 @@ export const BAR_WALL = { width: 64, height: 192, lights: 40 };
 /** The door out, inside the bar, px. */
 export const INSIDE_DOOR_SIZE = { width: 20, height: 32 };
 
+/** A coin, Bob's money and the bar's, px. */
+export const COIN_SIZE = 10;
+
 /** The fuel can by the fuel meter, px. */
 export const FUEL_CAN_SIZE = { width: 9, height: 11 };
 
 export function generateBarTextures(scene: Phaser.Scene): void {
   bakeTexture(scene, 'pluto-hut', HUT_SIZE.width, HUT_SIZE.height, drawHut);
+  // A gold coin, lit from the top left, with a stamped ring.
+  bakeTexture(scene, 'coin', COIN_SIZE, COIN_SIZE, (g) => {
+    g.fillStyle(0x8a5a10, 1);
+    g.fillCircle(5, 5, 5);
+    g.fillStyle(0xffc830, 1);
+    g.fillCircle(5, 5, 4);
+    g.lineStyle(1, 0xd89a18, 1);
+    g.strokeCircle(5, 5, 2.5);
+    g.fillStyle(0xfff0a0, 1);
+    g.fillRect(3, 2, 2, 1);
+  });
   bakeTexture(scene, 'bar-door', INSIDE_DOOR_SIZE.width, INSIDE_DOOR_SIZE.height, drawInsideDoor);
   bakeTexture(scene, 'bar-wall', BAR_WALL.width, BAR_WALL.height, drawBarWall);
   // A red jerrycan with a spout, for the rocket fuel meter.

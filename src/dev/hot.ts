@@ -47,6 +47,8 @@ export interface GameSnapshot {
   rocket?: boolean;
   /** Rocket fuel left from the bar on Pluto, ms. */
   fuel?: number;
+  /** Bob's coins. */
+  coins?: number;
   /** Inside a house: the level outside as it was left, to go back out to. */
   outside?: GameSnapshot;
   godMode?: boolean;

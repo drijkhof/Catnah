@@ -24,6 +24,8 @@ interface Carry {
   from?: string;
   /** Rocket fuel left from the bar on Pluto, ms of thrust: ten times as fast out here while it lasts. */
   fuel?: number;
+  /** Bob's coins, carried through. */
+  coins?: number;
 }
 
 /** A world out here: its orbit, how big, and which level it is. */
@@ -85,6 +87,8 @@ export class SpaceScene extends Phaser.Scene {
   /** The space helmet on the cat's head. */
   private helmet!: Phaser.GameObjects.Image;
   private velocity = new Phaser.Math.Vector2();
+  /** Which way the cat or the rocket points, radians: left and right turn it, up flies that way. */
+  private heading = 0;
   private earth = new Phaser.Math.Vector2();
   /** The middle of space, where the sun is. */
   private sun = new Phaser.Math.Vector2();
@@ -445,6 +449,7 @@ export class SpaceScene extends Phaser.Scene {
     way.normalize();
     this.cat.setPosition(now.x - way.x * (home.radius + 50), now.y - way.y * (home.radius + 50));
     this.velocity.set(-way.x * 60, -way.y * 60);
+    this.heading = Math.atan2(-way.y, -way.x);
   }
 
   /**
@@ -713,19 +718,20 @@ export class SpaceScene extends Phaser.Scene {
   }
 
   /**
-   * Thrust towards whatever is held, drag when nothing is, a top speed, and
-   * the cat turned to face where it is going.
+   * Steered like a rocket, from inside it: left and right turn it, up (or
+   * jump) fires the engine and pushes it the way it points, down brakes.
+   * Drag when the engine is off, and a top speed.
    */
   private fly(delta: number): void {
     const dt = delta / 1000;
-    const input = new Phaser.Math.Vector2(
-      (this.controls.right ? 1 : 0) - (this.controls.left ? 1 : 0),
-      (this.controls.sneak ? 1 : 0) - (this.controls.up || this.controls.jumpHeld ? 1 : 0),
-    );
+    const turn = (this.controls.right ? 1 : 0) - (this.controls.left ? 1 : 0);
+    this.heading = Phaser.Math.Angle.Wrap(this.heading + turn * SPACE.turnSpeed * dt);
+    const thrust = this.controls.up || this.controls.jumpHeld;
+    const brake = this.controls.sneak && !thrust;
 
     const before = this.velocity.length();
-    if (input.lengthSq() > 0) {
-      input.normalize().scale(SPACE.accel * this.boost() * dt);
+    if (thrust) {
+      const input = new Phaser.Math.Vector2(Math.cos(this.heading), Math.sin(this.heading)).scale(SPACE.accel * this.boost() * dt);
       this.velocity.add(input);
       // The fuel burns while the thrust is on, and the meter goes down.
       if ((this.carry.fuel ?? 0) > 0) {
@@ -733,9 +739,11 @@ export class SpaceScene extends Phaser.Scene {
         this.refreshHud();
       }
     } else {
+      // The engine off: it drifts to a stop, and a brake stops it sooner.
       const speed = this.velocity.length();
       if (speed > 0) {
-        this.velocity.scale(Math.max(0, speed - SPACE.drag * this.boost() * dt) / speed);
+        const drag = SPACE.drag * this.boost() * (brake ? SPACE.brake : 1);
+        this.velocity.scale(Math.max(0, speed - drag * dt) / speed);
       }
     }
     // Over the top speed -- the fuel just ran out -- it slows down to it
@@ -750,15 +758,15 @@ export class SpaceScene extends Phaser.Scene {
     this.cat.x = Phaser.Math.Clamp(this.cat.x + this.velocity.x * dt, margin, SPACE.worldSize - margin);
     this.cat.y = Phaser.Math.Clamp(this.cat.y + this.velocity.y * dt, margin, SPACE.worldSize - margin);
 
-    if (this.carry.rocket && this.velocity.lengthSq() > 25) {
-      // A rocket points where it goes, all the way round.
-      this.cat.setRotation(Math.atan2(this.velocity.y, this.velocity.x));
-    } else if (this.velocity.lengthSq() > 25) {
-      // Facing the way it flies: the picture faces right, so a cat flying
-      // left is flipped rather than turned upside down.
-      const left = this.velocity.x < 0;
+    if (this.carry.rocket) {
+      // A rocket points where it is steered, all the way round.
+      this.cat.setRotation(this.heading);
+    } else {
+      // The cat faces where it is steered: the picture faces right, so a
+      // cat pointing left is flipped rather than turned upside down.
+      const left = Math.cos(this.heading) < 0;
       this.cat.setFlipX(left);
-      const angle = Math.atan2(this.velocity.y, Math.abs(this.velocity.x));
+      const angle = Math.atan2(Math.sin(this.heading), Math.abs(Math.cos(this.heading)));
       this.cat.setRotation(left ? -angle : angle);
     }
 
@@ -771,11 +779,12 @@ export class SpaceScene extends Phaser.Scene {
 
     // A trail of sparks behind it while it is moving.
     this.trailIn -= delta;
-    if (this.trailIn <= 0 && this.velocity.lengthSq() > 900) {
+    if (this.trailIn <= 0 && thrust) {
       this.trailIn = 45;
-      // Behind it: the cat's sparks, or the rocket's flame from its nozzle.
+      // Behind it while the engine fires: the cat's sparks, or the rocket's
+      // flame from its nozzle.
       const back = this.carry.rocket ? 22 : 0;
-      const heading = this.velocity.clone().normalize();
+      const heading = new Phaser.Math.Vector2(Math.cos(this.heading), Math.sin(this.heading));
       const spark = this.add
         .image(
           this.cat.x - heading.x * back - this.velocity.x * 0.05,

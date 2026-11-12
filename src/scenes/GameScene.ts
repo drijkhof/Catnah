@@ -90,6 +90,9 @@ export class GameScene extends Phaser.Scene {
   /** Whether the rocket has been filled up at the bar on Pluto: ten times as fast in space. */
   /** Rocket fuel left from the bar, ms of thrust. */
   private fuel = 0;
+  /** Coins: Bob's, to spend at the bar. */
+  private coins = 0;
+  private coinsText?: CrispText;
   private fuelMeter?: FuelMeter;
   /** The barkeeper on Pluto, and whether the cat is still standing where he last asked. */
   private keeper?: { sprite: Phaser.GameObjects.Sprite; floor: number; near: boolean };
@@ -319,6 +322,7 @@ export class GameScene extends Phaser.Scene {
     parts?: string[];
     rocket?: boolean;
     fuel?: number;
+    coins?: number;
     outside?: GameSnapshot;
     resume?: GameSnapshot;
     viaDoor?: boolean;
@@ -343,6 +347,7 @@ export class GameScene extends Phaser.Scene {
     this.parts = [...(data.parts ?? carried?.parts ?? [])];
     this.rocket = data.rocket ?? carried?.rocket ?? false;
     this.fuel = data.fuel ?? carried?.fuel ?? 0;
+    this.coins = data.coins ?? carried?.coins ?? 0;
     this.outside = data.outside ?? carried?.outside;
     this.resume = data.resume;
     this.viaDoor = data.viaDoor ?? false;
@@ -379,6 +384,7 @@ export class GameScene extends Phaser.Scene {
     this.baseRects = [];
     this.partSprites = [];
     this.partsText = undefined;
+    this.coinsText = undefined;
     this.pads = [];
     this.bouncing = false;
     this.movers = [];
@@ -670,6 +676,7 @@ export class GameScene extends Phaser.Scene {
       parts: [...this.parts],
       rocket: this.rocket,
       fuel: this.fuel,
+      coins: this.coins,
       outside: this.outside,
       godMode: isGodMode(this),
     };
@@ -1335,6 +1342,7 @@ export class GameScene extends Phaser.Scene {
     parts: string[];
     rocket: boolean;
     fuel: number;
+    coins: number;
     from: string;
   } {
     return {
@@ -1349,6 +1357,7 @@ export class GameScene extends Phaser.Scene {
       parts: [...this.parts],
       rocket: this.rocket,
       fuel: this.fuel,
+      coins: this.coins,
     };
   }
 
@@ -1387,6 +1396,11 @@ export class GameScene extends Phaser.Scene {
     sound.play('checkpoint');
     this.announceBonus(`Part ${this.parts.length}/${PARTS.total}`);
     this.refreshParts();
+  }
+
+  /** The coins in the HUD. */
+  private refreshCoins(): void {
+    this.coinsText?.setText(`${this.coins}`);
   }
 
   /** The parts count in the HUD: shown once there are parts to find. */
@@ -2681,7 +2695,9 @@ export class GameScene extends Phaser.Scene {
       .setInteractive();
     next.on('pointerdown', () => this.nextLine());
     camera.ignore([bubble, words, next]);
-    this.talk = { line: -1, bubble, words, next, hidden, camera: overlay, lines: this.hasAllParts() ? BOB.thanks : BOB.lines };
+    this.talk = { line: -1, bubble, words, next, hidden, camera: overlay, lines: this.hasAllParts()
+        ? BOB.thanks
+        : BOB.lines.filter((line) => line !== BOB.coinsLine || !this.rocket) };
     this.nextLine();
     if (this.hasAllParts()) {
       this.feedTheMachine();
@@ -2702,6 +2718,11 @@ export class GameScene extends Phaser.Scene {
     }
     sound.play('beep');
     talk.words.setText(talk.lines[talk.line]);
+    // The first time Bob tells his story he gives the cat its coins.
+    if (talk.lines[talk.line] === BOB.coinsLine && !this.rocket) {
+      this.coins += BOB.coins;
+      sound.play('checkpoint');
+    }
     const last = talk.line === talk.lines.length - 1;
     talk.next.setText(last ? (this.hasAllParts() ? BOB.thanksButton : BOB.lastButton) : 'Next ▸');
     this.placeBubble();
@@ -3063,7 +3084,7 @@ export class GameScene extends Phaser.Scene {
     this.player.setVelocity(0, 0);
     const style = { fontFamily: 'monospace', fontSize: '11px', color: '#2a1030' };
     const width = 280;
-    const height = 112;
+    const height = 124;
     const x = Math.round(GAME_WIDTH / 2 - width / 2);
     const y = 34;
     const panel = this.add.graphics().setScrollFactor(0).setDepth(2000);
@@ -3075,7 +3096,7 @@ export class GameScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(2001);
-    const labels = [...BAR.items.map((item) => `${item.label} — ${item.price} ♥`), BAR.bye];
+    const labels = [...BAR.items.map((item) => `${item.label} — ${item.price} coins`), BAR.bye];
     const options = labels.map((label, i) => {
       const option = crispText(this, x + 22, y + 32 + i * 14, label, style)
         .setOrigin(0, 0.5)
@@ -3094,8 +3115,9 @@ export class GameScene extends Phaser.Scene {
       .setOrigin(1, 0.5)
       .setScrollFactor(0)
       .setDepth(2001);
-    const reply = crispText(this, x + 10, y + height - 12, '', { ...style, color: '#3a5aa8' })
-      .setOrigin(0, 0.5)
+    // The keeper's answer on a line of its own, over the coins.
+    const reply = crispText(this, GAME_WIDTH / 2, y + height - 26, '', { ...style, color: '#3a5aa8' })
+      .setOrigin(0.5, 0.5)
       .setScrollFactor(0)
       .setDepth(2001);
     this.shop = {
@@ -3119,12 +3141,12 @@ export class GameScene extends Phaser.Scene {
     if (!shop) {
       return;
     }
-    const labels = [...BAR.items.map((item) => `${item.label} — ${item.price} ♥`), BAR.bye];
+    const labels = [...BAR.items.map((item) => `${item.label} — ${item.price} coins`), BAR.bye];
     shop.options.forEach((option, i) => {
       option.setText(`${i === shop.selected ? '▸ ' : '  '}${labels[i]}`);
       option.setColor(i === shop.selected ? '#c0306a' : '#2a1030');
     });
-    shop.purse.setText(`${this.collected} ♥`);
+    shop.purse.setText(`${this.coins} coins`);
   }
 
   /** Left and right move the highlight, a step per press; jump takes what it is on. */
@@ -3171,7 +3193,7 @@ export class GameScene extends Phaser.Scene {
         }
       });
     };
-    if (this.collected < item.price) {
+    if (this.coins < item.price) {
       sound.play('hurt');
       say(BAR.replies.poor);
       return;
@@ -3188,7 +3210,7 @@ export class GameScene extends Phaser.Scene {
       say(BAR.replies.fueled);
       return;
     }
-    this.collected -= item.price;
+    this.coins -= item.price;
     if (item.id === 'life') {
       // One more heart to hold, and filled.
       this.maxLives = Math.min(this.maxLives + 1, MAX_LIVES);
@@ -3200,7 +3222,7 @@ export class GameScene extends Phaser.Scene {
       this.fuel = BAR.fuelMs;
     }
     this.refreshLives();
-    this.scoreText.setText(this.formatScore());
+    this.refreshCoins();
     sound.play('checkpoint');
     say(BAR.replies[item.id]);
     this.refreshShop();
@@ -4431,6 +4453,26 @@ export class GameScene extends Phaser.Scene {
         .setScrollFactor(0)
         .setDepth(1000);
       this.refreshParts();
+    }
+
+    // Bob's coins, under the parts: once there are any.
+    if (this.coins > 0) {
+      const y = this.partsText ? TILE * 4 + 8 : TILE * 3 + 2;
+      this.add
+        .image(GAME_WIDTH - TILE - 16, y + 8, 'coin')
+        .setScrollFactor(0)
+        .setDepth(1000);
+      this.coinsText = crispText(this, GAME_WIDTH - TILE - 26, y, '', {
+        fontFamily: 'monospace',
+        fontSize: '14px',
+        color: '#ffd34d',
+        stroke: '#2f2a1a',
+        strokeThickness: 3,
+      })
+        .setOrigin(1, 0)
+        .setScrollFactor(0)
+        .setDepth(1000);
+      this.refreshCoins();
     }
 
     this.scoreText = crispText(

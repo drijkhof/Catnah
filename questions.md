@@ -2223,3 +2223,23 @@ moving. Decided without asking:
 - The Death Star stays where it was in space (down and to the right of the
   middle), now between the orbits of Mars and Jupiter; planets may pass
   behind it.
+
+## Coins, and steering from inside the rocket
+
+Asked for: 20 coins from Bob the first time he is spoken to; the bar takes
+coins, not hearts; rocket fuel about three times as fast, lasting ten times
+as long; on the keyboard in space, up flies forward and left and right turn
+the rocket. Decided without asking:
+
+- **Prices**: a life 10 coins, milk 5, rocket fuel 5 -- so twenty coins
+  buy some, not all, and there is a choice to make. Bob is the only place
+  coins come from.
+- **The coins come with a line of his**: *"Here are 20 coins for the trip.
+  You can buy things with them."*, before *"Can you do it, kitty?"*. Told
+  the story again (the moon's secret part), he leaves it out and gives none.
+- **Fuel**: 3x, and 200 seconds of flying with the engine on.
+- **The steering is the same on the stick**, not only the keyboard: the
+  game never asks which one is in use, and left/right/up/down mean the same
+  on both. Down brakes. The cat flying with its helmet (the first trip, to
+  the Moon) steers the same way as the rocket.
+- The coins show in the corner under the parts, once there are any.

@@ -502,9 +502,16 @@ export const BOB = {
     'What a cute little kitty!',
     'The robots have taken over the planets:\nthe Moon, Mars, Saturn, Jupiter, Venus,\nUranus, Neptune and Pluto!',
     "I need 10 parts to destroy the robots.\nI built a rocket, but I don't know where I can find the planets.",
+    'Here are 20 coins for the trip.\nYou can buy things with them.',
     'Can you do it, kitty?',
     'But look out:\nthere are not two moons...',
   ],
+  /**
+   * The line he gives the cat its coins on, and how many: the first time
+   * only -- told the story again later, he leaves it out.
+   */
+  coinsLine: 'Here are 20 coins for the trip.\nYou can buy things with them.',
+  coins: 20,
   /** The button under the last line: the answer, and off in the rocket. */
   lastButton: 'Yes! ▸',
   /**
@@ -583,6 +590,9 @@ export const SPACE = {
   accel: 420,
   maxSpeed: 230,
   drag: 160,
+  /** How fast left and right turn the rocket, radians/s; and how much harder than drag down brakes. */
+  turnSpeed: 3.2,
+  brake: 3,
   yearMs: 50000,
   moonMonthMs: 40000,
   sunReach: 24,
@@ -998,25 +1008,25 @@ export const BAR = {
   rearm: 40,
   greeting: 'Hi cat, what would you like to order?',
   items: [
-    { id: 'life', label: 'A life', price: 50 },
-    { id: 'milk', label: 'Milk', price: 10 },
-    { id: 'fuel', label: 'Rocket fuel', price: 30 },
+    { id: 'life', label: 'A life', price: 10 },
+    { id: 'milk', label: 'Milk', price: 5 },
+    { id: 'fuel', label: 'Rocket fuel', price: 5 },
   ],
   bye: 'Bye',
   /** What the keeper says back. */
   replies: {
     life: 'One life, coming up!',
     milk: 'Milk! All your hearts are full.',
-    fuel: 'Ten times as fast -- for a while!',
-    poor: 'You need more pink hearts for that.',
+    fuel: 'Three times as fast -- for a while!',
+    poor: 'You need more coins for that.',
     full: 'You cannot carry any more lives!',
     notHurt: 'You are not hurt! Have it another time.',
     fueled: 'Your rocket is already full!',
   },
   /** Rocket fuel: how many times as fast the cat flies in space after. */
-  fuelBoost: 10,
+  fuelBoost: 3,
   /** How long a tank of it lasts, ms of flying with the thrust on. */
-  fuelMs: 20000,
+  fuelMs: 200000,
   /** Inside the bar, how close up the view is, and the fade through its door, ms. */
   insideZoom: 2,
   doorMs: 350,
