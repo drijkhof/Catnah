@@ -767,7 +767,7 @@ now — robots and grey blocks as on the moon, the helmet on, lighter gravity
   red boulders** with thorns in the sand between, and long beds of thorns.
 - **Venus — lava lakes** to jump, the wide ones with a stepping rock in the
   middle.
-- **Neptune — seas to swim**, three deep, with alien fish in them.
+- **Neptune — seas to swim**, three deep. No fish: **piranhas live only on the Earth**.
 - **Uranus — bounce pads.** Step on one and it throws you high: over walls
   too tall to jump, and up to shelves too high to reach.
 - **Jupiter — clouds that move.** Wide gaps with a cloud platform sliding
@@ -924,7 +924,7 @@ every part can still be found: each rock with a room inside has a **chain
 up its side**, Jupiter's clouds ride **one tile off the floor**, its thorns
 come one at a time, and **bounce pads** throw as high on every world (they
 are machines, not jumps).
-Every level on the Earth, from the city to the sand path, keeps the Earth's. Piranhas leap as high there as on the Earth, and never from under a bank
+Every level on the Earth, from the city to the sand path, keeps the Earth's. Piranhas are only ever found on the Earth, and never leap from under a bank
 of ground: in a flooded tunnel they wait until they are back under open water.
 
 ### Cacti come tall

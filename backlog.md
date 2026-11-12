@@ -12,10 +12,6 @@ Numbers are not reused, which is why there will be gaps.
 
 ---
 
-## 3. Geen piranha's op de planeten — `todo`
-
-Piranha's alleen op aarde, op geen enkele andere planeet.
-
 ## 4. Zwaartekracht minder extreem — `todo`
 
 Verschil tussen de planeten mag, maar niet zo extreem als nu. Het moet nog

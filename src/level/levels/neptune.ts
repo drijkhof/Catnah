@@ -6,7 +6,7 @@ import { GRAVITY } from '../../config';
  *
  * Deep blue ice under a black sky with Uranus and Pluto in it, blue spires behind. Flown to in Bob's rocket.
  *
- * Its own obstacle, found on no other world: **Seas to swim**, three deep, with alien fish in them -- and a spare heart on the bottom of the first. A tower and a slab between them.
+ * Its own obstacle, found on no other world: **Seas to swim**, three deep -- no fish: piranhas live only on the Earth -- and a spare heart on the bottom of the first. A tower and a slab between them.
  * Robots and their grey blocks, as on every robots' world.
  *
  * **1 of Bob's 10 part** (`K`), faint until the cat is near, and well
@@ -52,7 +52,7 @@ const ROWS: string[] = [
   '............................................................TQQQ........................TR....KR.......RRRRRRRR',
   '..P.......................h...^^.....................D....h.TQQQ........................TRRRRRRR....h......o.........................E',
   '###############wwwwwwww###############wwwwwwwwwwww#####################wwwwwwwwwwww##############################wwwwwwwww###############',
-  '###############wwwwfwww###############wwfwwwwwwwfw#####################wwfwwwwwwwfw##############################wwfwwwwfw###############',
+  '###############wwwwwwww###############wwwwwwwwwwww#####################wwwwwwwwwwww##############################wwwwwwwww###############',
   '###############wwwWwwww###############wwwwwWwwwwww#####################wwwwwWwwwwww##############################wwwWwwwww###############',
   '#'.repeat(137),
 ];
