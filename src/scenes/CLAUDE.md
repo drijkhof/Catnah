@@ -31,7 +31,7 @@ Phaser scenes. Registered in order in `src/main.ts`; the first one starts.
   Bob; the talk sends the parts flying into its funnel, and the end of it
   zaps the cat into the first internet level. Everything made during a talk
   has to be ignored by the bubble's camera, or it is drawn twice.
-- **The bar on Pluto** (`buildBars`, `meetKeeper`, `openShop`, `stepShop`, `chooseInShop`): standing at the keeper opens a menu pinned to the screen (no zoom); buying spends `collected`. Rocket fuel is the run's `fuel`, carried to `SpaceScene`, where it multiplies thrust, top speed and drag by `BAR.fuelBoost`.
+- **The bar on Pluto** (`buildBars`, `meetKeeper`, `openShop`, `stepShop`, `chooseInShop`): standing at the keeper opens a menu pinned to the screen (no zoom); buying spends `collected`. Rocket fuel is the run's `fuel`, ms of thrust left (`BAR.fuelMs` a tank), carried to `SpaceScene`, where while it lasts it multiplies thrust, top speed and drag by `BAR.fuelBoost` and burns down while the thrust is on. `FuelMeter` (`src/fuelMeter.ts`) shows it beside the hearts in both scenes; `SpaceScene.refreshHud` draws the hearts out there.
 - **Cables and hackers** (`buildCables`/`stepCables`/`snapCable`,
   `buildHackers`/`stepHackers`): a cable column scratched through by holding
   down against it, the way the moon's grey blocks are broken; a hacker

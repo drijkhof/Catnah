@@ -27,7 +27,21 @@ export const BAR_ALIEN_SIZE = { width: 14, height: 22 };
 const SKIN = 0x7ee07a;
 const SKIN_DARK = 0x4fae4c;
 
+/** The fuel can by the fuel meter, px. */
+export const FUEL_CAN_SIZE = { width: 9, height: 11 };
+
 export function generateBarTextures(scene: Phaser.Scene): void {
+  // A red jerrycan with a spout, for the rocket fuel meter.
+  bakeTexture(scene, 'fuel-can', FUEL_CAN_SIZE.width, FUEL_CAN_SIZE.height, (g) => {
+    g.fillStyle(0x5a0f0f, 1);
+    g.fillRect(0, 2, 9, 9);
+    g.fillStyle(0xd8342c, 1);
+    g.fillRect(1, 3, 7, 7);
+    g.fillStyle(0xff7a6a, 1);
+    g.fillRect(2, 4, 2, 2);
+    g.fillStyle(0x3a3a3a, 1);
+    g.fillRect(5, 0, 3, 3);
+  });
   const { width, height } = BAR_SIZE;
   bakeTexture(scene, 'pluto-bar', width, height, (g) => {
     const wall = height - 62;

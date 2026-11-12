@@ -49,7 +49,7 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | hacker | `hacker` | on the dark web: a sign that always points the wrong way |
 | bar | `bar` | on Pluto: aliens in summer T-shirts; buy a life, milk or rocket fuel |
 | roze hartjes | `little hearts` | what you pay with at the bar |
-| raket benzine | `rocket fuel` | from the bar: ten times as fast in space |
+| raket benzine | `rocket fuel` | from the bar: ten times as fast in space, for 20 seconds of flying |
 | luifel | `awning` | the city's one-way platform, striped, sticking out of a wall |
 | poort | `arcade` | an opening under a house, walked or sneaked through |
 | rat | `rat` | the city's walker, quicker than a hedgehog |
@@ -686,6 +686,9 @@ the same keys and stick as walking — through stars in three layers, clouds
 of glowing gas, a trail of sparks behind you. The run's clock does not
 count while you fly.
 
+**Your hearts** are in the top right corner out here too, with the rocket
+fuel meter beside them when you have fuel.
+
 **The sun** burns in the middle of space, in a big orange glow. You cannot
 land on it: **fly too close and the cat burns** — a heart lost, like any
 death, and you set off again beside the world you came from. Burning on the
@@ -870,9 +873,14 @@ in. Walk up to him and he asks *"Hi cat, what would you like to order?"*,
 and you pay in **little pink hearts**, the ones counted in the corner:
 
 - **A life** — 50 hearts: one more heart to hold, and filled.
-- **Milk** — 10 hearts: one lost heart back. Not when you are not hurt.
-- **Rocket fuel** — 30 hearts: from then on you fly **ten times as fast**
-  in space, for the rest of the run.
+- **Milk** — 10 hearts: **every empty heart filled again**. Not when you
+  are not hurt.
+- **Rocket fuel** — 30 hearts: a full tank, and you fly **ten times as
+  fast** in space **for a while** — 20 seconds of flying with the thrust
+  on. A **fuel meter**, a red can and an orange bar, sits beside the
+  hearts and goes down as it burns (red when nearly empty); when it is
+  empty the rocket slows back to its own speed. A full tank cannot be
+  topped up; a part-used one can be filled again.
 - **Bye**.
 
 Tap one, or pick with left and right and take it with jump. Too few hearts

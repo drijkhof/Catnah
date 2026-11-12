@@ -45,8 +45,8 @@ export interface GameSnapshot {
   /** Bob's parts found, and whether the rocket has been taken. */
   parts?: string[];
   rocket?: boolean;
-  /** Rocket fuel bought at the bar on Pluto. */
-  fuel?: boolean;
+  /** Rocket fuel left from the bar on Pluto, ms. */
+  fuel?: number;
   godMode?: boolean;
 }
 

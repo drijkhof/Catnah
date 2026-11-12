@@ -1,11 +1,12 @@
 import Phaser from 'phaser';
-import { BAR, GAME_HEIGHT, GAME_WIDTH, LASER, LIVES, PARTS, SPACE } from '../config';
+import { BAR, GAME_HEIGHT, GAME_WIDTH, LASER, LIVES, PARTS, SPACE, TILE } from '../config';
 import { LEVELS } from '../level/levels';
 import { Controls } from '../input/Controls';
 import { HEAD_IN_POSE, PLANET_SIZES, STARFIELD_SIZE, SPACE_SUN_SIZE, createRandom, type PlanetName } from '../art';
 import { stats } from '../stats';
 import { sound } from '../audio/Sound';
 import { crispText, type CrispText } from '../text';
+import { FuelMeter } from '../fuelMeter';
 
 /** What a run carries from level to level, passed straight through this scene. */
 interface Carry {
@@ -21,8 +22,8 @@ interface Carry {
   rocket?: boolean;
   /** The world the cat has just come from, if any: the flight starts beside it. */
   from?: string;
-  /** Rocket fuel from the bar on Pluto: ten times as fast out here. */
-  fuel?: boolean;
+  /** Rocket fuel left from the bar on Pluto, ms of thrust: ten times as fast out here while it lasts. */
+  fuel?: number;
 }
 
 /** A world out here: its orbit, how big, and which level it is. */
@@ -109,6 +110,8 @@ export class SpaceScene extends Phaser.Scene {
   private catBubble!: Phaser.GameObjects.Graphics;
   private starLayers: Array<{ sprite: Phaser.GameObjects.TileSprite; factor: number }> = [];
   private trailIn = 0;
+  private lifeIcons: Phaser.GameObjects.Image[] = [];
+  private fuelMeter?: FuelMeter;
   private going = false;
   private words: CrispText[] = [];
 
@@ -116,9 +119,30 @@ export class SpaceScene extends Phaser.Scene {
     super('Space');
   }
 
-  /** How many times as fast the cat flies: the bar's rocket fuel. */
+  /** How many times as fast the cat flies: the bar's rocket fuel, while it lasts. */
   private boost(): number {
-    return this.carry.fuel ? BAR.fuelBoost : 1;
+    return (this.carry.fuel ?? 0) > 0 ? BAR.fuelBoost : 1;
+  }
+
+  /**
+   * The hearts in the top right corner, as in a level -- the sun can take
+   * one -- and the rocket fuel left beside them.
+   */
+  private refreshHud(): void {
+    const wanted = Math.max(LIVES, this.carry.maxLives ?? LIVES);
+    const lives = this.carry.lives ?? LIVES;
+    while (this.lifeIcons.length < wanted) {
+      this.lifeIcons.push(this.add.image(0, TILE, 'life').setScrollFactor(0).setDepth(1000));
+    }
+    while (this.lifeIcons.length > wanted) {
+      this.lifeIcons.pop()?.destroy();
+    }
+    this.lifeIcons.forEach((icon, index) => {
+      const spent = index >= lives;
+      icon.setPosition(GAME_WIDTH - TILE - index * 15, TILE).setAlpha(spent ? 0.22 : 1).setScale(spent ? 0.85 : 1);
+    });
+    this.fuelMeter ??= new FuelMeter(this);
+    this.fuelMeter.show(GAME_WIDTH - TILE - (wanted - 1) * 15 - 12, TILE, this.carry.fuel ?? 0);
   }
 
   init(data: Carry): void {
@@ -126,6 +150,8 @@ export class SpaceScene extends Phaser.Scene {
     this.velocity.set(0, 0);
     this.starLayers = [];
     this.trailIn = 0;
+    this.lifeIcons = [];
+    this.fuelMeter = undefined;
     this.going = false;
     this.words = [];
     this.planets = [];
@@ -266,6 +292,7 @@ export class SpaceScene extends Phaser.Scene {
     this.helmet = this.add.image(0, 0, 'space-helmet').setDepth(11).setVisible(!this.carry.rocket);
     this.setOff();
     this.cameras.main.startFollow(this.cat, true, 0.1, 0.1);
+    this.refreshHud();
 
     this.controls = new Controls(this);
 
@@ -442,6 +469,7 @@ export class SpaceScene extends Phaser.Scene {
     const lives = (this.carry.lives ?? LIVES) - 1;
     this.carry = { ...this.carry, lives, deaths: (this.carry.deaths ?? 0) + 1 };
     stats.addDeath();
+    this.refreshHud();
     this.time.delayedCall(650, () => {
       if (lives <= 0) {
         this.cameras.main.filters.internal.addColorMatrix().colorMatrix.grayscale(1);
@@ -695,17 +723,27 @@ export class SpaceScene extends Phaser.Scene {
       (this.controls.sneak ? 1 : 0) - (this.controls.up || this.controls.jumpHeld ? 1 : 0),
     );
 
+    const before = this.velocity.length();
     if (input.lengthSq() > 0) {
       input.normalize().scale(SPACE.accel * this.boost() * dt);
       this.velocity.add(input);
+      // The fuel burns while the thrust is on, and the meter goes down.
+      if ((this.carry.fuel ?? 0) > 0) {
+        this.carry.fuel = Math.max(0, (this.carry.fuel ?? 0) - delta);
+        this.refreshHud();
+      }
     } else {
       const speed = this.velocity.length();
       if (speed > 0) {
         this.velocity.scale(Math.max(0, speed - SPACE.drag * this.boost() * dt) / speed);
       }
     }
-    if (this.velocity.length() > SPACE.maxSpeed * this.boost()) {
-      this.velocity.setLength(SPACE.maxSpeed * this.boost());
+    // Over the top speed -- the fuel just ran out -- it slows down to it
+    // over a second or so rather than stopping dead.
+    const top = SPACE.maxSpeed * this.boost();
+    const speed = this.velocity.length();
+    if (speed > top) {
+      this.velocity.setLength(Math.max(top, Math.min(speed, before - SPACE.maxSpeed * BAR.fuelBoost * dt)));
     }
 
     const margin = 40;

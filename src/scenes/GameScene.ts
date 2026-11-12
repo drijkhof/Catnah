@@ -19,6 +19,7 @@ import { BAR_KEEPER_X, BAR_SIZE, BAR_STOOLS, SHIRT_COLOURS, HACKER_SIZE, MACHINE
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { GOD_MODE_KEY, installGodMode, isGodMode } from '../dev/godMode';
+import { FuelMeter } from '../fuelMeter';
 import { installSpaceShortcut } from '../dev/spaceShortcut';
 import { sound, type Ambience, type SoundMode } from '../audio/Sound';
 import { SNAPSHOT_KEY, type GameSnapshot } from '../dev/hot';
@@ -87,7 +88,9 @@ export class GameScene extends Phaser.Scene {
   /** Whether Bob has sent the cat off in his rocket: the parts are being looked for. */
   private rocket = false;
   /** Whether the rocket has been filled up at the bar on Pluto: ten times as fast in space. */
-  private fuel = false;
+  /** Rocket fuel left from the bar, ms of thrust. */
+  private fuel = 0;
+  private fuelMeter?: FuelMeter;
   /** The barkeeper on Pluto, and whether the cat is still standing where he last asked. */
   private keeper?: { sprite: Phaser.GameObjects.Sprite; floor: number; near: boolean };
   /** The bar's menu, while it is open. */
@@ -300,7 +303,7 @@ export class GameScene extends Phaser.Scene {
     title?: boolean;
     parts?: string[];
     rocket?: boolean;
-    fuel?: boolean;
+    fuel?: number;
   }): void {
     this.titleMode = data.title ?? false;
     // The scene instance is reused from run to run, so a flag set on the
@@ -321,7 +324,7 @@ export class GameScene extends Phaser.Scene {
     this.collected = data.collected ?? carried?.collected ?? 0;
     this.parts = [...(data.parts ?? carried?.parts ?? [])];
     this.rocket = data.rocket ?? carried?.rocket ?? false;
-    this.fuel = data.fuel ?? carried?.fuel ?? false;
+    this.fuel = data.fuel ?? carried?.fuel ?? 0;
 
     // God mode lives in the registry, and a hot reload builds a new game
     // with a new registry: it rides in the snapshot and is put back here,
@@ -359,6 +362,7 @@ export class GameScene extends Phaser.Scene {
     this.talk = undefined;
     this.busyWords = undefined;
     this.lifeIcons = [];
+    this.fuelMeter = undefined;
     this.dying = false;
     this.leaving = false;
 
@@ -1281,7 +1285,7 @@ export class GameScene extends Phaser.Scene {
     deaths: number;
     parts: string[];
     rocket: boolean;
-    fuel: boolean;
+    fuel: number;
     from: string;
   } {
     return {
@@ -3037,7 +3041,7 @@ export class GameScene extends Phaser.Scene {
       say(BAR.replies.notHurt);
       return;
     }
-    if (item.id === 'fuel' && this.fuel) {
+    if (item.id === 'fuel' && this.fuel >= BAR.fuelMs) {
       say(BAR.replies.fueled);
       return;
     }
@@ -3047,9 +3051,10 @@ export class GameScene extends Phaser.Scene {
       this.maxLives = Math.min(this.maxLives + 1, MAX_LIVES);
       this.lives = Math.min(this.lives + 1, this.maxLives);
     } else if (item.id === 'milk') {
-      this.lives += 1;
+      // Every empty heart filled again.
+      this.lives = this.maxLives;
     } else {
-      this.fuel = true;
+      this.fuel = BAR.fuelMs;
     }
     this.refreshLives();
     this.scoreText.setText(this.formatScore());
@@ -4407,6 +4412,10 @@ export class GameScene extends Phaser.Scene {
       icon.setAlpha(spent ? 0.22 : 1);
       icon.setScale(spent ? 0.85 : 1);
     });
+
+    // The rocket fuel left, beside the hearts.
+    this.fuelMeter ??= new FuelMeter(this);
+    this.fuelMeter.show(GAME_WIDTH - TILE - (wanted - 1) * 15 - 12, TILE, this.fuel);
   }
 
   /**

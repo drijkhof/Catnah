@@ -2115,6 +2115,13 @@ without asking:
   kept out of it like the moon base.
 - The menu is picked by tapping, or left/right and jump: no new buttons.
 
+**Later changed**, as asked: milk fills every empty heart, and rocket fuel
+lasts a while with a meter beside the hearts. Decided without asking: a
+tank is **20 seconds of flying with the thrust on** (`BAR.fuelMs`) --
+coasting burns none; it can be bought again once some is used; and the
+hearts are now shown in space as well, where the meter matters and the sun
+can take one.
+
 ## The Death Star is an easter egg
 
 Asked for: "I cannot find the Death Star nor the Enterprise" -- then no red

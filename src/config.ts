@@ -1006,8 +1006,8 @@ export const BAR = {
   /** What the keeper says back. */
   replies: {
     life: 'One life, coming up!',
-    milk: 'A nice glass of milk!',
-    fuel: 'Your rocket flies ten times as fast now!',
+    milk: 'Milk! All your hearts are full.',
+    fuel: 'Ten times as fast -- for a while!',
     poor: 'You need more pink hearts for that.',
     full: 'You cannot carry any more lives!',
     notHurt: 'You are not hurt! Have it another time.',
@@ -1015,6 +1015,8 @@ export const BAR = {
   },
   /** Rocket fuel: how many times as fast the cat flies in space after. */
   fuelBoost: 10,
+  /** How long a tank of it lasts, ms of flying with the thrust on. */
+  fuelMs: 20000,
   replyMs: 2200,
 } as const;
 

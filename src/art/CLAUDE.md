@@ -21,7 +21,7 @@ binary assets but the portal picture and runs straight after clone.
   and the volcano's ridged mountains with lava running down them (`drawMountain`).
 - `creatures.ts` — hedgehog, rat, piranha, crow, crocodile, spider, the beetle,
   and the desert's camel, worm, mound and cactus.
-- `bar.ts` — the aliens' bar on Pluto: the hut (`pluto-bar`), the counter and stools in front of the keeper (`pluto-bar-front`), the keeper and the guests in summer T-shirts (`bar-alien-<n>`, `SHIRT_COLOURS`).
+- `bar.ts` — the aliens' bar on Pluto: the hut (`pluto-bar`), the counter and stools in front of the keeper (`pluto-bar-front`), the keeper and the guests in summer T-shirts (`bar-alien-<n>`, `SHIRT_COLOURS`); the `fuel-can` by the fuel meter.
 - `internet.ts` — inside the internet: the cable and its two scratched stages, its plug and the shreds it snaps into; the hacker and its sign (an arrow pointing right, turned by the scene); Bob's machine (`MACHINE_SIZE`, `MACHINE_ZAPPER`); each site's sky (`net-sky-<site>`) and the pictures floating in it (`NET_ICONS`). No real logos: each site is drawn as what it is about.
 - `park.ts` — the city's park: `bakeBench`, `bakeFountain` (and the `fountain-drop` its jet throws), `bakeLawn`, and the `park-tree`. Drawn per run of cells by `GameScene.buildPark`.
 - `house.ts` — the city: `bakeHouse` draws a cluster of cells as one town
