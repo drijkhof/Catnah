@@ -259,7 +259,7 @@ export class SpaceScene extends Phaser.Scene {
     // close enough to come across, with no arrow to it: seen,
     // never entered. Come near and the cat says so, in a bubble over its
     // head that follows it about.
-    this.stationHome = new Phaser.Math.Vector2(this.sun.x + 900, this.sun.y + 950);
+    this.stationHome = new Phaser.Math.Vector2(this.sun.x + LASER.stationOrbit.x, this.sun.y + LASER.stationOrbit.y);
     this.station = this.add.image(this.stationHome.x, this.stationHome.y, 'battle-station').setDepth(-38);
     // And the starship, going round it, the two of them firing at each other.
     this.ship = this.add.image(0, 0, 'starship').setDepth(-37);
@@ -698,11 +698,17 @@ export class SpaceScene extends Phaser.Scene {
   }
 
   /**
-   * The station and the starship drift: the station round a small, slow
-   * circle about where it was put, the ship round the station, facing it.
+   * The station and the starship drift: the station goes round the sun
+   * (`LASER.stationOrbit`, no ring drawn), and round a small, slow circle
+   * as it goes; the ship round the station, facing it.
    */
   private drift(): void {
     const t = this.time.now;
+    // Round the sun, like the worlds, but with no ring drawn for it.
+    const start = Math.atan2(LASER.stationOrbit.y, LASER.stationOrbit.x);
+    const reach = Math.hypot(LASER.stationOrbit.x, LASER.stationOrbit.y);
+    const round = start + (t / (SPACE.yearMs * LASER.stationYears)) * Math.PI * 2;
+    this.stationHome.set(this.sun.x + Math.cos(round) * reach, this.sun.y + Math.sin(round) * reach);
     const a = (t / LASER.stationDriftMs) * Math.PI * 2;
     this.station.setPosition(this.stationHome.x + Math.cos(a) * LASER.stationDrift, this.stationHome.y + Math.sin(a) * LASER.stationDrift * 0.6);
     const b = (t / LASER.shipOrbitMs) * Math.PI * 2;

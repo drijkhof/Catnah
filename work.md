@@ -721,7 +721,7 @@ You set off beside the world you have just left, behind it on its way
 round, so it moves off without you.
 
 Out there you can see, but never land on, the **ISS** going round the Earth
-and a **battle station** — the Death Star — hanging in space: an **easter egg**, with no arrow and no name, far out down and to the right of the sun, between the orbits of Mars and Jupiter, there to be found. Fly near it
+and a **battle station** — the Death Star — hanging in space: an **easter egg**, with no arrow and no name, between the orbits of Mars and Jupiter, **going round the sun** too (once every four Earth years, with no ring drawn for it, so it is not on any line to follow), there to be found. Fly near it
 and the cat says, in a little bubble over its head: *"That's no moon..."*.
 A **starship** — the Enterprise — goes slowly round the station, and the
 station drifts slowly too. They fire at each other: every ten seconds the

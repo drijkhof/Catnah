@@ -2222,7 +2222,8 @@ moving. Decided without asking:
   game over out there. God mode only throws you back.
 - The Death Star stays where it was in space (down and to the right of the
   middle), now between the orbits of Mars and Jupiter; planets may pass
-  behind it.
+  behind it. **Later**, as asked, it goes round the sun too, with no ring:
+  four Earth years a time round, between Mars's 1.9 and Jupiter's 11.9.
 
 ## Coins, and steering from inside the rocket
 

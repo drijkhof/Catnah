@@ -562,6 +562,12 @@ export const LASER = {
   shipEveryMs: 7000,
   /** How long the station takes to go round its little circle, and its size, ms and px. */
   stationDriftMs: 90000,
+  /**
+   * Where the station starts from the sun, px, and how many Earth years it
+   * takes to go round it: between Mars and Jupiter, so between their two.
+   */
+  stationOrbit: { x: 900, y: 950 },
+  stationYears: 4,
   stationDrift: 120,
   /** How long the starship takes to go round the station, and how far out, ms and px. */
   shipOrbitMs: 70000,
