@@ -485,9 +485,9 @@ export const ROBOT = {
  * walk `rearm` away before he will talk again.
  */
 /**
- * The parts Bob needs to destroy the robots: ten -- two each on Mars and
- * Saturn, one each on Jupiter, Venus, Uranus, Neptune and Pluto, and one on
- * the Moon, in a secret place high over it. None on the Earth. Found once
+ * The parts Bob needs to destroy the robots: ten -- two each on Mars,
+ * Saturn and Jupiter, one each on Venus, Uranus, Neptune and Pluto. None
+ * on the Earth or the Moon. Found once
  * and kept for the run.
  */
 export const PARTS = { total: 10 } as const;
@@ -512,6 +512,8 @@ export const BOB = {
    */
   coinsLine: 'Here are 20 coins for the trip.\nYou can buy things with them.',
   coins: 20,
+  /** The most coins the cat can carry. */
+  maxCoins: 100,
   /** The button under the last line: the answer, and off in the rocket. */
   lastButton: 'Yes! ▸',
   /**
@@ -1008,9 +1010,9 @@ export const BAR = {
   rearm: 40,
   greeting: 'Hi cat, what would you like to order?',
   items: [
-    { id: 'life', label: 'A life', price: 10 },
-    { id: 'milk', label: 'Milk', price: 5 },
-    { id: 'fuel', label: 'Rocket fuel', price: 5 },
+    { id: 'life', label: 'A life', price: 20 },
+    { id: 'milk', label: 'Milk', price: 30 },
+    { id: 'fuel', label: 'Rocket fuel', price: 40 },
   ],
   bye: 'Bye',
   /** What the keeper says back. */

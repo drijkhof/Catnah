@@ -65,6 +65,7 @@ export type CrowBehaviour = 'attack' | 'flyby' | 'swoop';
  *   `S`  the same, ten times the size. One of them, guarding the cave's heart
  *   `X`  the boss, which guards the end of the level it is placed in
  *   `a`  the aliens' bar, standing on the floor from this cell rightwards
+ *   `$`  a coin, well hidden: one in some levels, found once a run
  *   `n`  a door, on the floor: outside, a hut with this as its doorway,
  *        leading into the level that is its inside (`inside`); in that
  *        level, the door back out
@@ -284,6 +285,8 @@ export interface ParsedLevel {
   fountains: Point[];
   /** Parts for Bob's machine (`K`), by their middle. */
   parts: Point[];
+  /** Coins (`$`), the middle of the cell. */
+  coins: Point[];
   /** The moon's grey blocks (`D`), by their top-left corner. Robots come out of them. */
   hatches: Point[];
   /** Water, grouped into connected pools. A piranha never leaves its own. */
@@ -384,6 +387,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const hackers: Array<Point & { points: 'left' | 'right' | 'up' | 'down' }> = [];
   const fountains: Point[] = [];
   const parts: Point[] = [];
+  const coins: Point[] = [];
   const bouncePads: Point[] = [];
   const crumbles: Point[] = [];
   const movers: Array<{ x: number; y: number; width: number; from: number; to: number }> = [];
@@ -599,6 +603,11 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
         // One of the ten parts Bob needs for his machine.
         case 'K':
           parts.push({ x: x + TILE / 2, y: y + TILE / 2 });
+          break;
+
+        // A coin, hidden somewhere: Bob's money is not the only money.
+        case '$':
+          coins.push({ x: x + TILE / 2, y: y + TILE / 2 });
           break;
 
         // A flag planted in the dust. Scenery only.
@@ -870,6 +879,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     hackers,
     bars,
     parts,
+    coins,
     hatches,
     waterZones,
     pools,

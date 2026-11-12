@@ -49,6 +49,7 @@ export interface GameSnapshot {
   fuel?: number;
   /** Bob's coins. */
   coins?: number;
+  coinsFound?: string[];
   /** Inside a house: the level outside as it was left, to go back out to. */
   outside?: GameSnapshot;
   godMode?: boolean;

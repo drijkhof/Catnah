@@ -50,7 +50,7 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | bar | `bar` | on Pluto: aliens in summer T-shirts; buy a life, milk or rocket fuel |
 | roze hartjes | `little hearts` | what you pay with at the bar |
 | raket benzine | `rocket fuel` | from the bar: three times as fast in space, for 200 seconds of flying |
-| muntjes | `coins` | Bob's, 20 the first time he talks to you; spent at the bar |
+| muntjes | `coins` | 20 from Bob the first time he talks to you, and 17 hidden in the levels; at most 100; spent at the bar |
 | luifel | `awning` | the city's one-way platform, striped, sticking out of a wall |
 | poort | `arcade` | an opening under a house, walked or sneaked through |
 | rat | `rat` | the city's walker, quicker than a hedgehog |
@@ -799,15 +799,14 @@ in its own way:
   on its side and down the shaft in its top.
 - **Uranus**: on a shelf above the top of the screen, reached only off a
   bounce pad.
-- **Jupiter**: at the end of a cloud ride from the top of a tower, on a
-  ledge in the sky. (The room inside the bank of cloud has a spare heart.)
+- **Jupiter**: two — at the end of a cloud ride from the top of a tower, on
+  a ledge in the sky, and in the room inside the bank of cloud.
 - **The Moon**: in **a secret place** high above the first stretch, out of
   sight from the ground — jump up three stone shelves where a few hearts
-  lead into the dark, and there is an island of rock with the part on it and two grey
+  lead into the dark, and there is an island of rock with a **coin** on it (no part: there are none on the Moon) and two grey
   blocks with robots coming out. Six more islands of rock hang up there
   along the whole level, well apart, a heart on most, to hop between over
-  the moon. While it is still up there the Moon stays
-  open in space, so it can be fetched after Bob's rocket too.
+  the moon.
 - **Saturn**: in a tunnel under a block of ice, behind thorns — sneak
   through both; and in a room inside a block of ice.
 - **Pluto**: under the floor — fall through a crumbling bridge onto a ledge
@@ -884,12 +883,20 @@ stools, and **aliens** on the stools in **summer T-shirts** — coral,
 turquoise, yellow, pink, green, with a flower on — bobbing to music. Behind
 the counter the barkeeper, in a white shirt and bow tie. Robots never come
 in. Walk up to him and he asks *"Hi cat, what would you like to order?"*,
-and you pay in **coins** — Bob's, counted in the corner:
+and you pay in **coins**, counted in the corner. **Bob gives you 20**, and
+**17 more are hidden**, one at a time, faint until you are close, like
+Bob's parts: two in the city and one in every other level on the Earth
+(in a notch in the roofs, on a gable, on top of a rock tower, on a tree's
+crown, on a rock in the swamp, in a dark nook of the cave, on the
+volcano's summit, on a high shelf in the desert and on the beach, on a
+pillar on the sand path), and one on every planet but Pluto (on the
+Moon's secret island, and up the chained towers and cloud rides). A coin
+found stays found for the run. You can carry **100** at most.
 
-- **A life** — 10 coins: one more heart to hold, and filled.
-- **Milk** — 5 coins: **every empty heart filled again**. Not when you
+- **A life** — 20 coins: one more heart to hold, and filled.
+- **Milk** — 30 coins: **every empty heart filled again**. Not when you
   are not hurt.
-- **Rocket fuel** — 5 coins: a full tank, and you fly **three times as
+- **Rocket fuel** — 40 coins: a full tank, and you fly **three times as
   fast** in space **for a long while** — 200 seconds of flying with the
   engine on. A **fuel meter**, a red can and an orange bar, sits beside the
   hearts and goes down as it burns (red when nearly empty); when it is
@@ -898,7 +905,7 @@ and you pay in **coins** — Bob's, counted in the corner:
 - **Bye**.
 
 Tap one, or pick with left and right and take it with jump. Too few coins
-and he says so. Twenty coins do not buy everything: choose.
+and he says so.
 
 ### The internet
 

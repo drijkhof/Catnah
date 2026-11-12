@@ -26,6 +26,7 @@ interface Carry {
   fuel?: number;
   /** Bob's coins, carried through. */
   coins?: number;
+  coinsFound?: string[];
 }
 
 /** A world out here: its orbit, how big, and which level it is. */
@@ -500,13 +501,8 @@ export class SpaceScene extends Phaser.Scene {
   private refreshLabels(): void {
     const rocket = this.carry.rocket ?? false;
     const complete = (this.carry.parts ?? []).length >= PARTS.total;
-    // The moon's own part, up in its secret place: while it is still there,
-    // the Moon stays open, or a cat that missed it could never finish.
-    const moon = LEVELS.find((candidate) => candidate.name === 'Moon');
-    const moonParts = moon ? moon.rows.join('').split('K').length - 1 : 0;
-    const moonLeft = moonParts > (this.carry.parts ?? []).filter((id) => id.startsWith('Moon:')).length;
     for (const world of this.worlds) {
-      world.open = world.level === 'Moon' ? !rocket || complete || moonLeft : world.level !== '' && rocket;
+      world.open = world.level === 'Moon' ? !rocket || complete : world.level !== '' && rocket;
     }
     for (const { level, text } of this.labels) {
       text.setColor(this.worlds.find((world) => world.level === level)?.open ? '#ffe9a8' : '#8a94a8');

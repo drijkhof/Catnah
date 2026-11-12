@@ -2231,9 +2231,8 @@ coins, not hearts; rocket fuel about three times as fast, lasting ten times
 as long; on the keyboard in space, up flies forward and left and right turn
 the rocket. Decided without asking:
 
-- **Prices**: a life 10 coins, milk 5, rocket fuel 5 -- so twenty coins
-  buy some, not all, and there is a choice to make. Bob is the only place
-  coins come from.
+- **Prices**: first a life 10 coins, milk 5, rocket fuel 5; then, as asked,
+  a life 20, milk 30, rocket fuel 40.
 - **The coins come with a line of his**: *"Here are 20 coins for the trip.
   You can buy things with them."*, before *"Can you do it, kitty?"*. Told
   the story again (the moon's secret part), he leaves it out and gives none.
@@ -2243,3 +2242,22 @@ the rocket. Decided without asking:
   on both. Down brakes. The cat flying with its helmet (the first trip, to
   the Moon) steers the same way as the rocket.
 - The coins show in the corner under the parts, once there are any.
+
+## Coins hidden in the levels, and none of Bob's parts on the Moon
+
+Asked for: a coin in some levels, 100 coins at most, 20 from Bob, 10 to find
+on the Earth and one on every planet but Pluto, well hidden; the bar at a
+life 20, milk 30, fuel 40; then no parts on the Moon. Decided without
+asking:
+
+- **"100 coins in total" is read as the most you can carry** -- there are
+  only 37 to get (20 + 10 + 7), so it is a ceiling, not a count.
+- **The Earth's ten**: one in each of its nine levels and a second in the
+  city. **Hidden** means high or tucked away, and faint until the cat is
+  near, the way parts are. Several sit beside a spare heart's spot, which
+  is already somewhere that takes getting to.
+- **The Moon's part went back to Jupiter** (its cloud room, where it was
+  before), so there are still ten; the Moon's secret island has the Moon's
+  coin instead. The Moon no longer stays open in space for a missed part.
+- A coin found is kept found for the run, like a part; a game over that
+  goes back to the Moon keeps them too.

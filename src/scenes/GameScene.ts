@@ -250,6 +250,9 @@ export class GameScene extends Phaser.Scene {
   private crumbles: Array<{ tile: Phaser.Types.Physics.Arcade.ImageWithStaticBody; x: number; y: number; timer: number; gone: number }> = [];
   /** Bob's parts lying in this level, not yet taken. */
   private partSprites: Phaser.Types.Physics.Arcade.ImageWithStaticBody[] = [];
+  /** The level's coins still to be found, and every coin found this run, as `<level>:<x>,<y>`. */
+  private coinSprites: Phaser.Types.Physics.Arcade.ImageWithStaticBody[] = [];
+  private coinsFound: string[] = [];
   /** `=` cells inside a moon base, which the base draws as lab benches. */
   private benchCells = new Set<string>();
   /** The internet's cables: each column of `I` cells, and how far it has been scratched through. */
@@ -323,6 +326,7 @@ export class GameScene extends Phaser.Scene {
     rocket?: boolean;
     fuel?: number;
     coins?: number;
+    coinsFound?: string[];
     outside?: GameSnapshot;
     resume?: GameSnapshot;
     viaDoor?: boolean;
@@ -348,6 +352,7 @@ export class GameScene extends Phaser.Scene {
     this.rocket = data.rocket ?? carried?.rocket ?? false;
     this.fuel = data.fuel ?? carried?.fuel ?? 0;
     this.coins = data.coins ?? carried?.coins ?? 0;
+    this.coinsFound = [...(data.coinsFound ?? carried?.coinsFound ?? [])];
     this.outside = data.outside ?? carried?.outside;
     this.resume = data.resume;
     this.viaDoor = data.viaDoor ?? false;
@@ -383,6 +388,7 @@ export class GameScene extends Phaser.Scene {
     this.bob = undefined;
     this.baseRects = [];
     this.partSprites = [];
+    this.coinSprites = [];
     this.partsText = undefined;
     this.coinsText = undefined;
     this.pads = [];
@@ -448,6 +454,7 @@ export class GameScene extends Phaser.Scene {
     this.worms = this.level.mounds.map((mound, index) => new Worm(this, mound, index + 1));
     this.charms = this.buildCharms();
     this.buildParts();
+    this.buildCoins();
     this.checkpoints = this.buildCheckpoints();
     this.respawnPoint = { x: this.level.spawn.x, y: this.level.spawn.y };
 
@@ -490,6 +497,9 @@ export class GameScene extends Phaser.Scene {
       });
       this.physics.add.overlap(this.player, this.partSprites, (_cat, part) => {
         this.takePart(part as Phaser.Types.Physics.Arcade.ImageWithStaticBody);
+      });
+      this.physics.add.overlap(this.player, this.coinSprites, (_cat, coin) => {
+        this.takeCoin(coin as Phaser.Types.Physics.Arcade.ImageWithStaticBody);
       });
 
       this.buildWeather();
@@ -677,6 +687,7 @@ export class GameScene extends Phaser.Scene {
       rocket: this.rocket,
       fuel: this.fuel,
       coins: this.coins,
+      coinsFound: [...this.coinsFound],
       outside: this.outside,
       godMode: isGodMode(this),
     };
@@ -780,6 +791,11 @@ export class GameScene extends Phaser.Scene {
     for (const part of this.partSprites) {
       const near = Phaser.Math.Distance.Between(part.x, part.y, this.player.x, this.player.y - 9) < BOB.partSeen;
       part.setAlpha(near ? 1 : BOB.partFaint);
+    }
+    // And so does a coin.
+    for (const coin of this.coinSprites) {
+      const near = Phaser.Math.Distance.Between(coin.x, coin.y, this.player.x, this.player.y - 9) < BOB.partSeen;
+      coin.setAlpha(near ? 1 : BOB.partFaint);
     }
 
     if (this.shop) {
@@ -1343,6 +1359,7 @@ export class GameScene extends Phaser.Scene {
     rocket: boolean;
     fuel: number;
     coins: number;
+    coinsFound: string[];
     from: string;
   } {
     return {
@@ -1358,6 +1375,7 @@ export class GameScene extends Phaser.Scene {
       rocket: this.rocket,
       fuel: this.fuel,
       coins: this.coins,
+      coinsFound: [...this.coinsFound],
     };
   }
 
@@ -1398,9 +1416,63 @@ export class GameScene extends Phaser.Scene {
     this.refreshParts();
   }
 
-  /** The coins in the HUD. */
+  /** The level's coins (`$`), but not one already found this run. Spinning, like a part. */
+  private buildCoins(): void {
+    if (this.titleMode) {
+      return;
+    }
+    for (const coin of this.level.coins) {
+      const id = `${this.level.name}:${coin.x},${coin.y}`;
+      if (this.coinsFound.includes(id)) {
+        continue;
+      }
+      const sprite = this.physics.add.staticImage(coin.x, coin.y, 'coin').setDepth(7);
+      this.tweens.add({ targets: sprite, scaleX: { from: 1, to: 0.2 }, duration: 500, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+      sprite.setData('coinId', id);
+      this.coinSprites.push(sprite);
+    }
+  }
+
+  /** The cat has found a coin: one more to spend, up to `BOB.maxCoins`. */
+  private takeCoin(sprite: Phaser.Types.Physics.Arcade.ImageWithStaticBody): void {
+    const id = sprite.getData('coinId') as string;
+    if (this.coinsFound.includes(id)) {
+      return;
+    }
+    this.coinsFound.push(id);
+    this.coins = Math.min(this.coins + 1, BOB.maxCoins);
+    sprite.destroy();
+    this.coinSprites = this.coinSprites.filter((other) => other !== sprite);
+    sound.play('checkpoint');
+    this.announceBonus('+1 coin');
+    this.refreshCoins();
+  }
+
+  /** The coins in the HUD: the row comes up the first time there are any. */
   private refreshCoins(): void {
+    if (!this.coinsText && this.coins > 0 && this.scoreText) {
+      this.buildCoinsHud();
+    }
     this.coinsText?.setText(`${this.coins}`);
+  }
+
+  /** The coin and its count, under the parts (or where they would be). */
+  private buildCoinsHud(): void {
+    const y = this.partsText ? TILE * 4 + 8 : TILE * 3 + 2;
+    this.add
+      .image(GAME_WIDTH - TILE - 16, y + 8, 'coin')
+      .setScrollFactor(0)
+      .setDepth(1000);
+    this.coinsText = crispText(this, GAME_WIDTH - TILE - 26, y, '', {
+      fontFamily: 'monospace',
+      fontSize: '14px',
+      color: '#ffd34d',
+      stroke: '#2f2a1a',
+      strokeThickness: 3,
+    })
+      .setOrigin(1, 0)
+      .setScrollFactor(0)
+      .setDepth(1000);
   }
 
   /** The parts count in the HUD: shown once there are parts to find. */
@@ -2720,7 +2792,7 @@ export class GameScene extends Phaser.Scene {
     talk.words.setText(talk.lines[talk.line]);
     // The first time Bob tells his story he gives the cat its coins.
     if (talk.lines[talk.line] === BOB.coinsLine && !this.rocket) {
-      this.coins += BOB.coins;
+      this.coins = Math.min(this.coins + BOB.coins, BOB.maxCoins);
       sound.play('checkpoint');
     }
     const last = talk.line === talk.lines.length - 1;
@@ -4455,23 +4527,9 @@ export class GameScene extends Phaser.Scene {
       this.refreshParts();
     }
 
-    // Bob's coins, under the parts: once there are any.
+    // The coins, under the parts: once there are any.
     if (this.coins > 0) {
-      const y = this.partsText ? TILE * 4 + 8 : TILE * 3 + 2;
-      this.add
-        .image(GAME_WIDTH - TILE - 16, y + 8, 'coin')
-        .setScrollFactor(0)
-        .setDepth(1000);
-      this.coinsText = crispText(this, GAME_WIDTH - TILE - 26, y, '', {
-        fontFamily: 'monospace',
-        fontSize: '14px',
-        color: '#ffd34d',
-        stroke: '#2f2a1a',
-        strokeThickness: 3,
-      })
-        .setOrigin(1, 0)
-        .setScrollFactor(0)
-        .setDepth(1000);
+      this.buildCoinsHud();
       this.refreshCoins();
     }
 
