@@ -795,8 +795,8 @@ in its own way:
 - **Jupiter**: at the end of a cloud ride from the top of a tower, on a
   ledge in the sky. (The room inside the bank of cloud has a spare heart.)
 - **The Moon**: in **a secret place** high above the first stretch, out of
-  sight from the ground — jump straight up where a few hearts lead into the
-  dark, and there is an island of rock with the part on it and two grey
+  sight from the ground — jump up three stone shelves where a few hearts
+  lead into the dark, and there is an island of rock with the part on it and two grey
   blocks with robots coming out. Six more islands of rock hang up there
   along the whole level, well apart, a heart on most, to hop between over
   the moon. While it is still up there the Moon stays
@@ -914,12 +914,13 @@ base, and one on the hills on the horizon.
 **A space helmet**: in space and on the moon the cat wears a glass bubble
 over its head, which stays on in every pose.
 
-**Each world its own gravity**, near enough the real one, as a share of the
-Earth's: the Moon 0.165, Mars 0.38, Venus 0.9, Jupiter 2.53, Saturn 1.07,
-Uranus 0.89, Neptune 1.14, Pluto 0.063. A held jump goes about 86 pixels at
-home; on Jupiter barely 31 — not even two tiles — and on Venus, Uranus,
-Saturn and Neptune about as high as at home; on Mars 233; on the Moon and
-Pluto it floats up to the top of the sky. Robots fall by it too. So that
+**Each world its own gravity**, following the real one but less extreme:
+the real difference from the Earth's, taken at 40% (`GRAVITY_KEEP`). So
+the order is right and the differences keep their proportions — Pluto
+0.63, the Moon 0.67, Mars 0.75, Uranus 0.96, Venus 0.96, Saturn 1.03,
+Neptune 1.06, Jupiter 1.61. A held jump goes about 86 pixels at home; on
+Pluto 140, the Moon 131, Mars 116; on Jupiter 52, just over three tiles.
+Robots fall by it too. So that
 every part can still be found: each rock with a room inside has a **chain
 up its side**, Jupiter's clouds ride **one tile off the floor**, its thorns
 come one at a time, and **bounce pads** throw as high on every world (they

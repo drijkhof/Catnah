@@ -1019,13 +1019,10 @@ export const BAR = {
 } as const;
 
 /**
- * Each world's gravity as a share of the Earth's -- near enough the real
- * one (at the surface, or for the gas giants at the cloud tops). A jump goes
- * as high as one over this: on Pluto a jump floats up off the screen, on
- * Jupiter it is barely two tiles. The levels are built so every part can
- * still be reached on each.
+ * Each world's real gravity as a share of the Earth's (at the surface, or
+ * for the gas giants at the cloud tops).
  */
-export const GRAVITY = {
+export const REAL_GRAVITY = {
   moon: 0.165,
   mars: 0.38,
   venus: 0.9,
@@ -1035,6 +1032,20 @@ export const GRAVITY = {
   neptune: 1.14,
   pluto: 0.063,
 } as const;
+
+/**
+ * How much of the real difference from the Earth each world keeps. The
+ * real one, taken whole, made a jump float off the screen on Pluto and
+ * barely clear two tiles on Jupiter; squeezed in a straight line towards
+ * the Earth's, the order and the proportions of the differences stay, the
+ * extremes do not: Pluto 0.63, the Moon 0.67, Mars 0.75, Jupiter 1.61.
+ */
+export const GRAVITY_KEEP = 0.4;
+
+/** Each world's gravity as a share of the Earth's, as played: see above. */
+export const GRAVITY = Object.fromEntries(
+  Object.entries(REAL_GRAVITY).map(([world, real]) => [world, 1 + GRAVITY_KEEP * (real - 1)]),
+) as { readonly [World in keyof typeof REAL_GRAVITY]: number };
 
 export const EXIT = {
   /** The disc as shown, px. Round, so it can simply be turned. */

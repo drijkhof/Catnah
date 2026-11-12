@@ -12,13 +12,6 @@ Numbers are not reused, which is why there will be gaps.
 
 ---
 
-## 4. Zwaartekracht minder extreem — `todo`
-
-Verschil tussen de planeten mag, maar niet zo extreem als nu. Het moet nog
-kloppen voor de planeet, lineair: de volgorde en de verhoudingen blijven, de
-uitersten worden kleiner. (De zin eindigde met "dus op pluto willen ..." --
-wat daar moest komen staat nog open.)
-
 ## 5. De bar op Pluto als huisje met een binnenkant — `todo`
 
 Op Pluto staat een huisje met een deur. Door de deur kom je in een eigen

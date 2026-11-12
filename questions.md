@@ -2141,6 +2141,15 @@ Pluto 0.063. Decided without asking, so that nothing becomes impossible:
   go early makes it as short as you like.
 - Piranhas still leap as high as on the Earth.
 
+**Later made less extreme**: asked for less variation, still right for the
+planet, "linearly". Each world keeps 40% of its real difference from the
+Earth (`GRAVITY_KEEP`, `GRAVITY = 1 + 0.4 x (real - 1)`): Pluto 0.63, Moon
+0.67, Mars 0.75, Jupiter 1.61. The 40% is a judgement call. The moon's
+secret island got three stone shelves up to it, and two of its high
+islands one shelf each, since a jump no longer reaches them from below.
+**Still open**: the request ended "dus op pluto willen ..." -- what was
+wanted on Pluto is not known.
+
 ## No parts in the water on Neptune
 
 Asked for: on Neptune no parts lying in the water. The underwater cave is
