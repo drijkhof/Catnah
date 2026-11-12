@@ -2170,3 +2170,25 @@ part there and two robot boxes. Decided without asking:
 - The island is solid rock, so it is reached by jumping past its edge and
   steering on, not through it. A trail of four hearts going up is the hint.
 
+
+## The sun, and the worlds going round it
+
+Asked for: a sun you cannot walk on and die near; every planet going round
+it at its logical speed, in proportion, but the slowest still visibly
+moving. Decided without asking:
+
+- **The distances are squeezed**, not real: the real ones would put Pluto
+  a hundred times further out than Venus. The order is right, each orbit
+  far enough from the next that two worlds never overlap.
+- **The times round are real**, in Earth years, with an Earth year of 50
+  seconds (`SPACE.yearMs`). Pluto then moves about a pixel and a half a
+  second; Venus goes round in half a minute.
+- **The Moon is not in proportion**: its real month is 2 Earth-year-days
+  of play, under four seconds round -- it could never be landed on. It
+  takes 40 seconds (`SPACE.moonMonthMs`).
+- **Burning is a death**: a heart lost, set off again beside the world you
+  came from; the last heart is game over and back to the Moon, as for any
+  game over out there. God mode only throws you back.
+- The Death Star stays where it was in space (down and to the right of the
+  middle), now between the orbits of Mars and Jupiter; planets may pass
+  behind it.

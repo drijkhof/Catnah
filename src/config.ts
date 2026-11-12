@@ -570,11 +570,22 @@ export const OBSTACLES = {
   iceGrip: 0.12,
 } as const;
 
+/**
+ * Space. `yearMs` is one Earth year, ms: every world takes its real number
+ * of years to go round the sun, so this sets how fast all of them go -- and
+ * Pluto, at 248 years, still creeps along visibly. `moonMonthMs` is the
+ * Moon's time round the Earth: the real month would be a blur, so it is
+ * slow enough to catch. `sunReach` is how close to the sun's rim the cat
+ * can come before it burns, px.
+ */
 export const SPACE = {
   worldSize: 6000,
   accel: 420,
   maxSpeed: 230,
   drag: 160,
+  yearMs: 50000,
+  moonMonthMs: 40000,
+  sunReach: 24,
 } as const;
 
 /**

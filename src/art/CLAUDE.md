@@ -31,7 +31,7 @@ binary assets but the portal picture and runs straight after clone.
   palette's `night` set, houses and awnings are drawn dark with about half
   the windows lit. Facades come from a fixed list and go round in street
   order, so neighbours always differ.
-- `space.ts` — the stars (three seamless layers), the gas clouds, the
+- `space.ts` — the sun (`space-sun`, `SPACE_SUN_SIZE`, and `space-sun-glow`; not `sun`, which is the forest's), the stars (three seamless layers), the gas clouds, the
   planets (Earth, Moon, Mars, Saturn with its ring split behind and in front,
   Jupiter and two small ones), the moon's hills, the robot and its grey
   block with two cracked stages.

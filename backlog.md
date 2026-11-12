@@ -12,7 +12,29 @@ Numbers are not reused, which is why there will be gaps.
 
 ---
 
+## 3. Geen piranha's op de planeten — `todo`
 
-Nothing else is outstanding. The nearest thing to a list of what could come next
-is the *Still open* notes in [`questions.md`](questions.md) — they are questions
-rather than tickets, and answering them is what would turn them into tickets.
+Piranha's alleen op aarde, op geen enkele andere planeet.
+
+## 4. Zwaartekracht minder extreem — `todo`
+
+Verschil tussen de planeten mag, maar niet zo extreem als nu. Het moet nog
+kloppen voor de planeet, lineair: de volgorde en de verhoudingen blijven, de
+uitersten worden kleiner. (De zin eindigde met "dus op pluto willen ..." --
+wat daar moest komen staat nog open.)
+
+## 5. De bar op Pluto als huisje met een binnenkant — `todo`
+
+Op Pluto staat een huisje met een deur. Door de deur kom je in een eigen
+"bar"-level, waar alleen de bar is. Daar zoomt de camera in, net als bij Bob,
+zodat je echt in de bar zit; weglopen brengt je weer naar buiten.
+
+## 6. Melk vult alle lege hartjes bij — `todo`
+
+Bij de bar op Pluto: melk bestellen vult alle lege hartjes weer bij.
+
+## 7. Raketbenzine voor een tijdje, met een meter — `todo`
+
+Bij de bar op Pluto: raketbenzine maakt de raket veel sneller, maar maar voor
+een tijdje. Naast de hartjes staat een meter die laat zien hoeveel benzine er
+nog is.

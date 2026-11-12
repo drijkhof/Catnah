@@ -49,7 +49,7 @@ export { CASTLE_FLAG_HEADROOM, bakeSandCastle, type CastleCell } from './castle'
 export { PALM_BULGE, bakePalmTrunk } from './palm';
 export { ALIEN_SIZE, BASE_HEADROOM, FLAG_SIZE, LAB_CONSOLE_X, LAB_TANK, bakeMoonBase, baseInside } from './base';
 export { HEAD_IN_POSE, HELMET_SIZE, LANDMARK_SIZES, PAD_SIZE, PART_SIZE, ROCKET_SIZE, bakeCloudPlatform } from './space';
-export { MOON_HILLS_SIZE, PLANET_SIZES, SATURN_RING_SPREAD, STARFIELD_SIZE, type PlanetName } from './space';
+export { MOON_HILLS_SIZE, PLANET_SIZES, SATURN_RING_SPREAD, STARFIELD_SIZE, SPACE_SUN_SIZE, type PlanetName } from './space';
 export { BAR_ALIEN_SIZE, BAR_KEEPER_X, BAR_SIZE, BAR_STOOLS, SHIRT_COLOURS } from './bar';
 export { HACKER_SIZE, MACHINE_SIZE, MACHINE_ZAPPER, NET_ICONS, type NetSite } from './internet';
 export { BENCH_HEADROOM, FOUNTAIN_HEADROOM, PARK_TREE_SIZE, bakeBench, bakeFountain, bakeLawn } from './park';

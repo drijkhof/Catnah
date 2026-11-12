@@ -8,8 +8,12 @@ Phaser scenes. Registered in order in `src/main.ts`; the first one starts.
   update loop.
 - **`SpaceScene`** — between the worlds: the cat (or Bob's rocket) flown
   through space (`SPACE` in `config.ts`), stars scrolled by hand in three
-  pinned layers. Every world hangs there (`WORLDS`, around the Earth) with
-  its name under it; flying into an open one starts its level, with the run
+  pinned layers. The sun is in the middle (`burn` when the cat comes within
+  `SPACE.sunReach` of its rim: a heart, or game over launched over this
+  scene with a restart onto the moon -- `GameOverScene` stops `Space` as
+  well as `Game`). Every world goes round it (`WORLDS`: orbit, Earth years,
+  start angle; `placeOf` and `orbit` every frame, the Moon round the Earth)
+  with its name under it; flying into an open one starts its level, with the run
   carried through untouched. Arrows on the screen's edge point to the open
   worlds out of sight. The ISS circles the Earth, and a battle station and
   a starship drift and fire at each other, never at the cat or a planet.

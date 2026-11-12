@@ -1,8 +1,9 @@
 import Phaser from 'phaser';
-import { BAR, GAME_HEIGHT, GAME_WIDTH, LASER, PARTS, SPACE } from '../config';
+import { BAR, GAME_HEIGHT, GAME_WIDTH, LASER, LIVES, PARTS, SPACE } from '../config';
 import { LEVELS } from '../level/levels';
 import { Controls } from '../input/Controls';
-import { HEAD_IN_POSE, PLANET_SIZES, STARFIELD_SIZE, createRandom, type PlanetName } from '../art';
+import { HEAD_IN_POSE, PLANET_SIZES, STARFIELD_SIZE, SPACE_SUN_SIZE, createRandom, type PlanetName } from '../art';
+import { stats } from '../stats';
 import { sound } from '../audio/Sound';
 import { crispText, type CrispText } from '../text';
 
@@ -24,30 +25,38 @@ interface Carry {
   fuel?: boolean;
 }
 
-/** A world out here: where it hangs, how big, and which level it is. */
+/** A world out here: its orbit, how big, and which level it is. */
 interface World {
   name: PlanetName;
   /** The level it starts, or '' for the Earth, which is never landed on. */
   level: string;
-  x: number;
-  y: number;
+  /** How far out it goes round, px: round the sun, or round the Earth for the Moon. */
+  orbit: number;
+  /** How long one time round takes, in Earth years (the Moon: in `SPACE.moonMonthMs`). */
+  years: number;
+  /** Where on its orbit it is at the start, radians. */
+  angle: number;
   scale: number;
 }
 
 /**
- * Where every world hangs in space, the Earth in the middle. Fly into one
- * that is open and its level starts.
+ * Every world, going round the sun in the middle -- in the right order, at
+ * distances squeezed to fit, and taking the real number of Earth years for
+ * one time round (`SPACE.yearMs` each). Pluto takes 248 of them, and still
+ * creeps along. The Moon goes round the Earth instead, and much more slowly
+ * than the real month, or it could never be caught. Fly into one that is
+ * open and its level starts.
  */
 const WORLDS: World[] = [
-  { name: 'earth', level: '', x: 0, y: 0, scale: 2.6 },
-  { name: 'moon', level: 'Moon', x: 330, y: -190, scale: 1.1 },
-  { name: 'venus', level: 'Venus', x: -650, y: 350, scale: 1.4 },
-  { name: 'mars', level: 'Mars', x: 750, y: -550, scale: 1.5 },
-  { name: 'jupiter', level: 'Jupiter', x: 1500, y: 400, scale: 2 },
-  { name: 'saturn', level: 'Saturn', x: -700, y: -900, scale: 1.5 },
-  { name: 'uranus', level: 'Uranus', x: 500, y: -1500, scale: 1.4 },
-  { name: 'neptune', level: 'Neptune', x: 1700, y: -800, scale: 1.4 },
-  { name: 'pluto', level: 'Pluto', x: -1100, y: -1600, scale: 1.8 },
+  { name: 'earth', level: '', orbit: 750, years: 1, angle: 0.6, scale: 2.6 },
+  { name: 'moon', level: 'Moon', orbit: 290, years: 0, angle: -0.5, scale: 1.1 },
+  { name: 'venus', level: 'Venus', orbit: 360, years: 0.615, angle: 2.4, scale: 1.4 },
+  { name: 'mars', level: 'Mars', orbit: 1150, years: 1.88, angle: -0.9, scale: 1.5 },
+  { name: 'jupiter', level: 'Jupiter', orbit: 1450, years: 11.86, angle: 0.3, scale: 2 },
+  { name: 'saturn', level: 'Saturn', orbit: 1800, years: 29.46, angle: -2.2, scale: 1.5 },
+  { name: 'uranus', level: 'Uranus', orbit: 2100, years: 84.0, angle: -1.4, scale: 1.4 },
+  { name: 'neptune', level: 'Neptune', orbit: 2400, years: 164.8, angle: -0.5, scale: 1.4 },
+  { name: 'pluto', level: 'Pluto', orbit: 2700, years: 248, angle: -2.1, scale: 1.8 },
 ];
 
 /**
@@ -56,8 +65,9 @@ const WORLDS: World[] = [
  * It is **flown**, not walked -- any direction, with the same keys and stick
  * as ever -- through stars in three layers, clouds of glowing gas, the ISS
  * going round the Earth, and a battle station and a starship firing at each
- * other. Nothing out here can hurt it. **Every world hangs out here** with
- * its name under it: fly into an open one and its level starts. The first
+ * other. The **sun** burns in the middle: too close and the cat dies.
+ * **Every world goes round it** with its name under it: fly into an open
+ * one and its level starts. The first
  * time out (from the sand path) only the Moon is open; in Bob's rocket every
  * robots' world is, with its parts found under its name, and the Moon again
  * once all the parts are found. Arrows at the edge of the screen point to
@@ -75,8 +85,12 @@ export class SpaceScene extends Phaser.Scene {
   private helmet!: Phaser.GameObjects.Image;
   private velocity = new Phaser.Math.Vector2();
   private earth = new Phaser.Math.Vector2();
+  /** The middle of space, where the sun is. */
+  private sun = new Phaser.Math.Vector2();
   /** The worlds out here, and whether each can be landed on this time. */
-  private worlds: Array<World & { image: Phaser.GameObjects.Image; open: boolean; radius: number }> = [];
+  private worlds: Array<World & { x: number; y: number; image: Phaser.GameObjects.Image; label: CrispText; open: boolean; radius: number }> = [];
+  /** Burnt by the sun: the cat is gone until it sets off again. */
+  private burning = false;
   /** Arrows at the edge of the screen, pointing at the open worlds out of sight. */
   private arrows!: Phaser.GameObjects.Graphics;
   /** The battle station, and the line that comes up when the cat is near it. */
@@ -118,13 +132,15 @@ export class SpaceScene extends Phaser.Scene {
     this.worlds = [];
     this.labels = [];
     this.deadly = undefined;
+    this.burning = false;
   }
 
   create(): void {
     const size = SPACE.worldSize;
     this.cameras.main.setBackgroundColor('#04050c');
     this.cameras.main.setBounds(0, 0, size, size);
-    this.earth.set(size / 2, size / 2);
+    this.cameras.main.filters.internal.clear();
+    this.sun.set(size / 2, size / 2);
 
     // Stars: pinned to the screen and scrolled by hand, each layer at its
     // own fraction of the camera's movement, so they never run out.
@@ -155,16 +171,29 @@ export class SpaceScene extends Phaser.Scene {
         .setDepth(-90);
     }
 
-    // A few nameless planets far out, for company.
+    // A few nameless planets far out past Pluto, for company. Still.
     for (const kind of ['ice', 'violet', 'ice', 'violet', 'moon', 'ice'] as const) {
       const angle = random() * Math.PI * 2;
-      const distance = 2200 + random() * 500;
+      const distance = 2850 + random() * 60;
       this.planets.push(
         this.add
-          .image(this.earth.x + Math.cos(angle) * distance, this.earth.y + Math.sin(angle) * distance, `planet-${kind}`)
+          .image(this.sun.x + Math.cos(angle) * distance, this.sun.y + Math.sin(angle) * distance, `planet-${kind}`)
           .setScale(0.8 + random())
           .setDepth(-50),
       );
+    }
+
+    // The sun, with a glow round it that swells and shrinks, and a faint
+    // ring along every world's orbit, so the way each one goes is seen.
+    const glow = this.add.image(this.sun.x, this.sun.y, 'space-sun-glow').setDepth(-60).setBlendMode(Phaser.BlendModes.ADD);
+    this.tweens.add({ targets: glow, scale: { from: 1, to: 1.12 }, alpha: { from: 0.85, to: 1 }, duration: 2600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    this.add.image(this.sun.x, this.sun.y, 'space-sun').setDepth(-59);
+    const rings = this.add.graphics().setDepth(-58);
+    rings.lineStyle(1, 0x8aa0d0, 0.18);
+    for (const world of WORLDS) {
+      if (world.name !== 'moon') {
+        rings.strokeCircle(this.sun.x, this.sun.y, world.orbit);
+      }
     }
 
     // The worlds, each with its name under it -- and, in Bob's rocket, how
@@ -175,16 +204,13 @@ export class SpaceScene extends Phaser.Scene {
     const rocket = this.carry.rocket ?? false;
     const complete = (this.carry.parts ?? []).length >= PARTS.total;
     for (const world of WORLDS) {
-      const x = this.earth.x + world.x;
-      const y = this.earth.y + world.y;
-      const image = this.add.image(x, y, `planet-${world.name}`).setScale(world.scale).setDepth(-40);
+      const image = this.add.image(0, 0, `planet-${world.name}`).setScale(world.scale).setDepth(-40);
       const open = world.level === 'Moon' ? !rocket || complete : world.level !== '' && rocket;
       const radius = (PLANET_SIZES[world.name] * world.scale) / 2;
-      this.worlds.push({ ...world, x, y, image, open, radius });
       if (world.level !== 'Moon' && world.level !== '') {
         this.planets.push(image);
       }
-      const text = crispText(this, x, y + radius + 12, '', {
+      const text = crispText(this, 0, 0, '', {
         fontFamily: 'monospace',
         fontSize: '12px',
         color: open ? '#ffe9a8' : '#8a94a8',
@@ -195,14 +221,16 @@ export class SpaceScene extends Phaser.Scene {
         .setDepth(-39);
       this.words.push(text);
       this.labels.push({ level: world.level, text });
+      this.worlds.push({ ...world, x: 0, y: 0, image, label: text, open, radius });
     }
+    this.orbit();
     this.refreshLabels();
 
     // The battle station, far out down and to the right of the Earth --
     // close enough to come across, with no arrow to it: seen,
     // never entered. Come near and the cat says so, in a bubble over its
     // head that follows it about.
-    this.stationHome = new Phaser.Math.Vector2(this.earth.x + 900, this.earth.y + 950);
+    this.stationHome = new Phaser.Math.Vector2(this.sun.x + 900, this.sun.y + 950);
     this.station = this.add.image(this.stationHome.x, this.stationHome.y, 'battle-station').setDepth(-38);
     // And the starship, going round it, the two of them firing at each other.
     this.ship = this.add.image(0, 0, 'starship').setDepth(-37);
@@ -233,20 +261,10 @@ export class SpaceScene extends Phaser.Scene {
     placeIss();
     this.tweens.add({ targets: orbit, angle: orbit.angle + Math.PI * 2, duration: 40000, repeat: -1, onUpdate: placeIss });
 
-    // The cat, just off the world it has come from: the Earth the first
-    // time, the Moon when Bob's rocket takes off, or the planet it has just
-    // left. Off to one side, so it is not straight back in.
-    const home =
-      this.worlds.find((world) => world.level === this.carry.from) ??
-      this.worlds.find((world) => world.level === (this.carry.rocket ? 'Moon' : '')) ??
-      this.worlds[0];
-    const start = new Phaser.Math.Vector2(home.x + home.radius + 50, home.y - 20);
-    this.cat = this.add
-      .image(start.x, start.y, this.carry.rocket ? 'rocket' : 'cat-swim-a')
-      .setDepth(10);
+    this.cat = this.add.image(0, 0, this.carry.rocket ? 'rocket' : 'cat-swim-a').setDepth(10);
     this.arrows = this.add.graphics().setScrollFactor(0).setDepth(200);
     this.helmet = this.add.image(0, 0, 'space-helmet').setDepth(11).setVisible(!this.carry.rocket);
-    this.velocity.set(90, -30);
+    this.setOff();
     this.cameras.main.startFollow(this.cat, true, 0.1, 0.1);
 
     this.controls = new Controls(this);
@@ -289,13 +307,20 @@ export class SpaceScene extends Phaser.Scene {
     }
 
     this.drift();
+    this.orbit();
 
-    if (this.going) {
+    if (this.going || this.burning) {
       return;
     }
 
     this.fly(delta);
     this.pointAtWorlds();
+
+    // Too close to the sun: burnt.
+    if (Phaser.Math.Distance.Between(this.cat.x, this.cat.y, this.sun.x, this.sun.y) < SPACE_SUN_SIZE / 2 + SPACE.sunReach) {
+      this.burn();
+      return;
+    }
 
     // Into the station's beam while it lasts: hit.
     if (this.deadly) {
@@ -336,6 +361,102 @@ export class SpaceScene extends Phaser.Scene {
     this.catBubble.fillTriangle(this.cat.x - 3, y + height, this.cat.x + 3, y + height, this.cat.x, y + height + 5);
     this.catBubble.setAlpha(shown);
     this.stationWords.setPosition(this.cat.x, y + height / 2).setAlpha(shown);
+  }
+
+  /**
+   * Where a world is at a moment, ms: round the sun, or for the Moon round
+   * wherever the Earth is then.
+   */
+  private placeOf(world: World, t: number): Phaser.Math.Vector2 {
+    if (world.name === 'moon') {
+      const earth = this.placeOf(WORLDS[0], t);
+      const a = world.angle + (t / SPACE.moonMonthMs) * Math.PI * 2;
+      return new Phaser.Math.Vector2(earth.x + Math.cos(a) * world.orbit, earth.y + Math.sin(a) * world.orbit);
+    }
+    const a = world.angle + (t / (SPACE.yearMs * world.years)) * Math.PI * 2;
+    return new Phaser.Math.Vector2(this.sun.x + Math.cos(a) * world.orbit, this.sun.y + Math.sin(a) * world.orbit);
+  }
+
+  /**
+   * Every world moved on along its orbit, with its name under it, and
+   * turned so its lit side faces the sun (the pictures are lit from the
+   * left). Not Saturn, whose ring would tip over.
+   */
+  private orbit(): void {
+    const t = this.time.now;
+    for (const world of this.worlds) {
+      const at = this.placeOf(world, t);
+      world.x = at.x;
+      world.y = at.y;
+      world.image.setPosition(at.x, at.y);
+      if (world.name !== 'saturn') {
+        world.image.setRotation(Math.atan2(at.y - this.sun.y, at.x - this.sun.x));
+      }
+      world.label.setPosition(at.x, at.y + world.radius + 12);
+      if (world.name === 'earth') {
+        this.earth.copy(at);
+      }
+    }
+  }
+
+  /**
+   * The cat, just off the world it has come from: the Earth the first
+   * time, the Moon when Bob's rocket takes off, or the planet it has just
+   * left. Behind it on its way round, drifting back, so the world moves
+   * off and the cat is not straight back in.
+   */
+  private setOff(): void {
+    const home =
+      this.worlds.find((world) => world.level === this.carry.from) ??
+      this.worlds.find((world) => world.level === (this.carry.rocket ? 'Moon' : '')) ??
+      this.worlds[0];
+    const now = this.placeOf(home, this.time.now);
+    const way = now.clone().subtract(this.placeOf(home, this.time.now - 100));
+    if (way.lengthSq() === 0) {
+      way.set(1, 0);
+    }
+    way.normalize();
+    this.cat.setPosition(now.x - way.x * (home.radius + 50), now.y - way.y * (home.radius + 50));
+    this.velocity.set(-way.x * 60, -way.y * 60);
+  }
+
+  /**
+   * Too close to the sun: the cat burns. A heart is lost, as for any
+   * death, and it sets off again from where it came. The last heart is
+   * game over -- and, out here, back to the moon.
+   */
+  private burn(): void {
+    if (this.game.registry.get('catnah:god-mode')) {
+      // God mode: felt, and thrown back out, but nothing lost.
+      this.cameras.main.flash(250, 255, 200, 80);
+      this.setOff();
+      return;
+    }
+    this.burning = true;
+    sound.play('hurt');
+    this.cameras.main.shake(260, 0.012);
+    this.cameras.main.flash(300, 255, 200, 80);
+    this.cat.setTint(0xff8040);
+    this.helmet.setTint(0xff8040);
+    this.velocity.set(0, 0);
+    const lives = (this.carry.lives ?? LIVES) - 1;
+    this.carry = { ...this.carry, lives, deaths: (this.carry.deaths ?? 0) + 1 };
+    stats.addDeath();
+    this.time.delayedCall(650, () => {
+      if (lives <= 0) {
+        this.cameras.main.filters.internal.addColorMatrix().colorMatrix.grayscale(1);
+        this.scene.pause();
+        const moon = LEVELS.findIndex((level) => level.theme === 'moon');
+        this.scene.launch('GameOver', {
+          restart: { ...this.carry, levelIndex: moon, from: '', lives: LIVES, maxLives: Math.max(LIVES, this.carry.maxLives ?? LIVES) },
+        });
+        return;
+      }
+      this.cat.clearTint();
+      this.helmet.clearTint();
+      this.setOff();
+      this.burning = false;
+    });
   }
 
   /**
@@ -404,6 +525,7 @@ export class SpaceScene extends Phaser.Scene {
     return [
       { x: this.cat.x, y: this.cat.y, r: LASER.clearance },
       { x: this.earth.x, y: this.earth.y, r: 260 },
+      { x: this.sun.x, y: this.sun.y, r: SPACE_SUN_SIZE / 2 + 60 },
       ...this.worlds.map((world) => ({ x: world.x, y: world.y, r: world.radius + 40 })),
       ...this.planets.map((planet) => ({ x: planet.x, y: planet.y, r: planet.displayWidth / 2 + 40 })),
     ];

@@ -683,12 +683,22 @@ space.
 
 Not a level: a flight. You **fly** the cat yourself, any direction, with
 the same keys and stick as walking — through stars in three layers, clouds
-of glowing gas, a trail of sparks behind you. Nothing out here can hurt
-you, and the run's clock does not count while you fly.
+of glowing gas, a trail of sparks behind you. The run's clock does not
+count while you fly.
 
-**Every world hangs out here**: the Earth in the middle, the Moon beside
-it, and around them Venus, Mars, Jupiter, Saturn, Uranus, Neptune and
-Pluto, each with its name under it. **Fly into a world and its level
+**The sun** burns in the middle of space, in a big orange glow. You cannot
+land on it: **fly too close and the cat burns** — a heart lost, like any
+death, and you set off again beside the world you came from. Burning on the
+last heart is game over, and you start again on the Moon.
+
+**Every world goes round the sun**, in its real order — Venus, the Earth
+with the Moon going round it, Mars, Jupiter, Saturn, Uranus, Neptune and
+Pluto — each on a faint ring that shows its orbit, with its name under it.
+Each takes its real number of Earth years to go round (an Earth year is 50
+seconds): Venus whizzes, Jupiter is slow, and Pluto, at 248 years, only
+just creeps along, but you can see it move. The Moon goes round the Earth
+once every 40 seconds — the real month would be too fast to catch. Each
+world turns its lit side to the sun. **Fly into a world and its level
 starts** — if it is open: the name is gold when it is, grey when it is not.
 Arrows at the edge of the screen point the way to the open worlds you
 cannot see.
@@ -702,10 +712,11 @@ cannot see.
   the Moon!"*
 - **Never the Earth.**
 
-You set off beside the world you have just left.
+You set off beside the world you have just left, behind it on its way
+round, so it moves off without you.
 
 Out there you can see, but never land on, the **ISS** going round the Earth
-and a **battle station** — the Death Star — hanging in space: an **easter egg**, with no arrow and no name, far out down and to the right of the Earth, there to be found. Fly near it
+and a **battle station** — the Death Star — hanging in space: an **easter egg**, with no arrow and no name, far out down and to the right of the sun, between the orbits of Mars and Jupiter, there to be found. Fly near it
 and the cat says, in a little bubble over its head: *"That's no moon..."*.
 A **starship** — the Enterprise — goes slowly round the station, and the
 station drifts slowly too. They fire at each other: every ten seconds the

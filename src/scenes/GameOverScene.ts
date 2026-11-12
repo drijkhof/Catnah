@@ -103,6 +103,8 @@ export class GameOverScene extends Phaser.Scene {
 
     this.leaving = true;
     if (this.restart) {
+      // From a level, or burnt by the sun out in space: whichever is under it.
+      this.scene.stop('Space');
       this.scene.stop('Game');
       this.scene.start('Game', this.restart);
       return;
