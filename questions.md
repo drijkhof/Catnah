@@ -2115,6 +2115,21 @@ without asking:
   kept out of it like the moon base.
 - The menu is picked by tapping, or left/right and jump: no new buttons.
 
+**Later made a hut with an inside**, as asked: on Pluto a hut with a door;
+through the door, a level of its own with only the bar, zoomed in like
+Bob's talk; walking out, back outside. Decided without asking:
+
+- **Walking into the doorway** goes through it, no button; arriving in a
+  doorway does not send you straight back (you have to step out of it
+  first).
+- **Pluto is remembered as you left it** -- hearts taken, checkpoint, the
+  cat in the doorway -- so going in and out is not a way to collect its
+  hearts again. Robots and grey blocks do start over.
+- **The helmet stays on inside**: it is still Pluto, and a game over in
+  there is a game over in space.
+- Zoomed in twice; the HUD and the bar's menu are drawn by a second camera
+  that does not zoom, so they stay where they always are.
+
 **Later changed**, as asked: milk fills every empty heart, and rocket fuel
 lasts a while with a meter beside the hearts. Decided without asking: a
 tank is **20 seconds of flying with the thrust on** (`BAR.fuelMs`) --

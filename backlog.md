@@ -12,9 +12,4 @@ Numbers are not reused, which is why there will be gaps.
 
 ---
 
-## 5. De bar op Pluto als huisje met een binnenkant — `todo`
-
-Op Pluto staat een huisje met een deur. Door de deur kom je in een eigen
-"bar"-level, waar alleen de bar is. Daar zoomt de camera in, net als bij Bob,
-zodat je echt in de bar zit; weglopen brengt je weer naar buiten.
-
+Nothing is outstanding right now.

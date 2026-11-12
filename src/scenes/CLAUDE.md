@@ -31,6 +31,15 @@ Phaser scenes. Registered in order in `src/main.ts`; the first one starts.
   Bob; the talk sends the parts flying into its funnel, and the end of it
   zaps the cat into the first internet level. Everything made during a talk
   has to be ignored by the bubble's camera, or it is drawn twice.
+- **Doors and the inside of a house** (`buildDoors`, `stepDoors`,
+  `goThroughDoor`): walking into a doorway starts the other side, with
+  `outside` (the level left, as a `GameSnapshot`) or `resume` (put back
+  with `restoreState`) in the carry, and `viaDoor` so it fades in with no
+  portal. Inside (`level.inside`) the main camera zooms (`BAR.insideZoom`)
+  and `hudCamera`, unzoomed, draws everything pinned to the screen at depth
+  0 or more; `sortCameras` hands every object to one or the other each
+  frame, since things are made all the time. `create` sets the main
+  camera's zoom every time: it outlives a restart.
 - **The bar on Pluto** (`buildBars`, `meetKeeper`, `openShop`, `stepShop`, `chooseInShop`): standing at the keeper opens a menu pinned to the screen (no zoom); buying spends `collected`. Rocket fuel is the run's `fuel`, ms of thrust left (`BAR.fuelMs` a tank), carried to `SpaceScene`, where while it lasts it multiplies thrust, top speed and drag by `BAR.fuelBoost` and burns down while the thrust is on. `FuelMeter` (`src/fuelMeter.ts`) shows it beside the hearts in both scenes; `SpaceScene.refreshHud` draws the hearts out there.
 - **Cables and hackers** (`buildCables`/`stepCables`/`snapCable`,
   `buildHackers`/`stepHackers`): a cable column scratched through by holding

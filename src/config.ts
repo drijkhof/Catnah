@@ -1017,6 +1017,9 @@ export const BAR = {
   fuelBoost: 10,
   /** How long a tank of it lasts, ms of flying with the thrust on. */
   fuelMs: 20000,
+  /** Inside the bar, how close up the view is, and the fade through its door, ms. */
+  insideZoom: 2,
+  doorMs: 350,
   replyMs: 2200,
 } as const;
 

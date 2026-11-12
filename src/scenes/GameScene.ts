@@ -15,7 +15,7 @@ import { KEEP_LIVE, addGroundShade, bakeScenery, createBackdrop } from '../world
 import { parseLevel, type ClimbZone, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
 import { TITLE } from '../level/levels/title';
-import { BAR_KEEPER_X, BAR_SIZE, BAR_STOOLS, SHIRT_COLOURS, HACKER_SIZE, MACHINE_SIZE, MACHINE_ZAPPER, BENCH_HEADROOM, FOUNTAIN_HEADROOM, bakeBench, bakeFountain, bakeLawn, BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, CASTLE_FLAG_HEADROOM, PAD_SIZE, BRANCH_THICKNESS, bakeCloudPlatform, HEAD_IN_POSE, BASE_HEADROOM, LAB_CONSOLE_X, LAB_TANK, baseInside, bakeMoonBase, AWNING_BULGE, HOUSE_HEADROOM, bakeAwning, bakeHouse, GRASS_FRINGE_HEIGHT, JELLY_SIZE, LOG_BULGE, PALM_BULGE, PALM_CROWN_ANCHOR, PALM_CROWN_SIZE, bakePalmTrunk, bakeSandCastle, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeCactus, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
+import { BAR_KEEPER_X, BAR_SIZE, BAR_STOOLS, HUT_DOOR, HUT_SIZE, SHIRT_COLOURS, HACKER_SIZE, MACHINE_SIZE, MACHINE_ZAPPER, BENCH_HEADROOM, FOUNTAIN_HEADROOM, bakeBench, bakeFountain, bakeLawn, BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, CASTLE_FLAG_HEADROOM, PAD_SIZE, BRANCH_THICKNESS, bakeCloudPlatform, HEAD_IN_POSE, BASE_HEADROOM, LAB_CONSOLE_X, LAB_TANK, baseInside, bakeMoonBase, AWNING_BULGE, HOUSE_HEADROOM, bakeAwning, bakeHouse, GRASS_FRINGE_HEIGHT, JELLY_SIZE, LOG_BULGE, PALM_BULGE, PALM_CROWN_ANCHOR, PALM_CROWN_SIZE, bakePalmTrunk, bakeSandCastle, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeCactus, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { GOD_MODE_KEY, installGodMode, isGodMode } from '../dev/godMode';
@@ -93,6 +93,21 @@ export class GameScene extends Phaser.Scene {
   private fuelMeter?: FuelMeter;
   /** The barkeeper on Pluto, and whether the cat is still standing where he last asked. */
   private keeper?: { sprite: Phaser.GameObjects.Sprite; floor: number; near: boolean };
+  /**
+   * Doors (`n`): where each doorway is. A door works once the cat has been
+   * out of every doorway since it arrived, so arriving in one does not send
+   * it straight back through.
+   */
+  private doors: Phaser.Geom.Rectangle[] = [];
+  private doorArmed = false;
+  /** Inside a house: the level outside as the cat left it, to go back to. */
+  private outside?: GameSnapshot;
+  /** Coming back out through a door: the level as it was left, to put back. */
+  private resume?: GameSnapshot;
+  /** Came in through a door rather than a portal: no portal to arrive by. */
+  private viaDoor = false;
+  /** Inside a house the view is close up; this camera draws the HUD unzoomed over it. */
+  private hudCamera?: Phaser.Cameras.Scene2D.Camera;
   /** The bar's menu, while it is open. */
   private shop?: {
     panel: Phaser.GameObjects.Graphics;
@@ -304,6 +319,9 @@ export class GameScene extends Phaser.Scene {
     parts?: string[];
     rocket?: boolean;
     fuel?: number;
+    outside?: GameSnapshot;
+    resume?: GameSnapshot;
+    viaDoor?: boolean;
   }): void {
     this.titleMode = data.title ?? false;
     // The scene instance is reused from run to run, so a flag set on the
@@ -325,6 +343,9 @@ export class GameScene extends Phaser.Scene {
     this.parts = [...(data.parts ?? carried?.parts ?? [])];
     this.rocket = data.rocket ?? carried?.rocket ?? false;
     this.fuel = data.fuel ?? carried?.fuel ?? 0;
+    this.outside = data.outside ?? carried?.outside;
+    this.resume = data.resume;
+    this.viaDoor = data.viaDoor ?? false;
 
     // God mode lives in the registry, and a hot reload builds a new game
     // with a new registry: it rides in the snapshot and is put back here,
@@ -347,6 +368,9 @@ export class GameScene extends Phaser.Scene {
     this.cables = [];
     this.keeper = undefined;
     this.shop = undefined;
+    this.doors = [];
+    this.doorArmed = false;
+    this.hudCamera = undefined;
     this.cableTiles = new Map();
     this.hackers = [];
     this.machine = undefined;
@@ -379,14 +403,19 @@ export class GameScene extends Phaser.Scene {
       this.level.heightInPixels + FALL_OUT_MARGIN * 2,
     );
 
-    createBackdrop(
-      this.level.theme,
-      this,
-      this.level,
-      this.level.widthInPixels,
-      this.level.groundLine,
-      this.level.heightInPixels,
-    );
+    if (this.level.inside) {
+      // Inside a house: its own wall all round, not the sky outside.
+      this.add.tileSprite(0, 0, this.level.widthInPixels, this.level.heightInPixels, 'bar-wall').setOrigin(0, 0).setDepth(-50);
+    } else {
+      createBackdrop(
+        this.level.theme,
+        this,
+        this.level,
+        this.level.widthInPixels,
+        this.level.groundLine,
+        this.level.heightInPixels,
+      );
+    }
 
     const { blocks, branches } = this.buildSolids();
     // Added straight after the tiles and before anything that stands on them,
@@ -475,6 +504,12 @@ export class GameScene extends Phaser.Scene {
       this.cameras.main.startFollow(this.player, true, 0.12, 0.14);
       this.cameras.main.setDeadzone(140, 44);
     }
+    // The camera is one object for the scene's life: a zoom from inside a
+    // house would otherwise carry on outside.
+    this.cameras.main.setZoom(this.level.inside && !this.titleMode ? BAR.insideZoom : 1);
+    if (this.level.inside && !this.titleMode) {
+      this.cameras.main.setDeadzone(40, 30);
+    }
 
     this.buildCreatures(blocks, branches);
     this.buildObstacles();
@@ -498,9 +533,20 @@ export class GameScene extends Phaser.Scene {
     // out of black, the way the last one went down into it. A hot reload
     // does not: the player never left.
     if (!this.registry.has(SNAPSHOT_KEY)) {
-      this.arrive();
+      if (this.viaDoor) {
+        this.blackout(1, 0, EXIT.fadeInMs);
+      } else {
+        this.arrive();
+      }
     }
     this.resumeFromHotReload();
+    // Back out through a door: everything as it was left -- the hearts taken,
+    // the checkpoint -- and the cat in the doorway.
+    if (this.resume && this.resume.levelIndex === this.levelIndex) {
+      this.restoreState(this.resume);
+      this.resume = undefined;
+    }
+    this.buildHudCamera();
   }
 
   /**
@@ -624,6 +670,7 @@ export class GameScene extends Phaser.Scene {
       parts: [...this.parts],
       rocket: this.rocket,
       fuel: this.fuel,
+      outside: this.outside,
       godMode: isGodMode(this),
     };
   }
@@ -745,7 +792,9 @@ export class GameScene extends Phaser.Scene {
     if (!this.titleMode && !this.dying && !this.leaving) {
       this.meetBob();
       this.meetKeeper();
+      this.stepDoors();
     }
+    this.sortCameras();
 
     const cat = new Phaser.Math.Vector2(this.player.x, this.player.y);
 
@@ -2019,6 +2068,7 @@ export class GameScene extends Phaser.Scene {
     this.buildBases();
     this.buildPark();
     this.buildBars();
+    this.buildDoors();
     this.buildCables();
     this.buildHackers();
     this.buildLogs();
@@ -2887,6 +2937,99 @@ export class GameScene extends Phaser.Scene {
       this.baseRects.push(new Phaser.Geom.Rectangle(left, floor - BAR_SIZE.height, BAR_SIZE.width, BAR_SIZE.height));
       this.keeper = { sprite: keeper, floor, near: false };
     });
+  }
+
+  /**
+   * The doors (`n`). Outside, each is the doorway of a hut -- the bar on
+   * Pluto -- drawn round it; inside a house, the door back out. Robots keep
+   * out of a hut, as out of the bar and the moon base.
+   */
+  private buildDoors(): void {
+    for (const door of this.level.doors) {
+      if (this.level.inside) {
+        this.add.image(door.x, door.y, 'bar-door').setOrigin(0.5, 1).setDepth(-0.35);
+      } else {
+        const left = door.x - HUT_DOOR.x - HUT_DOOR.width / 2;
+        this.add.image(left, door.y, 'pluto-hut').setOrigin(0, 1).setDepth(-0.35);
+        this.baseRects.push(new Phaser.Geom.Rectangle(left, door.y - HUT_SIZE.height, HUT_SIZE.width, HUT_SIZE.height));
+      }
+      this.doors.push(new Phaser.Geom.Rectangle(door.x - 6, door.y - HUT_DOOR.height, 12, HUT_DOOR.height));
+    }
+  }
+
+  /**
+   * Walking into a doorway goes through it -- once the cat has been out of
+   * every doorway since it arrived, so arriving in one is not a way straight
+   * back.
+   */
+  private stepDoors(): void {
+    if (this.doors.length === 0 || this.shop || this.talk) {
+      return;
+    }
+    const inDoor = this.doors.some((door) => door.contains(this.player.x, this.player.body.bottom - 4));
+    if (!inDoor) {
+      this.doorArmed = true;
+      return;
+    }
+    if (this.doorArmed && this.player.body.blocked.down) {
+      this.goThroughDoor();
+    }
+  }
+
+  /**
+   * Through a door. Into a house: the level outside is remembered as it is,
+   * the cat in the doorway, and the house's level starts. Out of one: the
+   * level outside starts again as it was left.
+   */
+  private goThroughDoor(): void {
+    this.leaving = true;
+    this.player.setVelocity(0, 0);
+    sound.play('whoosh');
+    let next: object;
+    if (this.level.inside) {
+      const outside = LEVELS.findIndex((level) => level.name === this.level.inside);
+      next = { ...this.carry(outside), resume: this.outside, viaDoor: true };
+    } else {
+      const inside = LEVELS.findIndex((level) => level.inside === this.level.name);
+      const snapshot = this.captureState();
+      next = {
+        ...this.carry(inside),
+        outside: snapshot && { ...snapshot, velocityX: 0, velocityY: 0 },
+        viaDoor: true,
+      };
+    }
+    this.blackout(0, 1, BAR.doorMs, () => this.scene.start('Game', next));
+  }
+
+  /**
+   * Inside a house the main camera is zoomed in, and anything pinned to the
+   * screen in front -- the HUD, the touch buttons, the bar's menu, the fades
+   * -- would be zoomed with it and pushed off its place. So a second camera
+   * that does not zoom draws those, and the main one everything else.
+   */
+  private buildHudCamera(): void {
+    if (!this.level.inside || this.titleMode) {
+      return;
+    }
+    this.hudCamera = this.cameras.add(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    this.sortCameras();
+  }
+
+  /** Each object to the camera that draws it: see `buildHudCamera`. Every frame, as things come and go. */
+  private sortCameras(): void {
+    const hud = this.hudCamera;
+    if (!hud) {
+      return;
+    }
+    const main = this.cameras.main;
+    for (const child of this.children.list) {
+      const pinned = child as unknown as { scrollFactorX?: number; depth?: number };
+      if (pinned.scrollFactorX === 0 && (pinned.depth ?? 0) >= 0) {
+        main.ignore(child);
+      } else {
+        hud.ignore(child);
+      }
+    }
   }
 
   /** Standing in front of the keeper, on the floor, opens the menu -- once, until the cat walks off and back. */

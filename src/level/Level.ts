@@ -65,6 +65,9 @@ export type CrowBehaviour = 'attack' | 'flyby' | 'swoop';
  *   `S`  the same, ten times the size. One of them, guarding the cave's heart
  *   `X`  the boss, which guards the end of the level it is placed in
  *   `a`  the aliens' bar, standing on the floor from this cell rightwards
+ *   `n`  a door, on the floor: outside, a hut with this as its doorway,
+ *        leading into the level that is its inside (`inside`); in that
+ *        level, the door back out
  *   `I`  cable, inside the internet -- solid until scratched through
  *   `<` `>` `U` `H`  a hacker on the dark web, its sign pointing left, right,
  *        up or down: always the wrong way
@@ -121,6 +124,11 @@ export interface LevelDefinition {
   next?: 'space' | 'victory';
   /** Whether the cat wears a space helmet here: there is no air. */
   helmet?: boolean;
+  /**
+   * The name of the level this one is the inside of, through a door (`n`):
+   * a room, seen close up, whose door goes back out to where the cat came in.
+   */
+  inside?: string;
   /**
    * Gravity here against the Earth's: 1 on Earth, less on every other world,
    * so the cat jumps higher there. Everything falls by it, the cat and the
@@ -247,6 +255,9 @@ export interface ParsedLevel {
   portalPull: number;
   next: 'space' | 'victory' | null;
   helmet: boolean;
+  inside: string | null;
+  /** Doors (`n`): the middle of the cell's floor. */
+  doors: Point[];
   /** Gravity against the Earth's: 1, or less off the Earth. */
   gravity: number;
   slippery: boolean;
@@ -368,6 +379,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const flags: Point[] = [];
   const benches: Point[] = [];
   const bars: Point[] = [];
+  const doors: Point[] = [];
   const cables: Point[] = [];
   const hackers: Array<Point & { points: 'left' | 'right' | 'up' | 'down' }> = [];
   const fountains: Point[] = [];
@@ -596,6 +608,10 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
 
         // The aliens' bar: a picture standing on the floor from this cell
         // rightwards, with a barkeeper to order from. Walked in front of.
+        case 'n':
+          doors.push({ x: x + TILE / 2, y: y + TILE });
+          break;
+
         case 'a':
           bars.push({ x, y: y + TILE });
           break;
@@ -840,6 +856,8 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     portalPull: definition.portalPull ?? 0,
     next: definition.next ?? null,
     helmet: definition.helmet ?? false,
+    inside: definition.inside ?? null,
+    doors,
     gravity: definition.gravity ?? 1,
     slippery: definition.slippery ?? false,
     bouncePads,

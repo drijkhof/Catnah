@@ -864,8 +864,16 @@ you**: lightning from the zapper, the screen goes white, and you are inside
 
 ### The bar on Pluto
 
-At the start of Pluto stands **a bar**: a round hut of ice blocks with
-**BAR** in pink neon over it, bottles on a shelf, a counter with red
+At the start of Pluto stands **a little hut** of ice blocks with **BAR** in
+pink neon on its roof, an alien looking out of its round window, and a
+warm, lit **door**. **Walk in through the door** and you are **inside**:
+the view zooms in close, so you are really in the bar — a room of warm
+planks with a string of coloured lights, the door you came in by on the
+left. **Walk back out through it** and you are on Pluto again, in the
+doorway, with everything as you left it (the little hearts you took stay
+taken).
+
+Inside is the bar itself: **BAR** in pink neon over it, bottles on a shelf, a counter with red
 stools, and **aliens** on the stools in **summer T-shirts** — coral,
 turquoise, yellow, pink, green, with a flower on — bobbing to music. Behind
 the counter the barkeeper, in a white shirt and bow tie. Robots never come

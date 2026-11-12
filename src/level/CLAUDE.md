@@ -40,7 +40,8 @@ its platforms must attach to a column. Everything else is derived.
 | `m`, `~` | a **moving platform** (Jupiter): a run of `m` is the platform, one-way like a branch, and the `m` and `~` of the run together are the track it slides along, back and forth, carrying a cat that stands on it |
 | `Z` | **crumbling ice** (Pluto): solid until stood on, then it shakes for `crumbleMs`, falls, and is back after `crumbleBackMs`. Not part of the ground, so it can go |
 | `F` | an American flag planted in the dust. Scenery only, at the cell's floor |
-| `a` | the aliens' **bar** (Pluto): its picture stands on the floor from this cell rightwards (`BAR_SIZE`), with the keeper to order from (`BAR`); robots are fenced out of it |
+| `a` | the aliens' **bar** (inside its hut on Pluto): its picture stands on the floor from this cell rightwards (`BAR_SIZE`), with the keeper to order from (`BAR`); robots are fenced out of it |
+| `n` | a **door**, the middle of its cell's floor. In a level with no `inside`, the doorway of a hut (`pluto-hut`) leading into the level whose `inside` names this one; in that level, the door back out. Walked into, not pressed |
 | `I` | a **cable** (the internet): solid, a column of `I` is one cable with a plug on top; holding down against it for `INTERNET.scratchMs` scratches it through and the whole column goes. Not in `FULL_CELL`, like `D` |
 | `<` `>` `U` `H` | a **hacker** (the dark web) standing on the cell's floor, its sign pointing left, right, up or down: always the wrong way. Harmless; calls out when the cat comes near |
 | `b` | a park bench; its seat is a one-way ledge (`PARK.benchSeat`), so the cat stands on it and rats run under. A run of cells is one bench |
@@ -294,6 +295,13 @@ jump-release and swim gravity are scaled off the world's, not `CAT.gravity`.
 (`GameScene.buildHelmet`); `SpaceScene` puts it on in space.
 
 ## Into the internet, and out
+
+**A level can be the inside of another** (`inside: 'Pluto'`): the bar
+behind the hut's door (`pluto-bar.ts`, right after Pluto in `LEVELS`). It
+has no backdrop -- the `bar-wall` covers it -- and is seen zoomed in. Going
+in, the outside level's `captureState` rides along as `outside`; coming out,
+it comes back as `resume` and `restoreState` puts it back, the same way a
+hot reload does.
 
 The five internet levels come after Pluto in `LEVELS`, reached only by
 Bob's machine (`GameScene.zapTheCat` starts the first `youtube` theme

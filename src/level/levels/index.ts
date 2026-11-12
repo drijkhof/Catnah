@@ -16,6 +16,7 @@ import { VENUS } from './venus';
 import { URANUS } from './uranus';
 import { NEPTUNE } from './neptune';
 import { PLUTO } from './pluto';
+import { PLUTO_BAR } from './pluto-bar';
 import { YOUTUBE } from './youtube';
 import { INSTA } from './insta';
 import { FACEBOOK } from './facebook';
@@ -39,6 +40,7 @@ import { DARKWEB } from './darkweb';
  the end of the game. Mars and Saturn, and the other worlds the robots hold -- Jupiter, Venus,
  Uranus, Neptune and Pluto, with no parts on them -- are only reached from the
  map; their
- place in this list is only so there is one.
+ place in this list is only so there is one. So is the bar's, inside its
+ hut on Pluto, which is only reached through its door.
  */
-export const LEVELS: LevelDefinition[] = [CITY, FOREST, CANOPY, SWAMP, CAVE, VOLCANO, DESERT, BEACH, PATH, MOON, MARS, SATURN, JUPITER, VENUS, URANUS, NEPTUNE, PLUTO, YOUTUBE, INSTA, FACEBOOK, CATNAH, DARKWEB];
+export const LEVELS: LevelDefinition[] = [CITY, FOREST, CANOPY, SWAMP, CAVE, VOLCANO, DESERT, BEACH, PATH, MOON, MARS, SATURN, JUPITER, VENUS, URANUS, NEPTUNE, PLUTO, PLUTO_BAR, YOUTUBE, INSTA, FACEBOOK, CATNAH, DARKWEB];
