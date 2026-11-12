@@ -918,6 +918,9 @@ and hearts (Insta, pink, orange and purple), thumbs up and chat bubbles
 red, yellow and green), and on the
 dark web skulls and locks, with green code falling behind. No real logos.
 
+- **More in the way** on every site: extra beds of spikes, extra holes in
+  the board and blocks to jump onto, three to six more per level, often
+  two close together (a hole and then spikes, spikes and then a block).
 - **Cables** stand across the way, twelve tiles tall with a plug on top:
   too tall to jump, even with a wall jump. **Scratch through them with your
   claws**: hold down against one — pressed to its side, or standing on it

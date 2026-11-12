@@ -2275,3 +2275,11 @@ Google now; its look went with it -- the orange of the cat became a white,
 bright board with a blue line, and the paws and cat faces in the sky became
 magnifying glasses and search bars with four coloured dots. No real logo,
 like the other sites. The layout is unchanged.
+
+## More obstacles on the internet
+
+Asked for: more obstacles in the internet levels. Added by hand on the
+floor of each, in the stretches that were empty: YouTube six (spikes, a
+block, a hole, a three-tall block before the exit), Insta four, Facebook
+three, Google three, the dark web four. Still only spikes as enemies, as
+asked before; every exit still reachable.
