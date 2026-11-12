@@ -192,10 +192,7 @@ It is not a patrol and not a gatekeeper. `Boss.step` runs four phases:
   not tweened: a tween that did not run left a dead beetle hanging in the
   air. The scene forgets a boss that is no longer `active` and opens the level's
   portals (`openExits`: hidden and not enterable in any level with an `X`
-  until then; `respawnBoss` closes them again), and
-  `respawnBoss` (shift-click the level name, dev only) puts a fresh one back
-  through the same `spawnBoss` the level build uses, and the cat back at its
-  respawn point.
+  until then).
 
 **Its spots are its lives.** `GameScene` checks its body against the thorn
 rectangles every stepped frame and calls `sting()`: one spot off (`spots`,

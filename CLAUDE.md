@@ -171,8 +171,8 @@ instead of scrolling with the world, plus a high `setDepth` to stay on top.
   turns gold while it is on. Development only — see `src/dev/CLAUDE.md`.
 - **Skipping a level**: Cmd-click the level name for the next one, Ctrl-click
   for the previous. Development only.
-- **Respawning the beetle**: Shift-click the level name; the cat goes back to
-  its respawn point too. Development only.
+- **Going to space**: Shift-click the level name; the run goes with you.
+  Development only.
 - **Dev test levels**: none at the moment. See `src/level/CLAUDE.md` for how
   to add one.
 - **Clearing the records and totals**: `stats.reset()` in the console

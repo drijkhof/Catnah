@@ -19,7 +19,7 @@ import { BAR_KEEPER_X, BAR_SIZE, BAR_STOOLS, SHIRT_COLOURS, HACKER_SIZE, MACHINE
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { GOD_MODE_KEY, installGodMode, isGodMode } from '../dev/godMode';
-import { installBossRespawn } from '../dev/bossRespawn';
+import { installSpaceShortcut } from '../dev/spaceShortcut';
 import { sound, type Ambience, type SoundMode } from '../audio/Sound';
 import { SNAPSHOT_KEY, type GameSnapshot } from '../dev/hot';
 import { formatClock, scoreMs } from '../score';
@@ -1629,20 +1629,11 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
-   * Puts the beetle back, spots and all, and the cat back at its respawn
-   * point -- the level's start, or the last checkpoint. Development only,
-   * off the level name: a boss that can die needs a way to be fought again
-   * from the top, without walking the whole level.
+   * Out into space from wherever the cat is, the run carried as it is.
+   * Development only, off the level name: see `dev/spaceShortcut.ts`.
    */
-  respawnBoss(): void {
-    if (!this.level.boss) {
-      return;
-    }
-    this.boss?.destroy();
-    this.boss = this.spawnBoss(this.level.boss);
-    this.closeExits();
-    this.player.respawnAt(this.respawnPoint.x, this.respawnPoint.y);
-    this.cameras.main.centerOn(this.player.x, this.player.y);
+  goToSpace(): void {
+    this.scene.start('Space', this.carry(this.levelIndex));
   }
 
   /**
@@ -4267,8 +4258,8 @@ export class GameScene extends Phaser.Scene {
     this.levelName = levelName;
     if (import.meta.env.DEV) {
 
-      // Puts the beetle back. See `dev/bossRespawn.ts`.
-      installBossRespawn(this, levelName);
+      // Straight out into space. See `dev/spaceShortcut.ts`.
+      installSpaceShortcut(this, levelName);
     }
 
     this.refreshLives();
