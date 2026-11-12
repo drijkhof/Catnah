@@ -26,7 +26,7 @@ import { GRAVITY } from '../../config';
  * - **Robots** (`h`, the hedgehog's letter, on the moon) roll about and
  *   come for the cat once they see it, wanting to grab it.
  * - **Grey blocks** (`D`) are where they come from: one climbs out every
- *   fifteen seconds while the cat is near. Hold down on or beside a block and
+ *   thirty seconds while the cat is near, one at a time. Hold down on or beside a block and
  *   it breaks, and nothing comes out of it again.
  */
 
@@ -63,8 +63,8 @@ const ROWS: string[] = [
   '..........................................=====...................................ooo....o.QQQRRRGGGGGGGG........====..........RRR..TGGG.....ooo......=====......M...====.......M',
   '......ooo........................................D......................................GGGQQQRRRGGGGGGGG...===................RRR..TGGG.........................M..............M',
   '..........................RR....................RRR.........................RR..........GGGQQQRRRGGGGGGGG......................RRR..TGGG',
-  '..P.....F...D.............RR.....D....h.........RRR..*..........D.D.....h...RR..D.......GGGQQQRRRGGGGGGGG..................*...RRRD.TGGG...D....h..D........D..F..........oo.*',
-  '##################.ooo.##################################.h...##################################################..hoo.h..##########################################################',
+  '..P.....F...D.............RR.....D....h.........RRR..*..........D.D.........RR..D.......GGGQQQRRRGGGGGGGG..................*...RRRD.TGGG...D....h..D........D..F..........oo.*',
+  '##################.ooo.##################################.....##################################################..hoo....##########################################################',
   '#'.repeat(179),
   '#'.repeat(179),
   '#'.repeat(179),

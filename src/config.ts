@@ -469,8 +469,8 @@ export const ROBOT = {
   sightHeight: 40,
   releaseRange: 240,
   chaseSpeed: 88,
-  spawnEveryMs: 15000,
-  maxAlivePerBlock: 2,
+  spawnEveryMs: 30000,
+  maxAlivePerBlock: 1,
   breakMs: 700,
   /** How close the cat has to be to a block for holding down to work on it, px. */
   breakReach: 3,

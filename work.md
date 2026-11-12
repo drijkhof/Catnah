@@ -71,7 +71,7 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | laboratorium | `laboratory` | inside the moon base |
 | alien | `alien` / Bob | works at the computers in the lab; talks to you once, then is too busy |
 | ruimtehelm | `space helmet` | the glass bubble the cat wears in space and on the moon |
-| grijs blok | `grey block` / `hatch` | `D`: a robot comes out every fifteen seconds; hold down to break it |
+| grijs blok | `grey block` / `hatch` | `D`: a robot comes out every thirty seconds; hold down to break it |
 
 ## The cat
 
@@ -745,8 +745,8 @@ Mars further off, and grey hills on the horizon.
   of a pit or a crater, like everything else, and never go into one; only
   off their own grey block do they roll down.
 - **Grey blocks** are where they come from: while you are near, a robot
-  climbs out of the top of each every **fifteen seconds**, up to two of its own
-  at a time. **Hold down** on a block or against its side and it cracks and
+  climbs out of the top of each every **thirty seconds**, one of its own at
+  a time. **Hold down** on a block or against its side and it cracks and
   breaks, and nothing comes out of it again. Holding down is sneaking, so
   no robot can hurt you while you do it.
 

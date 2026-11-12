@@ -2259,3 +2259,11 @@ asking:
   coin instead. The Moon no longer stays open in space for a missed part.
 - A coin found is kept found for the run, like a part; a game over that
   goes back to the Moon keeps them too.
+
+## Fewer robots
+
+Asked for: fewer robots. A grey block now lets one out every 30 seconds
+(was 15) and only while its last one is gone (was two at a time), and half
+of the robots placed at the start are gone on the Moon (6 to 3) and Mars
+(4 to 2), the two worlds that had the most. The other worlds kept their
+three or four.
