@@ -2381,8 +2381,10 @@ times Venus, bigger than Jupiter), and an eclipse of the Moon. Decided
 without asking: sizes are the real ones to the power 0.4 around an Earth
 of 140 px (the same squeeze as gravity): Jupiter 368, Saturn 344, Uranus
 244, Neptune 241, Venus 137, Mars 108, the Moon 83, Pluto 71. The orbits
-moved out to make room (Jupiter 1650 ... Pluto 3200; space is 7600 px
-across), the Moon in to 250 round the Earth, and the Death Star's own
+moved out to make room -- and then further, asked for when Saturn's ring
+crowded Uranus: Mars 1250, Jupiter 1900, Saturn 2750, Uranus 3500,
+Neptune 3900, Pluto 4250, the Death Star between Mars and Jupiter at
+1500; space is 9600 px across, the Moon in to 250 round the Earth, and the Death Star's own
 little circle smaller, so it stays clear of Mars and Jupiter. An eclipse
 of the Sun came with it: the Moon's shadow on the Earth. Both happen every
 time round, since everything here is in one flat plane.

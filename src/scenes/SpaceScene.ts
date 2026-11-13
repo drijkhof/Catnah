@@ -65,12 +65,12 @@ const WORLDS: World[] = [
   { name: 'earth', level: '', orbit: 750, years: 1, angle: 0.6 },
   { name: 'moon', level: 'Moon', orbit: 250, years: 0, angle: -0.5 },
   { name: 'venus', level: 'Venus', orbit: 360, years: 0.615, angle: 2.4 },
-  { name: 'mars', level: 'Mars', orbit: 1150, years: 1.88, angle: -0.9 },
-  { name: 'jupiter', level: 'Jupiter', orbit: 1650, years: 11.86, angle: 0.3 },
-  { name: 'saturn', level: 'Saturn', orbit: 2150, years: 29.46, angle: -2.2 },
-  { name: 'uranus', level: 'Uranus', orbit: 2600, years: 84.0, angle: -1.4 },
-  { name: 'neptune', level: 'Neptune', orbit: 2950, years: 164.8, angle: -0.5 },
-  { name: 'pluto', level: 'Pluto', orbit: 3200, years: 248, angle: -2.1 },
+  { name: 'mars', level: 'Mars', orbit: 1250, years: 1.88, angle: -0.9 },
+  { name: 'jupiter', level: 'Jupiter', orbit: 1900, years: 11.86, angle: 0.3 },
+  { name: 'saturn', level: 'Saturn', orbit: 2750, years: 29.46, angle: -2.2 },
+  { name: 'uranus', level: 'Uranus', orbit: 3500, years: 84.0, angle: -1.4 },
+  { name: 'neptune', level: 'Neptune', orbit: 3900, years: 164.8, angle: -0.5 },
+  { name: 'pluto', level: 'Pluto', orbit: 4250, years: 248, angle: -2.1 },
 ];
 
 /**
@@ -217,7 +217,7 @@ export class SpaceScene extends Phaser.Scene {
     // A few nameless planets far out past Pluto, for company. Still.
     for (const kind of ['ice', 'violet', 'ice', 'violet', 'moon', 'ice'] as const) {
       const angle = random() * Math.PI * 2;
-      const distance = 3450 + random() * 60;
+      const distance = 4500 + random() * 60;
       const planet = this.add
         .image(this.sun.x + Math.cos(angle) * distance, this.sun.y + Math.sin(angle) * distance, `planet-${kind}`)
         .setScale(0.8 + random())

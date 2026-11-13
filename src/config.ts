@@ -574,7 +574,7 @@ export const LASER = {
    * Where the station starts from the sun, px, and how many Earth years it
    * takes to go round it: between Mars and Jupiter, so between their two.
    */
-  stationOrbit: { x: 928, y: 980 },
+  stationOrbit: { x: 1031, y: 1089 },
   stationYears: 4,
   stationDrift: 40,
   /** How long the starship takes to go round the station, and how far out, ms and px. */
@@ -616,7 +616,7 @@ export const OBSTACLES = {
  * can come before it burns, px.
  */
 export const SPACE = {
-  worldSize: 7600,
+  worldSize: 9600,
   accel: 420,
   maxSpeed: 230,
   drag: 160,
