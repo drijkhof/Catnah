@@ -214,18 +214,6 @@ export class SpaceScene extends Phaser.Scene {
         .setDepth(-90);
     }
 
-    // A few nameless planets far out past Pluto, for company. Still.
-    for (const kind of ['ice', 'violet', 'ice', 'violet', 'moon', 'ice'] as const) {
-      const angle = random() * Math.PI * 2;
-      const distance = 4500 + random() * 60;
-      const planet = this.add
-        .image(this.sun.x + Math.cos(angle) * distance, this.sun.y + Math.sin(angle) * distance, `planet-${kind}`)
-        .setScale(0.8 + random())
-        .setDepth(-50);
-      faceTheSun(addPlanetLight(this, planet, kind), planet, this.sun.x, this.sun.y);
-      this.planets.push(planet);
-    }
-
     // The sun, alive: a red haze that breathes; two manes of flame turning
     // opposite ways and swelling out of step, so they flicker where they
     // cross; the ball turning slowly, and its hottest swirls laid over it

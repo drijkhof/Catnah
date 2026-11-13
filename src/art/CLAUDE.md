@@ -32,16 +32,20 @@ binary assets but the portal picture and runs straight after clone.
   palette's `night` set, houses and awnings are drawn dark with about half
   the windows lit. Facades come from a fixed list and go round in street
   order, so neighbours always differ.
-- `sun.ts` — the sun in space, worked out per pixel from seeded noise (`paint`, `makeNoise`, `fbm`, coloured by heat on one ramp): the ball (`space-sun`, `SPACE_SUN_SIZE`), its hottest swirls on their own (`space-sun-churn`), two manes of flame (`space-sun-corona-a`/`-b`, `SPACE_SUN_CORONA`) and the red haze (`space-sun-glow`); not `sun`, which is the forest's. The scene animates them: see `SpaceScene`.
+- `noise.ts` — `paint` (a canvas texture worked out per pixel), `makeNoise` (seeded value noise, optionally wrapping) and `fbm` (octaves of it). For pictures after photographs: the sun.
+- `photos.ts` — the planets that are **NASA photographs** (`PLANET_PHOTOS`: each picture's size and the radius of its globe): `loadPlanetPhotos` in `BootScene.preload` as `photo-<name>`, `makePhotoPlanets` cuts each globe round into `planet-<name>` (Saturn keeps its rings, black made clear by how dark it is, and an empty `-front`), `drawPhotoGlobe` for Uranus. All `LINEAR`-filtered. See `public/assets/CLAUDE.md`.
+- `sun.ts` — the sun in space, worked out per pixel from seeded noise (coloured by heat on one ramp): the ball (`space-sun`, `SPACE_SUN_SIZE`), its hottest swirls on their own (`space-sun-churn`), two manes of flame (`space-sun-corona-a`/`-b`, `SPACE_SUN_CORONA`) and the red haze (`space-sun-glow`); not `sun`, which is the forest's. The scene animates them: see `SpaceScene`.
 - `space.ts` — the stars (three seamless layers), the gas clouds, the
-  planets (Earth, Moon, Mars, Saturn with its ring split behind and in front,
-  Jupiter and two small ones), drawn **with no sun on them**: the light is
+  planets: the photographs (`photos.ts`), Uranus's photograph in drawn rings
+  (`generateUranus`: a set width in px whatever their slant, the near half
+  its own texture); the planets get **no sun of
+  their own** (the photographs are full discs): the light is
   `planet-light` (`PLANET_LIGHT_SIZE`, worked out per pixel for a sun to the
   left), laid over each globe (`PLANET_DISCS`) and turned to the sun by
-  `world/planetLight.ts`; the big ones are drawn big (`PLANET_SIZES`) with
-  their details scaled from the size they were first drawn at (`DRAWN_AT`),
-  so they are not blown up blocky in space; a ring's near half is its own texture
-  (`planet-saturn-front`, `planet-uranus-front`) over that light. The moon's hills, the robot and its grey
+  `world/planetLight.ts`; `PLANET_SIZES` is what they were first drawn at,
+  which the skies' scales are against (`MoonBackdrop` divides by the
+  picture's real width); a ring's near half is its own texture
+  (`planet-saturn-front`, empty, and `planet-uranus-front`) over that light. The moon's hills, the robot and its grey
   block with two cracked stages.
 - `base.ts` — the moon base as one picture (hull, doors, and the whole
   laboratory inside, benches included; what fits is fitted to its size) and

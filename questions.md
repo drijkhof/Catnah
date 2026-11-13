@@ -2430,3 +2430,46 @@ the game's only bitmap. Animated without redrawing anything: separate
 layers turned and swollen by tweens (flames two ways, swirls two ways over
 the ball). Its size and how close the cat may come are unchanged.
 
+## Venus, like the photograph
+
+Asked for: Venus like a photograph of it. Drawn per pixel from noise like
+the sun (cream cloud, tan patches swept sideways, a white-blue whirl at the
+south pole, a pale north cap, a hazy limb), same size, still unlit -- the
+sunlight laid over it is what gives it a night side. Not animated: the
+photograph is still, and the light already moves round it.
+
+## Uranus, like the photograph
+
+Asked for: Uranus like a photograph of it. Per pixel like Venus: blue-green,
+faint bands along the equator, six thin rings and a broad dark one,
+leaning over, their near half in front of the ball. The ball is the same
+size in space as before; inside its picture it is smaller, so the rings
+reach half again past it as in the photograph -- which also makes the
+rings bigger where Uranus hangs in another world's sky.
+
+## The planets are NASA photographs
+
+Asked for: the planets based on NASA photographs, high resolution; the Moon
+in colour (then not after all: the plain NASA full Moon); the Earth not showing America -- Europe, or unrecognisable.
+Decided without asking: which photograph for each (see
+`public/assets/CLAUDE.md`), full discs so the game's own sunlight still
+makes their night side; the Earth from DSCOVR with Europe and Africa;
+Saturn from Hubble (2019), the Cassini portraits being cut off or half in
+shadow; Uranus from Voyager 2 (featureless, as it really is) made a little
+bluer and kept in the drawn rings, since no NASA photograph in the archive
+shows it whole with its rings. The sun stays drawn and animated. These
+replace the per-pixel Venus and Uranus of just before.
+
+Still open: the game draws on a canvas 360 game pixels high (252 on a
+phone), enlarged to the screen, so a planet in space is at most a few
+hundred of those pixels however sharp its photograph.
+
+## No made-up planets
+
+Asked for: every made-up planet and moon that hangs about in space, not
+going round anything, gone. The six nameless ones past Pluto are, and so
+is the made-up ice world in Jupiter's sky (it was standing in for Europa).
+Kept: the moons in the skies of Mars, Jupiter and Pluto (the Moon's photo
+standing in for their own moons) -- they are in a level's sky, not
+floating in space. Say if those should go as well.
+

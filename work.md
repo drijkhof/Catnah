@@ -711,13 +711,21 @@ Pluto — each on a faint ring that shows its orbit, with its name under it.
 and the comparisons hold but Jupiter still fits on the screen: Jupiter the
 biggest, then Saturn, Uranus and Neptune about alike, the Earth and Venus
 nearly the same, then Mars, the Moon, and Pluto the smallest.
+**The planets are NASA photographs**: the Earth with Europe and Africa
+(DSCOVR), the full Moon (Lunar Reconnaissance Orbiter), Venus (Mariner 10), Mars (Hubble),
+Jupiter (Cassini), Saturn with its rings (Hubble), Neptune (Voyager 2) and
+Pluto with its heart (New Horizons). **Uranus** is Voyager 2's photograph,
+a little bluer, inside drawn rings: thin grey ones standing nearly on end
+and leaning over, a broad dark band among them, the near half crossing in
+front. The sunlight on all of them is the game's own, from the sun.
 Each takes its real number of Earth years to go round (an Earth year is 50
 seconds): Venus whizzes, Jupiter is slow, and Pluto, at 248 years, only
 just creeps along, but you can see it move. The Moon goes round the Earth
 once every 40 seconds — the real month would be too fast to catch. **The
 light on every world is where the sun is**: the side facing it lit, the
 far side in night, a soft line between them, and it moves round as the
-world goes round — the Moon's too, and the far planets past Pluto. The
+world goes round — the Moon's too. Nothing else hangs in space: no
+nameless planets or moons, only the real ones going round. The
 worlds themselves stay upright, so Jupiter's bands and Saturn's ring stay
 level, and the near half of a ring is not in the planet's shadow.
 **Eclipses**: when the Moon passes behind the Earth, into its shadow, it
@@ -851,7 +859,7 @@ no world has itself in its own sky; from each you see the others:
 - **Saturn**: out on the rings, floes of fractured pale blue ice, Jupiter
   and Uranus in the black sky, spires of ice behind, crystals on the ground.
 - **Jupiter**: drifts of frozen cloud with a fluffy fringe, in banded cream
-  and brown, towers of cloud behind, Io and Europa going by.
+  and brown, towers of cloud behind, Io going by.
 - **Venus**: cracked dark basalt, glowing orange at its edges, under a thick
   yellow haze, smoking volcanoes on the horizon.
 - **Uranus**: pale cyan ice laid in flat tiles, Saturn and Neptune in the

@@ -74,7 +74,6 @@ const SKIES: Record<SpaceTheme, Sky> = {
     stars: false,
     planets: [
       { name: 'moon', x: 0.75, y: 0.14, scale: 0.3, factor: 0.04 },
-      { name: 'ice', x: 0.3, y: 0.1, scale: 0.35, factor: 0.03 },
     ],
     hills: 0xd8b088,
     flag: false,
@@ -177,7 +176,9 @@ export class MoonBackdrop {
           GAME_HEIGHT * planet.y + (planet.name === 'earth' ? PLANET_SIZES.earth * 0.05 : 0),
           `planet-${planet.name}`,
         )
-        .setScale(planet.scale)
+        // `scale` is against the planet as it was first drawn,
+        // `PLANET_SIZES` across; the photographs are far bigger pictures.
+        .setScale((planet.scale * PLANET_SIZES[planet.name]) / scene.textures.getFrame(`planet-${planet.name}`).width)
         .setScrollFactor(planet.factor, 0)
         .setDepth(-95);
       faceTheSun(addPlanetLight(scene, image, planet.name), image, sunX, sunY);

@@ -3,19 +3,23 @@ import { GAME_HEIGHT, GAME_WIDTH, TILE } from '../config';
 import { bakeTexture, createRandom, fillVerticalGradient } from './canvas';
 import { GROUND_ENEMY_SIZES } from './creatures';
 import { generateSun } from './sun';
+import { paint } from './noise';
+import { PLANET_PHOTOS, drawPhotoGlobe, makePhotoPlanets } from './photos';
 
 /** A seamless tile of stars, px; repeated to fill space. */
 export const STARFIELD_SIZE = 256;
 
-/** How big each planet is baked, px across (Saturn's rings reach further). */
+/**
+ * How big each planet was first drawn, px across (Saturn's rings reach
+ * further): what the skies' `scale`s are against. The photographed ones are
+ * far bigger pictures now; `MoonBackdrop` scales them back to this.
+ */
 export const PLANET_SIZES = {
   earth: 160,
   moon: 70,
   mars: 110,
   saturn: 240,
   jupiter: 200,
-  ice: 48,
-  violet: 56,
   venus: 130,
   uranus: 200,
   neptune: 160,
@@ -23,12 +27,6 @@ export const PLANET_SIZES = {
   iss: 60,
 } as const;
 
-/**
- * The size each planet was first drawn at: its little details (bands,
- * storms, a ring's width) are in pixels at that size, scaled up with it
- * since the big ones are drawn bigger, so they are not blown up blocky.
- */
-const DRAWN_AT = { mars: 64, saturn: 90, jupiter: 120, venus: 66, uranus: 76, neptune: 74, pluto: 40 } as const;
 
 export type PlanetName = keyof typeof PLANET_SIZES;
 
@@ -275,17 +273,17 @@ export const PLANET_LIGHT_SIZE = 128;
  * wider than their globes, for the rings.
  */
 export const PLANET_DISCS: Record<PlanetName, number> = {
-  earth: PLANET_SIZES.earth / 2 - 4,
-  moon: PLANET_SIZES.moon / 2 - 1,
-  mars: PLANET_SIZES.mars / 2 - 1,
-  saturn: PLANET_SIZES.saturn / 2 - 12 * (PLANET_SIZES.saturn / DRAWN_AT.saturn),
-  jupiter: PLANET_SIZES.jupiter / 2 - 1,
-  ice: PLANET_SIZES.ice / 2 - 1,
-  violet: PLANET_SIZES.violet / 2 - 1,
-  venus: PLANET_SIZES.venus / 2 - 1,
-  uranus: PLANET_SIZES.uranus / 2 - 12 * (PLANET_SIZES.uranus / DRAWN_AT.uranus),
-  neptune: PLANET_SIZES.neptune / 2 - 1,
-  pluto: PLANET_SIZES.pluto / 2 - 1,
+  earth: PLANET_PHOTOS.earth.disc,
+  moon: PLANET_PHOTOS.moon.disc,
+  mars: PLANET_PHOTOS.mars.disc,
+  saturn: PLANET_PHOTOS.saturn.disc,
+  jupiter: PLANET_PHOTOS.jupiter.disc,
+  venus: PLANET_PHOTOS.venus.disc,
+  // Uranus's photograph, small in a picture of its rings, which reach half
+  // again as wide as the ball.
+  uranus: PLANET_PHOTOS.uranus.disc,
+  neptune: PLANET_PHOTOS.neptune.disc,
+  pluto: PLANET_PHOTOS.pluto.disc,
   iss: PLANET_SIZES.iss / 2,
 };
 
@@ -328,217 +326,69 @@ function generatePlanetLight(scene: Phaser.Scene): void {
   canvas.refresh();
 }
 
+/**
+ * Uranus: its NASA photograph (Voyager 2) in a set of drawn rings, after a
+ * photograph the player sent -- thin grey rings standing nearly on end and
+ * leaning over, a broad dark band among them, reaching half again past the
+ * ball. `planet-uranus` is the rings with the ball over them;
+ * `planet-uranus-front` the near half of the rings where it crosses the ball,
+ * laid over the ball's sunlight by the scene.
+ */
+function generateUranus(scene: Phaser.Scene): void {
+  const r = PLANET_DISCS.uranus;
+  const d = Math.round((2 * r) / 0.58);
+  const reach = d / 2 - 2;
+  const px = d / 200;
+  const lean = -0.38;
+  const cos = Math.cos(lean);
+  const sin = Math.sin(lean);
+  // Each ring: where it is, out of `reach`; how wide, px; how bright and opaque.
+  const open = 0.26;
+  const rings: Array<[number, number, number, number]> = [
+    [0.74, 0.8 * px, 190, 0.45],
+    [0.8, 4.5 * px, 60, 0.4],
+    [0.86, 0.8 * px, 210, 0.55],
+    [0.9, 0.7 * px, 190, 0.5],
+    [0.95, 1.1 * px, 230, 0.8],
+    [0.985, 0.7 * px, 200, 0.6],
+  ];
+  // The ring there, if any: grey level and alpha; and whether it is the near half.
+  const ringAt = (x: number, y: number): { grey: number; alpha: number; near: boolean } | undefined => {
+    const across = (x * cos + y * sin) / reach;
+    const along = (-x * sin + y * cos) / reach;
+    const rho = Math.hypot(across / open, along);
+    // How fast rho changes per pixel here, so a ring is as thick on its
+    // narrow ends as along its sides.
+    const slope = Math.hypot(across / (open * open), along) / Math.max(rho, 0.01) / reach;
+    for (const [at, width, grey, alpha] of rings) {
+      const off = Math.abs(rho - at) / slope / width;
+      if (off < 1) {
+        return { grey, alpha: alpha * (1 - off * off), near: across < 0 };
+      }
+    }
+    return undefined;
+  };
+  const back = paint(scene, 'planet-uranus', d, (x, y) => {
+    const ring = ringAt(x, y);
+    return ring ? [ring.grey, ring.grey, ring.grey + 8, 255 * ring.alpha] : undefined;
+  });
+  drawPhotoGlobe(scene, back.context, 'uranus', d / 2, d / 2, r);
+  back.refresh();
+  back.setFilter(Phaser.Textures.FilterMode.LINEAR);
+  const front = paint(scene, 'planet-uranus-front', d, (x, y) => {
+    const ring = ringAt(x, y);
+    if (!ring || !ring.near || Math.hypot(x, y) > r) {
+      return undefined;
+    }
+    return [ring.grey, ring.grey, ring.grey + 8, 255 * ring.alpha];
+  });
+  front.setFilter(Phaser.Textures.FilterMode.LINEAR);
+}
+
 function generatePlanets(scene: Phaser.Scene): void {
   generatePlanetLight(scene);
-  // The Earth: oceans, continents, cloud, and a thin blue glow.
-  {
-    const d = PLANET_SIZES.earth;
-    const r = d / 2 - 4;
-    const random = createRandom(9001);
-    bakeTexture(scene, 'planet-earth', d, d, (g) => {
-      g.fillStyle(0x6fb6ff, 0.18);
-      g.fillCircle(d / 2, d / 2, r + 4);
-      sphere(g, d / 2, d / 2, r, 0x2f74c8, 0x1c4a8a, 0x6fb0ee);
-      // Continents: clusters of green and sand blobs, kept inside the disc.
-      for (const [cx, cy, n] of [[-0.3, -0.2, 9], [0.25, 0.15, 11], [0.0, 0.5, 5], [-0.35, 0.35, 4]] as const) {
-        for (let i = 0; i < n; i += 1) {
-          const x = d / 2 + (cx + (random() - 0.5) * 0.35) * r;
-          const y = d / 2 + (cy + (random() - 0.5) * 0.3) * r;
-          if (Math.hypot(x - d / 2, y - d / 2) < r - 8) {
-            g.fillStyle(random() < 0.75 ? 0x4f9a48 : 0xc9b47a, 1);
-            g.fillEllipse(x, y, 10 + random() * 14, 7 + random() * 10);
-          }
-        }
-      }
-      // Ice caps.
-      g.fillStyle(0xf2f6fa, 1);
-      g.fillEllipse(d / 2, d / 2 - r + 6, r * 0.7, 9);
-      g.fillEllipse(d / 2, d / 2 + r - 5, r * 0.55, 7);
-      // Clouds.
-      for (let i = 0; i < 9; i += 1) {
-        const x = d / 2 + (random() - 0.5) * r * 1.4;
-        const y = d / 2 + (random() - 0.5) * r * 1.4;
-        if (Math.hypot(x - d / 2, y - d / 2) < r - 10) {
-          g.fillStyle(0xffffff, 0.7);
-          g.fillEllipse(x, y, 18 + random() * 16, 4 + random() * 3);
-        }
-      }
-    });
-  }
-
-  // The Moon: grey, with craters.
-  {
-    const d = PLANET_SIZES.moon;
-    const r = d / 2 - 1;
-    const random = createRandom(9011);
-    bakeTexture(scene, 'planet-moon', d, d, (g) => {
-      sphere(g, d / 2, d / 2, r, 0xc9c9c4, 0x8a8a86, 0xeeeee8);
-      for (let i = 0; i < 10; i += 1) {
-        const x = d / 2 + (random() - 0.5) * r * 1.3;
-        const y = d / 2 + (random() - 0.5) * r * 1.3;
-        const cr = 2 + random() * 6;
-        if (Math.hypot(x - d / 2, y - d / 2) < r - cr - 1) {
-          g.fillStyle(0x9a9a95, 1);
-          g.fillCircle(x, y, cr);
-          g.fillStyle(0xdeded8, 1);
-          g.fillCircle(x - 1, y - 1, cr * 0.6);
-          g.fillStyle(0xa8a8a2, 1);
-          g.fillCircle(x, y, cr * 0.55);
-        }
-      }
-    });
-  }
-
-  // Mars: rust red, a darker band, a white cap.
-  {
-    const d = PLANET_SIZES.mars;
-    const k = d / DRAWN_AT.mars;
-    const r = d / 2 - 1;
-    const random = createRandom(9021);
-    bakeTexture(scene, 'planet-mars', d, d, (g) => {
-      sphere(g, d / 2, d / 2, r, 0xc8573a, 0x8a3420, 0xe8835a);
-      for (let i = 0; i < 7; i += 1) {
-        const x = d / 2 + (random() - 0.5) * r * 1.2;
-        const y = d / 2 + (random() - 0.3) * r * 0.9;
-        g.fillStyle(0x9a3e26, 0.8);
-        g.fillEllipse(x, y, (8 + random() * 10) * k, (4 + random() * 4) * k);
-      }
-      g.fillStyle(0xf4eee8, 1);
-      g.fillEllipse(d / 2 - 2 * k, d / 2 - r + 4 * k, r * 0.6, 6 * k);
-    });
-  }
-
-  // Saturn: a banded globe in a tilted ring, the far half of the ring
-  // behind the planet and the near half in front.
-  {
-    const d = PLANET_SIZES.saturn;
-    const k = d / DRAWN_AT.saturn;
-    const w = Math.round(d * SATURN_RING_SPREAD);
-    const h = d;
-    const r = d / 2 - 12 * k;
-    const cx = w / 2;
-    const cy = h / 2;
-    const ring = (g: Phaser.GameObjects.Graphics, front: boolean): void => {
-      for (const [rx, ry, colour, alpha] of [
-        [w / 2 - 2 * k, 16 * k, 0xd8c08a, 0.9],
-        [w / 2 - 10 * k, 13 * k, 0xb89a62, 0.9],
-        [w / 2 - 18 * k, 10 * k, 0xe8d6a8, 0.8],
-      ] as const) {
-        g.lineStyle(Math.round(3 * k), colour, alpha);
-        // The near half of the ring is the half below the centre: 0..180 degrees.
-        const points: Phaser.Math.Vector2[] = [];
-        for (let a = front ? 0 : 180; a <= (front ? 180 : 360); a += 6) {
-          const t = Phaser.Math.DegToRad(a);
-          points.push(new Phaser.Math.Vector2(cx + Math.cos(t) * rx, cy + Math.sin(t) * ry));
-        }
-        g.strokePoints(points, false);
-      }
-    };
-    bakeTexture(scene, 'planet-saturn', w, h, (g) => {
-      ring(g, false);
-      sphere(g, cx, cy, r, 0xe0c48a, 0xa88a52, 0xf4e2b4);
-      g.fillStyle(0xc8a468, 0.8);
-      g.fillRect(cx - r + 4 * k, cy - 8 * k, r * 2 - 8 * k, 4 * k);
-      g.fillRect(cx - r + 2 * k, cy + 6 * k, r * 2 - 4 * k, 3 * k);
-      g.fillStyle(0xf0dcae, 0.7);
-      g.fillRect(cx - r + 6 * k, cy - 2 * k, r * 2 - 12 * k, 3 * k);
-    });
-    // The near half of the ring on its own, laid over the sunlight on the
-    // globe: the ring in front is not in the planet's shadow.
-    bakeTexture(scene, 'planet-saturn-front', w, h, (g) => ring(g, true));
-  }
-
-  // Jupiter, and two little ones of no name, for the flight.
-  {
-    const d = PLANET_SIZES.jupiter;
-    const k = d / DRAWN_AT.jupiter;
-    const r = d / 2 - 1;
-    bakeTexture(scene, 'planet-jupiter', d, d, (g) => {
-      sphere(g, d / 2, d / 2, r, 0xd8b48a, 0x9a7650, 0xf0d6b4);
-      const bands = [[-0.55, 0xb88a5a], [-0.25, 0xf0e0c8], [0.05, 0xa8764a], [0.35, 0xe8d0b0], [0.6, 0xb88a5a]] as const;
-      for (const [at, colour] of bands) {
-        const y = d / 2 + at * r;
-        const half = Math.sqrt(Math.max(0, r * r - (y - d / 2) ** 2)) - 3 * k;
-        g.fillStyle(colour, 0.85);
-        g.fillRect(d / 2 - half, y - 4 * k, half * 2, 8 * k);
-      }
-      g.fillStyle(0xc0553a, 1);
-      g.fillEllipse(d / 2 + r * 0.25, d / 2 + r * 0.2, 18 * k, 10 * k);
-    });
-  }
-  for (const [name, base, dark, light] of [
-    ['ice', 0x9ad8e8, 0x5a98b0, 0xd8f4fa],
-    ['violet', 0x9a6ac8, 0x5e3a8a, 0xc8a0ee],
-  ] as const) {
-    const d = PLANET_SIZES[name];
-    const r = d / 2 - 1;
-    bakeTexture(scene, `planet-${name}`, d, d, (g) => {
-      sphere(g, d / 2, d / 2, r, base, dark, light);
-      g.fillStyle(dark, 0.5);
-      g.fillRect(d / 2 - r + 6, d / 2 + 2, r * 2 - 12, 3);
-    });
-  }
-
-  // Venus: thick yellow cloud, banded softly.
-  {
-    const d = PLANET_SIZES.venus;
-    const k = d / DRAWN_AT.venus;
-    const r = d / 2 - 1;
-    bakeTexture(scene, 'planet-venus', d, d, (g) => {
-      sphere(g, d / 2, d / 2, r, 0xe8c878, 0xb08a48, 0xfaeab0);
-      for (const [at, colour] of [[-0.4, 0xf4dc98], [0.0, 0xd8b062], [0.4, 0xf0d48c]] as const) {
-        const y = d / 2 + at * r;
-        const half = Math.sqrt(Math.max(0, r * r - (y - d / 2) ** 2)) - 4 * k;
-        g.fillStyle(colour, 0.6);
-        g.fillEllipse(d / 2, y, half * 2, 7 * k);
-      }
-    });
-  }
-
-  // Uranus: pale cyan, featureless, with a thin ring standing on end.
-  {
-    const d = PLANET_SIZES.uranus;
-    const k = d / DRAWN_AT.uranus;
-    const r = d / 2 - 12 * k;
-    bakeTexture(scene, 'planet-uranus', d, d, (g) => {
-      g.lineStyle(Math.round(k), 0xc8f0f4, 0.6);
-      g.strokeEllipse(d / 2, d / 2, 14 * k, d - 4 * k);
-      sphere(g, d / 2, d / 2, r, 0x9ae0e8, 0x5aa8b8, 0xd8f8fa);
-    });
-    // The near half of the ring, over the planet and its sunlight.
-    bakeTexture(scene, 'planet-uranus-front', d, d, (g) => {
-      g.lineStyle(Math.round(k), 0xc8f0f4, 0.8);
-      g.strokeEllipse(d / 2, d / 2, 14 * k, d - 4 * k);
-    });
-  }
-
-  // Neptune: deep blue, a dark storm and a white streak of cloud.
-  {
-    const d = PLANET_SIZES.neptune;
-    const k = d / DRAWN_AT.neptune;
-    const r = d / 2 - 1;
-    bakeTexture(scene, 'planet-neptune', d, d, (g) => {
-      sphere(g, d / 2, d / 2, r, 0x3a62d8, 0x1e3a8a, 0x7a9af0);
-      g.fillStyle(0x16286a, 1);
-      g.fillEllipse(d / 2 - 8 * k, d / 2 + 6 * k, 14 * k, 8 * k);
-      g.fillStyle(0xe8f0ff, 0.8);
-      g.fillEllipse(d / 2 + 6 * k, d / 2 - 10 * k, 16 * k, 3 * k);
-    });
-  }
-
-  // Pluto: small, beige and pale, with the big pale heart on its face.
-  {
-    const d = PLANET_SIZES.pluto;
-    const k = d / DRAWN_AT.pluto;
-    const r = d / 2 - 1;
-    bakeTexture(scene, 'planet-pluto', d, d, (g) => {
-      sphere(g, d / 2, d / 2, r, 0xc8a888, 0x8a6a52, 0xe8d0b8);
-      g.fillStyle(0xf4ece0, 1);
-      g.fillCircle(d / 2 - 3 * k, d / 2 + 1 * k, 5 * k);
-      g.fillCircle(d / 2 + 4 * k, d / 2 + 1 * k, 5 * k);
-      g.fillTriangle(d / 2 - 8 * k, d / 2 + 3 * k, d / 2 + 9 * k, d / 2 + 3 * k, d / 2 + 1 * k, d / 2 + 12 * k);
-    });
-  }
+  makePhotoPlanets(scene);
+  generateUranus(scene);
 
   // The ISS: a long truss with four pairs of solar panels and the modules
   // in the middle.

@@ -1,3 +1,4 @@
+import { loadPlanetPhotos } from '../art/photos';
 import Phaser from 'phaser';
 import { PORTAL_SOURCE_KEY, generatePlaceholderArt, shadePortal } from '../art';
 import { SNAPSHOT_KEY } from '../dev/hot';
@@ -22,6 +23,8 @@ export class BootScene extends Phaser.Scene {
     // files go here under the key their generator used, e.g.
     // this.load.spritesheet('cat', 'assets/cat.png', { frameWidth: 22, frameHeight: 16 });
     this.load.image(PORTAL_SOURCE_KEY, 'assets/portal.png');
+    // The planets are NASA photographs, cut round once they are in.
+    loadPlanetPhotos(this);
   }
 
   create(): void {
