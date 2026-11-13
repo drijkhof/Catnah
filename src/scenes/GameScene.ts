@@ -120,10 +120,51 @@ export class GameScene extends Phaser.Scene {
   private bag: Record<ItemKind, number> = { ...EMPTY_BAG };
   private itemsFound: string[] = [];
   private itemSprites: Phaser.Types.Physics.Arcade.ImageWithStaticBody[] = [];
+  /** The cat says something: words in a little white bubble over its head, going with it, for a while. */
+  private catSays(line: string): void {
+    this.catLine?.words.destroy();
+    this.catLine?.bubble.destroy();
+    const words = crispText(this, this.player.x, this.player.y - 34, line, {
+      fontFamily: 'monospace',
+      fontSize: '11px',
+      color: '#1a2030',
+    })
+      .setOrigin(0.5)
+      .setDepth(21);
+    const bubble = this.add.graphics().setDepth(20);
+    this.catLine = { words, bubble, until: this.time.now + ITEMS.catLineMs };
+    this.placeCatLine();
+  }
+
+  /** The cat's words over its head, every frame, and gone when their time is up. */
+  private placeCatLine(): void {
+    const line = this.catLine;
+    if (!line) {
+      return;
+    }
+    if (this.time.now > line.until) {
+      line.words.destroy();
+      line.bubble.destroy();
+      this.catLine = undefined;
+      return;
+    }
+    const width = line.words.width + 12;
+    const height = 18;
+    const x = this.player.x - width / 2;
+    const y = this.player.y - 26 - height;
+    line.bubble.clear();
+    line.bubble.fillStyle(0xffffff, 0.95);
+    line.bubble.fillRoundedRect(x, y, width, height, 5);
+    line.bubble.fillTriangle(this.player.x - 3, y + height, this.player.x + 3, y + height, this.player.x, y + height + 5);
+    line.words.setPosition(this.player.x, y + height / 2);
+  }
+
   /** The bag in the HUD, under the coins: an icon and a count per kind carried. */
   private bagHud: Phaser.GameObjects.GameObject[] = [];
   /** The man in the desert who buys hats, and whether the cat is still standing where he last spoke. */
   private hatBuyer?: { sprite: Phaser.GameObjects.Image; near: boolean };
+  /** What the cat is saying, over its head (`catSays`). */
+  private catLine?: { words: CrispText; bubble: Phaser.GameObjects.Graphics; until: number };
   /** Inside a house: the level outside as the cat left it, to go back to. */
   private outside?: GameSnapshot;
   /** Coming back out through a door: the level as it was left, to put back. */
@@ -419,6 +460,7 @@ export class GameScene extends Phaser.Scene {
     this.itemSprites = [];
     this.bagHud = [];
     this.hatBuyer = undefined;
+    this.catLine = undefined;
     this.doors = [];
     this.doorArmed = false;
     this.hudCamera = undefined;
@@ -869,6 +911,7 @@ export class GameScene extends Phaser.Scene {
       this.meetHatBuyer();
       this.stepDoors();
     }
+    this.placeCatLine();
     this.sortCameras();
 
     const cat = new Phaser.Math.Vector2(this.player.x, this.player.y);
@@ -1565,7 +1608,7 @@ export class GameScene extends Phaser.Scene {
     sprite.destroy();
     this.itemSprites = this.itemSprites.filter((other) => other !== sprite);
     sound.play('checkpoint');
-    this.announceBonus(`+1 ${ITEMS.kinds[kind].label}`);
+    this.catSays(ITEMS.catLines[(this.itemsFound.length - 1) % ITEMS.catLines.length]);
     this.refreshBag();
   }
 
@@ -2997,6 +3040,7 @@ export class GameScene extends Phaser.Scene {
     if (talk.lines[talk.line] === BOB.coinsLine && !this.rocket) {
       this.coins = Math.min(this.coins + BOB.coins, BOB.maxCoins);
       sound.play('checkpoint');
+      this.announceBonus(`+${BOB.coins} coins`);
     }
     const last = talk.line === talk.lines.length - 1;
     talk.next.setText(last ? (this.hasAllParts() ? BOB.thanksButton : BOB.lastButton) : 'Next ▸');
@@ -5349,6 +5393,10 @@ export class GameScene extends Phaser.Scene {
       .setOrigin(0.5, 0.5)
       .setScrollFactor(0)
       .setDepth(1000);
+    // In a talk the main camera is zoomed: only the talk's own camera draws it.
+    if (this.talk) {
+      this.cameras.main.ignore(note);
+    }
 
     // A plain object to tween, because `fontSize` lives inside the text
     // style rather than as a property Phaser's tweens can reach directly.

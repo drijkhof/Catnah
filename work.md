@@ -868,7 +868,8 @@ clock go away and the camera zooms in on the lab, Bob and you. He says
 *"Hi, my name is Bob!"*, Next (tap it, or jump) and *"What a cute little
 kitty!"*, then *"The robots have taken over the planets: the Moon, Mars,
 Saturn, Jupiter, Venus, Uranus, Neptune and Pluto!"*, then *"I need 10 parts to destroy the robots. I built a rocket, but I don't know where I can find the planets."*, *"Here are 20 coins for the trip. You can buy things with them."* — and
-you have **20 coins**, counted under the parts in the corner from then on
+you have **20 coins** (*"+20 coins"* comes up, the way a coin found says
+*"+1 coin"*), counted under the parts in the corner from then on
 (only the first time he tells it) — *"Can you do it, kitty?"*, and last *"But look
 out: there are not two moons..."* — and the button under that says
 **Yes!**. Press it and the screen flashes white and you are off into space
@@ -928,7 +929,9 @@ on the way, and a full tank of rocket fuel you have not flown on yet.
 
 **Things to find and sell.** Lying about in ten levels, one in each, and
 kept for the run once picked up (shown under the coins, an icon and how
-many): a **wallet** (city, swamp, sand path), **candy** (canopy, cave,
+many; no "+1" — the cat wonders out loud instead, in a little bubble over
+its head, by turns *"Is this from someone?"* and *"Why do people drop
+things?"*): a **wallet** (city, swamp, sand path), **candy** (canopy, cave,
 desert, Mars) and a **hat** (forest, volcano, beach). The bar keeper pays
 10 coins for a wallet, 5 for candy and 10 for a hat; unused rocket fuel
 10. Coins still stop at 100.

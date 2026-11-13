@@ -2366,3 +2366,10 @@ Jupiter's bands round and left Saturn always lit from the left). Decided
 without asking: the planets do not spin on their own axes -- "their
 turning" read as their going round the sun; in a level's night sky, with
 no sun drawn, the light comes from the left.
+
+## What the cat says when it finds something
+
+Asked for: no "+1 wallet" on a pickup (coins keep "+1 coin"); the cat
+says "is dis from some whon?" or "why do pheaple drop things?"; "+20
+coins" when Bob gives the coins. Written as "Is this from someone?" and
+"Why do people drop things?", taking turns rather than at random.

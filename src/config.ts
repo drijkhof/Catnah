@@ -1095,6 +1095,9 @@ export const ITEMS = {
     thanks: 'Thank you! Shade at last.',
     sell: 'Sell a hat',
   },
+  /** What the cat says, taking turns, when it picks one up; and how long it stays up, ms. */
+  catLines: ['Is this from someone?', 'Why do people drop things?'],
+  catLineMs: 2200,
   sold: 'Thank you!',
   none: 'You have none of those.',
 } as const;
