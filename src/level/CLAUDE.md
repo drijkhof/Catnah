@@ -36,6 +36,7 @@ its platforms must attach to a column. Everything else is derived.
 | `N` | nest — a ledge set into the tile, so the cat sits *in* it |
 | `+` | spare heart, on its own — no nest, no ledge. Write one directly above a row of `N` for a heart sitting in a nest |
 | `W` | water with a spare heart floating in it — use this instead of `+` inside a pool, or it punches a hole in the water |
+| `d` | water with someone **drowned** lying on the bed under it — write it in the bottom row of a pool. Scenery; water for the same reason `W` is. The swamp's, beside its wallet |
 | `h` | hedgehog, `r` rat — walkers, only ever on plain `#` floor. On the moon `h` is a **robot**. On the beach `h` is a **crab**: the letters are the same in every level, and the place decides what walks |
 | `M` | the hull of a **moon base**: solid, every cluster of touching `M` drawn as one base by `art/base.ts`, the inside and the doors included. Write a roof over side walls that stop two rows short of the ground: those gaps are the doors. `=` inside is drawn as a lab bench |
 | `K` | one of Bob's hundred **parts**: a cog to pick up, faint until the cat is near (`BOB.partSeen`), kept for the run by `<level name>:<x>,<y>` so it never comes back. Two each on Mars, Saturn and Jupiter, one on each other robots' world, none on the Moon; the map counts each world's off its rows |
@@ -440,4 +441,4 @@ zone simply skips that tile, and the parser has no way to also make it a
 `+`. `f` (a piranha) and `C` (a crocodile) solved this the same way already:
 `W` is water with a heart floating in it, one character carrying both. It
 joins `waterZones` exactly like `w`/`f`/`C` do, and every place that checks
-"is this tile water" (`'wfC'`, now `'wfCW'`) had to learn about it too.
+"is this tile water" (`'wfC'`, now `'wfCWd'`) had to learn about it too.

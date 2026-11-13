@@ -8,6 +8,9 @@ export const ITEM_SIZES = {
   hat: { width: 13, height: 8 },
 } as const;
 
+/** Whoever lost the wallet in the swamp, lying on the bed of the pool beside it. */
+export const DROWNED_SIZE = { width: 34, height: 11 };
+
 /** The man at the start of the desert who wants a hat. */
 export const HAT_BUYER_SIZE = { width: 14, height: 26 };
 
@@ -55,6 +58,45 @@ export function generateItemTextures(scene: Phaser.Scene): void {
     g.fillRect(x + 4, y + 1, 2, 1);
   };
   bakeTexture(scene, 'item-hat', ITEM_SIZES.hat.width, ITEM_SIZES.hat.height, (g) => drawHat(g, 0, 0));
+
+  // The wallet's owner, drowned: on their back on the bed of the pool, head
+  // to the left, pale, eyes crossed out, weed on the legs.
+  bakeTexture(scene, 'drowned', DROWNED_SIZE.width, DROWNED_SIZE.height, (g) => {
+    const { height } = DROWNED_SIZE;
+    // Coat, then trousers and shoes.
+    g.fillStyle(0x4a6a90, 1);
+    g.fillRoundedRect(8, height - 7, 13, 6, 2);
+    g.fillStyle(0x7a6448, 1);
+    g.fillRect(20, height - 6, 10, 2);
+    g.fillRect(20, height - 3, 10, 2);
+    g.fillStyle(0x161616, 1);
+    g.fillRect(30, height - 7, 3, 3);
+    g.fillRect(30, height - 3, 3, 3);
+    // An arm flung up over the head, the other along the side.
+    g.fillStyle(0x4a6a90, 1);
+    g.fillRect(9, height - 9, 6, 2);
+    g.fillStyle(0xf0c8a8, 1);
+    g.fillRect(4, height - 10, 5, 2);
+    g.fillRect(16, height - 2, 3, 2);
+    // The head, eyes crossed out, mouth open.
+    g.fillStyle(0xf0c8a8, 1);
+    g.fillCircle(4, height - 4, 4);
+    g.fillStyle(0x6a4024, 1);
+    g.fillRect(1, height - 8, 6, 1);
+    g.fillStyle(0x1a1a1a, 1);
+    for (const ex of [2, 5]) {
+      g.fillRect(ex - 1, height - 6, 1, 1);
+      g.fillRect(ex + 1, height - 6, 1, 1);
+      g.fillRect(ex, height - 5, 1, 1);
+      g.fillRect(ex - 1, height - 4, 1, 1);
+      g.fillRect(ex + 1, height - 4, 1, 1);
+    }
+    g.fillRect(3, height - 2, 2, 1);
+    // Weed grown over the legs.
+    g.fillStyle(0x5a9a38, 1);
+    g.fillTriangle(22, height, 24, 0, 26, height);
+    g.fillTriangle(26, height, 27, 3, 29, height);
+  });
 
   // The man: bald and red from the sun, a big moustache, a white shirt,
   // khaki shorts, sandals. Facing right.

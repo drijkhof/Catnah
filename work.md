@@ -944,6 +944,10 @@ desert, Mars) and a **hat** (forest, volcano, beach). The bar keeper pays
 10 coins for a wallet, 5 for candy and 10 for a hat; unused rocket fuel
 10. Coins still stop at 100.
 
+The swamp's wallet has an owner: in the pool just past the rocks it lies
+on, someone drowned lies on the bottom -- on their back, eyes crossed out,
+weed over their legs -- seen through the green water.
+
 Tap one, or pick with left and right and take it with jump. You pay when
 you order, and get it once he has made it; nothing else can be ordered
 meanwhile. Too few coins and he says so; the second time in a row it is

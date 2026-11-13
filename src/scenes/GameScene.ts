@@ -4289,6 +4289,13 @@ export class GameScene extends Phaser.Scene {
     for (const flag of this.level.flags) {
       this.add.image(flag.x, flag.y, 'us-flag').setOrigin(0, 1).setDepth(-0.35);
     }
+
+    // The drowned, on the bed of their pool. Behind the water a swamp pool
+    // hides it completely, so it is laid over the water half see-through:
+    // seen through it, not lost in it. Untinted, so the skin stays skin.
+    for (const body of this.level.drowned) {
+      this.add.image(body.x, body.y - 2, 'drowned').setOrigin(0.5, 1).setDepth(21).setAlpha(0.6);
+    }
   }
 
   /**

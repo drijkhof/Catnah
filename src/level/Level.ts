@@ -52,6 +52,8 @@ export type CrowBehaviour = 'attack' | 'flyby' | 'swoop';
  *        and `C` are water rather than a hole punched in some -- a plain `+`
  *        over a `w` would need two characters in one tile, which the grid
  *        cannot do
+ *   `d`  water with someone drowned lying on the bed of it, under this
+ *        cell -- water for the same reason `W` is. Scenery
  *   `+`  spare heart, on its own — nothing else, no nest, no ledge. Sits low
  *        in its own tile, so one placed directly above a row of `N` reads as
  *        a heart sitting in the nest rather than floating above it. Never
@@ -274,6 +276,8 @@ export interface ParsedLevel {
   movers: Array<{ x: number; y: number; width: number; from: number; to: number }>;
   /** Blocks of ice that crumble when stood on (`Z`), by their top-left corner. */
   crumbles: Point[];
+  /** The drowned (`d`), by the middle of where they lie on the bed. Scenery. */
+  drowned: Point[];
   /** Planted flags (`F`), by the foot of the pole. Scenery. */
   flags: Point[];
   /** Cables (`I`), by their cells' top-left corners. Scratched through, a whole column at a time. */
@@ -387,6 +391,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const exits: Point[] = [];
   const hatches: Point[] = [];
   const flags: Point[] = [];
+  const drowned: Point[] = [];
   const benches: Point[] = [];
   const bars: Point[] = [];
   const doors: Point[] = [];
@@ -547,7 +552,8 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
         case 'w':
         case 'f':
         case 'C':
-        case 'W': {
+        case 'W':
+        case 'd': {
           // A surface is water with open air above it. Water under more water
           // is not one, and neither is water under stone: that is drawn
           // filling its cell, with no swell and no `WATER_DROP`, or a strip
@@ -558,11 +564,15 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
             y,
             width: TILE,
             height: TILE,
-            isSurface: !'wfCW'.includes(above) && !SOLID_LETTERS.includes(above),
+            isSurface: !'wfCWd'.includes(above) && !SOLID_LETTERS.includes(above),
           });
 
           if (tiles[column] === 'f') {
             piranhaSpots.push({ x: x + TILE / 2, y });
+          }
+
+          if (tiles[column] === 'd') {
+            drowned.push({ x: x + TILE / 2, y: y + TILE });
           }
 
           if (tiles[column] === 'C') {
@@ -791,9 +801,9 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           // surrounded by water is not sitting in anything -- it is floating
           // in the water, so it gets the same centred position a charm does.
           const inWater =
-            'wfCW'.includes(at(column - 1, row)) ||
-            'wfCW'.includes(at(column + 1, row)) ||
-            'wfCW'.includes(at(column, row - 1));
+            'wfCWd'.includes(at(column - 1, row)) ||
+            'wfCWd'.includes(at(column + 1, row)) ||
+            'wfCWd'.includes(at(column, row - 1));
 
           extraLives.push({
             x: x + TILE / 2,
@@ -894,6 +904,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     movers,
     crumbles,
     flags,
+    drowned,
     benches,
     fountains,
     cables,

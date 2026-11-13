@@ -2388,3 +2388,12 @@ Neptune 3900, Pluto 4250, the Death Star between Mars and Jupiter at
 little circle smaller, so it stays clear of Mars and Jupiter. An eclipse
 of the Sun came with it: the Moon's shadow on the Earth. Both happen every
 time round, since everything here is in one flat plane.
+
+## Someone drowned by the swamp's wallet
+
+Asked for: a dead body underwater where the wallet is found in the swamp.
+Decided without asking: one, on their back on the bottom of the pool just
+right of the wallet's rocks, cartoonish (eyes as crosses, weed over the
+legs) rather than grisly. A swamp pool behind its water hid it completely,
+so it is laid *over* the water, 60% opaque -- seen through the water.
+Not tinted green, asked for afterwards: ordinary skin colour. It is scenery: nothing to touch or pick up.
