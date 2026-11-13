@@ -544,7 +544,14 @@ export const BOB = {
    * his machine as the talk starts; after the last line it zaps the cat into
    * the internet.
    */
-  thanks: ['You found all 10 parts!', 'Well... thank you, kitty.', "I'm sorry."],
+  thanks: [
+    'You found all 10 parts!',
+    'Thank you, kitty! Thank you so much!',
+    'Can I ask you one more favour?\nI need something else too...',
+    'I need your soul!\nFor the AI of my computer system...',
+    '...to speed up the downfall of mankind!',
+    'MUHAHAHAHAaahaha...',
+  ],
   /** The button under his last line, just before the zap. */
   thanksButton: 'Huh? ▸',
   /** How near the cat has to be before a part shows clearly, px; further off it is faint. */

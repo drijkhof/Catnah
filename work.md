@@ -566,8 +566,9 @@ where you fly to the **moon**. There Bob the alien tells you the
 robots have taken over the planets and sends you off in his rocket for the
 **ten parts** he needs to destroy them, spread over the seven worlds.
 With all ten, you fly back to the moon and give them to Bob — who puts
-them in the machine he has built, says he is sorry, and **zaps you into
-the internet**. Through its five sites to the dark web's portal is the win. Little hearts are optional everywhere.
+them in the machine he has built, thanks you -- and **betrays you**: he
+needs your soul for the AI of his computer system, to speed up the
+downfall of mankind, and **zaps you into the internet**. Through its five sites to the dark web's portal is the win. Little hearts are optional everywhere.
 
 ### 1 — City
 
@@ -889,8 +890,11 @@ in his rocket. Nothing can hurt you while you talk.
 you land right by the base, and beside Bob stands **a machine** he has
 built: a steel cabinet with a funnel on top and a zapper on its side. Walk
 up to Bob and your ten parts fly out one by one into the funnel, and he
-says *"You found all 10 parts!"*, *"Well... thank you, kitty."* and *"I'm
-sorry."* — and the button says **Huh?**. Press it and the machine **zaps
+says *"You found all 10 parts!"* and *"Thank you, kitty! Thank you so
+much!"* -- and then betrays you: *"Can I ask you one more favour? I need
+something else too..."*, *"I need your soul! For the AI of my computer
+system..."*, *"...to speed up the downfall of mankind!"* and
+*"MUHAHAHAHAaahaha..."* — and the button says **Huh?**. Press it and the machine **zaps
 you**: lightning from the zapper, the screen goes white, and you are inside
 **the internet**.
 

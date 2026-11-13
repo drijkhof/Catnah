@@ -2413,3 +2413,11 @@ in the game. Decided without asking:
 - The man is behind his counter: it hides his legs, the awning is over his
   head.
 
+## Bob's betrayal
+
+Asked for: Bob thanks the cat, asks one more favour -- its soul, for the
+AI of his computer system, to speed up the downfall of mankind --
+laughs, and zaps it into the internet. Written in English like the rest
+of his lines, one thought per bubble; the button under the laugh is still
+"Huh?". Nothing else about the zap changed.
+
