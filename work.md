@@ -699,7 +699,7 @@ count while you fly.
 **Your hearts** are in the top right corner out here too, with the rocket
 fuel meter beside them when you have fuel.
 
-**The sun** burns in the middle of space, in a big orange glow. You cannot
+**The sun** burns in the middle of space: a ball of boiling orange with white-hot swirls, brightest at its rim, in a mane of red and yellow flames and a red haze -- and alive: the surface churns, the flames flicker, swell and turn. You cannot
 land on it: **fly too close and the cat burns** — a heart lost, like any
 death, and you set off again beside the world you came from. Burning on the
 last heart is game over, and you start again on the Moon.

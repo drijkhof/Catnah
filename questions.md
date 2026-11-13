@@ -2421,3 +2421,12 @@ laughs, and zaps it into the internet. Written in English like the rest
 of his lines, one thought per bubble; the button under the laugh is still
 "Huh?". Nothing else about the zap changed.
 
+## The sun, like the photograph
+
+Asked for: the sun in space like a photograph of it (a boiling orange ball,
+white swirls, a bright rim, flames all round), animated if possible.
+Drawn per pixel from noise at boot, no image file -- the portal is still
+the game's only bitmap. Animated without redrawing anything: separate
+layers turned and swollen by tweens (flames two ways, swirls two ways over
+the ball). Its size and how close the cat may come are unchanged.
+

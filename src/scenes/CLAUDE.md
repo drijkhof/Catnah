@@ -9,7 +9,7 @@ Phaser scenes. Registered in order in `src/main.ts`; the first one starts.
 - **`SpaceScene`** — between the worlds: the cat (or Bob's rocket) flown
   through space (`SPACE` in `config.ts`), steered by screen direction
   (up is up), stars scrolled by hand in three
-  pinned layers. The sun is in the middle (`burn` when the cat comes within
+  pinned layers. The sun is in the middle, alive with tweens only: the haze breathes, the two flame layers turn opposite ways and swell out of step, the ball turns slowly and its swirls (`space-sun-churn`, twice, added) turn against each other (`burn` when the cat comes within
   `SPACE.sunReach` of its rim: a heart, or game over launched over this
   scene with a restart onto the moon -- `GameOverScene` stops `Space` as
   well as `Game`). Every world goes round it (`WORLDS`: orbit, Earth years,

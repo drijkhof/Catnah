@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH, TILE } from '../config';
 import { bakeTexture, createRandom, fillVerticalGradient } from './canvas';
 import { GROUND_ENEMY_SIZES } from './creatures';
+import { generateSun } from './sun';
 
 /** A seamless tile of stars, px; repeated to fill space. */
 export const STARFIELD_SIZE = 256;
@@ -41,41 +42,6 @@ export const MOON_HILLS_SIZE = { width: 320, height: 70 };
  * Space: the stars, the planets, the moon's horizon, and the moon's robots
  * and the grey blocks they climb out of.
  */
-/** The sun's disc, px across: the scene burns the cat a little past its rim. */
-export const SPACE_SUN_SIZE = 260;
-
-/**
- * The sun: a white-hot middle going out to orange at the rim, with darker
- * spots and a bright edge; and a big soft glow to lay behind it, added.
- */
-function generateSun(scene: Phaser.Scene): void {
-  const d = SPACE_SUN_SIZE;
-  const r = d / 2;
-  const random = createRandom(4242);
-  bakeTexture(scene, 'space-sun', d, d, (g) => {
-    const bands = [0xff7a1a, 0xff9426, 0xffad33, 0xffc447, 0xffd866, 0xffe98f, 0xfff4c0];
-    bands.forEach((colour, i) => {
-      g.fillStyle(colour, 1);
-      g.fillCircle(r, r, r * (1 - i / bands.length));
-    });
-    for (let i = 0; i < 22; i += 1) {
-      const a = random() * Math.PI * 2;
-      const at = r * (0.35 + random() * 0.5);
-      g.fillStyle(random() < 0.5 ? 0xe06010 : 0xffffff, 0.35);
-      g.fillCircle(r + Math.cos(a) * at, r + Math.sin(a) * at, 3 + random() * 6);
-    }
-    g.lineStyle(3, 0xfff0a0, 0.8);
-    g.strokeCircle(r, r, r - 2);
-  });
-  const glow = d * 2;
-  bakeTexture(scene, 'space-sun-glow', glow, glow, (g) => {
-    for (let i = 0; i < 40; i += 1) {
-      g.fillStyle(0xff8a20, 0.022);
-      g.fillCircle(glow / 2, glow / 2, glow / 2 - i * (glow / 2 - r) / 40);
-    }
-  });
-}
-
 export function generateSpaceTextures(scene: Phaser.Scene): void {
   generateSun(scene);
   generateStarfields(scene);

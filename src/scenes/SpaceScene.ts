@@ -226,11 +226,31 @@ export class SpaceScene extends Phaser.Scene {
       this.planets.push(planet);
     }
 
-    // The sun, with a glow round it that swells and shrinks, and a faint
-    // ring along every world's orbit, so the way each one goes is seen.
-    const glow = this.add.image(this.sun.x, this.sun.y, 'space-sun-glow').setDepth(-60).setBlendMode(Phaser.BlendModes.ADD);
-    this.tweens.add({ targets: glow, scale: { from: 1, to: 1.12 }, alpha: { from: 0.85, to: 1 }, duration: 2600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-    this.add.image(this.sun.x, this.sun.y, 'space-sun').setDepth(-59);
+    // The sun, alive: a red haze that breathes; two manes of flame turning
+    // opposite ways and swelling out of step, so they flicker where they
+    // cross; the ball turning slowly, and its hottest swirls laid over it
+    // twice, added, turning against each other, so the surface boils. And
+    // a faint ring along every world's orbit, so the way each one goes is seen.
+    const glow = this.add.image(this.sun.x, this.sun.y, 'space-sun-glow').setDepth(-62).setBlendMode(Phaser.BlendModes.ADD);
+    this.tweens.add({ targets: glow, scale: { from: 1, to: 1.08 }, alpha: { from: 0.8, to: 1 }, duration: 2600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    const spin = (image: Phaser.GameObjects.Image, turnMs: number): void => {
+      this.tweens.add({ targets: image, angle: { from: 0, to: turnMs > 0 ? 360 : -360 }, duration: Math.abs(turnMs), repeat: -1 });
+    };
+    const corona = [
+      { key: 'space-sun-corona-a', turnMs: 90000, swell: 1.06, breathMs: 1700, flip: false },
+      { key: 'space-sun-corona-b', turnMs: -70000, swell: 1.09, breathMs: 2300, flip: true },
+    ];
+    for (const layer of corona) {
+      const flames = this.add.image(this.sun.x, this.sun.y, layer.key).setDepth(-61).setBlendMode(Phaser.BlendModes.ADD).setFlipX(layer.flip);
+      spin(flames, layer.turnMs);
+      this.tweens.add({ targets: flames, scale: layer.swell, alpha: { from: 1, to: 0.7 }, duration: layer.breathMs, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    }
+    spin(this.add.image(this.sun.x, this.sun.y, 'space-sun').setDepth(-60), 240000);
+    for (const [turnMs, flip] of [[50000, false], [-36000, true]] as const) {
+      const churn = this.add.image(this.sun.x, this.sun.y, 'space-sun-churn').setDepth(-59).setBlendMode(Phaser.BlendModes.ADD).setFlipY(flip);
+      spin(churn, turnMs);
+      this.tweens.add({ targets: churn, alpha: { from: 1, to: 0.55 }, duration: 1300 + Math.abs(turnMs) / 50, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    }
     const rings = this.add.graphics().setDepth(-58);
     rings.lineStyle(1, 0x8aa0d0, 0.18);
     for (const world of WORLDS) {
