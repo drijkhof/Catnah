@@ -75,11 +75,18 @@ game, so level-skip past the last level lands on it in a dev build -- see
 ## The space shortcut
 
 Shift-click the level name to go straight out into space, with the run as
-it is (`GameScene.goToSpace`, the same carry a portal hands on): the cat
+it is (`GameScene.shiftClickName`, the same carry a portal hands on): the cat
 sets off beside the world it was on, or by the Earth from a level that is
-not one. Same module shape and the same `import.meta.env.DEV` guard as the
+not one. **On Pluto and in the Space Bar** (theme `pluto`) it gives 100 coins
+instead -- the most a purse holds -- for trying the bar. Same module shape and the same `import.meta.env.DEV` guard as the
 level skip (`spaceShortcut.ts`). It replaced the beetle respawn that used
 to sit on shift-click.
+
+## The fuel shortcut
+
+In space, click where a level's name would be (top left; nothing shows
+there) for a full tank of rocket fuel (`SpaceScene.fillTank`,
+`fuelShortcut.ts`). The same `import.meta.env.DEV` guard.
 
 ## Restoring is allowed to refuse
 

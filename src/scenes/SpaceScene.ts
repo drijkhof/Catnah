@@ -8,6 +8,7 @@ import { stats } from '../stats';
 import { sound } from '../audio/Sound';
 import { crispText, type CrispText } from '../text';
 import { FuelMeter } from '../fuelMeter';
+import { installFuelShortcut } from '../dev/fuelShortcut';
 
 /** What a run carries from level to level, passed straight through this scene. */
 interface Carry {
@@ -144,6 +145,13 @@ export class SpaceScene extends Phaser.Scene {
    * The hearts in the top right corner, as in a level -- the sun can take
    * one -- and the rocket fuel left beside them.
    */
+  /** A full tank of rocket fuel. Development only: see `dev/fuelShortcut.ts`. */
+  fillTank(): void {
+    this.carry.fuel = BAR.fuelMs;
+    sound.play('checkpoint');
+    this.refreshHud();
+  }
+
   private refreshHud(): void {
     const wanted = Math.max(LIVES, this.carry.maxLives ?? LIVES);
     const lives = this.carry.lives ?? LIVES;
@@ -321,6 +329,10 @@ export class SpaceScene extends Phaser.Scene {
     this.refreshHud();
 
     this.controls = new Controls(this);
+    if (import.meta.env.DEV) {
+      // A full tank, from where a level's name would be. See `dev/fuelShortcut.ts`.
+      installFuelShortcut(this);
+    }
 
     sound.setAmbience('hush');
     sound.play('whoosh');

@@ -2051,10 +2051,19 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
-   * Out into space from wherever the cat is, the run carried as it is.
-   * Development only, off the level name: see `dev/spaceShortcut.ts`.
+   * Shift-click on the level name: out into space from wherever the cat is,
+   * the run carried as it is -- but on Pluto and in the Space Bar, a full
+   * purse instead, for trying the bar. Development only: see
+   * `dev/spaceShortcut.ts`.
    */
-  goToSpace(): void {
+  shiftClickName(): void {
+    if (this.level.theme === 'pluto') {
+      this.coins = BOB.maxCoins;
+      this.refreshCoins();
+      sound.play('checkpoint');
+      this.announceBonus(`+${BOB.maxCoins} coins`);
+      return;
+    }
     this.scene.start('Space', this.carry(this.levelIndex));
   }
 

@@ -173,6 +173,9 @@ instead of scrolling with the world, plus a high `setDepth` to stay on top.
 - **Skipping a level**: Cmd-click the level name for the next one, Ctrl-click
   for the previous. Development only.
 - **Going to space**: Shift-click the level name; the run goes with you.
+  On Pluto and in the Space Bar it gives 100 coins instead.
+- **Rocket fuel**: in space, click where the level name would be (top
+  left) for a full tank. Development only.
   Development only.
 - **Dev test levels**: none at the moment. See `src/level/CLAUDE.md` for how
   to add one.
