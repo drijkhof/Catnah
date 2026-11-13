@@ -17,7 +17,11 @@ Phaser scenes. Registered in order in `src/main.ts`; the first one starts.
   with its name under it; flying into an open one starts its level, with the run
   carried through untouched. Arrows on the screen's edge point to the open
   worlds out of sight. The ISS circles the Earth, and a battle station and
-  a starship drift and fire at each other, never at the cat or a planet.
+  a starship drift and fire at each other, always, whatever is in between: a
+  cat in a beam while it lasts (`deadly`, `LASER.hitReach`) dies, like in
+  the sun (`die`). Orbits and the drift run on `clock`, the game loop's
+  time: `this.time.now` is stale in `create`, which set the cat off from
+  where its planet was when space was last left.
   The clock does not run here.
 - **Talking to Bob** (`GameScene.startTalk` and on): the HUD and touch
   buttons are hidden, the main camera stops following and pans and zooms

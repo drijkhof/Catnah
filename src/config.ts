@@ -582,9 +582,8 @@ export const LASER = {
   shipOrbit: { x: 380, y: 230 },
   chargeMs: 600,
   beamMs: 700,
-  length: 1100,
-  /** How far a beam must pass from the cat or a planet, px. */
-  clearance: 140,
+  /** How near a beam the cat has to be to be hit by it, px. */
+  hitReach: 10,
 } as const;
 
 /**

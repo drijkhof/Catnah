@@ -2345,3 +2345,14 @@ Asked: no black blocks with green stripes in the forest or anywhere.
 That pattern is what the engine draws when a picture is missing, but on
 this machine no level has one -- every level was checked, on a laptop and
 in the phone view. Still open: where exactly, and on which device.
+
+## Back beside the planet, and the lasers kill
+
+Asked for: coming out of a planet's level you should be beside that
+planet, wherever it has moved to; the Death Star should fire at the
+Enterprise (it often fired out into empty space, to keep its beam clear
+of the cat and the planets); and they should fire even with the cat in
+between, which kills it. Decided without asking: both beams kill, the
+station's and the starship's; dying in a beam is a heart lost like in
+the sun, and the old rule -- a hit loses every part found -- is gone, the
+heart being the price now. Beams may cross a planet.

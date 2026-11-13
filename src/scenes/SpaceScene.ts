@@ -106,7 +106,8 @@ export class SpaceScene extends Phaser.Scene {
   private station!: Phaser.GameObjects.Image;
   private stationWords!: CrispText;
   /** The station's beam while it can hit: its ends, and until when. */
-  private deadly?: { from: Phaser.Math.Vector2; to: Phaser.Math.Vector2; until: number };
+  /** The beams still bright enough to kill, the station's and the starship's. */
+  private deadly: Array<{ from: Phaser.Math.Vector2; to: Phaser.Math.Vector2; until: number }> = [];
   /** Each world's name under it, to be written again when the parts change. */
   private labels: Array<{ level: string; text: CrispText }> = [];
   /** Where the station drifts about, and the starship going round it. */
@@ -165,7 +166,7 @@ export class SpaceScene extends Phaser.Scene {
     this.planets = [];
     this.worlds = [];
     this.labels = [];
-    this.deadly = undefined;
+    this.deadly = [];
     this.burning = false;
   }
 
@@ -353,25 +354,23 @@ export class SpaceScene extends Phaser.Scene {
 
     // Too close to the sun: burnt.
     if (Phaser.Math.Distance.Between(this.cat.x, this.cat.y, this.sun.x, this.sun.y) < SPACE_SUN_SIZE / 2 + SPACE.sunReach) {
-      this.burn();
+      this.die('sun');
       return;
     }
 
-    // Into the station's beam while it lasts: hit.
-    if (this.deadly) {
-      if (this.time.now > this.deadly.until) {
-        this.deadly = undefined;
-      } else {
-        const line = new Phaser.Geom.Line(this.deadly.from.x, this.deadly.from.y, this.deadly.to.x, this.deadly.to.y);
-        const nearest = Phaser.Geom.Line.GetNearestPoint(line, new Phaser.Math.Vector2(this.cat.x, this.cat.y));
-        const along = Phaser.Math.Distance.Between(this.deadly.from.x, this.deadly.from.y, nearest.x, nearest.y);
-        const length = Phaser.Geom.Line.Length(line);
-        const between =
-          along <= length &&
-          Phaser.Math.Distance.Between(this.deadly.to.x, this.deadly.to.y, nearest.x, nearest.y) <= length;
-        if (between && Phaser.Math.Distance.Between(this.cat.x, this.cat.y, nearest.x, nearest.y) < 10) {
-          this.hitByLaser();
-        }
+    // Into a beam while it lasts: dead. They fire at each other, not
+    // at the cat -- but a cat in between is in the way.
+    this.deadly = this.deadly.filter((beam) => this.clock <= beam.until);
+    for (const beam of this.deadly) {
+      const line = new Phaser.Geom.Line(beam.from.x, beam.from.y, beam.to.x, beam.to.y);
+      const nearest = Phaser.Geom.Line.GetNearestPoint(line, new Phaser.Math.Vector2(this.cat.x, this.cat.y));
+      const length = Phaser.Geom.Line.Length(line);
+      const between =
+        Phaser.Math.Distance.Between(beam.from.x, beam.from.y, nearest.x, nearest.y) <= length &&
+        Phaser.Math.Distance.Between(beam.to.x, beam.to.y, nearest.x, nearest.y) <= length;
+      if (between && Phaser.Math.Distance.Between(this.cat.x, this.cat.y, nearest.x, nearest.y) < LASER.hitReach) {
+        this.die('laser');
+        return;
       }
     }
 
@@ -399,6 +398,16 @@ export class SpaceScene extends Phaser.Scene {
   }
 
   /**
+   * The time out here, ms: the game's own, which never stops. Not
+   * `this.time.now` -- that is only brought up to date once the scene has
+   * run a frame, so in `create` it still said when space was last left,
+   * and the cat set off from where its planet was then.
+   */
+  private get clock(): number {
+    return this.game.loop.time;
+  }
+
+  /**
    * Where a world is at a moment, ms: round the sun, or for the Moon round
    * wherever the Earth is then.
    */
@@ -418,7 +427,7 @@ export class SpaceScene extends Phaser.Scene {
    * left). Not Saturn, whose ring would tip over.
    */
   private orbit(): void {
-    const t = this.time.now;
+    const t = this.clock;
     for (const world of this.worlds) {
       const at = this.placeOf(world, t);
       world.x = at.x;
@@ -445,8 +454,8 @@ export class SpaceScene extends Phaser.Scene {
       this.worlds.find((world) => world.level === this.carry.from) ??
       this.worlds.find((world) => world.level === (this.carry.rocket ? 'Moon' : '')) ??
       this.worlds[0];
-    const now = this.placeOf(home, this.time.now);
-    const way = now.clone().subtract(this.placeOf(home, this.time.now - 100));
+    const now = this.placeOf(home, this.clock);
+    const way = now.clone().subtract(this.placeOf(home, this.clock - 100));
     if (way.lengthSq() === 0) {
       way.set(1, 0);
     }
@@ -460,19 +469,23 @@ export class SpaceScene extends Phaser.Scene {
    * death, and it sets off again from where it came. The last heart is
    * game over -- and, out here, back to the moon.
    */
-  private burn(): void {
+  private die(by: 'sun' | 'laser'): void {
+    if (this.burning) {
+      return;
+    }
+    const [r, g, b] = by === 'sun' ? [255, 200, 80] : [120, 255, 120];
     if (this.game.registry.get('catnah:god-mode')) {
       // God mode: felt, and thrown back out, but nothing lost.
-      this.cameras.main.flash(250, 255, 200, 80);
+      this.cameras.main.flash(250, r, g, b);
       this.setOff();
       return;
     }
     this.burning = true;
     sound.play('hurt');
     this.cameras.main.shake(260, 0.012);
-    this.cameras.main.flash(300, 255, 200, 80);
-    this.cat.setTint(0xff8040);
-    this.helmet.setTint(0xff8040);
+    this.cameras.main.flash(300, r, g, b);
+    this.cat.setTint(by === 'sun' ? 0xff8040 : 0xff6b6b);
+    this.helmet.setTint(by === 'sun' ? 0xff8040 : 0xff6b6b);
     this.velocity.set(0, 0);
     const lives = (this.carry.lives ?? LIVES) - 1;
     this.carry = { ...this.carry, lives, deaths: (this.carry.deaths ?? 0) + 1 };
@@ -553,37 +566,6 @@ export class SpaceScene extends Phaser.Scene {
     }
   }
 
-  /**
-   * Things a beam must keep clear of: the cat, the Earth, the Moon and every
-   * planet out here. Nothing that is fired out here is fired at any of them.
-   */
-  private avoidList(): Array<{ x: number; y: number; r: number }> {
-    return [
-      { x: this.cat.x, y: this.cat.y, r: LASER.clearance },
-      { x: this.earth.x, y: this.earth.y, r: 260 },
-      { x: this.sun.x, y: this.sun.y, r: SPACE_SUN_SIZE / 2 + 60 },
-      ...this.worlds.map((world) => ({ x: world.x, y: world.y, r: world.radius + 40 })),
-      ...this.planets.map((planet) => ({ x: planet.x, y: planet.y, r: planet.displayWidth / 2 + 40 })),
-    ];
-  }
-
-  /** Whether a beam from one point to another keeps clear of all of those. */
-  private beamIsClear(from: Phaser.Math.Vector2, to: Phaser.Math.Vector2): boolean {
-    const line = new Phaser.Geom.Line(from.x, from.y, to.x, to.y);
-    return this.avoidList().every((thing) => {
-      const nearest = Phaser.Geom.Line.GetNearestPoint(line, new Phaser.Math.Vector2(thing.x, thing.y));
-      const onSegment =
-        Math.min(from.x, to.x) - 1 <= nearest.x && nearest.x <= Math.max(from.x, to.x) + 1 &&
-        Math.min(from.y, to.y) - 1 <= nearest.y && nearest.y <= Math.max(from.y, to.y) + 1;
-      const point = onSegment
-        ? nearest
-        : Phaser.Math.Distance.Between(thing.x, thing.y, from.x, from.y) < Phaser.Math.Distance.Between(thing.x, thing.y, to.x, to.y)
-          ? from
-          : to;
-      return Phaser.Math.Distance.Between(thing.x, thing.y, point.x, point.y) > thing.r;
-    });
-  }
-
   /** A beam: a bright core in a coloured glow, fading out. */
   private drawBeam(from: Phaser.Math.Vector2, to: Phaser.Math.Vector2, glow: number, core: number): void {
     const beam = this.add.graphics().setDepth(-37).setBlendMode(Phaser.BlendModes.ADD);
@@ -599,35 +581,6 @@ export class SpaceScene extends Phaser.Scene {
     this.tweens.add({ targets: beam, alpha: 0, duration: LASER.beamMs, ease: 'Cubic.easeIn', onComplete: () => beam.destroy() });
   }
 
-  /**
-   * The cat has flown into the station's beam: a flash, a jolt, a knock away
-   * from the beam -- and every part it had found is lost, back where it was
-   * on its world, to be found again.
-   */
-  private hitByLaser(): void {
-    this.deadly = undefined;
-    sound.play('hurt');
-    this.cameras.main.shake(260, 0.012);
-    this.cameras.main.flash(250, 120, 255, 120);
-    this.cat.setTint(0xff6b6b);
-    this.time.delayedCall(400, () => this.cat.clearTint());
-    this.velocity.scale(-0.8);
-    const lost = (this.carry.parts ?? []).length;
-    this.carry = { ...this.carry, parts: [] };
-    this.refreshLabels();
-    const words = crispText(this, GAME_WIDTH / 2, GAME_HEIGHT * 0.3, lost > 0 ? 'Hit! All the parts are lost!' : 'Hit!', {
-      fontFamily: 'monospace',
-      fontSize: `${Math.round(GAME_HEIGHT * 0.07)}px`,
-      color: '#ff8a7a',
-      stroke: '#2a0a0a',
-      strokeThickness: 4,
-    })
-      .setOrigin(0.5)
-      .setScrollFactor(0)
-      .setDepth(300);
-    this.tweens.add({ targets: words, alpha: 0, delay: 1600, duration: 700, onComplete: () => words.destroy() });
-  }
-
   /** A flash where a beam lands. Nothing is hurt by it. */
   private impact(at: Phaser.Math.Vector2, tint: number): void {
     const flash = this.add.image(at.x, at.y, 'spark').setTint(tint).setBlendMode(Phaser.BlendModes.ADD).setDepth(-36).setScale(2);
@@ -635,38 +588,15 @@ export class SpaceScene extends Phaser.Scene {
   }
 
   /**
-   * The battle station fires: its dish glows green for a moment, and then a
-   * beam goes out -- at the starship, if the way to it is clear of the cat
-   * and the planets, or otherwise out into empty space where it is clear.
-   * If nothing is clear it does not fire this time.
+   * The battle station fires at the starship: its dish glows green for a
+   * moment, and then a beam goes out to wherever the ship is by then.
+   * Whatever is in between is in the way -- the cat included.
    */
   private fireLaser(): void {
     if (this.going) {
       return;
     }
     const dish = new Phaser.Math.Vector2(this.station.x + 27, this.station.y - 27);
-    let target: Phaser.Math.Vector2 | undefined;
-    const ship = new Phaser.Math.Vector2(this.ship.x, this.ship.y);
-    let hits = false;
-    if (this.beamIsClear(dish, ship)) {
-      target = ship;
-      hits = true;
-    } else {
-      const start = Math.random() * Math.PI * 2;
-      for (let i = 0; i < 24 && !target; i += 1) {
-        const angle = start + (i / 24) * Math.PI * 2;
-        const end = new Phaser.Math.Vector2(dish.x + Math.cos(angle) * LASER.length, dish.y + Math.sin(angle) * LASER.length);
-        if (this.beamIsClear(dish, end)) {
-          target = end;
-        }
-      }
-    }
-    if (!target) {
-      return;
-    }
-    const aim = target;
-
-    // The charge.
     const glow = this.add.image(dish.x, dish.y, 'spark').setTint(0x7aff7a).setBlendMode(Phaser.BlendModes.ADD).setDepth(-37).setScale(1);
     this.tweens.add({
       targets: glow,
@@ -675,22 +605,19 @@ export class SpaceScene extends Phaser.Scene {
       ease: 'Sine.easeIn',
       onComplete: () => {
         glow.destroy();
-        // The ship has moved on a little while the dish charged: aim again.
-        const end = hits ? new Phaser.Math.Vector2(this.ship.x, this.ship.y) : aim;
-        this.drawBeam(dish, end, 0x3aff5a, 0x9fff9f);
-        // The station never aims at the cat -- but a cat that flies into the
-        // beam while it lasts is hit.
-        this.deadly = { from: dish.clone(), to: end.clone(), until: this.time.now + LASER.beamMs * 0.7 };
-        if (hits) {
-          this.impact(end, 0x9fff9f);
-        }
+        // From the dish where it is now, to the ship where it is now.
+        const from = new Phaser.Math.Vector2(this.station.x + 27, this.station.y - 27);
+        const end = new Phaser.Math.Vector2(this.ship.x, this.ship.y);
+        this.drawBeam(from, end, 0x3aff5a, 0x9fff9f);
+        this.deadly.push({ from, to: end, until: this.clock + LASER.beamMs * 0.7 });
+        this.impact(end, 0x9fff9f);
       },
     });
   }
 
   /**
    * The starship fires back: a short orange phaser from its saucer to the
-   * station's near side, if the way is clear of the cat and the planets.
+   * station's near side. A cat in between is hit by it too.
    */
   private fireShip(): void {
     if (this.going) {
@@ -700,10 +627,8 @@ export class SpaceScene extends Phaser.Scene {
     const from = new Phaser.Math.Vector2(this.ship.x + 16 * facing, this.ship.y - 5);
     const toward = new Phaser.Math.Vector2(this.station.x - from.x, this.station.y - from.y).normalize();
     const to = new Phaser.Math.Vector2(this.station.x - toward.x * 70, this.station.y - toward.y * 70);
-    if (!this.beamIsClear(from, to)) {
-      return;
-    }
     this.drawBeam(from, to, 0xff7a2a, 0xffc080);
+    this.deadly.push({ from, to, until: this.clock + LASER.beamMs * 0.7 });
     this.impact(to, 0xffb060);
   }
 
@@ -713,7 +638,7 @@ export class SpaceScene extends Phaser.Scene {
    * as it goes; the ship round the station, facing it.
    */
   private drift(): void {
-    const t = this.time.now;
+    const t = this.clock;
     // Round the sun, like the worlds, but with no ring drawn for it.
     const start = Math.atan2(LASER.stationOrbit.y, LASER.stationOrbit.x);
     const reach = Math.hypot(LASER.stationOrbit.x, LASER.stationOrbit.y);

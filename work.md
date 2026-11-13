@@ -724,7 +724,8 @@ are not sent back to the same one.
 - **Never the Earth.**
 
 You set off beside the world you have just left, behind it on its way
-round, so it moves off without you.
+round, so it moves off without you. The worlds go on round the sun while
+you are in a level, and you come out beside yours wherever it has got to.
 
 Out there you can see, but never land on, the **ISS** going round the Earth
 and a **battle station** — the Death Star — hanging in space: an **easter egg**, with no arrow and no name, between the orbits of Mars and Jupiter, **going round the sun** too (once every four Earth years, with no ring drawn for it, so it is not on any line to follow), there to be found. Fly near it
@@ -733,12 +734,12 @@ A **starship** — the Enterprise — goes slowly round the station, and the
 station drifts slowly too. They fire at each other: every ten seconds the
 station's dish glows green and its laser goes at the starship, and every
 seven seconds the starship's orange phaser hits the station, each with a
-flash where it lands. Neither is ever hurt, and neither ever fires at the
-cat or across a planet: if the way is not clear, the station fires out into
-empty space instead and the starship holds its fire. **But get between them**: fly into the
-station's green beam while it is there and you are hit — a jolt, and **every
-part you have found is lost**, back where it was on its world, to be found
-again.
+flash where it lands. Neither is ever hurt. They always fire at each
+other, whatever is in the way: **get between them** and fly into a beam —
+the station's green laser or the starship's orange phaser — while it is
+there, and **you are dead**: a heart lost, as in the sun, and you set off
+again from the world you came from (the last heart is game over, back to
+the Moon).
 
 ### 10 — Moon
 
