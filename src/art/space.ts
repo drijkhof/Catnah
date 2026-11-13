@@ -242,6 +242,21 @@ function generateStarfields(scene: Phaser.Scene): void {
     g.fillRect(1, 1, 2, 2);
   });
 
+  // A round, soft glow: white in the middle, fading out to nothing at the
+  // edge. Tinted at runtime -- the Death Star's charge, where a beam lands.
+  {
+    const size = 32;
+    const glow = scene.textures.createCanvas('glow-dot', size, size) as Phaser.Textures.CanvasTexture;
+    const fade = glow.context.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    fade.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    fade.addColorStop(0.35, 'rgba(255, 255, 255, 0.85)');
+    fade.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    glow.context.fillStyle = fade;
+    glow.context.fillRect(0, 0, size, size);
+    glow.refresh();
+    glow.setFilter(Phaser.Textures.FilterMode.LINEAR);
+  }
+
   // A cloud of glowing gas, soft-edged, tinted at runtime.
   bakeTexture(scene, 'nebula', 160, 160, (g) => {
     for (let i = 8; i > 0; i -= 1) {

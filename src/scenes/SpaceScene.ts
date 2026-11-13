@@ -940,10 +940,10 @@ export class SpaceScene extends Phaser.Scene {
   /** A flash where a beam lands, staying on what it hit. Nothing is hurt by it. */
   private impact(at: () => Phaser.Math.Vector2, tint: number): void {
     const start = at();
-    const flash = this.add.image(start.x, start.y, 'spark').setTint(tint).setBlendMode(Phaser.BlendModes.ADD).setDepth(-36).setScale(2);
+    const flash = this.add.image(start.x, start.y, 'glow-dot').setTint(tint).setBlendMode(Phaser.BlendModes.ADD).setDepth(-36).setScale(0.3);
     this.tweens.add({
       targets: flash,
-      scale: 8,
+      scale: 1.2,
       alpha: 0,
       duration: 450,
       ease: 'Cubic.easeOut',
@@ -954,7 +954,7 @@ export class SpaceScene extends Phaser.Scene {
 
   /** The station's dish, on its picture: up and to the right of the middle. */
   private dishAt(): Phaser.Math.Vector2 {
-    return new Phaser.Math.Vector2(this.station.x + 33, this.station.y - 39);
+    return new Phaser.Math.Vector2(this.station.x + 35, this.station.y - 41);
   }
 
   /** The starship's saucer, at the front whichever way it faces. */
@@ -973,10 +973,10 @@ export class SpaceScene extends Phaser.Scene {
       return;
     }
     const start = this.dishAt();
-    const glow = this.add.image(start.x, start.y, 'spark').setTint(0x7aff7a).setBlendMode(Phaser.BlendModes.ADD).setDepth(-37).setScale(1);
+    const glow = this.add.image(start.x, start.y, 'glow-dot').setTint(0x7aff7a).setBlendMode(Phaser.BlendModes.ADD).setDepth(-37).setScale(0.15);
     this.tweens.add({
       targets: glow,
-      scale: 6,
+      scale: 1,
       duration: LASER.chargeMs,
       ease: 'Sine.easeIn',
       onUpdate: () => glow.setPosition(this.dishAt().x, this.dishAt().y),
