@@ -1,5 +1,7 @@
 import type { LevelDefinition } from '../Level';
 import { GRAVITY } from '../../config';
+import { gridRows } from './grid';
+import grid from './pluto-bar.txt?raw';
 
 /**
  * Inside the bar on Pluto: one warm room behind the hut's door, seen close
@@ -10,20 +12,7 @@ import { GRAVITY } from '../../config';
  * Only ever reached through that door: its place in `LEVELS` is only so
  * there is one, and it has no portal.
  */
-const ROWS: string[] = [
-  '______________________',
-  '______________________',
-  '__..................__',
-  '__..................__',
-  '__..................__',
-  '__..................__',
-  '__..................__',
-  '__..................__',
-  '__..................__',
-  '__.n.P..a...........__',
-  '######################',
-  '######################',
-];
+const ROWS = gridRows(grid);
 
 export const PLUTO_BAR: LevelDefinition = {
   name: 'Bar',

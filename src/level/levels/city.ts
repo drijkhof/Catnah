@@ -1,4 +1,6 @@
 import type { LevelDefinition } from '../Level';
+import { gridRows } from './grid';
+import grid from './city.txt?raw';
 
 /**
  * Level 1: the city. 104 tiles.
@@ -25,48 +27,13 @@ import type { LevelDefinition } from '../Level';
 /**
  * The grid, written out.
  *
- * Laid out once with a throwaway script and then **frozen into this file**,
+ * Laid out once with a throwaway script and then **frozen into its `.txt` file**,
  * so the level is a fixed thing -- the same on every machine, in every run,
  * for every player -- rather than something computed at boot. Rows are
  * written short and padded out to the level's width by `parseLevel`, which
  * is why the right-hand ends are ragged.
  */
-const ROWS: string[] = [
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '.....................................................................$',
-  '.....................................................................G..+...Q',
-  '....................................................................GGG....QQQ',
-  '.......................oooo....................R...................GGGGG.TQQQQQ',
-  '........................GG....................RRR..................GGGGG.TQQQQQ',
-  '.......................GGGG..................RRRRR.oo..............GGGGG.TQQQQQ',
-  '............RR.......TGGGGGG.................RRRRR..GG.............GGGGG.TQQQQQ........RR',
-  '...........RRRR......TGGGGGG...............==RRRRR$GGGG............GGGGG.TQQQQQ.......RRRR',
-  '..........RRRRRR.....TGGGGGG.QQ..............RRRRRGGGGGG...........GGGGG.TQQQQQ......RRRRRR...G',
-  '..........RRRRRR.....TGGGGGGQQQQ...oooo......RRRRRGGGGGG.....R.....GGGGG.TQQQQQ.ooo==RRRRRR..GGG',
-  '.....ooo..RRRRRR.....TGGGGGGQQQQ...........==RRRRRGGGGGG....RRR....GGGGG.TQQQQQ......RRRRRR.GGGGG',
-  '..........RRRRRR.....TGGGGGGQQQQ.............RRRRRGGGGGG...RRRRR...GGGGG.TQQQQQ......RRRRRR.GGGGG',
-  '.....................TGGGGGGQQQQ.oo......oo..RRRRRGGGGGG...RRRRR.........TQQQQQ......RRRRRR.GGGGG',
-  '..P........oooo......TGGGGGGQQQQ.bb.OOOO.bb.rRRRRRGGGGGG*..RRRRR.r..ooo.rTQQQQQ..r.r..oooo..GGGGG....E',
-  '########################################################################################################',
-  '########################################################################################################',
-  '#'.repeat(104),
-  '#'.repeat(104),
-];
+const ROWS = gridRows(grid);
 
 export const CITY: LevelDefinition = {
   name: 'City',

@@ -5,8 +5,11 @@ coordinates.
 
 - `Level.ts` — the `LevelDefinition` shape and `parseLevel`.
 - `themes.ts` — one palette per place.
-- `levels/` — the ten levels, one file each, plus the order they play in
-  (`index.ts`). The last one's portal is the end of the game.
+- `levels/` — the levels, two files each, plus the order they play in
+  (`index.ts`). `<name>.txt` is the grid and nothing else, one line a row,
+  to be edited as it is; `<name>.ts` holds the settings (theme, ground row,
+  gravity...) and the notes, and reads the grid with
+  `import grid from './<name>.txt?raw'` and `gridRows` (`levels/grid.ts`).
 
 A level is a grid of characters plus a theme, a width, a ground row, and whether
 its platforms must attach to a column. Everything else is derived.
@@ -364,10 +367,13 @@ rather than a misplaced character, and cost a debugging session to find.
 
 ## Levels are written out, never generated at boot
 
-Every level in `levels/` is a literal `ROWS` array. Some of them were **laid out
-once** with a throwaway builder -- the forest's bays, the swamp's crossings, the
-cave's chambers -- and the builder's output was then frozen into the file and the
-builder deleted.
+Every level's grid is a plain text file in `levels/`, `<name>.txt`, one line a
+row and nothing else: no quotes, no commas, so it can be edited as it looks.
+Leading empty lines are empty rows of sky and count. Some grids were **laid
+out once** with a throwaway builder -- the forest's bays, the swamp's
+crossings, the cave's chambers -- and the builder's output was then frozen into
+the file and the builder deleted. A change to a `.txt` hot-reloads like any
+other.
 
 That is the rule: a level is a fixed thing that is the same on every machine, in
 every run, for every player. A generator that runs at boot is one refactor away
@@ -375,9 +381,9 @@ from being a level that quietly differs, and a level nobody can point at is a
 level nobody can fix.
 
 Rows are written **short** and padded out to the longest row by `parseLevel`,
-which is why the right-hand ends are ragged. To change a level, edit the rows.
-To lay out a new one, write whatever you like, run it once, paste the output in
-and throw the script away.
+which is why the right-hand ends are ragged. To change a level, edit its `.txt`.
+To lay out a new one, write whatever you like, run it once, write the output to the
+`.txt` and throw the script away.
 
 ## The old note on carving, which still explains the shapes
 

@@ -1,4 +1,6 @@
 import type { LevelDefinition } from '../Level';
+import { gridRows } from './grid';
+import grid from './path.txt?raw';
 
 /**
  * Level 9: the sand path. 84 tiles.
@@ -13,44 +15,9 @@ import type { LevelDefinition } from '../Level';
  */
 
 /**
- * The grid, written out and frozen into this file like every other level.
+ * The grid, written out and frozen into its `.txt` file like every other level.
  */
-const ROWS: string[] = [
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '...............................oooo...............$',
-  '.....................oo.......######..oo.......oo.Q.oo',
-  '...........ooG.oo..........oo.######........o.#########.o.....o..oo',
-  '..........########...RR...##########.....G....#########...R.....####',
-  '..P...R...########...RR...##########....GGG...#########...RR....####.......E',
-  '#'.repeat(84),
-  '#'.repeat(84),
-  '#'.repeat(84),
-  '#'.repeat(84),
-];
+const ROWS = gridRows(grid);
 
 export const PATH: LevelDefinition = {
   // A mystery on purpose: the player is not told where the path leads.
