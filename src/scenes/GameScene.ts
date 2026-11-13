@@ -1560,11 +1560,82 @@ export class GameScene extends Phaser.Scene {
     this.physics.add.collider(robot, this.branchGroup, undefined, (walker, branch) =>
       landsOnBranch(walker as Phaser.Physics.Arcade.Sprite, branch as Phaser.Physics.Arcade.Sprite),
     );
-    this.physics.add.overlap(this.player, robot, () => this.bitten(false));
+    this.physics.add.overlap(this.player, robot, () => this.touchRobot(robot));
     robot.setScale(1, 0.2);
     this.tweens.add({ targets: robot, scaleY: 1, duration: 260, ease: 'Back.easeOut' });
     sound.playAt('beep', x, y);
     return robot;
+  }
+
+  /**
+   * The cat and a robot meet. Coming down on it from above breaks it: it
+   * falls apart, the cat bounces off, and `ROBOT.mendMs` later the bits fly
+   * back together and it rolls on. Any other way, it has the cat.
+   */
+  private touchRobot(robot: GroundEnemy): void {
+    const cat = this.player.body;
+    const fromAbove = cat.velocity.y > 0 && cat.bottom <= robot.body.y + ROBOT.stompReach;
+    if (!fromAbove || this.dying || this.talk || this.shop) {
+      if (!fromAbove) {
+        this.bitten(false);
+      }
+      return;
+    }
+    this.player.setVelocityY(CAT.jumpVelocity * ROBOT.stompBounce);
+    this.smashRobot(robot);
+  }
+
+  /** A robot in bits on the ground, and the bits back into a robot later. */
+  private smashRobot(robot: GroundEnemy): void {
+    robot.smash();
+    sound.play('crunch');
+    this.cameras.main.shake(100, 0.003);
+    const floor = robot.y;
+    const keys = ['robot-bit-eye', 'robot-bit-plate', 'robot-bit-plate', 'robot-bit-tread', 'robot-bit-tread', 'robot-bit-antenna', 'robot-bit-arm'];
+    const bits = keys.map((key, i) => {
+      const bit = this.add.image(robot.x, floor - 8, key).setOrigin(0.5, 1).setDepth(-0.4);
+      const side = (i - (keys.length - 1) / 2) * 4 + (Math.random() - 0.5) * 4;
+      const landX = robot.x + side;
+      // Up and out, then down onto the floor where it stood, with a bounce.
+      this.tweens.add({ targets: bit, x: landX, angle: (Math.random() - 0.5) * 360, duration: 520, ease: 'Quad.easeOut' });
+      this.tweens.add({
+        targets: bit,
+        y: floor - 16 - Math.random() * 10,
+        duration: 180,
+        ease: 'Quad.easeOut',
+        onComplete: () => this.tweens.add({ targets: bit, y: floor, duration: 340, ease: 'Bounce.easeOut' }),
+      });
+      return bit;
+    });
+    // Coming to: a shiver first, so a cat standing there has a warning.
+    this.time.delayedCall(ROBOT.mendMs - ROBOT.shakeMs, () => {
+      for (const bit of bits) {
+        this.tweens.add({ targets: bit, x: bit.x + 1, duration: 60, yoyo: true, repeat: Math.floor(ROBOT.shakeMs / 240) });
+      }
+    });
+    this.time.delayedCall(ROBOT.mendMs - 300, () => {
+      for (const bit of bits) {
+        this.tweens.add({ targets: bit, x: robot.x, y: floor - 6, angle: 0, duration: 300, ease: 'Quad.easeIn' });
+      }
+    });
+    // Not on top of the cat, though: while it stands there, the bits wait.
+    const mend = (): void => {
+      if (!this.sys.isActive() || !robot.active) {
+        return;
+      }
+      if (Phaser.Geom.Intersects.RectangleToRectangle(robot.getBounds(), this.player.getBounds())) {
+        this.time.delayedCall(250, mend);
+        return;
+      }
+      for (const bit of bits) {
+        bit.destroy();
+      }
+      robot.mend();
+      robot.setScale(1, 0.2);
+      this.tweens.add({ targets: robot, scaleY: 1, duration: 260, ease: 'Back.easeOut' });
+      sound.playAt('crunch', robot.x, robot.y);
+    };
+    this.time.delayedCall(ROBOT.mendMs, mend);
   }
 
   /** A grey block breaks: gone, in a burst of chips, and no more robots from it. */
@@ -1694,6 +1765,10 @@ export class GameScene extends Phaser.Scene {
         // landing on it a coin toss, pushing the cat sideways or dropping it
         // through the back. The back is geometry, handled by `rideCamels`
         // every frame; the cat passes through the camel from the side.
+        continue;
+      }
+      if (!this.titleMode && creature instanceof GroundEnemy && creature.isRobot) {
+        this.physics.add.overlap(this.player, creature, () => this.touchRobot(creature));
         continue;
       }
       if (!this.titleMode) {

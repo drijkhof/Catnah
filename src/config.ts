@@ -474,6 +474,14 @@ export const ROBOT = {
   breakMs: 700,
   /** How close the cat has to be to a block for holding down to work on it, px. */
   breakReach: 3,
+  /** Landed on from above, it falls apart, and puts itself back together this long after, ms. */
+  mendMs: 10000,
+  /** How long before that its bits start to shake, ms. */
+  shakeMs: 1500,
+  /** The cat's bounce off it, as a share of a jump. */
+  stompBounce: 0.75,
+  /** How far below the top of a robot the cat's feet may be and still count as landing on it, px. */
+  stompReach: 8,
 } as const;
 
 /**

@@ -596,6 +596,39 @@ function generateRobot(scene: Phaser.Scene): void {
     g.fillRect(14, 6, 2, 1);
     g.fillRect(14, 10, 2, 1);
   });
+  // The bits it falls apart into when the cat lands on it: the eye, a
+  // plate of the body, a tread, the antenna with its light, an arm.
+  bakeTexture(scene, 'robot-bit-eye', 5, 4, (g) => {
+    g.fillStyle(0x1a2430, 1);
+    g.fillRect(0, 0, 5, 4);
+    g.fillStyle(0x5ef0ff, 1);
+    g.fillRect(2, 1, 2, 2);
+  });
+  bakeTexture(scene, 'robot-bit-plate', 5, 5, (g) => {
+    g.fillStyle(0x6e7480, 1);
+    g.fillRect(0, 0, 5, 5);
+    g.fillStyle(0xb8c0cc, 1);
+    g.fillRect(0, 0, 4, 4);
+  });
+  bakeTexture(scene, 'robot-bit-tread', 6, 3, (g) => {
+    g.fillStyle(0x2c2e36, 1);
+    g.fillRect(0, 0, 6, 3);
+    g.fillStyle(0x5a5e6a, 1);
+    g.fillRect(1, 1, 1, 1);
+    g.fillRect(4, 1, 1, 1);
+  });
+  bakeTexture(scene, 'robot-bit-antenna', 3, 5, (g) => {
+    g.fillStyle(0x6e7480, 1);
+    g.fillRect(1, 2, 1, 3);
+    g.fillStyle(0xff4a3a, 1);
+    g.fillRect(0, 0, 3, 2);
+  });
+  bakeTexture(scene, 'robot-bit-arm', 4, 3, (g) => {
+    g.fillStyle(0x6e7480, 1);
+    g.fillRect(0, 1, 3, 1);
+    g.fillStyle(0x3c4048, 1);
+    g.fillRect(3, 0, 1, 3);
+  });
 }
 
 /**

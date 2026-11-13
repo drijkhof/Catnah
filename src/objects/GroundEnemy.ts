@@ -115,7 +115,29 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
    * with nothing deciding where it is going.
    */
   doze(): void {
+    if (this.broken) {
+      return;
+    }
     this.setVelocityX(0);
+  }
+
+  /** A robot the cat has landed on, lying in bits: not there, not moving. */
+  broken = false;
+
+  /** Falls apart: gone from sight and from the world, until `mend`. */
+  smash(): void {
+    this.broken = true;
+    this.chasing = false;
+    this.setVelocity(0, 0);
+    this.body.enable = false;
+    this.setVisible(false);
+  }
+
+  /** Whole again, where it fell apart, and off it goes. */
+  mend(): void {
+    this.broken = false;
+    this.body.enable = true;
+    this.setVisible(true);
   }
 
   /** A moon robot, which the scene keeps out of the moon base. */
@@ -152,7 +174,7 @@ export class GroundEnemy extends Phaser.Physics.Arcade.Sprite {
    * @param cat Where the cat is. Only the rats care.
    */
   step(delta = 16.667, cat?: Phaser.Math.Vector2): void {
-    if (!this.active) {
+    if (!this.active || this.broken) {
       return;
     }
 

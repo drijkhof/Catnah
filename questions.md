@@ -2294,3 +2294,13 @@ the machine with a flash, looks left and right, "Bob is gone..." comes up,
 and after six and a half seconds the victory screen, whose second line is
 "Bob Be Back — in Catnah 2" instead of the parts. The moon's robots are
 still about, but the cat does not move and they keep out of the base.
+
+## Jumping on robots
+
+Asked for: jump on a robot and it breaks into little parts, and after ten
+seconds it puts itself back together and moves again. Decided without
+asking: the cat bounces off (three quarters of a jump), the bits shiver
+for the last second and a half as a warning, and a robot never mends on
+top of the cat -- it waits until the cat has moved off its spot. Only
+landing on it from above breaks it; walking into it still costs a heart.
+The bits are pictures, not the ten parts Bob needs: nothing to pick up.

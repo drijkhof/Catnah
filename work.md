@@ -744,6 +744,11 @@ Mars further off, and grey hills on the horizon.
   for you once they see you, wanting to pick you up. They turn at the edge
   of a pit or a crater, like everything else, and never go into one; only
   off their own grey block do they roll down.
+- **Jump on a robot** and it falls apart in little bits -- its eye, plates,
+  treads, the antenna, an arm -- and you bounce off it. **Ten seconds**
+  later the bits shiver, fly back together, and it rolls on as before. It
+  will not put itself back together on top of you: while you stand where
+  it was, it waits. Touching one any other way still costs a heart.
 - **Grey blocks** are where they come from: while you are near, a robot
   climbs out of the top of each every **thirty seconds**, one of its own at
   a time. **Hold down** on a block or against its side and it cracks and

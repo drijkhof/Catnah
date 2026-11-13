@@ -236,6 +236,12 @@ one for `breakMs` cracks it through two textures and destroys it. The block
 tiles are `KEEP_LIVE` so the scenery bake leaves them able to disappear,
 and the ground shade leaves them out.
 
+Landed on from above (`GameScene.touchRobot`: falling, feet within
+`stompReach` of its top) a robot is `smash`ed -- body off, hidden, `step`
+does nothing -- and the cat bounces (`stompBounce` of a jump). The scene
+scatters its `robot-bit-*` images and `mendMs` later, once the cat is not
+in its way, calls `mend`. Any other touch is the bite.
+
 ## The gull is the crow with a different attack
 
 `Crow` with behaviour `swoop`, drawn as a gull: the crow's letter `c` in a
