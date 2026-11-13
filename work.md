@@ -738,8 +738,10 @@ level's sky the planets are lit from where that sky's sun is (from the
 left on a night sky, where none is drawn). **Fly into a world and its level
 starts** — if it is open: the name is gold when it is, grey when it is not.
 Arrows at the edge of the screen point the way to the open worlds you
-cannot see — but not to a planet whose parts you have all found, so you
-are not sent back to the same one.
+cannot see, bigger the nearer the world (from a third bigger close by to
+a third smaller far off). To a planet whose parts you have all found the
+arrow is only a **yellow outline**, not filled: still there to find your
+way, but nothing left to fetch.
 
 - **The first time** (from the sand path): only the Moon is open. *"Fly to
   the Moon!"*

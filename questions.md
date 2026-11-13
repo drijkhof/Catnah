@@ -2545,3 +2545,10 @@ Charon over Pluto, all NASA photographs, the irregular two cut out by the
 dark round them. Venus moved in to 330, the Earth out to 820: the Moon now
 passes Venus with about 130 px to spare and Mars with 80.
 
+## Arrows to every open world
+
+Asked for: arrows always shown, also to worlds whose parts are all found,
+those as a yellow outline without fill; and a little bigger or smaller by
+distance. This undoes the earlier "no arrows to a finished planet". Sizes:
+1.35x at 400 px away or nearer, down to 0.65x from about 2850 px on.
+

@@ -874,23 +874,34 @@ export class SpaceScene extends Phaser.Scene {
     const cy = GAME_HEIGHT / 2;
     this.arrows.clear();
     for (const world of this.worlds) {
-      if (!world.open || world.done || view.contains(world.x, world.y)) {
+      if (!world.open || view.contains(world.x, world.y)) {
         continue;
       }
       const angle = Math.atan2(world.y - (view.y + view.height / 2), world.x - (view.x + view.width / 2));
+      // Nearer, bigger: from a third bigger close by to a third smaller far off.
+      const away = Phaser.Math.Distance.Between(world.x, world.y, view.centerX, view.centerY);
+      const k = Phaser.Math.Clamp(1.35 - (away - 400) / 3500, 0.65, 1.35);
       // Where the line from the middle of the screen leaves it, pulled in a little.
       const reach = Math.min((cx - 18) / Math.abs(Math.cos(angle) || 1e-6), (cy - 18) / Math.abs(Math.sin(angle) || 1e-6));
       const x = cx + Math.cos(angle) * reach;
       const y = cy + Math.sin(angle) * reach;
       const tip = new Phaser.Math.Vector2(Math.cos(angle), Math.sin(angle));
       const side = new Phaser.Math.Vector2(-tip.y, tip.x);
-      this.arrows.fillStyle(0xffe9a8, 0.85);
-      // Long and narrow, so it reads as pointing, not as a wedge.
-      this.arrows.fillTriangle(
-        x + tip.x * 10, y + tip.y * 10,
-        x - tip.x * 7 + side.x * 4, y - tip.y * 7 + side.y * 4,
-        x - tip.x * 7 - side.x * 4, y - tip.y * 7 - side.y * 4,
-      );
+      // Long and narrow, so it reads as pointing, not as a wedge. A world
+      // with all its parts found gets just the outline: still there to fly
+      // to, nothing left to fetch.
+      const points = [
+        x + tip.x * 10 * k, y + tip.y * 10 * k,
+        x - tip.x * 7 * k + side.x * 4 * k, y - tip.y * 7 * k + side.y * 4 * k,
+        x - tip.x * 7 * k - side.x * 4 * k, y - tip.y * 7 * k - side.y * 4 * k,
+      ] as const;
+      if (world.done) {
+        this.arrows.lineStyle(1.5, 0xffd84a, 0.95);
+        this.arrows.strokeTriangle(...points);
+      } else {
+        this.arrows.fillStyle(0xffe9a8, 0.85);
+        this.arrows.fillTriangle(...points);
+      }
     }
   }
 
@@ -924,7 +935,8 @@ export class SpaceScene extends Phaser.Scene {
     if (this.going) {
       return;
     }
-    const dish = new Phaser.Math.Vector2(this.station.x + 27, this.station.y - 27);
+    // The dish, on the picture: up and to the right of the middle.
+    const dish = new Phaser.Math.Vector2(this.station.x + 33, this.station.y - 39);
     const glow = this.add.image(dish.x, dish.y, 'spark').setTint(0x7aff7a).setBlendMode(Phaser.BlendModes.ADD).setDepth(-37).setScale(1);
     this.tweens.add({
       targets: glow,
