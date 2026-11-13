@@ -38,7 +38,7 @@ binary assets but the portal picture and runs straight after clone.
 - `space.ts` — the stars (three seamless layers), the gas clouds, the
   planets: the photographs (`photos.ts`), Uranus's photograph in drawn rings
   (`generateUranus`: a set width in px whatever their slant, the near half
-  its own texture); the planets get **no sun of
+  its own texture), and the battle station (`battle-station`: the picture the player gave, `planets/death-star.jpg`, cut round by `makePhotoPlanets` -- `STATION_PHOTO` -- and shown at `STATION_SIZE`); the planets get **no sun of
   their own** (the photographs are full discs): the light is
   `planet-light` (`PLANET_LIGHT_SIZE`, worked out per pixel for a sun to the
   left), laid over each globe (`PLANET_DISCS`) and turned to the sun by

@@ -759,7 +759,7 @@ shockwave, debris and smoke, the screen shaking), and a moment later the
 cat says *"... oops"*. It leaves a **crater** in the Earth where it hit,
 its edge glowing orange, and a few lumps of Earth floating by it, going
 round the sun with the Earth from then on. The ISS is gone and the crater
-stays for the rest of the run. And there is a **battle station** — the Death Star — hanging in space: an **easter egg**, with no arrow and no name, between the orbits of Mars and Jupiter, **going round the sun** too (once every four Earth years, with no ring drawn for it, so it is not on any line to follow), there to be found. Fly near it
+stays for the rest of the run. And there is a **battle station** — the Death Star, from a picture of it: grey plating in panels, a trench round its middle and the great dish sunk into its upper half — hanging in space: an **easter egg**, with no arrow and no name, between the orbits of Mars and Jupiter, **going round the sun** too (once every four Earth years, with no ring drawn for it, so it is not on any line to follow), there to be found. Fly near it
 and the cat says, in a little bubble over its head: *"That's no moon..."*.
 A **starship** — the Enterprise — goes slowly round the station, and the
 station drifts slowly too. They fire at each other: every ten seconds the

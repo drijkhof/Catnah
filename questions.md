@@ -2526,3 +2526,13 @@ painting shows the keeper, Bob, Whiskey Jones); the bottle is in the bag
 low, by the tank, reached by walking past. The keeper's old line about "my
 old friend Bob" is left as it is.
 
+## The Death Star, nicer
+
+Asked for: the Death Star as nice as the planets ("take a NASA photo",
+as a joke). Drawn per pixel instead, in detail and scaled down: panels
+curving with the sphere, seams, the trench, the sunken dish with a green
+focus, lit from the upper left. Its size in space is unchanged.
+
+Then the player gave a picture of it to use: it is that picture now, cut
+round (`public/assets/planets/death-star.jpg`), at the same size.
+

@@ -50,8 +50,9 @@ export { CASTLE_FLAG_HEADROOM, bakeSandCastle, type CastleCell } from './castle'
 export { PALM_BULGE, bakePalmTrunk } from './palm';
 export { ALIEN_SIZE, BASE_HEADROOM, FLAG_SIZE, LAB_CONSOLE_X, LAB_TANK, bakeMoonBase, baseInside } from './base';
 export { HEAD_IN_POSE, HELMET_SIZE, LANDMARK_SIZES, PAD_SIZE, PART_SIZE, ROCKET_SIZE, bakeCloudPlatform } from './space';
-export { MOON_HILLS_SIZE, PLANET_DISCS, PLANET_LIGHT_SIZE, PLANET_SIZES, SATURN_RING_SPREAD, STARFIELD_SIZE, type PlanetName } from './space';
+export { STATION_SIZE, MOON_HILLS_SIZE, PLANET_DISCS, PLANET_LIGHT_SIZE, PLANET_SIZES, SATURN_RING_SPREAD, STARFIELD_SIZE, type PlanetName } from './space';
 export { SPACE_SUN_SIZE } from './sun';
+export { STATION_PHOTO } from './photos';
 export { HAT_BUYER_SIZE, ITEM_SIZES, STALL_SIZE } from './items';
 export { BAR_GLASS, BAR_STOOL, BAR_TABLE, SOUP_ALIEN, SOUP_BOWL, WHISKEY_GLASS, FUEL_TUBE, MILK_BOTTLE, COIN_SIZE, BAR_ALIEN_SIZE, BAR_KEEPER_X, BAR_SIZE, BAR_STOOLS, FUEL_CAN_SIZE, HUT_DOOR, HUT_SIZE, INSIDE_DOOR_SIZE, SHIRT_COLOURS } from './bar';
 export { HACKER_SIZE, MACHINE_SIZE, MACHINE_ZAPPER, NET_ICONS, type NetSite } from './internet';

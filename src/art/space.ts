@@ -51,7 +51,6 @@ export function generateSpaceTextures(scene: Phaser.Scene): void {
   generatePart(scene);
   generateRocket(scene);
   generateWorldScenery(scene);
-  generateBattleStation(scene);
   generateStarship(scene);
   generateObstacles(scene);
   bakeTexture(scene, 'mars-sky', GAME_WIDTH, GAME_HEIGHT, (g) => {
@@ -247,21 +246,6 @@ function generateStarfields(scene: Phaser.Scene): void {
     g.fillCircle(55, 70, 40);
     g.fillCircle(105, 95, 35);
   });
-}
-
-/**
- * A sphere with no sun on it: a base disc darkening a little towards its
- * rim all round, a touch paler in the middle. Day and night are not drawn
- * here: the light comes from `planet-light`, laid over it by the scene and
- * turned to face the sun, so it is right wherever the sun is.
- */
-function sphere(g: Phaser.GameObjects.Graphics, cx: number, cy: number, r: number, base: number, dark: number, light: number): void {
-  g.fillStyle(dark, 1);
-  g.fillCircle(cx, cy, r);
-  g.fillStyle(base, 1);
-  g.fillCircle(cx, cy, r * 0.92);
-  g.fillStyle(light, 0.2);
-  g.fillCircle(cx, cy, r * 0.6);
 }
 
 /** The light over a planet: drawn this many px across, scaled to each disc. */
@@ -683,45 +667,6 @@ function generateWorldScenery(scene: Phaser.Scene): void {
 
 /** The battle station in space -- the Death Star -- px across. */
 export const STATION_SIZE = 150;
-
-/**
- * A moon-sized battle station: a grey sphere covered in panel lines, a dark
- * trench round its middle, and a great round dish in its upper half with a
- * point of light at its centre. Seen in space, never visited.
- */
-function generateBattleStation(scene: Phaser.Scene): void {
-  const d = STATION_SIZE;
-  const c = d / 2;
-  const r = c - 2;
-  const random = createRandom(4004);
-  bakeTexture(scene, 'battle-station', d, d, (g) => {
-    sphere(g, c, c, r, 0x9aa0a8, 0x5e646c, 0xc8ccd2);
-    // Panels: short lines in rows, following the curve a little.
-    for (let y = c - r + 8; y < c + r - 6; y += 7) {
-      const half = Math.sqrt(Math.max(0, r * r - (y - c) ** 2)) - 4;
-      for (let x = c - half; x < c + half - 6; x += 6 + random() * 10) {
-        g.fillStyle(random() < 0.5 ? 0x6e747c : 0xb4b8be, 0.8);
-        g.fillRect(Math.round(x), Math.round(y), 3 + Math.floor(random() * 6), 1);
-      }
-    }
-    // The trench round the middle.
-    g.fillStyle(0x3a3e44, 1);
-    g.fillRect(c - r + 2, c + 1, r * 2 - 4, 3);
-    g.fillStyle(0xc8ccd2, 0.6);
-    g.fillRect(c - r + 4, c + 4, r * 2 - 8, 1);
-    // The dish, up and to the right.
-    const dx = c + r * 0.35;
-    const dy = c - r * 0.4;
-    g.fillStyle(0x6e747c, 1);
-    g.fillCircle(dx, dy, 19);
-    g.fillStyle(0x8a9098, 1);
-    g.fillCircle(dx + 2, dy + 2, 15);
-    g.lineStyle(1, 0x5a6068, 1);
-    g.strokeCircle(dx + 2, dy + 2, 9);
-    g.fillStyle(0x9fff9f, 1);
-    g.fillCircle(dx + 2, dy + 2, 2);
-  });
-}
 
 /** The starship -- the Enterprise -- px; it faces right. */
 export const STARSHIP_SIZE = { width: 64, height: 32 };

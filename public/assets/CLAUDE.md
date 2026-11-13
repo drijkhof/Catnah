@@ -63,6 +63,8 @@ cache-first, so an installed game would keep the old picture for ever.
 | neptune | PIA01492 | Voyager 2 |
 | pluto | PIA19952 | New Horizons |
 
+`death-star.jpg` is not NASA's: a picture of the battle station the player gave, cut round the same way (`STATION_PHOTO`).
+
 All from images-api.nasa.gov but Saturn, from science.nasa.gov/asset/hubble/saturn-2019.
 The globe was found by its bright area (its centroid and its area), or for
 a globe with a dark limb or a phase -- Venus, Mars, Neptune -- by its

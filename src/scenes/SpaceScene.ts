@@ -3,7 +3,7 @@ import { addPlanetLight, faceTheSun } from '../world/planetLight';
 import { BAR, EARTH_GLOBE, ISS_CRASH, GAME_HEIGHT, GAME_WIDTH, LASER, LIVES, PARTS, PLANET_SIZE_KEEP, REAL_PLANET_SIZE, SPACE, TILE } from '../config';
 import { LEVELS } from '../level/levels';
 import { Controls } from '../input/Controls';
-import { HEAD_IN_POSE, PLANET_DISCS, STARFIELD_SIZE, SPACE_SUN_SIZE, createRandom, type PlanetName } from '../art';
+import { HEAD_IN_POSE, STATION_PHOTO, STATION_SIZE, PLANET_DISCS, STARFIELD_SIZE, SPACE_SUN_SIZE, createRandom, type PlanetName } from '../art';
 import { stats } from '../stats';
 import { sound } from '../audio/Sound';
 import { crispText, type CrispText } from '../text';
@@ -301,7 +301,7 @@ export class SpaceScene extends Phaser.Scene {
     // never entered. Come near and the cat says so, in a bubble over its
     // head that follows it about.
     this.stationHome = new Phaser.Math.Vector2(this.sun.x + LASER.stationOrbit.x, this.sun.y + LASER.stationOrbit.y);
-    this.station = this.add.image(this.stationHome.x, this.stationHome.y, 'battle-station').setDepth(-38);
+    this.station = this.add.image(this.stationHome.x, this.stationHome.y, 'battle-station').setScale(STATION_SIZE / (2 * STATION_PHOTO.disc)).setDepth(-38);
     // And the starship, going round it, the two of them firing at each other.
     this.ship = this.add.image(0, 0, 'starship').setDepth(-37);
     this.drift();

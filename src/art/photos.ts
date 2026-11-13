@@ -21,6 +21,9 @@ export const PLANET_PHOTOS = {
 
 export type PhotoPlanet = keyof typeof PLANET_PHOTOS;
 
+/** The battle station's picture, the player's: its size, px, and its disc. */
+export const STATION_PHOTO = { width: 512, height: 512, disc: 251 } as const;
+
 const photoKey = (name: PhotoPlanet): string => `photo-${name}`;
 
 /** In `BootScene.preload`: every photograph, as `photo-<name>`. */
@@ -28,6 +31,7 @@ export function loadPlanetPhotos(scene: Phaser.Scene): void {
   for (const name of Object.keys(PLANET_PHOTOS) as PhotoPlanet[]) {
     scene.load.image(photoKey(name), `assets/planets/${name}.jpg`);
   }
+  scene.load.image('photo-death-star', 'assets/planets/death-star.jpg');
 }
 
 /**
@@ -79,4 +83,16 @@ export function makePhotoPlanets(scene: Phaser.Scene): void {
     canvas.refresh();
     canvas.setFilter(Phaser.Textures.FilterMode.LINEAR);
   }
+
+  // The battle station, cut round the same way.
+  const station = scene.textures.createCanvas('battle-station', STATION_PHOTO.width, STATION_PHOTO.height) as Phaser.Textures.CanvasTexture;
+  const source = scene.textures.get('photo-death-star').getSourceImage() as HTMLImageElement;
+  station.context.save();
+  station.context.beginPath();
+  station.context.arc(STATION_PHOTO.width / 2, STATION_PHOTO.height / 2, STATION_PHOTO.disc, 0, Math.PI * 2);
+  station.context.clip();
+  station.context.drawImage(source, 0, 0);
+  station.context.restore();
+  station.refresh();
+  station.setFilter(Phaser.Textures.FilterMode.LINEAR);
 }
