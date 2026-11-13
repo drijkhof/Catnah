@@ -62,6 +62,11 @@ cache-first, so an installed game would keep the old picture for ever.
 | uranus | PIA00032, the true-colour half; colour boosted 1.8x, red 0.88 | Voyager 2 |
 | neptune | PIA01492 | Voyager 2 |
 | pluto | PIA19952 | New Horizons |
+| phobos | PIA10368, cut out by the dark round it | Mars Reconnaissance Orbiter (HiRISE) |
+| deimos | PIA11826, the right-hand view, cut out likewise | Mars Reconnaissance Orbiter (HiRISE) |
+| io | PIA02308 | Galileo |
+| europa | PIA01295, the natural-colour half | Galileo |
+| charon | PIA19968 | New Horizons |
 
 `death-star.jpg` is not NASA's: a picture of the battle station the player gave, cut round the same way (`STATION_PHOTO`).
 

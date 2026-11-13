@@ -717,7 +717,9 @@ Jupiter (Cassini), Saturn with its rings (Hubble), Neptune (Voyager 2) and
 Pluto with its heart (New Horizons). **Uranus** is Voyager 2's photograph,
 a little bluer, inside drawn rings: thin grey ones standing nearly on end
 and leaning over, a broad dark band among them, the near half crossing in
-front. The sunlight on all of them is the game's own, from the sun.
+front. The sunlight on all of them is the game's own, from the sun. The
+moons in other worlds' skies are NASA photographs too, of their own moons:
+Phobos and Deimos over Mars, Io and Europa over Jupiter, Charon over Pluto.
 Each takes its real number of Earth years to go round (an Earth year is 50
 seconds): Venus whizzes, Jupiter is slow, and Pluto, at 248 years, only
 just creeps along, but you can see it move. The Moon goes round the Earth
@@ -869,7 +871,7 @@ no world has itself in its own sky; from each you see the others:
 - **Saturn**: out on the rings, floes of fractured pale blue ice, Jupiter
   and Uranus in the black sky, spires of ice behind, crystals on the ground.
 - **Jupiter**: drifts of frozen cloud with a fluffy fringe, in banded cream
-  and brown, towers of cloud behind, Io going by.
+  and brown, towers of cloud behind, Io and Europa going by.
 - **Venus**: cracked dark basalt, glowing orange at its edges, under a thick
   yellow haze, smoking volcanoes on the horizon.
 - **Uranus**: pale cyan ice laid in flat tiles, Saturn and Neptune in the

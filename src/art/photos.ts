@@ -17,7 +17,17 @@ export const PLANET_PHOTOS = {
   uranus: { width: 800, height: 800, disc: 392 },
   neptune: { width: 900, height: 900, disc: 441 },
   pluto: { width: 800, height: 800, disc: 392 },
+  // Moons, for the skies of the worlds they go round. Phobos and Deimos are
+  // not round: cut out by how dark the black round them is, like Saturn.
+  phobos: { width: 400, height: 400, disc: 186 },
+  deimos: { width: 300, height: 300, disc: 133 },
+  io: { width: 500, height: 500, disc: 243 },
+  europa: { width: 500, height: 500, disc: 243 },
+  charon: { width: 500, height: 500, disc: 243 },
 } as const;
+
+/** The photographs cut out by how dark the space round them is, rather than round. */
+const CUT_BY_DARK: readonly PhotoPlanet[] = ['saturn', 'phobos', 'deimos'];
 
 export type PhotoPlanet = keyof typeof PLANET_PHOTOS;
 
@@ -66,7 +76,7 @@ export function makePhotoPlanets(scene: Phaser.Scene): void {
     }
     const photo = PLANET_PHOTOS[name];
     const canvas = scene.textures.createCanvas(`planet-${name}`, photo.width, photo.height) as Phaser.Textures.CanvasTexture;
-    if (name === 'saturn') {
+    if (CUT_BY_DARK.includes(name)) {
       const source = scene.textures.get(photoKey(name)).getSourceImage() as HTMLImageElement;
       canvas.context.drawImage(source, 0, 0);
       const image = canvas.context.getImageData(0, 0, photo.width, photo.height);
@@ -76,7 +86,9 @@ export function makePhotoPlanets(scene: Phaser.Scene): void {
         data[i + 3] = Phaser.Math.Clamp((light - 12) * 6, 0, 255);
       }
       canvas.context.putImageData(image, 0, 0);
-      scene.textures.createCanvas('planet-saturn-front', photo.width, photo.height)?.refresh();
+      if (name === 'saturn') {
+        scene.textures.createCanvas('planet-saturn-front', photo.width, photo.height)?.refresh();
+      }
     } else {
       drawPhotoGlobe(scene, canvas.context, name, photo.width / 2, photo.height / 2, photo.disc);
     }

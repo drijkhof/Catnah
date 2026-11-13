@@ -47,8 +47,8 @@ const SKIES: Record<SpaceTheme, Sky> = {
     sky: 'mars-sky',
     stars: false,
     planets: [
-      { name: 'moon', x: 0.7, y: 0.14, scale: 0.22, factor: 0.04 },
-      { name: 'moon', x: 0.3, y: 0.22, scale: 0.14, factor: 0.03 },
+      { name: 'phobos', x: 0.7, y: 0.14, scale: 0.22, factor: 0.04 },
+      { name: 'deimos', x: 0.3, y: 0.22, scale: 0.14, factor: 0.03 },
     ],
     hills: 0xd07a52,
     flag: false,
@@ -73,7 +73,8 @@ const SKIES: Record<SpaceTheme, Sky> = {
     sky: 'jupiter-sky',
     stars: false,
     planets: [
-      { name: 'moon', x: 0.75, y: 0.14, scale: 0.3, factor: 0.04 },
+      { name: 'io', x: 0.75, y: 0.14, scale: 0.3, factor: 0.04 },
+      { name: 'europa', x: 0.3, y: 0.1, scale: 0.24, factor: 0.03 },
     ],
     hills: 0xd8b088,
     flag: false,
@@ -120,7 +121,7 @@ const SKIES: Record<SpaceTheme, Sky> = {
     stars: true,
     planets: [
       { name: 'neptune', x: 0.65, y: 0.18, scale: 0.324, factor: 0.03 },
-      { name: 'moon', x: 0.25, y: 0.12, scale: 0.35, factor: 0.05 },
+      { name: 'charon', x: 0.25, y: 0.12, scale: 0.35, factor: 0.05 },
     ],
     hills: 0xd8c4a8,
     flag: false,

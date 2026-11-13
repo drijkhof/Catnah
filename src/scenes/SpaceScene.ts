@@ -65,9 +65,9 @@ function globeOf(name: keyof typeof REAL_PLANET_SIZE): number {
  * open and its level starts.
  */
 const WORLDS: World[] = [
-  { name: 'earth', level: '', orbit: 750, years: 1, angle: 0.6 },
+  { name: 'earth', level: '', orbit: 820, years: 1, angle: 0.6 },
   { name: 'moon', level: 'Moon', orbit: 250, years: 0, angle: -0.5 },
-  { name: 'venus', level: 'Venus', orbit: 360, years: 0.615, angle: 2.4 },
+  { name: 'venus', level: 'Venus', orbit: 330, years: 0.615, angle: 2.4 },
   { name: 'mars', level: 'Mars', orbit: 1250, years: 1.88, angle: -0.9 },
   { name: 'jupiter', level: 'Jupiter', orbit: 1900, years: 11.86, angle: 0.3 },
   { name: 'saturn', level: 'Saturn', orbit: 2750, years: 29.46, angle: -2.2 },

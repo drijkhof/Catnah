@@ -2536,3 +2536,12 @@ focus, lit from the upper left. Its size in space is unchanged.
 Then the player gave a picture of it to use: it is that picture now, cut
 round (`public/assets/planets/death-star.jpg`), at the same size.
 
+## Real moons, and room round Venus
+
+Asked for: the real moons in the skies, and more room between Venus's ring
+and the Earth's (the Moon came close to Venus). Done: Phobos and Deimos
+over Mars, Io and Europa (back again, now the real one) over Jupiter,
+Charon over Pluto, all NASA photographs, the irregular two cut out by the
+dark round them. Venus moved in to 330, the Earth out to 820: the Moon now
+passes Venus with about 130 px to spare and Mars with 80.
+

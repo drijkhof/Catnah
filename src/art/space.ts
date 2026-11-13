@@ -25,6 +25,12 @@ export const PLANET_SIZES = {
   neptune: 160,
   pluto: 72,
   iss: 60,
+  // The moons in other worlds' skies, as big as the Moon was drawn.
+  phobos: 70,
+  deimos: 70,
+  io: 70,
+  europa: 70,
+  charon: 70,
 } as const;
 
 
@@ -269,6 +275,11 @@ export const PLANET_DISCS: Record<PlanetName, number> = {
   neptune: PLANET_PHOTOS.neptune.disc,
   pluto: PLANET_PHOTOS.pluto.disc,
   iss: PLANET_SIZES.iss / 2,
+  phobos: PLANET_PHOTOS.phobos.disc,
+  deimos: PLANET_PHOTOS.deimos.disc,
+  io: PLANET_PHOTOS.io.disc,
+  europa: PLANET_PHOTOS.europa.disc,
+  charon: PLANET_PHOTOS.charon.disc,
 };
 
 /**
