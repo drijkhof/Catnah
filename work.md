@@ -765,6 +765,13 @@ its edge glowing orange, and a few lumps of Earth floating by it, going
 round the sun with the Earth from then on. The ISS is gone and the crater
 stays for the rest of the run. And there is a **battle station** — the Death Star, from a picture of it: grey plating in panels, a trench round its middle and the great dish sunk into its upper half — hanging in space: an **easter egg**, with no arrow and no name, between the orbits of Mars and Jupiter, **going round the sun** too (once every four Earth years, with no ring drawn for it, so it is not on any line to follow), there to be found. Fly near it
 and the cat says, in a little bubble over its head: *"That's no moon..."*.
+
+And somewhere out there, seldom met: **a flying camper
+van** -- white and tan, windows down its side, stubby wings, a fin and
+rocket engines -- with **a little fighter on its tail**, long-nosed, a red
+stripe, three engines glowing, flying about space after it at random,
+anywhere, always upright, facing the way they go. Nods to *Spaceballs* and *Battlestar
+Galactica*, drawn our own way; no arrows, no names.
 A **starship** — the Enterprise — goes slowly round the station, and the
 station drifts slowly too. They fire at each other: every ten seconds the
 station's dish glows green and its laser goes at the starship, and every

@@ -82,6 +82,12 @@ instead -- the most a purse holds -- for trying the bar. Same module shape and t
 level skip (`spaceShortcut.ts`). It replaced the beetle respawn that used
 to sit on shift-click.
 
+## God mode in space
+
+With god mode on, space shows red arrows to the easter eggs that have no
+arrow of their own: the flying camper with its chaser, and the Death Star
+(`SpaceScene.pointAtWorlds`, behind the same `import.meta.env.DEV`).
+
 ## The fuel shortcut
 
 In space, click where a level's name would be (top left; nothing shows

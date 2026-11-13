@@ -2552,3 +2552,15 @@ those as a yellow outline without fill; and a little bigger or smaller by
 distance. This undoes the earlier "no arrows to a finished planet". Sizes:
 1.35x at 400 px away or nearer, down to 0.65x from about 2850 px on.
 
+## The camper and the fighter
+
+Asked for: a Viper (Battlestar Galactica) chasing a Winnebago (Spaceballs),
+small, not too pixelated, a small chance to find, going round after each
+other; and in god mode red arrows to them and to the Death Star. Done as
+our own drawings, nods rather than copies: a flying camper van and a small
+long-nosed fighter, drawn at four times their size and shown smoothed at
+three quarters of it (the camper about 33 px), 90 px apart. First round a loop about the sun; then, asked for, flying
+about at random anywhere within 4200 px of the sun, always upright, facing
+left or right the way they go -- the camper heading for one random spot
+after another, the fighter keeping 90 px behind it. They do not shoot, and nothing happens on touching them.
+

@@ -58,6 +58,7 @@ export function generateSpaceTextures(scene: Phaser.Scene): void {
   generateRocket(scene);
   generateWorldScenery(scene);
   generateStarship(scene);
+  generateChase(scene);
   generateObstacles(scene);
   bakeTexture(scene, 'mars-sky', GAME_WIDTH, GAME_HEIGHT, (g) => {
     // Mars by day: a butterscotch haze, paler towards the ground.
@@ -693,6 +694,91 @@ function generateWorldScenery(scene: Phaser.Scene): void {
 
 /** The battle station in space -- the Death Star -- px across. */
 export const STATION_SIZE = 150;
+
+/** The flying camper and the fighter on its tail, px; both face right. */
+export const CAMPER_SIZE = { width: 44, height: 22 };
+export const FIGHTER_SIZE = { width: 34, height: 14 };
+/** They are drawn this many times their size and shown scaled down, smoothed: small, not blocky. */
+export const CHASE_DETAIL = 4;
+
+/**
+ * Two that chase each other round space, our own drawings of a nod each:
+ * an old camper van that flies -- white and tan, a cab and its windscreen
+ * at the front, windows down the side, stubby wings, a tail fin and two
+ * rocket engines at the back -- and a little fighter after it -- long
+ * pointed nose, a bubble canopy, a red stripe, three engines glowing.
+ */
+function generateChase(scene: Phaser.Scene): void {
+  bakeTexture(scene, 'space-camper', CAMPER_SIZE.width * CHASE_DETAIL, CAMPER_SIZE.height * CHASE_DETAIL, (g) => {
+    g.scaleCanvas(CHASE_DETAIL, CHASE_DETAIL);
+    // Engines at the back, glowing.
+    g.fillStyle(0xff9a30, 0.9);
+    g.fillRect(0, 11, 4, 3);
+    g.fillRect(0, 16, 4, 3);
+    g.fillStyle(0x5a5a64, 1);
+    g.fillRect(3, 10, 5, 5);
+    g.fillRect(3, 15, 5, 5);
+    // The fin, up at the back.
+    g.fillStyle(0xd8d4c8, 1);
+    g.fillTriangle(8, 7, 14, 7, 9, 0);
+    g.fillStyle(0xb8602a, 1);
+    g.fillRect(9, 3, 2, 3);
+    // The box of the camper, and the cab sloping down at the front.
+    g.fillStyle(0xf2efe6, 1);
+    g.fillRect(7, 6, 26, 12);
+    g.fillRect(33, 9, 9, 9);
+    g.fillTriangle(33, 6, 33, 9, 38, 9);
+    // The stripes along it.
+    g.fillStyle(0xb8602a, 1);
+    g.fillRect(7, 13, 35, 2);
+    g.fillStyle(0xd89a4a, 1);
+    g.fillRect(7, 15, 35, 1);
+    // Windows, and the windscreen.
+    g.fillStyle(0x3a5878, 1);
+    for (const x of [11, 17, 23, 28]) {
+      g.fillRect(x, 8, 4, 4);
+    }
+    g.fillStyle(0x6a98c8, 1);
+    g.fillTriangle(35, 10, 41, 10, 35, 13);
+    // Wheels, tucked up.
+    g.fillStyle(0x1a1a20, 1);
+    g.fillCircle(13, 19, 2);
+    g.fillCircle(36, 19, 2);
+    // A stubby wing.
+    g.fillStyle(0xc8c4b8, 1);
+    g.fillTriangle(16, 17, 28, 17, 18, 22);
+  });
+  bakeTexture(scene, 'space-fighter', FIGHTER_SIZE.width * CHASE_DETAIL, FIGHTER_SIZE.height * CHASE_DETAIL, (g) => {
+    g.scaleCanvas(CHASE_DETAIL, CHASE_DETAIL);
+    // Three engines at the back, glowing blue-white.
+    g.fillStyle(0xa8d8ff, 0.9);
+    g.fillRect(0, 2, 3, 3);
+    g.fillRect(0, 6, 3, 3);
+    g.fillRect(0, 10, 3, 3);
+    g.fillStyle(0x5a5e68, 1);
+    g.fillRect(3, 1, 6, 4);
+    g.fillRect(3, 5, 6, 4);
+    g.fillRect(3, 9, 6, 4);
+    // The wings, swept, top and bottom.
+    g.fillStyle(0xb8bcc4, 1);
+    g.fillTriangle(6, 0, 16, 5, 6, 5);
+    g.fillTriangle(6, 14, 16, 9, 6, 9);
+    // The long body to a point.
+    g.fillStyle(0xe4e6ea, 1);
+    g.fillRect(8, 5, 16, 4);
+    g.fillTriangle(24, 5, 24, 9, 34, 7);
+    // A red stripe along the nose, and the canopy.
+    g.fillStyle(0xc8283a, 1);
+    g.fillRect(14, 8, 16, 1);
+    g.fillStyle(0x203048, 1);
+    g.fillRect(17, 4, 6, 2);
+    g.fillStyle(0x7ab0e0, 1);
+    g.fillRect(18, 4, 2, 1);
+  });
+  for (const key of ['space-camper', 'space-fighter']) {
+    scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
+  }
+}
 
 /** The starship -- the Enterprise -- px; it faces right. */
 export const STARSHIP_SIZE = { width: 64, height: 32 };

@@ -1,14 +1,15 @@
 import Phaser from 'phaser';
 import { addPlanetLight, faceTheSun } from '../world/planetLight';
-import { BAR, EARTH_GLOBE, ISS_CRASH, GAME_HEIGHT, GAME_WIDTH, LASER, LIVES, PARTS, PLANET_SIZE_KEEP, REAL_PLANET_SIZE, SPACE, TILE } from '../config';
+import { BAR, CHASE, EARTH_GLOBE, ISS_CRASH, GAME_HEIGHT, GAME_WIDTH, LASER, LIVES, PARTS, PLANET_SIZE_KEEP, REAL_PLANET_SIZE, SPACE, TILE } from '../config';
 import { LEVELS } from '../level/levels';
 import { Controls } from '../input/Controls';
-import { HEAD_IN_POSE, STATION_PHOTO, STATION_SIZE, PLANET_DISCS, STARFIELD_SIZE, SPACE_SUN_SIZE, createRandom, type PlanetName } from '../art';
+import { CHASE_DETAIL, HEAD_IN_POSE, STATION_PHOTO, STATION_SIZE, PLANET_DISCS, STARFIELD_SIZE, SPACE_SUN_SIZE, createRandom, type PlanetName } from '../art';
 import { stats } from '../stats';
 import { sound } from '../audio/Sound';
 import { crispText, type CrispText } from '../text';
 import { FuelMeter } from '../fuelMeter';
 import { installFuelShortcut } from '../dev/fuelShortcut';
+import { GOD_MODE_KEY } from '../dev/godMode';
 
 /** What a run carries from level to level, passed straight through this scene. */
 interface Carry {
@@ -121,6 +122,17 @@ export class SpaceScene extends Phaser.Scene {
   /** Where the station drifts about, and the starship going round it. */
   private stationHome = new Phaser.Math.Vector2();
   private ship!: Phaser.GameObjects.Image;
+  /** The flying camper, and the fighter chasing it (`chase`). */
+  private camper!: Phaser.GameObjects.Image;
+  private fighter!: Phaser.GameObjects.Image;
+  /** Where the camper and the fighter are, which way each is heading, and where the camper is going. */
+  private flight = {
+    camper: new Phaser.Math.Vector2(),
+    fighter: new Phaser.Math.Vector2(),
+    camperHeading: { angle: 0 },
+    fighterHeading: { angle: 0 },
+    target: new Phaser.Math.Vector2(),
+  };
   /** Planets out here, for the laser to keep clear of. */
   private planets: Phaser.GameObjects.Image[] = [];
   /** The Moon's shadow on the Earth, when it passes in front of the sun. */
@@ -304,6 +316,20 @@ export class SpaceScene extends Phaser.Scene {
     this.station = this.add.image(this.stationHome.x, this.stationHome.y, 'battle-station').setScale(STATION_SIZE / (2 * STATION_PHOTO.disc)).setDepth(-38);
     // And the starship, going round it, the two of them firing at each other.
     this.ship = this.add.image(0, 0, 'starship').setDepth(-37);
+    // And far out, a camper with a fighter on its tail, round and round.
+    // Fairly small: three quarters of the size they were drawn at.
+    this.camper = this.add.image(0, 0, 'space-camper').setScale(0.75 / CHASE_DETAIL).setDepth(-37);
+    this.fighter = this.add.image(0, 0, 'space-fighter').setScale(0.75 / CHASE_DETAIL).setDepth(-37);
+    // Somewhere out there, already on their way.
+    const start = this.randomSpot();
+    const heading = Math.random() * Math.PI * 2;
+    this.flight = {
+      camper: start,
+      fighter: start.clone().subtract(new Phaser.Math.Vector2(Math.cos(heading), Math.sin(heading)).scale(CHASE.gap)),
+      camperHeading: { angle: heading },
+      fighterHeading: { angle: heading },
+      target: this.randomSpot(),
+    };
     this.drift();
     this.catBubble = this.add.graphics().setDepth(12).setAlpha(0);
     this.stationWords = crispText(this, 0, 0, "That's no moon...", {
@@ -903,6 +929,28 @@ export class SpaceScene extends Phaser.Scene {
         this.arrows.fillTriangle(...points);
       }
     }
+    // In god mode, development only, red arrows to the easter eggs that
+    // have none: the camper and its chaser, and the Death Star.
+    if (!import.meta.env.DEV || this.registry.get(GOD_MODE_KEY) !== true) {
+      return;
+    }
+    for (const egg of [this.camper, this.station]) {
+      if (view.contains(egg.x, egg.y)) {
+        continue;
+      }
+      const angle = Math.atan2(egg.y - view.centerY, egg.x - view.centerX);
+      const reach = Math.min((cx - 18) / Math.abs(Math.cos(angle) || 1e-6), (cy - 18) / Math.abs(Math.sin(angle) || 1e-6));
+      const x = cx + Math.cos(angle) * reach;
+      const y = cy + Math.sin(angle) * reach;
+      const tip = new Phaser.Math.Vector2(Math.cos(angle), Math.sin(angle));
+      const side = new Phaser.Math.Vector2(-tip.y, tip.x);
+      this.arrows.fillStyle(0xff3a3a, 0.9);
+      this.arrows.fillTriangle(
+        x + tip.x * 10, y + tip.y * 10,
+        x - tip.x * 7 + side.x * 4, y - tip.y * 7 + side.y * 4,
+        x - tip.x * 7 - side.x * 4, y - tip.y * 7 - side.y * 4,
+      );
+    }
   }
 
   /**
@@ -1028,7 +1076,52 @@ export class SpaceScene extends Phaser.Scene {
     const b = (t / LASER.shipOrbitMs) * Math.PI * 2;
     this.ship.setPosition(this.station.x + Math.cos(b) * LASER.shipOrbit.x, this.station.y + Math.sin(b) * LASER.shipOrbit.y);
     this.ship.setFlipX(this.station.x < this.ship.x);
+    this.chase();
   }
+
+  /**
+   * The camper and the fighter on its tail, flying about at random
+   * (`CHASE`): the camper turns towards a spot it has picked and picks
+   * another when it gets there; the fighter turns towards a point just
+   * behind it. Both stay upright, facing left or right the way they are
+   * going, with a slow bob.
+   */
+  private chase(): void {
+    const dt = Math.min(this.game.loop.delta, 100) / 1000;
+    const steer = (pos: Phaser.Math.Vector2, heading: { angle: number }, to: Phaser.Math.Vector2, speed: number): void => {
+      const want = Math.atan2(to.y - pos.y, to.x - pos.x);
+      const diff = Phaser.Math.Angle.Wrap(want - heading.angle);
+      heading.angle += Phaser.Math.Clamp(diff, -CHASE.turn * dt * 2, CHASE.turn * dt * 2);
+      pos.x += Math.cos(heading.angle) * speed * dt;
+      pos.y += Math.sin(heading.angle) * speed * dt;
+    };
+    const flight = this.flight;
+    if (flight.camper.distance(flight.target) < CHASE.arrive) {
+      flight.target = this.randomSpot();
+    }
+    steer(flight.camper, flight.camperHeading, flight.target, CHASE.speed);
+    const behind = new Phaser.Math.Vector2(
+      flight.camper.x - Math.cos(flight.camperHeading.angle) * CHASE.gap,
+      flight.camper.y - Math.sin(flight.camperHeading.angle) * CHASE.gap,
+    );
+    // Faster when it has fallen behind, easing off when it is close.
+    const lag = flight.fighter.distance(behind);
+    steer(flight.fighter, flight.fighterHeading, behind, Phaser.Math.Clamp(CHASE.speed + lag * 1.5, CHASE.speed * 0.6, CHASE.chaserSpeed * 1.6));
+    const show = (image: Phaser.GameObjects.Image, at: Phaser.Math.Vector2, heading: number, bob: number): void => {
+      image.setPosition(at.x, at.y + Math.sin(this.clock / 300 + bob) * 2);
+      image.setFlipX(Math.cos(heading) < 0);
+    };
+    show(this.camper, flight.camper, flight.camperHeading.angle, 0);
+    show(this.fighter, flight.fighter, flight.fighterHeading.angle, 1.7);
+  }
+
+  /** Somewhere in space for the camper to head for: anywhere within `CHASE.reach` of the sun, clear of it. */
+  private randomSpot(): Phaser.Math.Vector2 {
+    const a = Math.random() * Math.PI * 2;
+    const r = 600 + Math.random() * (CHASE.reach - 600);
+    return new Phaser.Math.Vector2(this.sun.x + Math.cos(a) * r, this.sun.y + Math.sin(a) * r);
+  }
+
 
   /**
    * Thrust towards whatever is held, on the screen -- up is up -- drag when

@@ -571,6 +571,22 @@ export const BOB = {
  * fires a beam `length` long from its dish, out into empty space -- never at
  * the cat, never across a planet. The beam lasts `beamMs`, fading.
  */
+/**
+ * The camper and the fighter after it: flying about space at random -- the
+ * camper heads for a spot picked anywhere within `reach` of the sun, turns
+ * towards it at up to `turn` radians a second, and picks another once it
+ * gets there; the fighter steers after it, `gap` behind. Seldom met, on
+ * purpose. Speeds in px a second.
+ */
+export const CHASE = {
+  reach: 4200,
+  speed: 120,
+  turn: 0.9,
+  arrive: 120,
+  gap: 90,
+  chaserSpeed: 135,
+} as const;
+
 export const LASER = {
   everyMs: 10000,
   /** The starship's phaser at the station, every so often, ms. */
