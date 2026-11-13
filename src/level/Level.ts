@@ -302,7 +302,8 @@ export interface ParsedLevel {
   /** Coins (`$`), the middle of the cell. */
   coins: Point[];
   /** Things to find and sell (`p` a wallet, `l` candy, `t` a hat), standing on the floor of the cell. */
-  items: Array<Point & { kind: ItemKind }>;
+  /** Things to find; `id`, when given, is what it is remembered by instead of its place. */
+  items: Array<Point & { kind: ItemKind; id?: string }>;
   /** The man in the desert who buys hats (`A`), by his feet. */
   hatBuyers: Point[];
   /** The moon's grey blocks (`D`), by their top-left corner. Robots come out of them. */
@@ -408,7 +409,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const fountains: Point[] = [];
   const parts: Point[] = [];
   const coins: Point[] = [];
-  const items: Array<Point & { kind: ItemKind }> = [];
+  const items: Array<Point & { kind: ItemKind; id?: string }> = [];
   const hatBuyers: Point[] = [];
   const bouncePads: Point[] = [];
   const crumbles: Point[] = [];

@@ -2515,3 +2515,14 @@ and the Earth keeps a small crater where it hit (asked for after: a crater, not 
 space it cannot be touched, because the cat sets off right where it goes
 round. In English, like everything the cat says.
 
+## Bob's whiskey, the painting, and who the brother is
+
+Asked for: a whiskey bottle on a shelf at the back (right) of Bob's lab, to
+take -- and once taken the bar's whiskey cannot be stolen; a painting of
+the bar keeper, his brother and Bob, Bob in the middle; Whiskey Jones's
+brother named: Bob. Decided without asking: the three are brothers (the
+painting shows the keeper, Bob, Whiskey Jones); the bottle is in the bag
+(`whiskey`, not for sale) and goes to Jones like the glass; the shelf is
+low, by the tank, reached by walking past. The keeper's old line about "my
+old friend Bob" is left as it is.
+

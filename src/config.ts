@@ -1131,7 +1131,7 @@ export const BAR = {
       'Whiskey! Oh, thank you, little cat.',
       'My name is Whiskey Jones.',
       'One more thing...',
-      'You had better not trust my brother.',
+      'You had better not trust my brother, Bob.',
     ],
     lineMs: 2600,
     closing: 'Closing time! Everybody out!',
@@ -1165,6 +1165,8 @@ export const ITEMS = {
     candy: { label: 'candy', price: 5 },
     hat: { label: 'hat', price: 10 },
     water: { label: 'water', price: 0 },
+    // Bob's, from the shelf in his lab: for Whiskey Jones, not for sale.
+    whiskey: { label: 'whiskey', price: 0 },
   },
   /** What the bar keeper buys: not the water -- that is for the desert. */
   barBuys: ['wallet', 'candy', 'hat'],
@@ -1185,6 +1187,8 @@ export const ITEMS = {
   },
   /** What the cat says, taking turns, when it picks one up; and how long it stays up, ms. */
   catLines: ['Is this from someone?', 'Why do people drop things?'],
+  /** What the cat says when it takes whiskey, Bob's or the guest's. */
+  whiskeyLine: "But I don't even like whiskey...",
   catLineMs: 2200,
   sold: 'Thank you!',
   none: 'You have none of those.',

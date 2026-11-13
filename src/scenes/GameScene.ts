@@ -54,7 +54,10 @@ interface ShopEntry {
 }
 
 /** Nothing carried yet. */
-const EMPTY_BAG: Record<ItemKind, number> = { wallet: 0, candy: 0, hat: 0, water: 0 };
+const EMPTY_BAG: Record<ItemKind, number> = { wallet: 0, candy: 0, hat: 0, water: 0, whiskey: 0 };
+
+/** What Bob's whiskey bottle is remembered by once it is taken: the bar's own whiskey cannot be had then. */
+const LAB_WHISKEY = 'lab-whiskey';
 
 /** How far below the level the cat may fall before respawning, in pixels. */
 const FALL_OUT_MARGIN = 80;
@@ -1633,7 +1636,7 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     for (const item of this.level.items) {
-      const id = `${this.level.name}:${item.x},${item.y}`;
+      const id = item.id ?? `${this.level.name}:${item.x},${item.y}`;
       if (this.itemsFound.includes(id)) {
         continue;
       }
@@ -1657,7 +1660,7 @@ export class GameScene extends Phaser.Scene {
     sprite.destroy();
     this.itemSprites = this.itemSprites.filter((other) => other !== sprite);
     sound.play('checkpoint');
-    this.catSays(ITEMS.catLines[(this.itemsFound.length - 1) % ITEMS.catLines.length]);
+    this.catSays(kind === 'whiskey' ? ITEMS.whiskeyLine : ITEMS.catLines[(this.itemsFound.length - 1) % ITEMS.catLines.length]);
     this.refreshBag();
   }
 
@@ -4010,15 +4013,25 @@ export class GameScene extends Phaser.Scene {
     if (!whiskey || story.telling) {
       return;
     }
-    if (!whiskey.held) {
-      if (!this.shop && Phaser.Geom.Intersects.RectangleToRectangle(this.player.getBounds(), whiskey.sprite.getBounds())) {
+    const bottle = this.bag.whiskey > 0;
+    if (!whiskey.held && !bottle) {
+      // Once Bob's bottle has been taken, the cat has had its whiskey: the
+      // guest's stays where it is.
+      if (!this.shop && !this.itemsFound.includes(LAB_WHISKEY) && Phaser.Geom.Intersects.RectangleToRectangle(this.player.getBounds(), whiskey.sprite.getBounds())) {
         whiskey.held = true;
         sound.play('checkpoint');
         this.sayAt('owner', head(whiskey.owner), BAR.jones.hey, 2000);
+        this.time.delayedCall(1200, () => {
+          if (this.sys.isActive() && !story.telling) {
+            this.sayAt('cat', () => ({ x: this.player.x, y: this.player.y - 20 }), ITEMS.whiskeyLine, 2400);
+          }
+        });
       }
       return;
     }
-    whiskey.sprite.setPosition(this.player.x + (this.player.flipX ? -8 : 8), this.player.y - 6).setDepth(this.player.depth + 0.01);
+    if (whiskey.held) {
+      whiskey.sprite.setPosition(this.player.x + (this.player.flipX ? -8 : 8), this.player.y - 6).setDepth(this.player.depth + 0.01);
+    }
     if (jones && Math.abs(this.player.x - jones.sprite.x) < BAR.jones.reach && this.player.body.blocked.down && !this.shop) {
       this.tellJonesStory();
     }
@@ -4037,15 +4050,22 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     story.telling = true;
+    // Bob's bottle, if the cat has it, rather than the guest's glass.
+    let given = whiskey.sprite;
+    if (!whiskey.held && this.bag.whiskey > 0) {
+      this.bag.whiskey -= 1;
+      this.refreshBag();
+      given = this.add.image(this.player.x, this.player.y - 4, 'item-whiskey').setOrigin(0.5, 1).setDepth(this.player.depth + 0.01);
+    }
     whiskey.held = false;
     this.script = {};
     this.player.setVelocity(0, this.player.body.velocity.y);
     const tableTop = jones.table.y - BAR_TABLE.height + 1;
-    this.tweens.add({ targets: whiskey.sprite, x: jones.table.x + 6, y: tableTop, duration: 350, ease: 'Quad.easeOut' });
+    this.tweens.add({ targets: given, x: jones.table.x + 6, y: tableTop, duration: 350, ease: 'Quad.easeOut' });
     // He drinks it, at once.
     this.time.delayedCall(900, () => {
       if (this.sys.isActive()) {
-        this.tweens.add({ targets: whiskey.sprite, x: jones.sprite.x - 4, y: jones.sprite.y - 12, alpha: 0, duration: 500 });
+        this.tweens.add({ targets: given, x: jones.sprite.x - 4, y: jones.sprite.y - 12, alpha: 0, duration: 500 });
       }
     });
     const head = () => ({ x: jones.sprite.x, y: jones.sprite.y - BAR_ALIEN_SIZE.height });
@@ -4606,6 +4626,22 @@ export class GameScene extends Phaser.Scene {
           .setOrigin(0.5, 1)
           .setDepth(-0.285)
           .setData(KEEP_LIVE, true);
+      }
+
+      // On the lab's back wall, left of the window: a painting of Bob between
+      // his brothers, the bar keeper and Whiskey Jones.
+      this.add
+        .image((left + inside.inLeft) * TILE + 22, (top + inside.ceiling) * TILE + 14, 'lab-painting')
+        .setDepth(-0.29)
+        .setData(KEEP_LIVE, true);
+
+      // Low on the wall at the back, by the tank: a shelf, and on it a
+      // bottle of Bob's whiskey, to take -- found once a run, like anything.
+      const shelfX = (left + inside.inRight) * TILE - LAB_TANK.fromRight - 24;
+      const shelfY = (bottom + 1) * TILE - 3 - 14;
+      this.add.image(shelfX, shelfY, 'lab-shelf').setOrigin(0.5, 0).setDepth(-0.29).setData(KEEP_LIVE, true);
+      if (!this.ending) {
+        this.level.items.push({ x: shelfX, y: shelfY, kind: 'whiskey', id: LAB_WHISKEY });
       }
 
       // A little robot growing in the specimen tank: small at first, filling

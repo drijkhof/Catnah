@@ -826,6 +826,10 @@ now — robots and grey blocks as on the moon, the helmet on, lighter gravity
   fall once you stand on them — run! — and crumbling steps up to ledges over
   pits. They come back after a while.
 
+In Bob's lab hangs **a painting** in a gold frame: three brothers against
+a starry night -- the bar keeper in his bow tie, **Bob** in the middle in
+his lab coat, and Whiskey Jones in his brown shirt.
+
 **The ten parts**: two each on Mars and Saturn, one each on Jupiter, Venus,
 Uranus, Neptune and Pluto, and one on the Moon. They are brass cogs, turning, they show only
 faintly until you are close, and **every one is well hidden**, each world
@@ -966,13 +970,16 @@ found stays found for the run. You can carry **100** at most.
 Past the bar stand **two tables**. One is free; at the other sits
 **Whiskey Jones**, in a tired brown shirt, slumped and swaying, moaning
 quietly to himself: *"Urgh... that stupid fool..."*, *"Whiskey is my
-life..."*. He wants whiskey, and you cannot order any — but the guest at
-the end of the counter has one. **Jump up onto the counter** (its top is a
+life..."*. He wants whiskey, and you cannot order any — but **Bob has a bottle**, on
+a little shelf at the back of his lab on the Moon, by the tank: take it and
+it is in your bag (*"But I don't even like whiskey..."*, says the cat), and you can bring him that. Or the guest at
+the end of the counter has one (not once you have Bob's bottle: you have
+had your whiskey). **Jump up onto the counter** (its top is a
 ledge, like a branch) and walk into his glass: you **take it** (*"Hey! My
 whiskey!"*) and carry it. Bring it to Whiskey Jones and he drinks it and
 tells you, a line at a time: *"Whiskey! Oh, thank you, little cat."*, *"My
 name is Whiskey Jones."*, *"One more thing..."*, *"You had better not
-trust my brother."* — and the keeper calls ***"Closing time! Everybody
+trust my brother, Bob."* — and the keeper calls ***"Closing time! Everybody
 out!"***: you are out on Pluto, and the bar is **closed for the rest of the
 run**, the same as being thrown out.
 

@@ -7,6 +7,7 @@ export const ITEM_SIZES = {
   candy: { width: 12, height: 6 },
   hat: { width: 13, height: 8 },
   water: { width: 6, height: 13 },
+  whiskey: { width: 5, height: 13 },
 } as const;
 
 /** The man's stall in the desert: an awning on two poles over a counter. */
@@ -76,6 +77,78 @@ export function generateItemTextures(scene: Phaser.Scene): void {
     g.fillRect(0, 7, 6, 3);
     g.fillStyle(0xffffff, 1);
     g.fillRect(1, 4, 1, 2);
+  });
+
+  // Bob's whiskey: a square amber bottle, a black label, a red cap.
+  bakeTexture(scene, 'item-whiskey', ITEM_SIZES.whiskey.width, ITEM_SIZES.whiskey.height, (g) => {
+    g.fillStyle(0xb8202a, 1);
+    g.fillRect(1, 0, 3, 2);
+    g.fillStyle(0x8a4a10, 1);
+    g.fillRect(1, 2, 3, 2);
+    g.fillRect(0, 4, 5, 9);
+    g.fillStyle(0xd88a20, 1);
+    g.fillRect(1, 6, 3, 6);
+    g.fillStyle(0x14141a, 1);
+    g.fillRect(0, 7, 5, 3);
+    g.fillStyle(0xf0d070, 1);
+    g.fillRect(1, 8, 3, 1);
+    g.fillStyle(0xffffff, 0.6);
+    g.fillRect(1, 4, 1, 2);
+  });
+  // The shelf in Bob's lab it stands on: a steel plank on two brackets.
+  bakeTexture(scene, 'lab-shelf', 20, 5, (g) => {
+    g.fillStyle(0x7a828e, 1);
+    g.fillRect(0, 0, 20, 2);
+    g.fillStyle(0xa8b0bc, 1);
+    g.fillRect(0, 0, 20, 1);
+    g.fillStyle(0x5a626e, 1);
+    g.fillTriangle(3, 2, 6, 2, 3, 5);
+    g.fillTriangle(17, 2, 14, 2, 17, 5);
+  });
+  // A painting on the lab wall, in a gold frame: three brothers -- the bar
+  // keeper in his bow tie, Bob in the middle in his lab coat, a head taller,
+  // and Whiskey Jones in his brown shirt -- against a starry night.
+  bakeTexture(scene, 'lab-painting', 40, 28, (g) => {
+    g.fillStyle(0x8a6418, 1);
+    g.fillRect(0, 0, 40, 28);
+    g.fillStyle(0xe0b848, 1);
+    g.fillRect(1, 1, 38, 26);
+    g.fillStyle(0x182238, 1);
+    g.fillRect(3, 3, 34, 22);
+    g.fillStyle(0xffffff, 0.7);
+    for (const [x, y] of [[6, 6], [12, 4], [27, 5], [34, 8], [31, 4], [8, 10]]) {
+      g.fillRect(x, y, 1, 1);
+    }
+    const skin = 0x7ad06a;
+    const brother = (x: number, top: number, shirt: number, extra: (x: number, y: number) => void): void => {
+      g.fillStyle(shirt, 1);
+      g.fillRect(x - 4, top + 8, 9, 25 - top - 8);
+      g.fillStyle(skin, 1);
+      g.fillRect(x, top + 6, 1, 2);
+      g.fillEllipse(x + 0.5, top + 3, 8, 7);
+      g.fillStyle(0x000000, 1);
+      g.fillRect(x - 2, top + 2, 2, 2);
+      g.fillRect(x + 2, top + 2, 2, 2);
+      extra(x, top);
+    };
+    brother(10, 11, 0xf4f4f0, (x, top) => {
+      g.fillStyle(0x1a1a20, 1);
+      g.fillTriangle(x - 2, top + 9, x, top + 10, x - 2, top + 11);
+      g.fillTriangle(x + 3, top + 9, x + 1, top + 10, x + 3, top + 11);
+    });
+    brother(30, 11, 0x7a5a3a, () => undefined);
+    brother(20, 7, 0xf4f6f8, (x, top) => {
+      g.fillStyle(0xc8ccd4, 1);
+      g.fillRect(x, top + 8, 1, 25 - top - 8);
+      g.fillStyle(0x3a5aa8, 1);
+      g.fillRect(x - 3, top + 10, 1, 2);
+      g.fillStyle(0x4f9a48, 1);
+      g.fillRect(x - 2, top - 3, 1, 3);
+      g.fillRect(x + 3, top - 3, 1, 3);
+      g.fillStyle(0xff4040, 1);
+      g.fillRect(x - 2, top - 4, 1, 1);
+      g.fillRect(x + 3, top - 4, 1, 1);
+    });
   });
 
   // The stall: two poles, a striped awning on top, a plank counter at the
