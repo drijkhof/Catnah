@@ -15,7 +15,7 @@ import { KEEP_LIVE, addGroundShade, bakeScenery, createBackdrop } from '../world
 import { parseLevel, type ClimbZone, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
 import { TITLE } from '../level/levels/title';
-import { BAR_KEEPER_X, BAR_SIZE, BAR_STOOLS, HUT_DOOR, HUT_SIZE, SHIRT_COLOURS, HACKER_SIZE, MACHINE_SIZE, MACHINE_ZAPPER, BENCH_HEADROOM, FOUNTAIN_HEADROOM, bakeBench, bakeFountain, bakeLawn, BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, CASTLE_FLAG_HEADROOM, PAD_SIZE, BRANCH_THICKNESS, bakeCloudPlatform, HEAD_IN_POSE, BASE_HEADROOM, LAB_CONSOLE_X, LAB_TANK, baseInside, bakeMoonBase, AWNING_BULGE, HOUSE_HEADROOM, bakeAwning, bakeHouse, GRASS_FRINGE_HEIGHT, JELLY_SIZE, LOG_BULGE, PALM_BULGE, PALM_CROWN_ANCHOR, PALM_CROWN_SIZE, bakePalmTrunk, bakeSandCastle, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeCactus, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
+import { BAR_GLASS, FUEL_TUBE, MILK_BOTTLE, BAR_KEEPER_X, BAR_SIZE, BAR_STOOLS, HUT_DOOR, HUT_SIZE, SHIRT_COLOURS, HACKER_SIZE, MACHINE_SIZE, MACHINE_ZAPPER, BENCH_HEADROOM, FOUNTAIN_HEADROOM, bakeBench, bakeFountain, bakeLawn, BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, CASTLE_FLAG_HEADROOM, PAD_SIZE, BRANCH_THICKNESS, bakeCloudPlatform, HEAD_IN_POSE, BASE_HEADROOM, LAB_CONSOLE_X, LAB_TANK, baseInside, bakeMoonBase, AWNING_BULGE, HOUSE_HEADROOM, bakeAwning, bakeHouse, GRASS_FRINGE_HEIGHT, JELLY_SIZE, LOG_BULGE, PALM_BULGE, PALM_CROWN_ANCHOR, PALM_CROWN_SIZE, bakePalmTrunk, bakeSandCastle, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeCactus, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { GOD_MODE_KEY, installGodMode, isGodMode } from '../dev/godMode';
@@ -103,6 +103,8 @@ export class GameScene extends Phaser.Scene {
    */
   private doors: Phaser.Geom.Rectangle[] = [];
   private doorArmed = false;
+  /** Thrown out of the bar on Pluto: shut for the rest of the run. Its door only says so. */
+  private barClosed = false;
   /** Inside a house: the level outside as the cat left it, to go back to. */
   private outside?: GameSnapshot;
   /** Coming back out through a door: the level as it was left, to put back. */
@@ -121,6 +123,10 @@ export class GameScene extends Phaser.Scene {
     reply: CrispText;
     purse: CrispText;
     selected: number;
+    /** While the keeper is pouring, or showing the cat out: no ordering. */
+    busy: boolean;
+    /** Orders in a row the cat could not pay for. */
+    strikes: number;
     wasLeft: boolean;
     wasRight: boolean;
     wasSneak: boolean;
@@ -329,6 +335,7 @@ export class GameScene extends Phaser.Scene {
     fuel?: number;
     coins?: number;
     coinsFound?: string[];
+    barClosed?: boolean;
     outside?: GameSnapshot;
     resume?: GameSnapshot;
     viaDoor?: boolean;
@@ -356,6 +363,7 @@ export class GameScene extends Phaser.Scene {
     this.fuel = data.fuel ?? carried?.fuel ?? 0;
     this.coins = data.coins ?? carried?.coins ?? 0;
     this.coinsFound = [...(data.coinsFound ?? carried?.coinsFound ?? [])];
+    this.barClosed = data.barClosed ?? carried?.barClosed ?? false;
     this.outside = data.outside ?? carried?.outside;
     this.resume = data.resume;
     this.viaDoor = data.viaDoor ?? false;
@@ -695,6 +703,7 @@ export class GameScene extends Phaser.Scene {
       fuel: this.fuel,
       coins: this.coins,
       coinsFound: [...this.coinsFound],
+      barClosed: this.barClosed,
       outside: this.outside,
       godMode: isGodMode(this),
     };
@@ -1369,6 +1378,7 @@ export class GameScene extends Phaser.Scene {
     fuel: number;
     coins: number;
     coinsFound: string[];
+    barClosed: boolean;
     from: string;
   } {
     return {
@@ -1385,6 +1395,7 @@ export class GameScene extends Phaser.Scene {
       fuel: this.fuel,
       coins: this.coins,
       coinsFound: [...this.coinsFound],
+      barClosed: this.barClosed,
     };
   }
 
@@ -3161,6 +3172,9 @@ export class GameScene extends Phaser.Scene {
       } else {
         const left = door.x - HUT_DOOR.x - HUT_DOOR.width / 2;
         this.add.image(left, door.y, 'pluto-hut').setOrigin(0, 1).setDepth(-0.35);
+        if (this.barClosed) {
+          this.add.image(door.x, door.y, 'hut-boarded').setOrigin(0.5, 1).setDepth(-0.34);
+        }
         this.baseRects.push(new Phaser.Geom.Rectangle(left, door.y - HUT_SIZE.height, HUT_SIZE.width, HUT_SIZE.height));
       }
       this.doors.push(new Phaser.Geom.Rectangle(door.x - 6, door.y - HUT_DOOR.height, 12, HUT_DOOR.height));
@@ -3182,8 +3196,33 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     if (this.doorArmed && this.player.body.blocked.down) {
+      // Shut, after the cat was thrown out: the keeper calls it through the door.
+      if (this.barClosed && !this.level.inside) {
+        this.doorArmed = false;
+        this.sayClosed();
+        return;
+      }
       this.goThroughDoor();
     }
+  }
+
+  /** "Closed!" over the hut's door, called from inside, and gone again. */
+  private sayClosed(): void {
+    const door = this.level.doors[0];
+    if (!door) {
+      return;
+    }
+    sound.play('hurt');
+    const words = crispText(this, door.x, door.y - HUT_DOOR.height - 8, BAR.replies.closed, {
+      fontFamily: 'monospace',
+      fontSize: '13px',
+      color: '#ffffff',
+      stroke: '#000000',
+      strokeThickness: 3,
+    })
+      .setOrigin(0.5)
+      .setDepth(21);
+    this.tweens.add({ targets: words, y: words.y - 10, alpha: 0, delay: 1200, duration: 500, onComplete: () => words.destroy() });
   }
 
   /**
@@ -3275,7 +3314,8 @@ export class GameScene extends Phaser.Scene {
     const width = 280;
     const height = 124;
     const x = Math.round(GAME_WIDTH / 2 - width / 2);
-    const y = 34;
+    // At the top, so the zoomed view of the keeper and the counter is under it.
+    const y = 8;
     const panel = this.add.graphics().setScrollFactor(0).setDepth(2000);
     panel.fillStyle(0xfff4fa, 0.96);
     panel.fillRoundedRect(x, y, width, height, 8);
@@ -3293,7 +3333,7 @@ export class GameScene extends Phaser.Scene {
         .setDepth(2001)
         .setInteractive();
       option.on('pointerdown', () => {
-        if (this.shop) {
+        if (this.shop && !this.shop.busy) {
           this.shop.selected = i;
           this.chooseInShop();
         }
@@ -3316,12 +3356,33 @@ export class GameScene extends Phaser.Scene {
       reply,
       purse,
       selected: 0,
+      busy: false,
+      strikes: 0,
       wasLeft: this.controls.left,
       wasRight: this.controls.right,
       wasSneak: this.controls.sneak,
     };
     sound.play('beep');
     this.refreshShop();
+    this.zoomOnKeeper(y + height);
+  }
+
+  /**
+   * Close in on the keeper and the counter, the way the view closes in on
+   * Bob, with them in the space under the menu.
+   */
+  private zoomOnKeeper(menuBottom: number): void {
+    const keeper = this.keeper;
+    if (!keeper) {
+      return;
+    }
+    const camera = this.cameras.main;
+    const zoom = BAR.shopZoom;
+    const counter = keeper.floor - 20;
+    const below = (menuBottom + GAME_HEIGHT) / 2;
+    camera.stopFollow();
+    camera.pan((keeper.sprite.x + this.player.x) / 2, counter - (below - GAME_HEIGHT / 2) / zoom, BAR.shopZoomMs, 'Sine.easeInOut');
+    camera.zoomTo(zoom, BAR.shopZoomMs, 'Sine.easeInOut');
   }
 
   /** The highlight on the chosen line, and the hearts in the purse. */
@@ -3341,7 +3402,7 @@ export class GameScene extends Phaser.Scene {
   /** Left and right move the highlight, a step per press; jump takes what it is on. */
   private stepShop(): void {
     const shop = this.shop;
-    if (!shop) {
+    if (!shop || shop.busy) {
       return;
     }
     const count = shop.options.length;
@@ -3384,7 +3445,12 @@ export class GameScene extends Phaser.Scene {
     };
     if (this.coins < item.price) {
       sound.play('hurt');
-      say(BAR.replies.poor);
+      shop.strikes += 1;
+      if (shop.strikes >= BAR.strikes) {
+        this.throwOut();
+        return;
+      }
+      say(shop.strikes === BAR.strikes - 1 ? BAR.replies.warning : BAR.replies.poor);
       return;
     }
     if (item.id === 'life' && this.maxLives >= MAX_LIVES && this.lives >= MAX_LIVES) {
@@ -3399,22 +3465,156 @@ export class GameScene extends Phaser.Scene {
       say(BAR.replies.fueled);
       return;
     }
+    // Paid up front; what was bought comes when the keeper has made it.
     this.coins -= item.price;
-    if (item.id === 'life') {
-      // One more heart to hold, and filled.
-      this.maxLives = Math.min(this.maxLives + 1, MAX_LIVES);
-      this.lives = Math.min(this.lives + 1, this.maxLives);
-    } else if (item.id === 'milk') {
-      // Every empty heart filled again.
-      this.lives = this.maxLives;
-    } else {
-      this.fuel = BAR.fuelMs;
-    }
-    this.refreshLives();
+    shop.strikes = 0;
+    shop.busy = true;
     this.refreshCoins();
-    sound.play('checkpoint');
-    say(BAR.replies[item.id]);
     this.refreshShop();
+    sound.play('beep');
+    say(BAR.replies.serving);
+    this.serve(item.id, () => {
+      if (item.id === 'life') {
+        // One more heart to hold, and filled.
+        this.maxLives = Math.min(this.maxLives + 1, MAX_LIVES);
+        this.lives = Math.min(this.lives + 1, this.maxLives);
+      } else if (item.id === 'milk') {
+        // Every empty heart filled again.
+        this.lives = this.maxLives;
+      } else {
+        this.fuel = BAR.fuelMs;
+      }
+      this.refreshLives();
+      sound.play('checkpoint');
+      if (this.shop === shop) {
+        shop.busy = false;
+        say(BAR.replies[item.id]);
+        this.refreshShop();
+      }
+    });
+  }
+
+  /**
+   * The keeper makes what was ordered, on the counter in front of him, and
+   * it goes to the cat; `done` once it is there. Milk is poured from the
+   * bottle into a glass, a life comes up out of his hands, and rocket fuel
+   * fills a tube beside him.
+   */
+  private serve(what: 'life' | 'milk' | 'fuel', done: () => void): void {
+    const keeper = this.keeper;
+    if (!keeper) {
+      done();
+      return;
+    }
+    const kx = keeper.sprite.x;
+    const top = keeper.floor - 22;
+    const depth = -0.305;
+    const cat = { x: this.player.x, y: this.player.y - 8 };
+    const after = (ms: number, then: () => void): void => {
+      this.time.delayedCall(ms, () => {
+        if (this.sys.isActive()) {
+          then();
+        }
+      });
+    };
+    /** Off the counter to the cat, smaller and gone, and the order is the cat's. */
+    const handOver = (things: Phaser.GameObjects.GameObject[], at: number): void => {
+      after(at, () => {
+        this.tweens.add({ targets: things, x: cat.x, y: cat.y, scale: 0.5, alpha: 0, duration: 450, ease: 'Quad.easeIn' });
+      });
+      after(at + 470, () => {
+        for (const thing of things) {
+          thing.destroy();
+        }
+        done();
+      });
+    };
+
+    if (what === 'milk') {
+      const gx = kx - 10;
+      const glass = this.add.image(gx, top, 'bar-glass').setOrigin(0.5, 1).setDepth(depth);
+      const inside = BAR_GLASS.inside;
+      const milk = this.add
+        .rectangle(gx - BAR_GLASS.width / 2 + inside.x, top - BAR_GLASS.height + inside.y + inside.height, inside.width, inside.height, 0xffffff)
+        .setOrigin(0, 1)
+        .setDepth(depth + 0.001)
+        .setScale(1, 0);
+      // The bottle in his hand over the glass, tipped, a stream of milk.
+      const bottle = this.add.image(gx + 4, top - BAR_GLASS.height - MILK_BOTTLE.height / 2, 'milk-bottle').setOrigin(0.5, 0.5).setDepth(depth + 0.002);
+      const stream = this.add
+        .rectangle(gx, top - BAR_GLASS.height - 3, 1, BAR_GLASS.height + 1, 0xffffff)
+        .setOrigin(0.5, 0)
+        .setDepth(depth + 0.001)
+        .setVisible(false);
+      this.tweens.add({ targets: bottle, angle: -115, duration: 300, delay: 200 });
+      after(500, () => {
+        stream.setVisible(true);
+        this.tweens.add({ targets: milk, scaleY: 1, duration: 900 });
+      });
+      after(1400, () => {
+        stream.destroy();
+        this.tweens.add({ targets: bottle, angle: 0, alpha: 0, duration: 300 });
+      });
+      after(1720, () => bottle.destroy());
+      handOver([glass, milk], 1800);
+      return;
+    }
+
+    if (what === 'life') {
+      const heart = this.add.image(kx, keeper.floor - 30, 'life').setDepth(depth + 0.01).setScale(0);
+      this.tweens.add({ targets: heart, scale: 1, duration: 350, ease: 'Back.easeOut' });
+      this.tweens.add({ targets: heart, y: heart.y - 4, duration: 400, delay: 350, yoyo: true, ease: 'Sine.easeInOut' });
+      handOver([heart], 1200);
+      return;
+    }
+
+    // Rocket fuel: the tube beside him fills from the bottom up, bubbling.
+    const tx = kx + 13;
+    const tube = this.add.image(tx, top, 'fuel-tube').setOrigin(0.5, 1).setDepth(depth);
+    const inside = FUEL_TUBE.inside;
+    const fuel = this.add
+      .rectangle(tx - FUEL_TUBE.width / 2 + inside.x, top - FUEL_TUBE.height + inside.y + inside.height, inside.width, inside.height, 0xffa030)
+      .setOrigin(0, 1)
+      .setDepth(depth + 0.001)
+      .setScale(1, 0);
+    this.tweens.add({ targets: fuel, scaleY: 1, duration: 1400, delay: 200 });
+    const bubbles = [0, 1, 2].map((i) => {
+      const bubble = this.add.rectangle(tx - 1 + (i % 2), top - 2, 1, 1, 0xfff0a0).setDepth(depth + 0.002).setAlpha(0);
+      this.tweens.add({ targets: bubble, y: top - FUEL_TUBE.height + 4, alpha: { from: 1, to: 0 }, duration: 500, delay: 300 + i * 250, repeat: 2 });
+      return bubble;
+    });
+    after(1700, () => {
+      for (const bubble of bubbles) {
+        bubble.destroy();
+      }
+    });
+    handOver([tube, fuel], 1900);
+  }
+
+  /**
+   * Once too often ordered what the cat cannot pay for: the keeper has had
+   * enough, it reminds him of Bob, and the cat is shown the door. The bar is
+   * shut for the rest of the run.
+   */
+  private throwOut(): void {
+    const shop = this.shop;
+    if (!shop) {
+      return;
+    }
+    shop.busy = true;
+    shop.reply.setText(BAR.replies.kicked);
+    for (const option of shop.options) {
+      option.setVisible(false);
+    }
+    this.cameras.main.shake(200, 0.004);
+    this.time.delayedCall(BAR.kickMs, () => {
+      if (!this.sys.isActive()) {
+        return;
+      }
+      this.barClosed = true;
+      this.closeShop();
+      this.goThroughDoor();
+    });
   }
 
   /** Bye: the menu goes, and the cat can walk again. */
@@ -3428,6 +3628,11 @@ export class GameScene extends Phaser.Scene {
       word.destroy();
     }
     this.shop = undefined;
+    // Back to the view of the room, following the cat again.
+    const camera = this.cameras.main;
+    camera.panEffect.reset();
+    camera.zoomTo(this.level.inside ? BAR.insideZoom : 1, BAR.shopZoomMs, 'Sine.easeInOut');
+    camera.startFollow(this.player, true, 0.12, 0.14);
   }
 
   /**

@@ -1036,9 +1036,9 @@ export const BAR = {
   rearm: 40,
   greeting: 'Hi cat, what would you like to order?',
   items: [
-    { id: 'life', label: 'A life', price: 20 },
-    { id: 'milk', label: 'Milk', price: 30 },
-    { id: 'fuel', label: 'Rocket fuel', price: 40 },
+    { id: 'life', label: 'A life', price: 10 },
+    { id: 'milk', label: 'Milk', price: 20 },
+    { id: 'fuel', label: 'Rocket fuel', price: 25 },
   ],
   bye: 'Bye',
   /** What the keeper says back. */
@@ -1047,6 +1047,10 @@ export const BAR = {
     milk: 'Milk! All your hearts are full.',
     fuel: 'Three times as fast -- for a while!',
     poor: 'You need more coins for that.',
+    warning: 'No coins, no order. Last warning!',
+    kicked: 'You are just like my old friend Bob! Out!',
+    closed: 'Closed!',
+    serving: 'Coming up...',
     full: 'You cannot carry any more lives!',
     notHurt: 'You are not hurt! Have it another time.',
     fueled: 'Your rocket is already full!',
@@ -1059,6 +1063,13 @@ export const BAR = {
   insideZoom: 2,
   doorMs: 350,
   replyMs: 2200,
+  /** Talking to the keeper, the view closes in on him and the counter, ms to get there. */
+  shopZoom: 2.6,
+  shopZoomMs: 500,
+  /** Ordering what the cat cannot pay for this many times in a row: thrown out, and the bar shut for the run. */
+  strikes: 3,
+  /** How long the keeper's last words stay up before the cat is out of the door, ms. */
+  kickMs: 2000,
 } as const;
 
 /**

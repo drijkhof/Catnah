@@ -50,6 +50,8 @@ export interface GameSnapshot {
   /** Bob's coins. */
   coins?: number;
   coinsFound?: string[];
+  /** The bar on Pluto has thrown the cat out, and is shut. */
+  barClosed?: boolean;
   /** Inside a house: the level outside as it was left, to go back out to. */
   outside?: GameSnapshot;
   godMode?: boolean;

@@ -27,6 +27,8 @@ interface Carry {
   /** Bob's coins, carried through. */
   coins?: number;
   coinsFound?: string[];
+  /** The bar on Pluto is shut for the run, carried through. */
+  barClosed?: boolean;
 }
 
 /** A world out here: its orbit, how big, and which level it is. */

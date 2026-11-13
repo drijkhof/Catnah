@@ -2304,3 +2304,17 @@ for the last second and a half as a warning, and a robot never mends on
 top of the cat -- it waits until the cat has moved off its spot. Only
 landing on it from above breaks it; walking into it still costs a heart.
 The bits are pictures, not the ten parts Bob needs: nothing to pick up.
+
+## The bar keeper serves, and throws you out
+
+Asked for: zoom in when talking to the keeper; milk poured into a glass,
+a life handed over, rocket fuel filled into a tube beside him, all for
+coins; prices life 10, milk 20, fuel 25; keep ordering what you cannot pay
+for and he closes, says you are just like his old friend Bob, throws you
+out, and says "closed" when you try to come back in. Decided without
+asking: "keep ordering" is three times in a row (the second time is a last
+warning; buying something resets it); the bar stays closed for the rest of
+the run (a game over keeps it closed too, like the coins), shown by planks
+across the hut's door; you pay when you order and get it when he has made
+it, about two seconds; the menu moved to the top of the screen so the
+zoomed counter is visible under it.

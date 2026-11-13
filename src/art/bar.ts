@@ -43,6 +43,11 @@ export const COIN_SIZE = 10;
 /** The fuel can by the fuel meter, px. */
 export const FUEL_CAN_SIZE = { width: 9, height: 11 };
 
+/** What the keeper serves: a glass for the milk, its bottle, and a tube to fill with rocket fuel. Each one's inside, px. */
+export const BAR_GLASS = { width: 6, height: 8, inside: { x: 1, y: 1, width: 4, height: 6 } };
+export const MILK_BOTTLE = { width: 5, height: 11 };
+export const FUEL_TUBE = { width: 7, height: 20, inside: { x: 2, y: 3, width: 3, height: 16 } };
+
 export function generateBarTextures(scene: Phaser.Scene): void {
   bakeTexture(scene, 'pluto-hut', HUT_SIZE.width, HUT_SIZE.height, drawHut);
   // A gold coin, lit from the top left, with a stamped ring.
@@ -68,6 +73,50 @@ export function generateBarTextures(scene: Phaser.Scene): void {
     g.fillRect(2, 4, 2, 2);
     g.fillStyle(0x3a3a3a, 1);
     g.fillRect(5, 0, 3, 3);
+  });
+  // A glass, empty: the milk is the scene's, poured into it.
+  bakeTexture(scene, 'bar-glass', BAR_GLASS.width, BAR_GLASS.height, (g) => {
+    g.fillStyle(0xcfeaff, 0.35);
+    g.fillRect(0, 0, BAR_GLASS.width, BAR_GLASS.height);
+    g.fillStyle(0xe8f6ff, 0.9);
+    g.fillRect(0, 0, 1, BAR_GLASS.height);
+    g.fillRect(BAR_GLASS.width - 1, 0, 1, BAR_GLASS.height);
+    g.fillRect(0, BAR_GLASS.height - 1, BAR_GLASS.width, 1);
+  });
+  // A milk bottle, white with a blue cap and label.
+  bakeTexture(scene, 'milk-bottle', MILK_BOTTLE.width, MILK_BOTTLE.height, (g) => {
+    g.fillStyle(0xffffff, 1);
+    g.fillRect(0, 4, 5, 7);
+    g.fillRect(1, 1, 3, 3);
+    g.fillStyle(0x3a7ad8, 1);
+    g.fillRect(1, 0, 3, 1);
+    g.fillRect(0, 6, 5, 2);
+  });
+  // A tall glass tube with a steel cap and foot, empty: the fuel is the scene's.
+  bakeTexture(scene, 'fuel-tube', FUEL_TUBE.width, FUEL_TUBE.height, (g) => {
+    g.fillStyle(0xcfeaff, 0.3);
+    g.fillRect(1, 2, 5, FUEL_TUBE.height - 3);
+    g.fillStyle(0xe8f6ff, 0.9);
+    g.fillRect(1, 2, 1, FUEL_TUBE.height - 3);
+    g.fillRect(5, 2, 1, FUEL_TUBE.height - 3);
+    g.fillStyle(0x8a909c, 1);
+    g.fillRect(0, 0, 7, 2);
+    g.fillRect(0, FUEL_TUBE.height - 1, 7, 1);
+  });
+  // Two planks nailed across the hut's door: the bar is closed.
+  bakeTexture(scene, 'hut-boarded', HUT_DOOR.width + 4, HUT_DOOR.height, (g) => {
+    const w = HUT_DOOR.width + 4;
+    const h = HUT_DOOR.height;
+    for (const [from, to] of [[4, h - 6], [h - 6, 4]] as const) {
+      g.lineStyle(4, 0x6a4024, 1);
+      g.lineBetween(1, from, w - 1, to);
+      g.lineStyle(1, 0xa06a3a, 1);
+      g.lineBetween(1, from - 1, w - 1, to - 1);
+    }
+    g.fillStyle(0xd02040, 1);
+    g.fillRect(2, h / 2 - 4, w - 4, 7);
+    g.fillStyle(0xffffff, 1);
+    g.fillRect(4, h / 2 - 1, w - 8, 1);
   });
   const { width, height } = BAR_SIZE;
   bakeTexture(scene, 'pluto-bar', width, height, (g) => {

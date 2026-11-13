@@ -885,8 +885,8 @@ Inside is the bar itself: **BAR** in pink neon over it, bottles on a shelf, a co
 stools, and **aliens** on the stools in **summer T-shirts** — coral,
 turquoise, yellow, pink, green, with a flower on — bobbing to music. Behind
 the counter the barkeeper, in a white shirt and bow tie. Robots never come
-in. Walk up to him and he asks *"Hi cat, what would you like to order?"*,
-and you pay in **coins**, counted in the corner. **Bob gives you 20**, and
+in. Walk up to him and **the view closes in** on him and the counter, and
+he asks *"Hi cat, what would you like to order?"*, and you pay in **coins**, counted in the corner. **Bob gives you 20**, and
 **17 more are hidden**, one at a time, faint until you are close, like
 Bob's parts: two in the city and one in every other level on the Earth
 (in a notch in the roofs, on a gable, on top of a rock tower, on a tree's
@@ -896,10 +896,13 @@ pillar on the sand path), and one on every planet but Pluto (on the
 Moon's secret island, and up the chained towers and cloud rides). A coin
 found stays found for the run. You can carry **100** at most.
 
-- **A life** — 20 coins: one more heart to hold, and filled.
-- **Milk** — 30 coins: **every empty heart filled again**. Not when you
-  are not hurt.
-- **Rocket fuel** — 40 coins: a full tank, and you fly **three times as
+- **A life** — 10 coins: a heart comes up out of his hands and floats over
+  to you: one more heart to hold, and filled.
+- **Milk** — 20 coins: he **pours it from the bottle into a glass** on the
+  counter and hands it over: **every empty heart filled again**. Not when
+  you are not hurt.
+- **Rocket fuel** — 25 coins: he **fills a tube** standing beside him,
+  bubbling orange, and hands it over: a full tank, and you fly **three times as
   fast** in space **for a long while** — 200 seconds of flying with the
   engine on. A **fuel meter**, a red can and an orange bar, sits beside the
   hearts and goes down as it burns (red when nearly empty); when it is
@@ -907,8 +910,14 @@ found stays found for the run. You can carry **100** at most.
   topped up; a part-used one can be filled again.
 - **Bye**.
 
-Tap one, or pick with left and right and take it with jump. Too few coins
-and he says so.
+Tap one, or pick with left and right and take it with jump. You pay when
+you order, and get it once he has made it; nothing else can be ordered
+meanwhile. Too few coins and he says so; the second time in a row it is
+*"No coins, no order. Last warning!"*, and the third time he has had
+enough: *"You are just like my old friend Bob! Out!"* — and you are
+**thrown out** onto Pluto. The bar is then **closed for the rest of the
+run**: planks nailed across the hut's door, and walking into it he calls
+*"Closed!"* from inside.
 
 ### The internet
 
