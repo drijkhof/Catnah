@@ -57,7 +57,7 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | poort | `arcade` | an opening under a house, walked or sneaked through |
 | rat | `rat` | the city's walker, quicker than a hedgehog |
 | zandpad | `sand path` | the last level: stones in sand, ending at the big portal |
-| groot portaal | `big portal` | the sand path's way out, three times the size; it sends you into space |
+| groot portaal | `big portal` | the sand path's way out, six times the size; it sends you into space |
 | ruimte | `space` | where the cat flies between the worlds, and flies into one to land on it |
 | springkussen | `bounce pad` | Uranus's `J`: throws the cat high |
 | wolkenplatform | `moving platform` | Jupiter's `m` on its `~` track: slides back and forth |
@@ -680,7 +680,7 @@ trees in the distance, out in the open under the sun with no leaves overhead.
 It climbs over **plateaus** — raised banks of earth two to four tiles high,
 one of them stepped — and past **rocks**, on the ground and on top of the
 plateaus, with hearts along the tops, and at the end the **big
-portal** — the same wormhole as every other, three times the size, with the
+portal** — the same wormhole as every other, six times the size, with the
 bushes kept back from it. It **pulls**: come within four tiles of its rim
 and it sucks you in, slowly at first and faster as you go — and out into
 space.

@@ -10,7 +10,7 @@ import grid from './path.txt?raw';
  * climbs over **plateaus** -- raised banks of earth two to four tiles high,
  * one stepped -- and past **rocks** on the ground and on the plateaus, with
  * hearts on top to pick up -- and at the end of it
- * the **big portal**, three times the size of any other, which sends the
+ * the **big portal**, six times the size of any other, which sends the
  * cat off into space.
  */
 
@@ -25,7 +25,7 @@ export const PATH: LevelDefinition = {
   theme: 'path',
   groundRow: 30,
   branchesNeedTrunks: false,
-  portalScale: 3,
+  portalScale: 6,
   // Come within four tiles of it and it sucks you in.
   portalPull: 4,
   // Through the big portal and off into space, to the moon.
