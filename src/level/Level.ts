@@ -82,6 +82,8 @@ export type CrowBehaviour = 'attack' | 'flyby' | 'swoop';
  *        up or down: always the wrong way
  *   `b`  park bench -- its seat a one-way ledge; a run of cells is one bench
  *   `O`  fountain -- its rim a one-way ledge; a run of cells is one fountain
+ *   `y`  a table in the bar, free, its foot on the floor of the cell
+ *   `z`  the table where Whiskey Jones sits, likewise
  *   `.`  empty
  *
  * Rows may be written short; they are padded out with empty tiles.
@@ -289,6 +291,8 @@ export interface ParsedLevel {
   hackers: Array<Point & { points: 'left' | 'right' | 'up' | 'down' }>;
   /** Aliens' bars (`a`), by the bottom-left corner of the bar's picture. */
   bars: Point[];
+  /** Tables in the bar (`y`, free; `z`, Whiskey Jones's), by the middle of their foot. */
+  tables: Array<Point & { jones: boolean }>;
   /** Park benches (`b`), each run of cells one bench, by its cells' top-left corners. */
   benches: Point[];
   /** Fountains (`O`), each run of cells one fountain, by its cells' top-left corners. */
@@ -397,6 +401,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const drowned: Point[] = [];
   const benches: Point[] = [];
   const bars: Point[] = [];
+  const tables: Array<Point & { jones: boolean }> = [];
   const doors: Point[] = [];
   const cables: Point[] = [];
   const hackers: Array<Point & { points: 'left' | 'right' | 'up' | 'down' }> = [];
@@ -664,6 +669,12 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           bars.push({ x, y: y + TILE });
           break;
 
+        // A table in the bar: a free one, or Whiskey Jones's.
+        case 'y':
+        case 'z':
+          tables.push({ x: x + TILE / 2, y: y + TILE, jones: tiles[column] === 'z' });
+          break;
+
         // A cable, inside the internet: solid, until the cat scratches
         // through it -- holding down against it -- and then the whole
         // column of it goes. Like a grey block, not a full cell, so nothing
@@ -918,6 +929,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     cables,
     hackers,
     bars,
+    tables,
     parts,
     coins,
     items,

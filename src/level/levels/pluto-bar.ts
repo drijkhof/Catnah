@@ -15,7 +15,7 @@ import grid from './pluto-bar.txt?raw';
 const ROWS = gridRows(grid);
 
 export const PLUTO_BAR: LevelDefinition = {
-  name: 'Bar',
+  name: 'Space Bar',
   theme: 'pluto',
   groundRow: 10,
   branchesNeedTrunks: false,

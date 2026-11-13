@@ -15,7 +15,7 @@ import { KEEP_LIVE, addGroundShade, bakeScenery, createBackdrop } from '../world
 import { parseLevel, type ClimbZone, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
 import { TITLE } from '../level/levels/title';
-import { BAR_GLASS, FUEL_TUBE, MILK_BOTTLE, BAR_KEEPER_X, BAR_SIZE, BAR_STOOLS, HUT_DOOR, HUT_SIZE, SHIRT_COLOURS, HACKER_SIZE, MACHINE_SIZE, MACHINE_ZAPPER, BENCH_HEADROOM, FOUNTAIN_HEADROOM, bakeBench, bakeFountain, bakeLawn, BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, CASTLE_FLAG_HEADROOM, PAD_SIZE, BRANCH_THICKNESS, bakeCloudPlatform, HEAD_IN_POSE, BASE_HEADROOM, LAB_CONSOLE_X, LAB_TANK, baseInside, bakeMoonBase, AWNING_BULGE, HOUSE_HEADROOM, bakeAwning, bakeHouse, GRASS_FRINGE_HEIGHT, JELLY_SIZE, LOG_BULGE, PALM_BULGE, PALM_CROWN_ANCHOR, PALM_CROWN_SIZE, bakePalmTrunk, bakeSandCastle, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeCactus, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
+import { BAR_ALIEN_SIZE, BAR_GLASS, BAR_STOOL, BAR_TABLE, SOUP_ALIEN, FUEL_TUBE, MILK_BOTTLE, BAR_KEEPER_X, BAR_SIZE, BAR_STOOLS, HUT_DOOR, HUT_SIZE, SHIRT_COLOURS, HACKER_SIZE, MACHINE_SIZE, MACHINE_ZAPPER, BENCH_HEADROOM, FOUNTAIN_HEADROOM, bakeBench, bakeFountain, bakeLawn, BOULDER_BULGE, BRANCH_BULGE, CORNER_RADIUS, FILLET_RADIUS, CASTLE_FLAG_HEADROOM, PAD_SIZE, BRANCH_THICKNESS, bakeCloudPlatform, HEAD_IN_POSE, BASE_HEADROOM, LAB_CONSOLE_X, LAB_TANK, baseInside, bakeMoonBase, AWNING_BULGE, HOUSE_HEADROOM, bakeAwning, bakeHouse, GRASS_FRINGE_HEIGHT, JELLY_SIZE, LOG_BULGE, PALM_BULGE, PALM_CROWN_ANCHOR, PALM_CROWN_SIZE, bakePalmTrunk, bakeSandCastle, SHELF_BULGE, TILE_VARIANTS, TRUNK_BULGE, PORTAL_KEY, bakeCactus, bakeBoulder, bakeBranch, bakeFillet, bakeLog, bakeShelf, bakeTexture, bakeTrunk, bakeRockMass, createRandom, roundedTileKey, tileKey, type Corners } from '../art';
 import { THEMES } from '../level/themes';
 import { installLevelSkip } from '../dev/levelSkip';
 import { GOD_MODE_KEY, installGodMode, isGodMode } from '../dev/godMode';
@@ -163,6 +163,31 @@ export class GameScene extends Phaser.Scene {
   private bagHud: Phaser.GameObjects.GameObject[] = [];
   /** The man in the desert who buys hats, and whether the cat is still standing where he last spoke. */
   private hatBuyer?: { sprite: Phaser.GameObjects.Image; near: boolean };
+  /**
+   * The bar's story: the free table, where milk is drunk; Whiskey Jones at
+   * his, moaning; the whiskey on the counter, and whether the cat has it;
+   * and whether he is telling his story, the bar about to close.
+   */
+  private barStory?: {
+    freeTable?: Phaser.Math.Vector2;
+    jones?: { sprite: Phaser.GameObjects.Sprite; table: Phaser.Math.Vector2; nextMoan: number; moan: number };
+    whiskey?: { sprite: Phaser.GameObjects.Image; held: boolean; owner: Phaser.GameObjects.Sprite };
+    telling: boolean;
+  };
+  /**
+   * The cat moved by the game for a moment, not the player: walking to
+   * `walkTo`, then `arrived`; with no `walkTo` it stands. Nothing else it
+   * would walk into -- a door, the keeper -- happens meanwhile.
+   */
+  private script?: { walkTo?: number; arrived?: () => void };
+  /** The bar counters' tops, one-way ledges; collided with the cat once it exists. */
+  private counterTops: Phaser.GameObjects.Zone[] = [];
+  /**
+   * Words said by someone in a room seen zoomed in (`sayAt`): pinned to the
+   * screen and put over the speaker every frame, since HTML text under a
+   * zoomed camera drifts. One at a time per speaker.
+   */
+  private speeches: Array<{ who: string; at: () => { x: number; y: number }; words: CrispText; bubble: Phaser.GameObjects.Graphics; until: number; quiet: boolean }> = [];
   /** What the cat is saying, over its head (`catSays`). */
   private catLine?: { words: CrispText; bubble: Phaser.GameObjects.Graphics; until: number };
   /** Inside a house: the level outside as the cat left it, to go back to. */
@@ -461,6 +486,10 @@ export class GameScene extends Phaser.Scene {
     this.bagHud = [];
     this.hatBuyer = undefined;
     this.catLine = undefined;
+    this.barStory = undefined;
+    this.counterTops = [];
+    this.script = undefined;
+    this.speeches = [];
     this.doors = [];
     this.doorArmed = false;
     this.hudCamera = undefined;
@@ -566,6 +595,11 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.physics.add.collider(this.player, blocks);
+    for (const counter of this.counterTops) {
+      this.physics.add.collider(this.player, counter, undefined, () =>
+        landsOnBranch(this.player, counter as unknown as Phaser.Physics.Arcade.Sprite),
+      );
+    }
     this.physics.add.collider(
       this.player,
       branches,
@@ -902,16 +936,20 @@ export class GameScene extends Phaser.Scene {
         this.nextLine();
       }
       this.placeBubble();
+    } else if (this.script && !this.dying && !this.leaving) {
+      this.player.step(this.scriptedInput(), delta);
     } else if (!this.dying && !this.leaving) {
       this.player.step(this.controls, delta);
     }
-    if (!this.titleMode && !this.dying && !this.leaving) {
+    if (!this.titleMode && !this.dying && !this.leaving && !this.script) {
       this.meetBob();
       this.meetKeeper();
       this.meetHatBuyer();
       this.stepDoors();
     }
+    this.stepBar();
     this.placeCatLine();
+    this.placeSpeeches();
     this.sortCameras();
 
     const cat = new Phaser.Math.Vector2(this.player.x, this.player.y);
@@ -2399,6 +2437,7 @@ export class GameScene extends Phaser.Scene {
     this.buildBases();
     this.buildPark();
     this.buildBars();
+    this.buildBarTables();
     this.buildHatBuyers();
     this.buildDoors();
     this.buildCables();
@@ -3306,7 +3345,24 @@ export class GameScene extends Phaser.Scene {
           .setFlipX(x > BAR_KEEPER_X)
           .setData(KEEP_LIVE, true);
         this.tweens.add({ targets: guest, y: guest.y - 1, angle: stool % 2 === 0 ? 4 : -4, duration: 380 + stool * 70, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+        // The last guest has a whiskey in front of him: the only one there
+        // is, since the keeper will not serve one to a cat.
+        if (stool === BAR_STOOLS.length - 1 && this.level.tables.some((table) => table.jones)) {
+          const glass = this.add
+            .image(left + x - 9, floor - 23, 'whiskey-glass')
+            .setOrigin(0.5, 1)
+            .setDepth(-0.305)
+            .setData(KEEP_LIVE, true);
+          this.barStory ??= { telling: false };
+          this.barStory.whiskey = { sprite: glass, held: false, owner: guest };
+        }
       });
+      // The counter's top can be jumped onto from below and stood on: one
+      // way, like a branch.
+      // The cat is made after the bar, so it is given its collider then.
+      const counter = this.add.zone(left + BAR_SIZE.width / 2, floor - 22, BAR_SIZE.width - 16, 4);
+      this.physics.add.existing(counter, true);
+      this.counterTops.push(counter);
       this.baseRects.push(new Phaser.Geom.Rectangle(left, floor - BAR_SIZE.height, BAR_SIZE.width, BAR_SIZE.height));
       this.keeper = { sprite: keeper, floor, near: false };
     });
@@ -3693,6 +3749,12 @@ export class GameScene extends Phaser.Scene {
     if (!shop) {
       return;
     }
+    const id = item.id;
+    // Never served to a cat, whatever it can pay; and no strike for asking.
+    if (id === 'whiskey') {
+      this.shopSay(BAR.replies.whiskey);
+      return;
+    }
     if (this.coins < item.price) {
       sound.play('hurt');
       shop.strikes += 1;
@@ -3723,22 +3785,33 @@ export class GameScene extends Phaser.Scene {
     this.refreshShop();
     sound.play('beep');
     this.shopSay(BAR.replies.serving);
-    this.serve(item.id, () => {
-      if (item.id === 'life') {
+    this.serve(id, () => {
+      // Milk is drunk sitting at the free table: the hearts fill once the
+      // glass is empty.
+      if (id === 'milk' && this.barStory?.freeTable) {
+        this.closeShop();
+        this.drinkAtTable(() => {
+          this.lives = this.maxLives;
+          this.refreshLives();
+          sound.play('checkpoint');
+        });
+        return;
+      }
+      if (id === 'life') {
         // One more heart to hold, and filled.
         this.maxLives = Math.min(this.maxLives + 1, MAX_LIVES);
         this.lives = Math.min(this.lives + 1, this.maxLives);
-      } else if (item.id === 'milk') {
+      } else if (id === 'milk') {
         // Every empty heart filled again.
         this.lives = this.maxLives;
-      } else {
+      } else if (id === 'fuel') {
         this.fuel = BAR.fuelMs;
       }
       this.refreshLives();
       sound.play('checkpoint');
       if (this.shop === shop) {
         shop.busy = false;
-        this.shopSay(BAR.replies[item.id]);
+        this.shopSay(BAR.replies[id]);
         this.refreshShop();
       }
     });
@@ -3800,13 +3873,235 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
+  /** The input while the game walks the cat itself (`script`). */
+  private scriptedInput(): PlayerInput {
+    const script = this.script;
+    const to = script?.walkTo;
+    let left = false;
+    let right = false;
+    if (script && to !== undefined) {
+      if (Math.abs(to - this.player.x) <= 2) {
+        script.walkTo = undefined;
+        this.player.setVelocity(0, this.player.body.velocity.y);
+        script.arrived?.();
+      } else {
+        left = to < this.player.x;
+        right = to > this.player.x;
+      }
+    }
+    return { left, right, up: false, sneak: false, jumpJustPressed: false, jumpHeld: false };
+  }
+
+  /** Words over someone in the room, for `ms`: `at` is the top of their head. Quiet ones have no bubble. */
+  private sayAt(who: string, at: () => { x: number; y: number }, line: string, ms: number, quiet = false): void {
+    for (const old of this.speeches.filter((speech) => speech.who === who)) {
+      old.until = 0;
+    }
+    const words = crispText(this, 0, 0, line, {
+      fontFamily: 'monospace',
+      fontSize: quiet ? '10px' : '11px',
+      color: quiet ? '#e0d8f0' : '#1a2030',
+      stroke: quiet ? '#000000' : undefined,
+      strokeThickness: quiet ? 3 : undefined,
+    })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(1001);
+    const bubble = this.add.graphics().setScrollFactor(0).setDepth(1000);
+    this.speeches.push({ who, at, words, bubble, until: this.time.now + ms, quiet });
+    this.placeSpeeches();
+  }
+
+  /** Every speech over its speaker, on the screen, and gone when its time is up. */
+  private placeSpeeches(): void {
+    const camera = this.cameras.main;
+    this.speeches = this.speeches.filter((speech) => {
+      if (this.time.now > speech.until) {
+        speech.words.destroy();
+        speech.bubble.destroy();
+        return false;
+      }
+      const at = speech.at();
+      const x = (at.x - camera.worldView.x) * camera.zoom;
+      const y = (at.y - camera.worldView.y) * camera.zoom - 4;
+      const width = speech.words.width + 12;
+      const height = 18;
+      speech.bubble.clear();
+      if (!speech.quiet) {
+        speech.bubble.fillStyle(0xffffff, 0.95);
+        speech.bubble.fillRoundedRect(x - width / 2, y - height - 5, width, height, 5);
+        speech.bubble.fillTriangle(x - 3, y - 5, x + 3, y - 5, x, y);
+      }
+      speech.words.setPosition(x, y - 5 - height / 2);
+      return true;
+    });
+  }
+
+  /**
+   * The bar's tables (`y`, `z`): a round table with stools; at Whiskey
+   * Jones's, him on his stool, slumped and swaying.
+   */
+  private buildBarTables(): void {
+    for (const table of this.level.tables) {
+      this.add.image(table.x, table.y, 'bar-table').setOrigin(0.5, 1).setDepth(-0.29).setData(KEEP_LIVE, true);
+      const sides = table.jones ? [1] : [-1, 1];
+      for (const side of sides) {
+        this.add.image(table.x + side * 18, table.y, 'bar-stool').setOrigin(0.5, 1).setDepth(-0.3).setData(KEEP_LIVE, true);
+      }
+      this.barStory ??= { telling: false };
+      if (table.jones) {
+        if (this.barClosed) {
+          continue;
+        }
+        const sprite = this.add
+          .sprite(table.x + 18, table.y - BAR_STOOL.height + 5, 'whiskey-jones')
+          .setOrigin(0.5, 1)
+          .setDepth(-0.295)
+          .setFlipX(true)
+          .setData(KEEP_LIVE, true);
+        this.tweens.add({ targets: sprite, angle: -7, duration: 1700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+        this.barStory.jones = { sprite, table: new Phaser.Math.Vector2(table.x, table.y), nextMoan: this.time.now + 1500, moan: 0 };
+      } else {
+        this.barStory.freeTable = new Phaser.Math.Vector2(table.x, table.y);
+      }
+    }
+  }
+
+  /**
+   * The bar, every frame: Whiskey Jones moans to himself; the whiskey on the
+   * counter is taken by walking into it -- up on the counter -- and carried;
+   * brought to him, he tells his story and the keeper shuts the bar.
+   */
+  private stepBar(): void {
+    const story = this.barStory;
+    if (!story || this.dying || this.leaving) {
+      return;
+    }
+    const now = this.time.now;
+    const jones = story.jones;
+    const head = (sprite: Phaser.GameObjects.Sprite) => () => ({ x: sprite.x, y: sprite.y - BAR_ALIEN_SIZE.height });
+    if (jones && !story.telling && now > jones.nextMoan) {
+      const moans = BAR.jones.moans;
+      this.sayAt('jones', head(jones.sprite), moans[jones.moan % moans.length], BAR.jones.moanMs - 800, true);
+      jones.moan += 1;
+      jones.nextMoan = now + BAR.jones.moanMs;
+    }
+    const whiskey = story.whiskey;
+    if (!whiskey || story.telling) {
+      return;
+    }
+    if (!whiskey.held) {
+      if (!this.shop && Phaser.Geom.Intersects.RectangleToRectangle(this.player.getBounds(), whiskey.sprite.getBounds())) {
+        whiskey.held = true;
+        sound.play('checkpoint');
+        this.sayAt('owner', head(whiskey.owner), BAR.jones.hey, 2000);
+      }
+      return;
+    }
+    whiskey.sprite.setPosition(this.player.x + (this.player.flipX ? -8 : 8), this.player.y - 6).setDepth(this.player.depth + 0.01);
+    if (jones && Math.abs(this.player.x - jones.sprite.x) < BAR.jones.reach && this.player.body.blocked.down && !this.shop) {
+      this.tellJonesStory();
+    }
+  }
+
+  /**
+   * The whiskey to Whiskey Jones: on his table, drunk, and his story, a line
+   * at a time; then the keeper calls closing time and everyone is out. The
+   * bar is shut for the rest of the run, like being thrown out.
+   */
+  private tellJonesStory(): void {
+    const story = this.barStory;
+    const jones = story?.jones;
+    const whiskey = story?.whiskey;
+    if (!story || !jones || !whiskey) {
+      return;
+    }
+    story.telling = true;
+    whiskey.held = false;
+    this.script = {};
+    this.player.setVelocity(0, this.player.body.velocity.y);
+    const tableTop = jones.table.y - BAR_TABLE.height + 1;
+    this.tweens.add({ targets: whiskey.sprite, x: jones.table.x + 6, y: tableTop, duration: 350, ease: 'Quad.easeOut' });
+    // He drinks it, at once.
+    this.time.delayedCall(900, () => {
+      if (this.sys.isActive()) {
+        this.tweens.add({ targets: whiskey.sprite, x: jones.sprite.x - 4, y: jones.sprite.y - 12, alpha: 0, duration: 500 });
+      }
+    });
+    const head = () => ({ x: jones.sprite.x, y: jones.sprite.y - BAR_ALIEN_SIZE.height });
+    const { lines, lineMs, closing, closingMs } = BAR.jones;
+    lines.forEach((line, i) => {
+      this.time.delayedCall(500 + i * lineMs, () => {
+        if (this.sys.isActive()) {
+          sound.play('beep');
+          this.sayAt('jones', head, line, lineMs - 150);
+        }
+      });
+    });
+    const end = 500 + lines.length * lineMs;
+    this.time.delayedCall(end, () => {
+      const keeper = this.keeper;
+      if (!this.sys.isActive() || !keeper) {
+        return;
+      }
+      sound.play('hurt');
+      this.cameras.main.shake(200, 0.004);
+      this.sayAt('keeper', () => ({ x: keeper.sprite.x, y: keeper.sprite.y - BAR_ALIEN_SIZE.height }), closing, closingMs);
+    });
+    this.time.delayedCall(end + closingMs, () => {
+      if (!this.sys.isActive()) {
+        return;
+      }
+      this.barClosed = true;
+      this.script = undefined;
+      this.goThroughDoor();
+    });
+  }
+
+  /**
+   * Milk, at the free table: the cat walks over to it, the glass is on the
+   * table, and it empties; `after` once it has.
+   */
+  private drinkAtTable(after: () => void): void {
+    const table = this.barStory?.freeTable;
+    if (!table) {
+      after();
+      return;
+    }
+    const seat = table.x - BAR_TABLE.width / 2 - 4;
+    this.script = {
+      walkTo: seat,
+      arrived: () => {
+        const top = table.y - BAR_TABLE.height + 1;
+        const gx = table.x - 7;
+        const glass = this.add.image(gx, top, 'bar-glass').setOrigin(0.5, 1).setDepth(-0.28);
+        const inside = BAR_GLASS.inside;
+        const milk = this.add
+          .rectangle(gx - BAR_GLASS.width / 2 + inside.x, top - BAR_GLASS.height + inside.y + inside.height, inside.width, inside.height, 0xffffff)
+          .setOrigin(0, 1)
+          .setDepth(-0.279);
+        this.tweens.add({ targets: milk, scaleY: 0, duration: BAR.drinkMs, delay: 300 });
+        this.sayAt('cat', () => ({ x: this.player.x, y: this.player.y - 20 }), BAR.catDrinks, BAR.drinkMs);
+        this.time.delayedCall(BAR.drinkMs + 500, () => {
+          if (!this.sys.isActive()) {
+            return;
+          }
+          glass.destroy();
+          milk.destroy();
+          this.script = undefined;
+          after();
+        });
+      },
+    };
+  }
+
   /**
    * The keeper makes what was ordered, on the counter in front of him, and
    * it goes to the cat; `done` once it is there. Milk is poured from the
    * bottle into a glass, a life comes up out of his hands, and rocket fuel
    * fills a tube beside him.
    */
-  private serve(what: 'life' | 'milk' | 'fuel', done: () => void): void {
+  private serve(what: 'life' | 'milk' | 'fuel' | 'soup', done: () => void): void {
     const keeper = this.keeper;
     if (!keeper) {
       done();
@@ -3863,6 +4158,26 @@ export class GameScene extends Phaser.Scene {
       });
       after(1720, () => bottle.destroy());
       handOver([glass, milk], 1800);
+      return;
+    }
+
+    if (what === 'soup') {
+      // The little one from the kitchen comes out at the far end of the
+      // counter with the bowl over its head, walks along the counter top to
+      // the cat, and hands it down.
+      const right = kx - BAR_KEEPER_X + BAR_SIZE.width - 14;
+      const walker = this.add.image(right, top, 'soup-alien').setOrigin(0.5, 1).setDepth(depth + 0.01).setAlpha(0);
+      const bowl = this.add.image(right, top - SOUP_ALIEN.height - 1, 'soup-bowl').setOrigin(0.5, 1).setDepth(depth + 0.011).setAlpha(0);
+      const walkMs = (Math.abs(right - cat.x) / BAR.soupWalk) * 1000;
+      this.tweens.add({ targets: [walker, bowl], alpha: 1, duration: 250 });
+      this.tweens.add({ targets: [walker, bowl], x: cat.x + 4, duration: walkMs, delay: 250 });
+      // A step's bob as it goes.
+      this.tweens.add({ targets: walker, scaleY: 0.9, duration: 140, yoyo: true, repeat: Math.max(1, Math.round(walkMs / 280)), delay: 250 });
+      after(250 + walkMs, () => {
+        this.tweens.add({ targets: walker, x: right, alpha: 0, duration: walkMs * 0.7, delay: 500 });
+      });
+      handOver([bowl], 300 + walkMs);
+      after(1300 + walkMs * 1.7, () => walker.destroy());
       return;
     }
 

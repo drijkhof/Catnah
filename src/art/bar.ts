@@ -28,7 +28,7 @@ const SKIN = 0x7ee07a;
 const SKIN_DARK = 0x4fae4c;
 
 /** The bar from outside: the hut, and where its doorway is across it, px. */
-export const HUT_SIZE = { width: 96, height: 74 };
+export const HUT_SIZE = { width: 96, height: 80 };
 export const HUT_DOOR = { x: 20, width: 18, height: 30 };
 
 /** The wall inside the bar, px: as tall as the room, its string of lights this far down. */
@@ -46,6 +46,14 @@ export const FUEL_CAN_SIZE = { width: 9, height: 11 };
 /** What the keeper serves: a glass for the milk, its bottle, and a tube to fill with rocket fuel. Each one's inside, px. */
 export const BAR_GLASS = { width: 6, height: 8, inside: { x: 1, y: 1, width: 4, height: 6 } };
 export const MILK_BOTTLE = { width: 5, height: 11 };
+/** A table in the bar, and the stool beside one, px; their feet on the floor. */
+export const BAR_TABLE = { width: 28, height: 16 };
+export const BAR_STOOL = { width: 10, height: 14 };
+/** A tumbler of whiskey, a bowl of soup, px. */
+export const WHISKEY_GLASS = { width: 5, height: 6 };
+export const SOUP_BOWL = { width: 9, height: 5 };
+/** The little alien from the kitchen who brings the soup along the counter, px. */
+export const SOUP_ALIEN = { width: 8, height: 11 };
 export const FUEL_TUBE = { width: 7, height: 20, inside: { x: 2, y: 3, width: 3, height: 16 } };
 
 export function generateBarTextures(scene: Phaser.Scene): void {
@@ -178,25 +186,95 @@ export function generateBarTextures(scene: Phaser.Scene): void {
     bakeTexture(scene, `bar-alien-${i}`, BAR_ALIEN_SIZE.width, BAR_ALIEN_SIZE.height, (g) => drawAlien(g, shirt, false));
   });
   bakeTexture(scene, 'bar-keeper', BAR_ALIEN_SIZE.width, BAR_ALIEN_SIZE.height, (g) => drawAlien(g, 0xffffff, true));
+  // Whiskey Jones: a guest like the others, in a tired brown shirt.
+  bakeTexture(scene, 'whiskey-jones', BAR_ALIEN_SIZE.width, BAR_ALIEN_SIZE.height, (g) => drawAlien(g, 0x7a5a3a, false));
+
+  // A round table on one leg, its top lit.
+  bakeTexture(scene, 'bar-table', BAR_TABLE.width, BAR_TABLE.height, (g) => {
+    const { width: w, height: h } = BAR_TABLE;
+    g.fillStyle(0x3a2418, 1);
+    g.fillRect(w / 2 - 1, 4, 3, h - 6);
+    g.fillRect(w / 2 - 6, h - 2, 13, 2);
+    g.fillStyle(0x7a4a2a, 1);
+    g.fillRoundedRect(0, 1, w, 4, 2);
+    g.fillStyle(0xa06a3a, 1);
+    g.fillRect(2, 1, w - 4, 1);
+  });
+  // A bar stool, the same as at the counter.
+  bakeTexture(scene, 'bar-stool', BAR_STOOL.width, BAR_STOOL.height, (g) => {
+    g.fillStyle(0x2a2a30, 1);
+    g.fillRect(4, 2, 2, BAR_STOOL.height - 2);
+    g.fillStyle(0xd02040, 1);
+    g.fillRect(0, 0, BAR_STOOL.width, 3);
+  });
+  // Whiskey: a short heavy tumbler, amber, an ice cube.
+  bakeTexture(scene, 'whiskey-glass', WHISKEY_GLASS.width, WHISKEY_GLASS.height, (g) => {
+    g.fillStyle(0xcfeaff, 0.4);
+    g.fillRect(0, 0, 5, 6);
+    g.fillStyle(0xd88a20, 1);
+    g.fillRect(1, 2, 3, 3);
+    g.fillStyle(0xffffff, 0.8);
+    g.fillRect(1, 2, 1, 1);
+    g.fillStyle(0xe8f6ff, 1);
+    g.fillRect(0, 5, 5, 1);
+  });
+  // Soup: a blue bowl, steaming orange soup to the brim.
+  bakeTexture(scene, 'soup-bowl', SOUP_BOWL.width, SOUP_BOWL.height, (g) => {
+    g.fillStyle(0xe0702a, 1);
+    g.fillRect(1, 0, 7, 2);
+    g.fillStyle(0x3a6ad8, 1);
+    g.fillRect(0, 1, 9, 2);
+    g.fillRect(1, 3, 7, 1);
+    g.fillRect(3, 4, 3, 1);
+  });
+  // The little one from the kitchen: a small green alien with big eyes and
+  // an apron, carrying things over its head.
+  bakeTexture(scene, 'soup-alien', SOUP_ALIEN.width, SOUP_ALIEN.height, (g) => {
+    g.fillStyle(SKIN, 1);
+    g.fillEllipse(4, 3, 8, 6);
+    g.fillRect(0, 1, 1, 2);
+    g.fillRect(7, 1, 1, 2);
+    g.fillStyle(0x000000, 1);
+    g.fillRect(2, 2, 1, 2);
+    g.fillRect(5, 2, 1, 2);
+    g.fillStyle(0xffffff, 1);
+    g.fillRect(2, 6, 4, 3);
+    g.fillStyle(SKIN, 1);
+    g.fillRect(2, 9, 1, 2);
+    g.fillRect(5, 9, 1, 2);
+  });
 }
 
-/** The neon sign, BAR in pink, 44 by 16, its top middle at `x`, `top`. */
+/** The neon sign, in pink: SPACE small over BAR big, 46 by 23, its top middle at `x`, `top`. */
+export const NEON_SIGN = { width: 46, height: 23 };
+
 function drawNeonSign(g: Phaser.GameObjects.Graphics, x: number, top: number): void {
+  const { width, height } = NEON_SIGN;
   g.fillStyle(0x1a1020, 1);
-  g.fillRoundedRect(x - 22, top, 44, 16, 4);
+  g.fillRoundedRect(x - width / 2, top, width, height, 4);
   g.fillStyle(0xff6fb5, 0.35);
-  g.fillRoundedRect(x - 21, top + 1, 42, 14, 4);
+  g.fillRoundedRect(x - width / 2 + 1, top + 1, width - 2, height - 2, 4);
   g.fillStyle(0xff9ad0, 1);
+  // Each letter in a 4 by 5 grid of cells.
   const letters: Record<string, number[][]> = {
-    B: [[0, 0, 1, 5], [1, 0, 2, 1], [1, 2, 2, 1], [1, 4, 2, 1], [3, 1, 1, 1], [3, 3, 1, 1]],
+    S: [[1, 0, 3, 1], [0, 1, 1, 1], [1, 2, 2, 1], [3, 3, 1, 1], [0, 4, 3, 1]],
+    P: [[0, 0, 1, 5], [1, 0, 2, 1], [3, 1, 1, 1], [1, 2, 2, 1]],
     A: [[0, 1, 1, 4], [3, 1, 1, 4], [1, 0, 2, 1], [1, 2, 2, 1]],
+    C: [[1, 0, 3, 1], [0, 1, 1, 3], [1, 4, 3, 1]],
+    E: [[0, 0, 1, 5], [1, 0, 3, 1], [1, 2, 2, 1], [1, 4, 3, 1]],
+    B: [[0, 0, 1, 5], [1, 0, 2, 1], [1, 2, 2, 1], [1, 4, 2, 1], [3, 1, 1, 1], [3, 3, 1, 1]],
     R: [[0, 0, 1, 5], [1, 0, 2, 1], [1, 2, 2, 1], [3, 1, 1, 1], [2, 3, 1, 1], [3, 4, 1, 1]],
   };
-  ['B', 'A', 'R'].forEach((letter, i) => {
-    for (const [lx, ly, w, h] of letters[letter]) {
-      g.fillRect(x - 15 + i * 11 + lx * 2, top + 3 + ly * 2, w * 2, h * 2);
-    }
-  });
+  const word = (text: string, cell: number, gap: number, y: number): void => {
+    const span = text.length * 4 * cell + (text.length - 1) * gap;
+    [...text].forEach((letter, i) => {
+      for (const [lx, ly, w, h] of letters[letter]) {
+        g.fillRect(x - span / 2 + i * (4 * cell + gap) + lx * cell, y + ly * cell, w * cell, h * cell);
+      }
+    });
+  };
+  word('SPACE', 1, 2, top + 3);
+  word('BAR', 2, 3, top + 10);
 }
 
 /**
@@ -206,7 +284,7 @@ function drawNeonSign(g: Phaser.GameObjects.Graphics, x: number, top: number): v
  */
 function drawHut(g: Phaser.GameObjects.Graphics): void {
   const { width, height } = HUT_SIZE;
-  const top = 18;
+  const top = 24;
   // The ice-block walls under a domed roof.
   g.fillStyle(0x6a7a9a, 1);
   g.fillRoundedRect(2, top, width - 4, height - top, { tl: 26, tr: 26, bl: 0, br: 0 });
@@ -241,8 +319,8 @@ function drawHut(g: Phaser.GameObjects.Graphics): void {
   // The sign on the roof.
   drawNeonSign(g, width / 2, 0);
   g.fillStyle(0x3a3a44, 1);
-  g.fillRect(width / 2 - 14, 16, 2, top - 14);
-  g.fillRect(width / 2 + 12, 16, 2, top - 14);
+  g.fillRect(width / 2 - 14, NEON_SIGN.height - 1, 2, top - NEON_SIGN.height + 3);
+  g.fillRect(width / 2 + 12, NEON_SIGN.height - 1, 2, top - NEON_SIGN.height + 3);
 }
 
 /** The door out, inside the bar: wood in a frame, ajar, Pluto's dark showing. */

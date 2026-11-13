@@ -908,8 +908,8 @@ you**: lightning from the zapper, the screen goes white, and you are inside
 
 ### The bar on Pluto
 
-At the start of Pluto stands **a little hut** of ice blocks with **BAR** in
-pink neon on its roof, an alien looking out of its round window, and a
+At the start of Pluto stands **a little hut** of ice blocks: the **Space
+Bar**, *SPACE* small over a big *BAR* in pink neon on its roof, an alien looking out of its round window, and a
 warm, lit **door**. **Walk in through the door** and you are **inside**:
 the view zooms in close, so you are really in the bar — a room of warm
 planks with a string of coloured lights, the door you came in by on the
@@ -917,7 +917,7 @@ left. **Walk back out through it** and you are on Pluto again, in the
 doorway, with everything as you left it (the little hearts you took stay
 taken).
 
-Inside is the bar itself: **BAR** in pink neon over it, bottles on a shelf, a counter with red
+Inside is the bar itself: **SPACE BAR** in pink neon over it, bottles on a shelf, a counter with red
 stools, and **aliens** on the stools in **summer T-shirts** — coral,
 turquoise, yellow, pink, green, with a flower on — bobbing to music. Behind
 the counter the barkeeper, in a white shirt and bow tie. Robots never come
@@ -935,8 +935,10 @@ found stays found for the run. You can carry **100** at most.
 - **A life** — 10 coins: a heart comes up out of his hands and floats over
   to you: one more heart to hold, and filled.
 - **Milk** — 20 coins: he **pours it from the bottle into a glass** on the
-  counter and hands it over: **every empty heart filled again**. Not when
-  you are not hurt.
+  counter and hands it over, and you **drink it at the free table**: the
+  cat walks over by itself, the glass on the table empties (*"Mmm,
+  milk!"*), and then **every empty heart is filled again**. Not when you
+  are not hurt.
 - **Rocket fuel** — 25 coins: he **fills a tube** standing beside him,
   bubbling orange, and hands it over: a full tank, and you fly **three times as
   fast** in space **for a long while** — 200 seconds of flying with the
@@ -944,7 +946,26 @@ found stays found for the run. You can carry **100** at most.
   hearts and goes down as it burns (red when nearly empty); when it is
   empty the rocket slows back to its own speed. A full tank cannot be
   topped up; a part-used one can be filled again.
+- **Soup** — 5 coins: a **little alien from the kitchen** comes out at the
+  far end of the counter with a bowl over its head, **walks along the
+  counter** to you and hands it down. Just soup: it does nothing.
+- **Whiskey** — on the menu, but he will not serve it: *"I don't think
+  it's good for a cat."* (No coins, and it does not count as an order you
+  could not pay for.)
 - **Bye**.
+
+Past the bar stand **two tables**. One is free; at the other sits
+**Whiskey Jones**, in a tired brown shirt, slumped and swaying, moaning
+quietly to himself: *"Urgh... that stupid fool..."*, *"Whiskey is my
+life..."*. He wants whiskey, and you cannot order any — but the guest at
+the end of the counter has one. **Jump up onto the counter** (its top is a
+ledge, like a branch) and walk into his glass: you **take it** (*"Hey! My
+whiskey!"*) and carry it. Bring it to Whiskey Jones and he drinks it and
+tells you, a line at a time: *"Whiskey! Oh, thank you, little cat."*, *"My
+name is Whiskey Jones."*, *"One more thing..."*, *"You had better not
+trust my brother."* — and the keeper calls ***"Closing time! Everybody
+out!"***: you are out on Pluto, and the bar is **closed for the rest of the
+run**, the same as being thrown out.
 
 On the right of his menu you can **sell** him things: what you have found
 on the way, and a full tank of rocket fuel you have not flown on yet.

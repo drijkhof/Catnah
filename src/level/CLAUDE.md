@@ -48,6 +48,7 @@ its platforms must attach to a column. Everything else is derived.
 | `a` | the aliens' **bar** (inside its hut on Pluto): its picture stands on the floor from this cell rightwards (`BAR_SIZE`), with the keeper to order from (`BAR`); robots are fenced out of it |
 | `p`, `l`, `t` | a thing to **find and sell**: `p` a wallet, `l` candy (a lolly), `t` a hat (one in the game, in the forest), standing on the floor of the cell. Kept for the run once picked up (`itemsFound`, `bag`) |
 | `g` | water with the **water bottle** on the bed under it -- the only one in the game, at the bottom of the cave's well. Water for the same reason `W` is |
+| `y`, `z` | a **table in the bar**, on the floor of the cell: `y` a free one (milk is drunk there), `z` the one Whiskey Jones sits at |
 | `A` | the **man in the desert** behind his stall, who buys water and a hat, his feet on the floor of the cell |
 | `n` | a **door**, the middle of its cell's floor. In a level with no `inside`, the doorway of a hut (`pluto-hut`) leading into the level whose `inside` names this one; in that level, the door back out. Walked into, not pressed |
 | `I` | a **cable** (the internet): solid, a column of `I` is one cable with a plug on top; holding down against it for `INTERNET.scratchMs` scratches it through and the whole column goes. Not in `FULL_CELL`, like `D` |

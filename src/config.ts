@@ -1068,6 +1068,9 @@ export const BAR = {
     { id: 'life', label: 'A life', price: 10 },
     { id: 'milk', label: 'Milk', price: 20 },
     { id: 'fuel', label: 'Rocket fuel', price: 25 },
+    { id: 'soup', label: 'Soup', price: 5 },
+    // On the menu, and never served to a cat.
+    { id: 'whiskey', label: 'Whiskey', price: 15 },
   ],
   bye: 'Bye',
   /** What the keeper says back. */
@@ -1084,6 +1087,35 @@ export const BAR = {
     notHurt: 'You are not hurt! Have it another time.',
     fueled: 'Your rocket is already full!',
     fuelUsed: 'I only buy a full tank back.',
+    soup: 'Soup! Enjoy.',
+    whiskey: "I don't think it's good for a cat.",
+    milkTable: 'Have a seat.',
+  },
+  /** The little one from the kitchen with the soup, walking along the counter: px a second. */
+  soupWalk: 26,
+  /** Milk is drunk at the free table: how long the glass takes to empty, ms. */
+  drinkMs: 2200,
+  catDrinks: 'Mmm, milk!',
+  /**
+   * Whiskey Jones, at his table, wants whiskey. He moans to himself, a line
+   * every `moanMs`; the cat cannot order whiskey, but a guest at the counter
+   * has one. Brought it, he tells his story, a line every `lineMs`, and then
+   * the keeper shuts the bar: everyone out, for the rest of the run.
+   */
+  jones: {
+    moans: ['Urgh... that stupid fool...', 'Whiskey is my life...'],
+    moanMs: 4200,
+    reach: 22,
+    hey: 'Hey! My whiskey!',
+    lines: [
+      'Whiskey! Oh, thank you, little cat.',
+      'My name is Whiskey Jones.',
+      'One more thing...',
+      'You had better not trust my brother.',
+    ],
+    lineMs: 2600,
+    closing: 'Closing time! Everybody out!',
+    closingMs: 2200,
   },
   /** Rocket fuel: how many times as fast the cat flies in space after. */
   fuelBoost: 3,

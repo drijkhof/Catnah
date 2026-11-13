@@ -2473,3 +2473,23 @@ Kept: the moons in the skies of Mars, Jupiter and Pluto (the Moon's photo
 standing in for their own moons) -- they are in a level's sky, not
 floating in space. Say if those should go as well.
 
+## The Space Bar: tables, soup, whiskey and Whiskey Jones
+
+Asked for (by the player's daughter): two tables, one taken; milk drunk at
+a table; soup for 5 coins brought by a little alien walking over the bar;
+the bar called the Space Bar; whiskey refused to a cat; the alien at the
+table wants whiskey and moans; the cat jumps on the bar and takes
+someone's; he says he is Whiskey Jones and not to trust his brother; the
+bar shuts, everyone out, never in again. Decided without asking:
+
+- The room is wider to fit the tables (`y` free, `z` his).
+- Milk fills the hearts once drunk at the table; the cat walks there by
+  itself.
+- Soup does nothing but be soup.
+- Whiskey stays on the menu at 15 coins, refused, no strike.
+- The whiskey is the last guest's at the counter, taken by walking into it
+  on the counter top -- a one-way ledge like a branch. Carried, it goes
+  with the cat; leaving the bar loses it (it is back next time in).
+- Who his brother is is left open.
+- The closing is the same shut bar as being thrown out (`barClosed`).
+
