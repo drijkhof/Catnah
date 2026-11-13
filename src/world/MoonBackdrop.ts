@@ -1,3 +1,4 @@
+import { addPlanetLight, faceTheSun } from './planetLight';
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../config';
 import { MOON_HILLS_SIZE, PLANET_SIZES, STARFIELD_SIZE, createRandom, type PlanetName } from '../art';
@@ -165,8 +166,12 @@ export class MoonBackdrop {
         .setBlendMode(Phaser.BlendModes.ADD);
     }
 
+    // Lit from where the sun is in this sky, or from the left where none is
+    // drawn -- never baked into the picture, so it agrees with the sun.
+    const sunX = look.stars ? -GAME_WIDTH : GAME_WIDTH * 0.85;
+    const sunY = look.stars ? GAME_HEIGHT * 0.3 : GAME_HEIGHT * 0.12;
     for (const planet of look.planets) {
-      scene.add
+      const image = scene.add
         .image(
           GAME_WIDTH * planet.x,
           GAME_HEIGHT * planet.y + (planet.name === 'earth' ? PLANET_SIZES.earth * 0.05 : 0),
@@ -175,6 +180,7 @@ export class MoonBackdrop {
         .setScale(planet.scale)
         .setScrollFactor(planet.factor, 0)
         .setDepth(-95);
+      faceTheSun(addPlanetLight(scene, image, planet.name), image, sunX, sunY);
     }
 
     const random = createRandom(7707);

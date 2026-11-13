@@ -34,7 +34,11 @@ binary assets but the portal picture and runs straight after clone.
   order, so neighbours always differ.
 - `space.ts` — the sun (`space-sun`, `SPACE_SUN_SIZE`, and `space-sun-glow`; not `sun`, which is the forest's), the stars (three seamless layers), the gas clouds, the
   planets (Earth, Moon, Mars, Saturn with its ring split behind and in front,
-  Jupiter and two small ones), the moon's hills, the robot and its grey
+  Jupiter and two small ones), drawn **with no sun on them**: the light is
+  `planet-light` (`PLANET_LIGHT_SIZE`, worked out per pixel for a sun to the
+  left), laid over each globe (`PLANET_DISCS`) and turned to the sun by
+  `world/planetLight.ts`; a ring's near half is its own texture
+  (`planet-saturn-front`, `planet-uranus-front`) over that light. The moon's hills, the robot and its grey
   block with two cracked stages.
 - `base.ts` — the moon base as one picture (hull, doors, and the whole
   laboratory inside, benches included; what fits is fitted to its size) and

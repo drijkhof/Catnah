@@ -278,23 +278,85 @@ function generateStarfields(scene: Phaser.Scene): void {
   });
 }
 
-/** A lit sphere: a base disc, shading on the right, a highlight on the left. */
+/**
+ * A sphere with no sun on it: a base disc darkening a little towards its
+ * rim all round, a touch paler in the middle. Day and night are not drawn
+ * here: the light comes from `planet-light`, laid over it by the scene and
+ * turned to face the sun, so it is right wherever the sun is.
+ */
 function sphere(g: Phaser.GameObjects.Graphics, cx: number, cy: number, r: number, base: number, dark: number, light: number): void {
   g.fillStyle(dark, 1);
   g.fillCircle(cx, cy, r);
   g.fillStyle(base, 1);
-  g.fillCircle(cx - r * 0.12, cy - r * 0.08, r * 0.9);
-  g.fillStyle(light, 0.6);
-  g.fillCircle(cx - r * 0.4, cy - r * 0.38, r * 0.35);
+  g.fillCircle(cx, cy, r * 0.92);
+  g.fillStyle(light, 0.2);
+  g.fillCircle(cx, cy, r * 0.6);
 }
 
-/** Erases nothing, but paints the night side: a crescent of shadow to the right. */
-function nightSide(g: Phaser.GameObjects.Graphics, cx: number, cy: number, r: number): void {
-  g.fillStyle(0x000010, 0.28);
-  g.fillEllipse(cx + r * 0.55, cy + r * 0.1, r * 1.0, r * 1.9);
+/** The light over a planet: drawn this many px across, scaled to each disc. */
+export const PLANET_LIGHT_SIZE = 128;
+
+/**
+ * Each planet's disc, the radius of the globe in its texture, px: what
+ * `planet-light` is scaled to cover. Saturn's and Uranus's textures are
+ * wider than their globes, for the rings.
+ */
+export const PLANET_DISCS: Record<PlanetName, number> = {
+  earth: PLANET_SIZES.earth / 2 - 4,
+  moon: PLANET_SIZES.moon / 2 - 1,
+  mars: PLANET_SIZES.mars / 2 - 1,
+  saturn: PLANET_SIZES.saturn / 2 - 12,
+  jupiter: PLANET_SIZES.jupiter / 2 - 1,
+  ice: PLANET_SIZES.ice / 2 - 1,
+  violet: PLANET_SIZES.violet / 2 - 1,
+  venus: PLANET_SIZES.venus / 2 - 1,
+  uranus: PLANET_SIZES.uranus / 2 - 12,
+  neptune: PLANET_SIZES.neptune / 2 - 1,
+  pluto: PLANET_SIZES.pluto / 2 - 1,
+  iss: PLANET_SIZES.iss / 2,
+};
+
+/**
+ * Sunlight on a ball, for a sun to the left: the night side dark, the line
+ * between day and night soft, a highlight where the sun is straight on.
+ * Worked out per pixel, as the light on a real sphere (a normal at each
+ * point, against the sun's direction, a little in front so the edge of the
+ * day side still catches it). Turned by the scene to face the sun.
+ */
+function generatePlanetLight(scene: Phaser.Scene): void {
+  const size = PLANET_LIGHT_SIZE;
+  const canvas = scene.textures.createCanvas('planet-light', size, size) as Phaser.Textures.CanvasTexture;
+  const image = canvas.context.createImageData(size, size);
+  const sun = new Phaser.Math.Vector3(-1, -0.15, 0.35).normalize();
+  for (let py = 0; py < size; py += 1) {
+    for (let px = 0; px < size; px += 1) {
+      const x = ((px + 0.5) / size) * 2 - 1;
+      const y = ((py + 0.5) / size) * 2 - 1;
+      const rr = x * x + y * y;
+      if (rr > 1) {
+        continue;
+      }
+      const lit = x * sun.x + y * sun.y + Math.sqrt(1 - rr) * sun.z;
+      const i = (py * size + px) * 4;
+      // Night: up to nearly black, faded in across the terminator.
+      const night = 1 - Phaser.Math.Clamp((lit + 0.1) / 0.45, 0, 1);
+      // Day: a soft highlight where the sun is head on.
+      const glint = Math.pow(Math.max(0, lit), 6) * 0.35;
+      // Edge softening, so the overlay never shows its own rim.
+      const edge = Phaser.Math.Clamp((1 - Math.sqrt(rr)) * size * 0.5, 0, 1);
+      if (night > glint) {
+        image.data.set([0, 0, 12, Math.round(night * 0.82 * 255 * edge)], i);
+      } else {
+        image.data.set([255, 250, 235, Math.round(glint * 255 * edge)], i);
+      }
+    }
+  }
+  canvas.context.putImageData(image, 0, 0);
+  canvas.refresh();
 }
 
 function generatePlanets(scene: Phaser.Scene): void {
+  generatePlanetLight(scene);
   // The Earth: oceans, continents, cloud, and a thin blue glow.
   {
     const d = PLANET_SIZES.earth;
@@ -328,7 +390,6 @@ function generatePlanets(scene: Phaser.Scene): void {
           g.fillEllipse(x, y, 18 + random() * 16, 4 + random() * 3);
         }
       }
-      nightSide(g, d / 2, d / 2, r);
     });
   }
 
@@ -352,7 +413,6 @@ function generatePlanets(scene: Phaser.Scene): void {
           g.fillCircle(x, y, cr * 0.55);
         }
       }
-      nightSide(g, d / 2, d / 2, r);
     });
   }
 
@@ -371,7 +431,6 @@ function generatePlanets(scene: Phaser.Scene): void {
       }
       g.fillStyle(0xf4eee8, 1);
       g.fillEllipse(d / 2 - 2, d / 2 - r + 4, r * 0.6, 6);
-      nightSide(g, d / 2, d / 2, r);
     });
   }
 
@@ -408,9 +467,10 @@ function generatePlanets(scene: Phaser.Scene): void {
       g.fillRect(cx - r + 2, cy + 6, r * 2 - 4, 3);
       g.fillStyle(0xf0dcae, 0.7);
       g.fillRect(cx - r + 6, cy - 2, r * 2 - 12, 3);
-      nightSide(g, cx, cy, r);
-      ring(g, true);
     });
+    // The near half of the ring on its own, laid over the sunlight on the
+    // globe: the ring in front is not in the planet's shadow.
+    bakeTexture(scene, 'planet-saturn-front', w, h, (g) => ring(g, true));
   }
 
   // Jupiter, and two little ones of no name, for the flight.
@@ -428,7 +488,6 @@ function generatePlanets(scene: Phaser.Scene): void {
       }
       g.fillStyle(0xc0553a, 1);
       g.fillEllipse(d / 2 + r * 0.25, d / 2 + r * 0.2, 18, 10);
-      nightSide(g, d / 2, d / 2, r);
     });
   }
   for (const [name, base, dark, light] of [
@@ -441,7 +500,6 @@ function generatePlanets(scene: Phaser.Scene): void {
       sphere(g, d / 2, d / 2, r, base, dark, light);
       g.fillStyle(dark, 0.5);
       g.fillRect(d / 2 - r + 6, d / 2 + 2, r * 2 - 12, 3);
-      nightSide(g, d / 2, d / 2, r);
     });
   }
 
@@ -457,7 +515,6 @@ function generatePlanets(scene: Phaser.Scene): void {
         g.fillStyle(colour, 0.6);
         g.fillEllipse(d / 2, y, half * 2, 7);
       }
-      nightSide(g, d / 2, d / 2, r);
     });
   }
 
@@ -469,8 +526,9 @@ function generatePlanets(scene: Phaser.Scene): void {
       g.lineStyle(1, 0xc8f0f4, 0.6);
       g.strokeEllipse(d / 2, d / 2, 14, d - 4);
       sphere(g, d / 2, d / 2, r, 0x9ae0e8, 0x5aa8b8, 0xd8f8fa);
-      nightSide(g, d / 2, d / 2, r);
-      // The near half of the ring, over the planet.
+    });
+    // The near half of the ring, over the planet and its sunlight.
+    bakeTexture(scene, 'planet-uranus-front', d, d, (g) => {
       g.lineStyle(1, 0xc8f0f4, 0.8);
       g.strokeEllipse(d / 2, d / 2, 14, d - 4);
     });
@@ -486,7 +544,6 @@ function generatePlanets(scene: Phaser.Scene): void {
       g.fillEllipse(d / 2 - 8, d / 2 + 6, 14, 8);
       g.fillStyle(0xe8f0ff, 0.8);
       g.fillEllipse(d / 2 + 6, d / 2 - 10, 16, 3);
-      nightSide(g, d / 2, d / 2, r);
     });
   }
 
@@ -500,7 +557,6 @@ function generatePlanets(scene: Phaser.Scene): void {
       g.fillCircle(d / 2 - 3, d / 2 + 1, 5);
       g.fillCircle(d / 2 + 4, d / 2 + 1, 5);
       g.fillTriangle(d / 2 - 8, d / 2 + 3, d / 2 + 9, d / 2 + 3, d / 2 + 1, d / 2 + 12);
-      nightSide(g, d / 2, d / 2, r);
     });
   }
 
@@ -834,7 +890,6 @@ function generateBattleStation(scene: Phaser.Scene): void {
     g.strokeCircle(dx + 2, dy + 2, 9);
     g.fillStyle(0x9fff9f, 1);
     g.fillCircle(dx + 2, dy + 2, 2);
-    nightSide(g, c, c, r);
   });
 }
 

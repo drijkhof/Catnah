@@ -42,6 +42,9 @@ off the display list with only their bodies, costing nothing per frame.
   horizon (ice spires, mesas, cloud towers, volcanoes; pale textures tinted
   per world), two ranks of tinted hills rooted on the ground line, and
   rocks or crystals scattered on the floor.
+- `planetLight.ts` — `addPlanetLight` lays the sunlight over a planet's
+  picture (and its ring's near half over that); `faceTheSun` turns it to
+  wherever the sun is. Used in space every frame and in `MoonBackdrop`'s skies.
 - `InternetBackdrop` — the five internet sites: the site's sky pinned, its pictures floating in two ranks, each bobbing (live, so not baked); on the dark web, columns of green code falling behind.
 - The sand path uses `Backdrop` with no canopy, fewer bushes, and the floor
   around the big portal kept clear of them.

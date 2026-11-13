@@ -2356,3 +2356,13 @@ between, which kills it. Decided without asking: both beams kill, the
 station's and the starship's; dying in a beam is a heart lost like in
 the sun, and the old rule -- a hit loses every part found -- is gone, the
 heart being the price now. Beams may cross a planet.
+
+## Sunlight on the planets
+
+Asked for: the light on the planets to match where the sun is and their
+turning. Done by taking the light out of the pictures and laying it over
+them, turned to the sun, instead of turning the whole picture (which spun
+Jupiter's bands round and left Saturn always lit from the left). Decided
+without asking: the planets do not spin on their own axes -- "their
+turning" read as their going round the sun; in a level's night sky, with
+no sun drawn, the light comes from the left.

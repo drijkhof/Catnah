@@ -1,3 +1,4 @@
+import { addPlanetLight, faceTheSun } from '../world/planetLight';
 import Phaser from 'phaser';
 import { BAR, GAME_HEIGHT, GAME_WIDTH, LASER, LIVES, PARTS, SPACE, TILE } from '../config';
 import { LEVELS } from '../level/levels';
@@ -97,7 +98,7 @@ export class SpaceScene extends Phaser.Scene {
   /** The middle of space, where the sun is. */
   private sun = new Phaser.Math.Vector2();
   /** The worlds out here, and whether each can be landed on this time. */
-  private worlds: Array<World & { x: number; y: number; image: Phaser.GameObjects.Image; label: CrispText; open: boolean; done: boolean; radius: number }> = [];
+  private worlds: Array<World & { x: number; y: number; image: Phaser.GameObjects.Image; label: CrispText; light?: Phaser.GameObjects.Image; open: boolean; done: boolean; radius: number }> = [];
   /** Burnt by the sun: the cat is gone until it sets off again. */
   private burning = false;
   /** Arrows at the edge of the screen, pointing at the open worlds out of sight. */
@@ -210,12 +211,12 @@ export class SpaceScene extends Phaser.Scene {
     for (const kind of ['ice', 'violet', 'ice', 'violet', 'moon', 'ice'] as const) {
       const angle = random() * Math.PI * 2;
       const distance = 2850 + random() * 60;
-      this.planets.push(
-        this.add
-          .image(this.sun.x + Math.cos(angle) * distance, this.sun.y + Math.sin(angle) * distance, `planet-${kind}`)
-          .setScale(0.8 + random())
-          .setDepth(-50),
-      );
+      const planet = this.add
+        .image(this.sun.x + Math.cos(angle) * distance, this.sun.y + Math.sin(angle) * distance, `planet-${kind}`)
+        .setScale(0.8 + random())
+        .setDepth(-50);
+      faceTheSun(addPlanetLight(this, planet, kind), planet, this.sun.x, this.sun.y);
+      this.planets.push(planet);
     }
 
     // The sun, with a glow round it that swells and shrinks, and a faint
@@ -256,7 +257,7 @@ export class SpaceScene extends Phaser.Scene {
         .setDepth(-39);
       this.words.push(text);
       this.labels.push({ level: world.level, text });
-      this.worlds.push({ ...world, x: 0, y: 0, image, label: text, open, done: false, radius });
+      this.worlds.push({ ...world, x: 0, y: 0, image, label: text, light: addPlanetLight(this, image, world.name), open, done: false, radius });
     }
     this.orbit();
     this.refreshLabels();
@@ -422,9 +423,9 @@ export class SpaceScene extends Phaser.Scene {
   }
 
   /**
-   * Every world moved on along its orbit, with its name under it, and
-   * turned so its lit side faces the sun (the pictures are lit from the
-   * left). Not Saturn, whose ring would tip over.
+   * Every world moved on along its orbit, with its name under it, and its
+   * light (`addPlanetLight`) turned to the sun. The world itself is not
+   * turned, so its bands and rings stay level.
    */
   private orbit(): void {
     const t = this.clock;
@@ -433,8 +434,8 @@ export class SpaceScene extends Phaser.Scene {
       world.x = at.x;
       world.y = at.y;
       world.image.setPosition(at.x, at.y);
-      if (world.name !== 'saturn') {
-        world.image.setRotation(Math.atan2(at.y - this.sun.y, at.x - this.sun.x));
+      if (world.light) {
+        faceTheSun(world.light, world.image, this.sun.x, this.sun.y);
       }
       world.label.setPosition(at.x, at.y + world.radius + 12);
       if (world.name === 'earth') {

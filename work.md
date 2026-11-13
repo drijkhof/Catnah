@@ -707,8 +707,14 @@ Pluto — each on a faint ring that shows its orbit, with its name under it.
 Each takes its real number of Earth years to go round (an Earth year is 50
 seconds): Venus whizzes, Jupiter is slow, and Pluto, at 248 years, only
 just creeps along, but you can see it move. The Moon goes round the Earth
-once every 40 seconds — the real month would be too fast to catch. Each
-world turns its lit side to the sun. **Fly into a world and its level
+once every 40 seconds — the real month would be too fast to catch. **The
+light on every world is where the sun is**: the side facing it lit, the
+far side in night, a soft line between them, and it moves round as the
+world goes round — the Moon's too, and the far planets past Pluto. The
+worlds themselves stay upright, so Jupiter's bands and Saturn's ring stay
+level, and the near half of a ring is not in the planet's shadow. In a
+level's sky the planets are lit from where that sky's sun is (from the
+left on a night sky, where none is drawn). **Fly into a world and its level
 starts** — if it is open: the name is gold when it is, grey when it is not.
 Arrows at the edge of the screen point the way to the open worlds you
 cannot see — but not to a planet whose parts you have all found, so you
