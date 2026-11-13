@@ -2318,3 +2318,30 @@ the run (a game over keeps it closed too, like the coins), shown by planks
 across the hut's door; you pay when you order and get it when he has made
 it, about two seconds; the menu moved to the top of the screen so the
 zoomed counter is visible under it.
+
+## No arrows to a finished planet
+
+Asked for: no arrows to a planet whose parts are all found. Its name stays
+gold and it can still be flown into; only the arrow is gone.
+
+## Things to find and sell
+
+Asked for: wallets, candy and hats to find in ten levels, kept for the
+run, sold to the bar keeper; a man at the start of the desert who only
+buys a cap/hat, for 15 coins; unused rocket fuel sold back for 10.
+Decided without asking: "hoed" and "pet" are the same thing, a straw hat;
+one thing in each of ten levels (all nine on the Earth and Mars), on the
+ground mid-level rather than hidden, since the ask was to find them, not
+to hunt for them: wallets in the city, swamp and sand path, candy in the
+canopy, cave, desert and on Mars, hats in the forest, volcano and beach --
+so a hat can be found before the desert. The keeper pays 10 for a wallet,
+5 for candy, 10 for a hat (the man's 15 is the better deal, the reason to
+go to him). "Not used yet" fuel means a full tank. The man buys any number
+of hats and wears one from the first.
+
+## The black blocks with green stripes
+
+Asked: no black blocks with green stripes in the forest or anywhere.
+That pattern is what the engine draws when a picture is missing, but on
+this machine no level has one -- every level was checked, on a laptop and
+in the phone view. Still open: where exactly, and on which device.

@@ -27,6 +27,9 @@ interface Carry {
   /** Bob's coins, carried through. */
   coins?: number;
   coinsFound?: string[];
+  /** What the cat carries to sell, carried through. */
+  bag?: Record<'wallet' | 'candy' | 'hat', number>;
+  itemsFound?: string[];
   /** The bar on Pluto is shut for the run, carried through. */
   barClosed?: boolean;
 }
@@ -94,7 +97,7 @@ export class SpaceScene extends Phaser.Scene {
   /** The middle of space, where the sun is. */
   private sun = new Phaser.Math.Vector2();
   /** The worlds out here, and whether each can be landed on this time. */
-  private worlds: Array<World & { x: number; y: number; image: Phaser.GameObjects.Image; label: CrispText; open: boolean; radius: number }> = [];
+  private worlds: Array<World & { x: number; y: number; image: Phaser.GameObjects.Image; label: CrispText; open: boolean; done: boolean; radius: number }> = [];
   /** Burnt by the sun: the cat is gone until it sets off again. */
   private burning = false;
   /** Arrows at the edge of the screen, pointing at the open worlds out of sight. */
@@ -252,7 +255,7 @@ export class SpaceScene extends Phaser.Scene {
         .setDepth(-39);
       this.words.push(text);
       this.labels.push({ level: world.level, text });
-      this.worlds.push({ ...world, x: 0, y: 0, image, label: text, open, radius });
+      this.worlds.push({ ...world, x: 0, y: 0, image, label: text, open, done: false, radius });
     }
     this.orbit();
     this.refreshLabels();
@@ -509,6 +512,11 @@ export class SpaceScene extends Phaser.Scene {
       const total = definition ? definition.rows.join('').split('K').length - 1 : 0;
       const got = (this.carry.parts ?? []).filter((id) => id.startsWith(`${level}:`)).length;
       const name = level || 'Earth';
+      const world = this.worlds.find((candidate) => candidate.level === level);
+      if (world) {
+        // Every part on it found: still open, but no arrow sends you back.
+        world.done = (this.carry.rocket ?? false) && total > 0 && got >= total;
+      }
       text.setText(this.carry.rocket && total > 0 ? `${name} ${got}/${total}` : name);
     }
   }
@@ -516,7 +524,7 @@ export class SpaceScene extends Phaser.Scene {
   /**
    * An arrow at the edge of the screen for every open world out of sight,
    * pointing the way to it -- space is big, and a world off screen is easy
-   * to lose.
+   * to lose. Not to a world whose parts are all found: nothing to go back for.
    */
   private pointAtWorlds(): void {
     const camera = this.cameras.main;
@@ -525,7 +533,7 @@ export class SpaceScene extends Phaser.Scene {
     const cy = GAME_HEIGHT / 2;
     this.arrows.clear();
     for (const world of this.worlds) {
-      if (!world.open || view.contains(world.x, world.y)) {
+      if (!world.open || world.done || view.contains(world.x, world.y)) {
         continue;
       }
       const angle = Math.atan2(world.y - (view.y + view.height / 2), world.x - (view.x + view.width / 2));

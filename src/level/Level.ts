@@ -1,7 +1,10 @@
 import { MAX_CHARMS_PER_LEVEL, PARK, SPIDER, TILE } from '../config';
 import { BRANCH_THICKNESS, TILE_VARIANTS } from '../art';
 import type { ThemeName } from './themes';
-import type { GroundEnemyKind } from '../config';
+import type { GroundEnemyKind, ItemKind } from '../config';
+
+/** The letters of the things to find and sell. */
+const ITEM_LETTERS = { p: 'wallet', l: 'candy', t: 'hat' } as const satisfies Record<string, ItemKind>;
 
 /** What a crow does. See `LevelDefinition.crowBehaviour`. */
 export type CrowBehaviour = 'attack' | 'flyby' | 'swoop';
@@ -287,6 +290,10 @@ export interface ParsedLevel {
   parts: Point[];
   /** Coins (`$`), the middle of the cell. */
   coins: Point[];
+  /** Things to find and sell (`p` a wallet, `l` candy, `t` a hat), standing on the floor of the cell. */
+  items: Array<Point & { kind: ItemKind }>;
+  /** The man in the desert who buys hats (`A`), by his feet. */
+  hatBuyers: Point[];
   /** The moon's grey blocks (`D`), by their top-left corner. Robots come out of them. */
   hatches: Point[];
   /** Water, grouped into connected pools. A piranha never leaves its own. */
@@ -388,6 +395,8 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
   const fountains: Point[] = [];
   const parts: Point[] = [];
   const coins: Point[] = [];
+  const items: Array<Point & { kind: ItemKind }> = [];
+  const hatBuyers: Point[] = [];
   const bouncePads: Point[] = [];
   const crumbles: Point[] = [];
   const movers: Array<{ x: number; y: number; width: number; from: number; to: number }> = [];
@@ -608,6 +617,18 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
         // A coin, hidden somewhere: Bob's money is not the only money.
         case '$':
           coins.push({ x: x + TILE / 2, y: y + TILE / 2 });
+          break;
+
+        // Something to find, keep and sell: a wallet, candy, a hat.
+        case 'p':
+        case 'l':
+        case 't':
+          items.push({ x: x + TILE / 2, y: y + TILE, kind: ITEM_LETTERS[tiles[column] as 'p' | 'l' | 't'] });
+          break;
+
+        // A man in the desert who wants a hat.
+        case 'A':
+          hatBuyers.push({ x: x + TILE / 2, y: y + TILE });
           break;
 
         // A flag planted in the dust. Scenery only.
@@ -880,6 +901,8 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     bars,
     parts,
     coins,
+    items,
+    hatBuyers,
     hatches,
     waterZones,
     pools,

@@ -27,7 +27,7 @@
 .....ooo..RRRRRR.....TGGGGGGQQQQ...........==RRRRRGGGGGG....RRR....GGGGG.TQQQQQ......RRRRRR.GGGGG
 ..........RRRRRR.....TGGGGGGQQQQ.............RRRRRGGGGGG...RRRRR...GGGGG.TQQQQQ......RRRRRR.GGGGG
 .....................TGGGGGGQQQQ.oo......oo..RRRRRGGGGGG...RRRRR.........TQQQQQ......RRRRRR.GGGGG
-..P........oooo......TGGGGGGQQQQ.bb.OOOO.bb.rRRRRRGGGGGG*..RRRRR.r..ooo.rTQQQQQ..r.r..oooo..GGGGG....E
+..P........oooo....p.TGGGGGGQQQQ.bb.OOOO.bb.rRRRRRGGGGGG*..RRRRR.r..ooo.rTQQQQQ..r.r..oooo..GGGGG....E
 ########################################################################################################
 ########################################################################################################
 ########################################################################################################

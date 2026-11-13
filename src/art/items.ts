@@ -1,0 +1,100 @@
+import Phaser from 'phaser';
+import { bakeTexture } from './canvas';
+
+/** Each thing to find and sell, px: drawn standing on the floor. */
+export const ITEM_SIZES = {
+  wallet: { width: 11, height: 8 },
+  candy: { width: 12, height: 6 },
+  hat: { width: 13, height: 8 },
+} as const;
+
+/** The man at the start of the desert who wants a hat. */
+export const HAT_BUYER_SIZE = { width: 14, height: 26 };
+
+/**
+ * The things to find and sell -- `item-wallet`, `item-candy`, `item-hat` --
+ * and the man in the desert who buys hats, bald and sunburnt (`hat-buyer`),
+ * and wearing one once he has it (`hat-buyer-hat`).
+ */
+export function generateItemTextures(scene: Phaser.Scene): void {
+  // A brown leather wallet, folded, with a gold clasp and a stitched edge.
+  bakeTexture(scene, 'item-wallet', ITEM_SIZES.wallet.width, ITEM_SIZES.wallet.height, (g) => {
+    g.fillStyle(0x4a2a14, 1);
+    g.fillRoundedRect(0, 0, 11, 8, 2);
+    g.fillStyle(0x8a5a30, 1);
+    g.fillRoundedRect(1, 1, 9, 6, 1);
+    g.fillStyle(0x6a4020, 1);
+    g.fillRect(1, 3, 9, 1);
+    g.fillStyle(0xffd23c, 1);
+    g.fillRect(8, 3, 2, 2);
+    g.fillStyle(0xb88a50, 1);
+    g.fillRect(2, 1, 3, 1);
+  });
+  // A sweet in a twist of pink and white striped paper.
+  bakeTexture(scene, 'item-candy', ITEM_SIZES.candy.width, ITEM_SIZES.candy.height, (g) => {
+    g.fillStyle(0xff6fb5, 1);
+    g.fillTriangle(0, 0, 0, 6, 4, 3);
+    g.fillTriangle(12, 0, 12, 6, 8, 3);
+    g.fillCircle(6, 3, 3);
+    g.fillStyle(0xffffff, 1);
+    g.fillRect(5, 0, 1, 6);
+    g.fillRect(7, 1, 1, 4);
+    g.fillStyle(0xffd0e8, 1);
+    g.fillRect(4, 1, 1, 1);
+  });
+  // A straw hat with a red band.
+  const drawHat = (g: Phaser.GameObjects.Graphics, x: number, y: number): void => {
+    g.fillStyle(0xb88a30, 1);
+    g.fillRoundedRect(x, y + 5, 13, 3, 1);
+    g.fillStyle(0xe8c060, 1);
+    g.fillRoundedRect(x + 3, y, 7, 6, 2);
+    g.fillRect(x + 1, y + 5, 11, 2);
+    g.fillStyle(0xd02040, 1);
+    g.fillRect(x + 3, y + 3, 7, 2);
+    g.fillStyle(0xfff0a0, 1);
+    g.fillRect(x + 4, y + 1, 2, 1);
+  };
+  bakeTexture(scene, 'item-hat', ITEM_SIZES.hat.width, ITEM_SIZES.hat.height, (g) => drawHat(g, 0, 0));
+
+  // The man: bald and red from the sun, a big moustache, a white shirt,
+  // khaki shorts, sandals. Facing right.
+  const drawMan = (g: Phaser.GameObjects.Graphics, hat: boolean): void => {
+    const { height } = HAT_BUYER_SIZE;
+    // Legs and sandals.
+    g.fillStyle(0xe8a080, 1);
+    g.fillRect(4, height - 7, 2, 6);
+    g.fillRect(8, height - 7, 2, 6);
+    g.fillStyle(0x6a4020, 1);
+    g.fillRect(3, height - 1, 4, 1);
+    g.fillRect(8, height - 1, 4, 1);
+    // Shorts.
+    g.fillStyle(0xb8a070, 1);
+    g.fillRect(3, height - 11, 9, 5);
+    // Shirt, and arms.
+    g.fillStyle(0xf4f4f0, 1);
+    g.fillRoundedRect(2, 12, 11, height - 22, 2);
+    g.fillStyle(0xd0d0c8, 1);
+    g.fillRect(7, 13, 1, height - 24);
+    g.fillStyle(0xe8a080, 1);
+    g.fillRect(1, 14, 2, 6);
+    g.fillRect(12, 14, 2, 6);
+    // Head: bald, sunburnt on top.
+    g.fillStyle(0xe8a080, 1);
+    g.fillRoundedRect(3, 3, 9, 9, 4);
+    g.fillStyle(0xff6a50, 1);
+    g.fillRect(5, 3, 5, 2);
+    // Eye, nose, moustache.
+    g.fillStyle(0x1a1a1a, 1);
+    g.fillRect(9, 6, 1, 1);
+    g.fillStyle(0xd07060, 1);
+    g.fillRect(11, 7, 2, 2);
+    g.fillStyle(0x5a3a20, 1);
+    g.fillRect(7, 9, 6, 1);
+    g.fillRect(7, 10, 2, 1);
+    if (hat) {
+      drawHat(g, 1, 0);
+    }
+  };
+  bakeTexture(scene, 'hat-buyer', HAT_BUYER_SIZE.width, HAT_BUYER_SIZE.height, (g) => drawMan(g, false));
+  bakeTexture(scene, 'hat-buyer-hat', HAT_BUYER_SIZE.width, HAT_BUYER_SIZE.height, (g) => drawMan(g, true));
+}

@@ -45,6 +45,8 @@ its platforms must attach to a column. Everything else is derived.
 | `Z` | **crumbling ice** (Pluto): solid until stood on, then it shakes for `crumbleMs`, falls, and is back after `crumbleBackMs`. Not part of the ground, so it can go |
 | `F` | an American flag planted in the dust. Scenery only, at the cell's floor |
 | `a` | the aliens' **bar** (inside its hut on Pluto): its picture stands on the floor from this cell rightwards (`BAR_SIZE`), with the keeper to order from (`BAR`); robots are fenced out of it |
+| `p`, `l`, `t` | a thing to **find and sell**: `p` a wallet, `l` candy (a lolly), `t` a hat, standing on the floor of the cell. Kept for the run once picked up (`itemsFound`, `bag`); one in each of ten levels |
+| `A` | the **man in the desert** who buys hats, his feet on the floor of the cell |
 | `n` | a **door**, the middle of its cell's floor. In a level with no `inside`, the doorway of a hut (`pluto-hut`) leading into the level whose `inside` names this one; in that level, the door back out. Walked into, not pressed |
 | `I` | a **cable** (the internet): solid, a column of `I` is one cable with a plug on top; holding down against it for `INTERNET.scratchMs` scratches it through and the whole column goes. Not in `FULL_CELL`, like `D` |
 | `<` `>` `U` `H` | a **hacker** (the dark web) standing on the cell's floor, its sign pointing left, right, up or down: always the wrong way. Harmless; calls out when the cat comes near |

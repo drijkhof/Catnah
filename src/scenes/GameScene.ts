@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { AWAKE_RANGE, BAR, BOB, ENDING, INTERNET, PARK, CAT, OBSTACLES, PARTS, RAIN, ROBOT, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
+import { ITEMS, type ItemKind, AWAKE_RANGE, BAR, BOB, ENDING, INTERNET, PARK, CAT, OBSTACLES, PARTS, RAIN, ROBOT, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
 import { Controls, IdleControls, type PlayerInput } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -44,6 +44,17 @@ function landsOnBranch(
 
   return body.velocity.y >= 0 && body.prev.y + body.height <= wood.y + 1;
 }
+
+/** A line in a menu: where it sits, what it says now, and what taking it does. */
+interface ShopEntry {
+  column: number;
+  row: number;
+  label: () => string;
+  choose: () => void;
+}
+
+/** Nothing carried yet. */
+const EMPTY_BAG: Record<ItemKind, number> = { wallet: 0, candy: 0, hat: 0 };
 
 /** How far below the level the cat may fall before respawning, in pixels. */
 const FALL_OUT_MARGIN = 80;
@@ -105,6 +116,14 @@ export class GameScene extends Phaser.Scene {
   private doorArmed = false;
   /** Thrown out of the bar on Pluto: shut for the rest of the run. Its door only says so. */
   private barClosed = false;
+  /** What the cat carries to sell, and every one found this run, as `<level>:<x>,<y>`. */
+  private bag: Record<ItemKind, number> = { ...EMPTY_BAG };
+  private itemsFound: string[] = [];
+  private itemSprites: Phaser.Types.Physics.Arcade.ImageWithStaticBody[] = [];
+  /** The bag in the HUD, under the coins: an icon and a count per kind carried. */
+  private bagHud: Phaser.GameObjects.GameObject[] = [];
+  /** The man in the desert who buys hats, and whether the cat is still standing where he last spoke. */
+  private hatBuyer?: { sprite: Phaser.GameObjects.Image; near: boolean };
   /** Inside a house: the level outside as the cat left it, to go back to. */
   private outside?: GameSnapshot;
   /** Coming back out through a door: the level as it was left, to put back. */
@@ -119,6 +138,7 @@ export class GameScene extends Phaser.Scene {
   private shop?: {
     panel: Phaser.GameObjects.Graphics;
     words: CrispText[];
+    entries: ShopEntry[];
     options: CrispText[];
     reply: CrispText;
     purse: CrispText;
@@ -127,6 +147,8 @@ export class GameScene extends Phaser.Scene {
     busy: boolean;
     /** Orders in a row the cat could not pay for. */
     strikes: number;
+    /** The view closed in on the keeper, to be put back. */
+    zoomed: boolean;
     wasLeft: boolean;
     wasRight: boolean;
     wasSneak: boolean;
@@ -336,6 +358,8 @@ export class GameScene extends Phaser.Scene {
     coins?: number;
     coinsFound?: string[];
     barClosed?: boolean;
+    bag?: Record<ItemKind, number>;
+    itemsFound?: string[];
     outside?: GameSnapshot;
     resume?: GameSnapshot;
     viaDoor?: boolean;
@@ -364,6 +388,8 @@ export class GameScene extends Phaser.Scene {
     this.coins = data.coins ?? carried?.coins ?? 0;
     this.coinsFound = [...(data.coinsFound ?? carried?.coinsFound ?? [])];
     this.barClosed = data.barClosed ?? carried?.barClosed ?? false;
+    this.bag = { ...EMPTY_BAG, ...(data.bag ?? carried?.bag ?? {}) };
+    this.itemsFound = [...(data.itemsFound ?? carried?.itemsFound ?? [])];
     this.outside = data.outside ?? carried?.outside;
     this.resume = data.resume;
     this.viaDoor = data.viaDoor ?? false;
@@ -390,6 +416,9 @@ export class GameScene extends Phaser.Scene {
     this.cables = [];
     this.keeper = undefined;
     this.shop = undefined;
+    this.itemSprites = [];
+    this.bagHud = [];
+    this.hatBuyer = undefined;
     this.doors = [];
     this.doorArmed = false;
     this.hudCamera = undefined;
@@ -467,6 +496,7 @@ export class GameScene extends Phaser.Scene {
     this.charms = this.buildCharms();
     this.buildParts();
     this.buildCoins();
+    this.buildItems();
     this.checkpoints = this.buildCheckpoints();
     this.respawnPoint = { x: this.level.spawn.x, y: this.level.spawn.y };
 
@@ -512,6 +542,9 @@ export class GameScene extends Phaser.Scene {
       });
       this.physics.add.overlap(this.player, this.coinSprites, (_cat, coin) => {
         this.takeCoin(coin as Phaser.Types.Physics.Arcade.ImageWithStaticBody);
+      });
+      this.physics.add.overlap(this.player, this.itemSprites, (_cat, item) => {
+        this.takeItem(item as Phaser.Types.Physics.Arcade.ImageWithStaticBody);
       });
 
       this.buildWeather();
@@ -704,6 +737,8 @@ export class GameScene extends Phaser.Scene {
       coins: this.coins,
       coinsFound: [...this.coinsFound],
       barClosed: this.barClosed,
+      bag: { ...this.bag },
+      itemsFound: [...this.itemsFound],
       outside: this.outside,
       godMode: isGodMode(this),
     };
@@ -831,6 +866,7 @@ export class GameScene extends Phaser.Scene {
     if (!this.titleMode && !this.dying && !this.leaving) {
       this.meetBob();
       this.meetKeeper();
+      this.meetHatBuyer();
       this.stepDoors();
     }
     this.sortCameras();
@@ -1379,6 +1415,8 @@ export class GameScene extends Phaser.Scene {
     coins: number;
     coinsFound: string[];
     barClosed: boolean;
+    bag: Record<ItemKind, number>;
+    itemsFound: string[];
     from: string;
   } {
     return {
@@ -1396,6 +1434,8 @@ export class GameScene extends Phaser.Scene {
       coins: this.coins,
       coinsFound: [...this.coinsFound],
       barClosed: this.barClosed,
+      bag: { ...this.bag },
+      itemsFound: [...this.itemsFound],
     };
   }
 
@@ -1493,6 +1533,73 @@ export class GameScene extends Phaser.Scene {
       .setOrigin(1, 0)
       .setScrollFactor(0)
       .setDepth(1000);
+  }
+
+  /** The things to find and sell here (`p`, `l`, `t`), but not one already found this run. */
+  private buildItems(): void {
+    if (this.titleMode) {
+      return;
+    }
+    for (const item of this.level.items) {
+      const id = `${this.level.name}:${item.x},${item.y}`;
+      if (this.itemsFound.includes(id)) {
+        continue;
+      }
+      const sprite = this.physics.add.staticImage(item.x, item.y, `item-${item.kind}`).setOrigin(0.5, 1).setDepth(7);
+      sprite.refreshBody();
+      this.tweens.add({ targets: sprite, y: sprite.y - 2, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+      sprite.setData('itemId', id).setData('kind', item.kind);
+      this.itemSprites.push(sprite);
+    }
+  }
+
+  /** The cat picks one up: into the bag, for the run. */
+  private takeItem(sprite: Phaser.Types.Physics.Arcade.ImageWithStaticBody): void {
+    const id = sprite.getData('itemId') as string;
+    if (this.itemsFound.includes(id)) {
+      return;
+    }
+    const kind = sprite.getData('kind') as ItemKind;
+    this.itemsFound.push(id);
+    this.bag[kind] += 1;
+    sprite.destroy();
+    this.itemSprites = this.itemSprites.filter((other) => other !== sprite);
+    sound.play('checkpoint');
+    this.announceBonus(`+1 ${ITEMS.kinds[kind].label}`);
+    this.refreshBag();
+  }
+
+  /** The bag in the HUD, under the coins: each kind carried, with how many. Drawn again on every change. */
+  private refreshBag(): void {
+    if (this.titleMode) {
+      return;
+    }
+    for (const thing of this.bagHud) {
+      thing.destroy();
+    }
+    this.bagHud = [];
+    const carried = (Object.keys(ITEMS.kinds) as ItemKind[]).filter((kind) => this.bag[kind] > 0);
+    const top = (this.partsText ? TILE * 4 + 8 : TILE * 3 + 2) + 20;
+    let right = GAME_WIDTH - TILE - 8;
+    for (const kind of [...carried].reverse()) {
+      const count = crispText(this, right, top, `${this.bag[kind]}`, {
+        fontFamily: 'monospace',
+        fontSize: '13px',
+        color: '#ffffff',
+        stroke: '#2f2a1a',
+        strokeThickness: 3,
+      })
+        .setOrigin(1, 0)
+        .setScrollFactor(0)
+        .setDepth(1000);
+      const icon = this.add
+        .image(right - 14, top + 8, `item-${kind}`)
+        .setOrigin(1, 0.5)
+        .setScrollFactor(0)
+        .setDepth(1000);
+      this.bagHud.push(count, icon);
+      right -= 36;
+    }
   }
 
   /** The parts count in the HUD: shown once there are parts to find. */
@@ -2249,6 +2356,7 @@ export class GameScene extends Phaser.Scene {
     this.buildBases();
     this.buildPark();
     this.buildBars();
+    this.buildHatBuyers();
     this.buildDoors();
     this.buildCables();
     this.buildHackers();
@@ -3302,32 +3410,117 @@ export class GameScene extends Phaser.Scene {
     this.openShop();
   }
 
+  /** The man at the start of the desert (`A`): a hat on him once he has bought one. */
+  private buildHatBuyers(): void {
+    for (const at of this.level.hatBuyers) {
+      const sprite = this.add.image(at.x, at.y, 'hat-buyer').setOrigin(0.5, 1).setDepth(-0.3).setFlipX(true).setData(KEEP_LIVE, true);
+      this.tweens.add({ targets: sprite, scaleY: 1.03, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+      this.hatBuyer = { sprite, near: false };
+    }
+  }
+
   /**
-   * The menu: the keeper's question, the three things on offer with their
-   * price in pink hearts, Bye, and how many hearts the cat has. Tap one, or
-   * pick with left and right and take it with jump. Pinned to the screen,
-   * over everything; no zoom, so the words stay put.
+   * Standing by him: with a hat, his menu -- sell it, or Bye; without one,
+   * he asks for it. Once, until the cat walks off and back.
+   */
+  private meetHatBuyer(): void {
+    const buyer = this.hatBuyer;
+    if (!buyer || this.shop || this.talk) {
+      return;
+    }
+    const dx = Math.abs(this.player.x - buyer.sprite.x);
+    const dy = Math.abs(this.player.body.bottom - buyer.sprite.y);
+    if (buyer.near) {
+      if (dx > ITEMS.hatBuyer.rearm || dy > TILE) {
+        buyer.near = false;
+      }
+      return;
+    }
+    if (dx > ITEMS.hatBuyer.reach || dy > 4 || !this.player.body.blocked.down) {
+      return;
+    }
+    buyer.near = true;
+    const man = ITEMS.hatBuyer;
+    if (this.bag.hat <= 0) {
+      sound.play('beep');
+      const words = crispText(this, buyer.sprite.x, buyer.sprite.y - 40, man.noHat, {
+        fontFamily: 'monospace',
+        fontSize: '12px',
+        color: '#ffffff',
+        stroke: '#000000',
+        strokeThickness: 3,
+      })
+        .setOrigin(0.5)
+        .setDepth(21);
+      this.tweens.add({ targets: words, alpha: 0, delay: 2200, duration: 400, onComplete: () => words.destroy() });
+      return;
+    }
+    this.openMenu(man.greeting, [
+      {
+        column: 0,
+        row: 0,
+        label: () => `${man.sell} (${this.bag.hat}) +${man.price} coins`,
+        choose: () => this.sell('hat', man.price, man.thanks, () => buyer.sprite.setTexture('hat-buyer-hat')),
+      },
+      { column: 0, row: 1, label: () => BAR.bye, choose: () => this.closeShop() },
+    ], 1);
+  }
+
+  /**
+   * The keeper's menu: what is on offer with its price, on the left, Bye
+   * under it; what the cat could sell him on the right. Opened over the
+   * zoomed-in counter.
    */
   private openShop(): void {
+    const buys: ShopEntry[] = BAR.items.map((item, row) => ({
+      column: 0,
+      row,
+      label: () => `${item.label} — ${item.price} coins`,
+      choose: () => this.buy(item),
+    }));
+    const sells: ShopEntry[] = (Object.keys(ITEMS.kinds) as ItemKind[]).map((kind, row) => ({
+      column: 1,
+      row,
+      label: () => `Sell ${ITEMS.kinds[kind].label} (${this.bag[kind]}) +${ITEMS.kinds[kind].price}`,
+      choose: () => this.sell(kind, ITEMS.kinds[kind].price),
+    }));
+    sells.push({
+      column: 1,
+      row: sells.length,
+      label: () => `Sell rocket fuel +${ITEMS.fuelPrice}`,
+      choose: () => this.sellFuel(),
+    });
+    const bye: ShopEntry = { column: 0, row: BAR.items.length, label: () => BAR.bye, choose: () => this.closeShop() };
+    const bottom = this.openMenu(BAR.greeting, [...buys, ...sells, bye], 2);
+    this.zoomOnKeeper(bottom);
+  }
+
+  /**
+   * A menu pinned to the screen at the top: a question, the entries in one
+   * or two columns, a line for the answer and the coins. Tap one, or pick
+   * with left and right and take it with jump. Returns its bottom edge.
+   */
+  private openMenu(greeting: string, entries: ShopEntry[], columns: number): number {
     this.player.setVelocity(0, 0);
     const style = { fontFamily: 'monospace', fontSize: '11px', color: '#2a1030' };
-    const width = 280;
-    const height = 124;
+    const columnWidth = 176;
+    const width = Math.max(24 + columnWidth * columns, Math.ceil(greeting.length * 6.8) + 28);
+    const rows = Math.max(...entries.map((entry) => entry.row)) + 1;
+    const height = 70 + rows * 14;
     const x = Math.round(GAME_WIDTH / 2 - width / 2);
-    // At the top, so the zoomed view of the keeper and the counter is under it.
+    // At the top, so a zoomed view of the counter is under it.
     const y = 8;
     const panel = this.add.graphics().setScrollFactor(0).setDepth(2000);
     panel.fillStyle(0xfff4fa, 0.96);
     panel.fillRoundedRect(x, y, width, height, 8);
     panel.lineStyle(2, 0xff6fb5, 1);
     panel.strokeRoundedRect(x, y, width, height, 8);
-    const question = crispText(this, GAME_WIDTH / 2, y + 12, BAR.greeting, { ...style, fontSize: '11px' })
+    const question = crispText(this, GAME_WIDTH / 2, y + 12, greeting, style)
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(2001);
-    const labels = [...BAR.items.map((item) => `${item.label} — ${item.price} coins`), BAR.bye];
-    const options = labels.map((label, i) => {
-      const option = crispText(this, x + 22, y + 32 + i * 14, label, style)
+    const options = entries.map((entry, i) => {
+      const option = crispText(this, x + 14 + entry.column * columnWidth, y + 32 + entry.row * 14, '', style)
         .setOrigin(0, 0.5)
         .setScrollFactor(0)
         .setDepth(2001)
@@ -3344,7 +3537,7 @@ export class GameScene extends Phaser.Scene {
       .setOrigin(1, 0.5)
       .setScrollFactor(0)
       .setDepth(2001);
-    // The keeper's answer on a line of its own, over the coins.
+    // The answer on a line of its own, over the coins.
     const reply = crispText(this, GAME_WIDTH / 2, y + height - 26, '', { ...style, color: '#3a5aa8' })
       .setOrigin(0.5, 0.5)
       .setScrollFactor(0)
@@ -3352,19 +3545,21 @@ export class GameScene extends Phaser.Scene {
     this.shop = {
       panel,
       words: [question],
+      entries,
       options,
       reply,
       purse,
       selected: 0,
       busy: false,
       strikes: 0,
+      zoomed: false,
       wasLeft: this.controls.left,
       wasRight: this.controls.right,
       wasSneak: this.controls.sneak,
     };
     sound.play('beep');
     this.refreshShop();
-    this.zoomOnKeeper(y + height);
+    return y + height;
   }
 
   /**
@@ -3373,9 +3568,10 @@ export class GameScene extends Phaser.Scene {
    */
   private zoomOnKeeper(menuBottom: number): void {
     const keeper = this.keeper;
-    if (!keeper) {
+    if (!keeper || !this.shop) {
       return;
     }
+    this.shop.zoomed = true;
     const camera = this.cameras.main;
     const zoom = BAR.shopZoom;
     const counter = keeper.floor - 20;
@@ -3385,15 +3581,14 @@ export class GameScene extends Phaser.Scene {
     camera.zoomTo(zoom, BAR.shopZoomMs, 'Sine.easeInOut');
   }
 
-  /** The highlight on the chosen line, and the hearts in the purse. */
+  /** The highlight on the chosen line, the labels (counts change), and the coins. */
   private refreshShop(): void {
     const shop = this.shop;
     if (!shop) {
       return;
     }
-    const labels = [...BAR.items.map((item) => `${item.label} — ${item.price} coins`), BAR.bye];
     shop.options.forEach((option, i) => {
-      option.setText(`${i === shop.selected ? '▸ ' : '  '}${labels[i]}`);
+      option.setText(`${i === shop.selected ? '▸ ' : '  '}${shop.entries[i].label()}`);
       option.setColor(i === shop.selected ? '#c0306a' : '#2a1030');
     });
     shop.purse.setText(`${this.coins} coins`);
@@ -3424,25 +3619,30 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  /** Buys what is highlighted -- if the cat can pay and can use it -- or says goodbye. */
   private chooseInShop(): void {
+    this.shop?.entries[this.shop.selected]?.choose();
+  }
+
+  /** The answer in the menu, for a while. */
+  private shopSay(line: string): void {
     const shop = this.shop;
     if (!shop) {
       return;
     }
-    const item = BAR.items[shop.selected];
-    if (!item) {
-      this.closeShop();
+    shop.reply.setText(line);
+    this.time.delayedCall(BAR.replyMs, () => {
+      if (this.shop === shop && shop.reply.text === line) {
+        shop.reply.setText('');
+      }
+    });
+  }
+
+  /** Buys from the keeper -- if the cat can pay and can use it. */
+  private buy(item: (typeof BAR.items)[number]): void {
+    const shop = this.shop;
+    if (!shop) {
       return;
     }
-    const say = (line: string): void => {
-      shop.reply.setText(line);
-      this.time.delayedCall(BAR.replyMs, () => {
-        if (this.shop === shop && shop.reply.text === line) {
-          shop.reply.setText('');
-        }
-      });
-    };
     if (this.coins < item.price) {
       sound.play('hurt');
       shop.strikes += 1;
@@ -3450,19 +3650,19 @@ export class GameScene extends Phaser.Scene {
         this.throwOut();
         return;
       }
-      say(shop.strikes === BAR.strikes - 1 ? BAR.replies.warning : BAR.replies.poor);
+      this.shopSay(shop.strikes === BAR.strikes - 1 ? BAR.replies.warning : BAR.replies.poor);
       return;
     }
     if (item.id === 'life' && this.maxLives >= MAX_LIVES && this.lives >= MAX_LIVES) {
-      say(BAR.replies.full);
+      this.shopSay(BAR.replies.full);
       return;
     }
     if (item.id === 'milk' && this.lives >= this.maxLives) {
-      say(BAR.replies.notHurt);
+      this.shopSay(BAR.replies.notHurt);
       return;
     }
     if (item.id === 'fuel' && this.fuel >= BAR.fuelMs) {
-      say(BAR.replies.fueled);
+      this.shopSay(BAR.replies.fueled);
       return;
     }
     // Paid up front; what was bought comes when the keeper has made it.
@@ -3472,7 +3672,7 @@ export class GameScene extends Phaser.Scene {
     this.refreshCoins();
     this.refreshShop();
     sound.play('beep');
-    say(BAR.replies.serving);
+    this.shopSay(BAR.replies.serving);
     this.serve(item.id, () => {
       if (item.id === 'life') {
         // One more heart to hold, and filled.
@@ -3488,7 +3688,63 @@ export class GameScene extends Phaser.Scene {
       sound.play('checkpoint');
       if (this.shop === shop) {
         shop.busy = false;
-        say(BAR.replies[item.id]);
+        this.shopSay(BAR.replies[item.id]);
+        this.refreshShop();
+      }
+    });
+  }
+
+  /** Sells one of what the cat carries to whoever is behind the menu, for `price`. */
+  private sell(kind: ItemKind, price: number, thanks: string = ITEMS.sold, then?: () => void): void {
+    if (this.bag[kind] <= 0) {
+      this.shopSay(ITEMS.none);
+      return;
+    }
+    this.bag[kind] -= 1;
+    this.refreshBag();
+    this.handOverSale(`item-${kind}`, price, thanks, then);
+  }
+
+  /** A full tank of rocket fuel, never flown on, back to the keeper. */
+  private sellFuel(): void {
+    if (this.fuel < BAR.fuelMs) {
+      this.shopSay(this.fuel > 0 ? BAR.replies.fuelUsed : ITEMS.none);
+      return;
+    }
+    this.fuel = 0;
+    this.refreshLives();
+    this.handOverSale('fuel-can', ITEMS.fuelPrice, ITEMS.sold);
+  }
+
+  /** What was sold goes from the cat to the buyer, and the coins come back. */
+  private handOverSale(texture: string, price: number, thanks: string, then?: () => void): void {
+    const shop = this.shop;
+    if (!shop) {
+      return;
+    }
+    shop.busy = true;
+    const to = this.keeper?.sprite ?? this.hatBuyer?.sprite;
+    const thing = this.add.image(this.player.x, this.player.y - 10, texture).setDepth(7);
+    this.tweens.add({
+      targets: thing,
+      x: to?.x ?? thing.x,
+      y: (to?.y ?? thing.y) - 12,
+      duration: 450,
+      ease: 'Quad.easeInOut',
+    });
+    this.time.delayedCall(480, () => {
+      if (!this.sys.isActive()) {
+        return;
+      }
+      thing.destroy();
+      this.coins = Math.min(this.coins + price, BOB.maxCoins);
+      this.refreshCoins();
+      sound.play('checkpoint');
+      this.announceBonus(`+${price} coins`);
+      then?.();
+      if (this.shop === shop) {
+        shop.busy = false;
+        this.shopSay(thanks);
         this.refreshShop();
       }
     });
@@ -3628,6 +3884,9 @@ export class GameScene extends Phaser.Scene {
       word.destroy();
     }
     this.shop = undefined;
+    if (!shop.zoomed) {
+      return;
+    }
     // Back to the view of the room, following the cat again.
     const camera = this.cameras.main;
     camera.panEffect.reset();
@@ -4858,6 +5117,7 @@ export class GameScene extends Phaser.Scene {
       this.buildCoinsHud();
       this.refreshCoins();
     }
+    this.refreshBag();
 
     this.scoreText = crispText(
       this,GAME_WIDTH - TILE - 26, TILE * 2 - 4, this.formatScore(), {

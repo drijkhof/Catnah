@@ -50,6 +50,8 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | bar | `bar` | on Pluto: aliens in summer T-shirts; buy a life, milk or rocket fuel |
 | roze hartjes | `little hearts` | what you pay with at the bar |
 | raket benzine | `rocket fuel` | from the bar: three times as fast in space, for 200 seconds of flying |
+| portemonnee, snoepje, hoed / pet | `wallet`, `candy`, `hat` | things to find in ten levels, kept for the run, sold at the bar (or a hat to the man in the desert) |
+| meneer | `the man in the desert` / `hat buyer` | at the start of the desert; buys hats only, for 15 coins |
 | muntjes | `coins` | 20 from Bob the first time he talks to you, and 17 hidden in the levels; at most 100; spent at the bar |
 | luifel | `awning` | the city's one-way platform, striped, sticking out of a wall |
 | poort | `arcade` | an opening under a house, walked or sneaked through |
@@ -606,7 +608,10 @@ white sun, pyramids on the skyline, heat shimmering along their feet. Flat
 going, mostly, with low dunes of stacked sand to climb and a few sandstone
 shelves to jump between. Nothing here hunts you, and nothing walks the sand
 but **camels**, which hurt nobody: jump on one's back and it carries you
-along, slowly, as it ambles. What kills is standing still in the wrong place:
+along, slowly, as it ambles. Right at the start stands **a man**, bald and
+red from the sun, with a big moustache: he wants a **hat**. Walk up to him
+with one and he buys it for **15 coins** (more than the bar pays) and puts
+it on; without one he only asks for it. What kills is standing still in the wrong place:
 
 - **Worms** live under the sand, each with a mound for a hole. Now and
   then one **comes up out of its hole without warning** to look about, and
@@ -706,7 +711,8 @@ once every 40 seconds — the real month would be too fast to catch. Each
 world turns its lit side to the sun. **Fly into a world and its level
 starts** — if it is open: the name is gold when it is, grey when it is not.
 Arrows at the edge of the screen point the way to the open worlds you
-cannot see.
+cannot see — but not to a planet whose parts you have all found, so you
+are not sent back to the same one.
 
 - **The first time** (from the sand path): only the Moon is open. *"Fly to
   the Moon!"*
@@ -909,6 +915,16 @@ found stays found for the run. You can carry **100** at most.
   empty the rocket slows back to its own speed. A full tank cannot be
   topped up; a part-used one can be filled again.
 - **Bye**.
+
+On the right of his menu you can **sell** him things: what you have found
+on the way, and a full tank of rocket fuel you have not flown on yet.
+
+**Things to find and sell.** Lying about in ten levels, one in each, and
+kept for the run once picked up (shown under the coins, an icon and how
+many): a **wallet** (city, swamp, sand path), **candy** (canopy, cave,
+desert, Mars) and a **hat** (forest, volcano, beach). The bar keeper pays
+10 coins for a wallet, 5 for candy and 10 for a hat; unused rocket fuel
+10. Coins still stop at 100.
 
 Tap one, or pick with left and right and take it with jump. You pay when
 you order, and get it once he has made it; nothing else can be ordered

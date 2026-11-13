@@ -1054,6 +1054,7 @@ export const BAR = {
     full: 'You cannot carry any more lives!',
     notHurt: 'You are not hurt! Have it another time.',
     fueled: 'Your rocket is already full!',
+    fuelUsed: 'I only buy a full tank back.',
   },
   /** Rocket fuel: how many times as fast the cat flies in space after. */
   fuelBoost: 3,
@@ -1071,6 +1072,35 @@ export const BAR = {
   /** How long the keeper's last words stay up before the cat is out of the door, ms. */
   kickMs: 2000,
 } as const;
+
+/**
+ * Things found lying about in ten levels -- a wallet, candy, a hat -- that
+ * the cat keeps for the run and can sell: to the bar keeper on Pluto
+ * (`price`), and a hat to the man at the start of the desert, for more.
+ */
+export const ITEMS = {
+  kinds: {
+    wallet: { label: 'wallet', price: 10 },
+    candy: { label: 'candy', price: 5 },
+    hat: { label: 'hat', price: 10 },
+  },
+  /** A full tank of rocket fuel, never used, sold back to the bar keeper. */
+  fuelPrice: 10,
+  /** The man in the desert: how near to stand, what he pays for a hat, what he says. */
+  hatBuyer: {
+    reach: 18,
+    rearm: 40,
+    price: 15,
+    greeting: 'A hat! I need a hat in this sun. 15 coins?',
+    noHat: 'Got a hat? I pay 15 coins for one!',
+    thanks: 'Thank you! Shade at last.',
+    sell: 'Sell a hat',
+  },
+  sold: 'Thank you!',
+  none: 'You have none of those.',
+} as const;
+
+export type ItemKind = keyof typeof ITEMS.kinds;
 
 /**
  * Each world's real gravity as a share of the Earth's (at the surface, or

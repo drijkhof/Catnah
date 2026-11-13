@@ -50,6 +50,9 @@ export interface GameSnapshot {
   /** Bob's coins. */
   coins?: number;
   coinsFound?: string[];
+  /** What the cat carries to sell, and where each thing was found, as `<level>:<x>,<y>`. */
+  bag?: Record<'wallet' | 'candy' | 'hat', number>;
+  itemsFound?: string[];
   /** The bar on Pluto has thrown the cat out, and is shut. */
   barClosed?: boolean;
   /** Inside a house: the level outside as it was left, to go back out to. */
