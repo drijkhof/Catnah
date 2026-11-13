@@ -37,7 +37,9 @@ binary assets but the portal picture and runs straight after clone.
   Jupiter and two small ones), drawn **with no sun on them**: the light is
   `planet-light` (`PLANET_LIGHT_SIZE`, worked out per pixel for a sun to the
   left), laid over each globe (`PLANET_DISCS`) and turned to the sun by
-  `world/planetLight.ts`; a ring's near half is its own texture
+  `world/planetLight.ts`; the big ones are drawn big (`PLANET_SIZES`) with
+  their details scaled from the size they were first drawn at (`DRAWN_AT`),
+  so they are not blown up blocky in space; a ring's near half is its own texture
   (`planet-saturn-front`, `planet-uranus-front`) over that light. The moon's hills, the robot and its grey
   block with two cracked stages.
 - `base.ts` — the moon base as one picture (hull, doors, and the whole

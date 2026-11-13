@@ -34,8 +34,8 @@ const SKIES: Record<SpaceTheme, Sky> = {
     sky: 'space-sky',
     stars: true,
     planets: [
-      { name: 'saturn', x: 0.82, y: 0.16, scale: 0.8, factor: 0.03 },
-      { name: 'mars', x: 0.5, y: 0.1, scale: 0.5, factor: 0.05 },
+      { name: 'saturn', x: 0.82, y: 0.16, scale: 0.3, factor: 0.03 },
+      { name: 'mars', x: 0.5, y: 0.1, scale: 0.291, factor: 0.05 },
       { name: 'earth', x: 0.2, y: 0.25, scale: 0.75, factor: 0.08 },
     ],
     hills: 0xffffff,
@@ -60,8 +60,8 @@ const SKIES: Record<SpaceTheme, Sky> = {
     sky: 'space-sky',
     stars: true,
     planets: [
-      { name: 'jupiter', x: 0.28, y: 0.2, scale: 0.9, factor: 0.03 },
-      { name: 'uranus', x: 0.78, y: 0.14, scale: 0.6, factor: 0.05 },
+      { name: 'jupiter', x: 0.28, y: 0.2, scale: 0.54, factor: 0.03 },
+      { name: 'uranus', x: 0.78, y: 0.14, scale: 0.228, factor: 0.05 },
     ],
     hills: 0xa8c8e8,
     flag: false,
@@ -95,8 +95,8 @@ const SKIES: Record<SpaceTheme, Sky> = {
     sky: 'space-sky',
     stars: true,
     planets: [
-      { name: 'saturn', x: 0.32, y: 0.2, scale: 1, factor: 0.03 },
-      { name: 'neptune', x: 0.82, y: 0.13, scale: 0.6, factor: 0.05 },
+      { name: 'saturn', x: 0.32, y: 0.2, scale: 0.375, factor: 0.03 },
+      { name: 'neptune', x: 0.82, y: 0.13, scale: 0.277, factor: 0.05 },
     ],
     hills: 0xa8e0e8,
     flag: false,
@@ -107,8 +107,8 @@ const SKIES: Record<SpaceTheme, Sky> = {
     sky: 'space-sky',
     stars: true,
     planets: [
-      { name: 'uranus', x: 0.3, y: 0.2, scale: 0.9, factor: 0.03 },
-      { name: 'pluto', x: 0.82, y: 0.12, scale: 0.6, factor: 0.05 },
+      { name: 'uranus', x: 0.3, y: 0.2, scale: 0.342, factor: 0.03 },
+      { name: 'pluto', x: 0.82, y: 0.12, scale: 0.333, factor: 0.05 },
     ],
     hills: 0x7a98e0,
     flag: false,
@@ -120,7 +120,7 @@ const SKIES: Record<SpaceTheme, Sky> = {
     sky: 'space-sky',
     stars: true,
     planets: [
-      { name: 'neptune', x: 0.65, y: 0.18, scale: 0.7, factor: 0.03 },
+      { name: 'neptune', x: 0.65, y: 0.18, scale: 0.324, factor: 0.03 },
       { name: 'moon', x: 0.25, y: 0.12, scale: 0.35, factor: 0.05 },
     ],
     hills: 0xd8c4a8,

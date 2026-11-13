@@ -1,9 +1,9 @@
-import { addPlanetLight, faceTheSun } from '../world/planetLight';
 import Phaser from 'phaser';
-import { BAR, GAME_HEIGHT, GAME_WIDTH, LASER, LIVES, PARTS, SPACE, TILE } from '../config';
+import { addPlanetLight, faceTheSun } from '../world/planetLight';
+import { BAR, EARTH_GLOBE, GAME_HEIGHT, GAME_WIDTH, LASER, LIVES, PARTS, PLANET_SIZE_KEEP, REAL_PLANET_SIZE, SPACE, TILE } from '../config';
 import { LEVELS } from '../level/levels';
 import { Controls } from '../input/Controls';
-import { HEAD_IN_POSE, PLANET_SIZES, STARFIELD_SIZE, SPACE_SUN_SIZE, createRandom, type PlanetName } from '../art';
+import { HEAD_IN_POSE, PLANET_DISCS, STARFIELD_SIZE, SPACE_SUN_SIZE, createRandom, type PlanetName } from '../art';
 import { stats } from '../stats';
 import { sound } from '../audio/Sound';
 import { crispText, type CrispText } from '../text';
@@ -46,7 +46,11 @@ interface World {
   years: number;
   /** Where on its orbit it is at the start, radians. */
   angle: number;
-  scale: number;
+}
+
+/** A world's globe across, px, out here: see `REAL_PLANET_SIZE`. */
+function globeOf(name: keyof typeof REAL_PLANET_SIZE): number {
+  return EARTH_GLOBE * Math.pow(REAL_PLANET_SIZE[name], PLANET_SIZE_KEEP);
 }
 
 /**
@@ -58,15 +62,15 @@ interface World {
  * open and its level starts.
  */
 const WORLDS: World[] = [
-  { name: 'earth', level: '', orbit: 750, years: 1, angle: 0.6, scale: 2.6 },
-  { name: 'moon', level: 'Moon', orbit: 290, years: 0, angle: -0.5, scale: 1.1 },
-  { name: 'venus', level: 'Venus', orbit: 360, years: 0.615, angle: 2.4, scale: 1.4 },
-  { name: 'mars', level: 'Mars', orbit: 1150, years: 1.88, angle: -0.9, scale: 1.5 },
-  { name: 'jupiter', level: 'Jupiter', orbit: 1450, years: 11.86, angle: 0.3, scale: 2 },
-  { name: 'saturn', level: 'Saturn', orbit: 1800, years: 29.46, angle: -2.2, scale: 1.5 },
-  { name: 'uranus', level: 'Uranus', orbit: 2100, years: 84.0, angle: -1.4, scale: 1.4 },
-  { name: 'neptune', level: 'Neptune', orbit: 2400, years: 164.8, angle: -0.5, scale: 1.4 },
-  { name: 'pluto', level: 'Pluto', orbit: 2700, years: 248, angle: -2.1, scale: 1.8 },
+  { name: 'earth', level: '', orbit: 750, years: 1, angle: 0.6 },
+  { name: 'moon', level: 'Moon', orbit: 250, years: 0, angle: -0.5 },
+  { name: 'venus', level: 'Venus', orbit: 360, years: 0.615, angle: 2.4 },
+  { name: 'mars', level: 'Mars', orbit: 1150, years: 1.88, angle: -0.9 },
+  { name: 'jupiter', level: 'Jupiter', orbit: 1650, years: 11.86, angle: 0.3 },
+  { name: 'saturn', level: 'Saturn', orbit: 2150, years: 29.46, angle: -2.2 },
+  { name: 'uranus', level: 'Uranus', orbit: 2600, years: 84.0, angle: -1.4 },
+  { name: 'neptune', level: 'Neptune', orbit: 2950, years: 164.8, angle: -0.5 },
+  { name: 'pluto', level: 'Pluto', orbit: 3200, years: 248, angle: -2.1 },
 ];
 
 /**
@@ -116,6 +120,8 @@ export class SpaceScene extends Phaser.Scene {
   private ship!: Phaser.GameObjects.Image;
   /** Planets out here, for the laser to keep clear of. */
   private planets: Phaser.GameObjects.Image[] = [];
+  /** The Moon's shadow on the Earth, when it passes in front of the sun. */
+  private moonShadow?: Phaser.GameObjects.Graphics;
   /** The cat's speech bubble, behind those words. */
   private catBubble!: Phaser.GameObjects.Graphics;
   private starLayers: Array<{ sprite: Phaser.GameObjects.TileSprite; factor: number }> = [];
@@ -165,6 +171,7 @@ export class SpaceScene extends Phaser.Scene {
     this.going = false;
     this.words = [];
     this.planets = [];
+    this.moonShadow = undefined;
     this.worlds = [];
     this.labels = [];
     this.deadly = [];
@@ -210,7 +217,7 @@ export class SpaceScene extends Phaser.Scene {
     // A few nameless planets far out past Pluto, for company. Still.
     for (const kind of ['ice', 'violet', 'ice', 'violet', 'moon', 'ice'] as const) {
       const angle = random() * Math.PI * 2;
-      const distance = 2850 + random() * 60;
+      const distance = 3450 + random() * 60;
       const planet = this.add
         .image(this.sun.x + Math.cos(angle) * distance, this.sun.y + Math.sin(angle) * distance, `planet-${kind}`)
         .setScale(0.8 + random())
@@ -240,9 +247,10 @@ export class SpaceScene extends Phaser.Scene {
     const rocket = this.carry.rocket ?? false;
     const complete = (this.carry.parts ?? []).length >= PARTS.total;
     for (const world of WORLDS) {
-      const image = this.add.image(0, 0, `planet-${world.name}`).setScale(world.scale).setDepth(-40);
+      const globe = globeOf(world.name as keyof typeof REAL_PLANET_SIZE);
+      const image = this.add.image(0, 0, `planet-${world.name}`).setScale(globe / (2 * PLANET_DISCS[world.name])).setDepth(-40);
       const open = world.level === 'Moon' ? !rocket || complete : world.level !== '' && rocket;
-      const radius = (PLANET_SIZES[world.name] * world.scale) / 2;
+      const radius = globe / 2;
       if (world.level !== 'Moon' && world.level !== '') {
         this.planets.push(image);
       }
@@ -289,7 +297,7 @@ export class SpaceScene extends Phaser.Scene {
     // The ISS, going round the Earth -- only ever seen, never landed on.
     const iss = this.add.image(0, 0, 'planet-iss').setScale(0.7).setDepth(-39);
     const orbit = { angle: -0.6 };
-    const radius = PLANET_SIZES.earth * 1.3 + 30;
+    const radius = EARTH_GLOBE / 2 + 45;
     const placeIss = (): void => {
       iss.setPosition(this.earth.x + Math.cos(orbit.angle) * radius, this.earth.y + Math.sin(orbit.angle) * radius * 0.55);
       iss.setRotation(orbit.angle * 0.2);
@@ -441,6 +449,49 @@ export class SpaceScene extends Phaser.Scene {
       if (world.name === 'earth') {
         this.earth.copy(at);
       }
+    }
+    this.eclipses();
+  }
+
+  /**
+   * The Earth and the Moon in each other's way. Behind the Earth, away from
+   * the sun, the Moon is in its shadow: an eclipse of the Moon, which goes
+   * dark and red, the way it really does. In front of it, between it and the
+   * sun, the Moon's shadow falls on the Earth: a dark spot, going across.
+   */
+  private eclipses(): void {
+    const earth = this.worlds.find((world) => world.name === 'earth');
+    const moon = this.worlds.find((world) => world.name === 'moon');
+    if (!earth || !moon) {
+      return;
+    }
+    const sunward = new Phaser.Math.Vector2(earth.x - this.sun.x, earth.y - this.sun.y).normalize();
+    const toMoon = new Phaser.Math.Vector2(moon.x - earth.x, moon.y - earth.y);
+    const along = toMoon.dot(sunward);
+    const side = toMoon.clone().subtract(sunward.clone().scale(along));
+    const off = side.length();
+
+    // Into the Earth's shadow: none at all once clear of it, all of it once
+    // the whole Moon is inside.
+    const into = along > 0 ? Phaser.Math.Clamp((earth.radius + moon.radius - off) / (2 * moon.radius), 0, 1) : 0;
+    const red = Phaser.Display.Color.Interpolate.ColorWithColor(
+      Phaser.Display.Color.ValueToColor(0xffffff),
+      Phaser.Display.Color.ValueToColor(0x8a3424),
+      100,
+      Math.round(into * 100),
+    );
+    moon.image.setTint(Phaser.Display.Color.GetColor(red.r, red.g, red.b));
+    moon.light?.setAlpha(1 - into * 0.6);
+
+    // The Moon's shadow on the Earth.
+    this.moonShadow ??= this.add.graphics().setDepth(earth.image.depth + 0.015);
+    this.moonShadow.clear();
+    const spot = moon.radius * 0.55;
+    if (along < 0 && off < earth.radius - spot * 1.5) {
+      this.moonShadow.fillStyle(0x000008, 0.25);
+      this.moonShadow.fillCircle(earth.x + side.x, earth.y + side.y, spot * 1.5);
+      this.moonShadow.fillStyle(0x000008, 0.55);
+      this.moonShadow.fillCircle(earth.x + side.x, earth.y + side.y, spot);
     }
   }
 

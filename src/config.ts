@@ -574,9 +574,9 @@ export const LASER = {
    * Where the station starts from the sun, px, and how many Earth years it
    * takes to go round it: between Mars and Jupiter, so between their two.
    */
-  stationOrbit: { x: 900, y: 950 },
+  stationOrbit: { x: 928, y: 980 },
   stationYears: 4,
-  stationDrift: 120,
+  stationDrift: 40,
   /** How long the starship takes to go round the station, and how far out, ms and px. */
   shipOrbitMs: 70000,
   shipOrbit: { x: 380, y: 230 },
@@ -616,7 +616,7 @@ export const OBSTACLES = {
  * can come before it burns, px.
  */
 export const SPACE = {
-  worldSize: 6000,
+  worldSize: 7600,
   accel: 420,
   maxSpeed: 230,
   drag: 160,
@@ -624,6 +624,29 @@ export const SPACE = {
   moonMonthMs: 40000,
   sunReach: 24,
 } as const;
+
+/**
+ * How big each world really is, its diameter as a share of the Earth's.
+ * Taken whole, Jupiter would be wider than the screen and Pluto a speck;
+ * so, like gravity, the sizes are squeezed -- each one the real share to the
+ * power `PLANET_SIZE_KEEP` -- which keeps their order and how they compare,
+ * not the extremes. The Earth's globe is `EARTH_GLOBE` px across in space,
+ * and the rest follow: Venus 137, Mars 108, the Moon 83, Pluto 71, Uranus
+ * 244, Neptune 241, Saturn 344, Jupiter 368.
+ */
+export const REAL_PLANET_SIZE = {
+  earth: 1,
+  moon: 0.273,
+  venus: 0.949,
+  mars: 0.532,
+  jupiter: 11.21,
+  saturn: 9.45,
+  uranus: 4.01,
+  neptune: 3.88,
+  pluto: 0.186,
+} as const;
+export const PLANET_SIZE_KEEP = 0.4;
+export const EARTH_GLOBE = 140;
 
 /**
  * The beach's crab. It paces like a hedgehog until it *sees* the cat --

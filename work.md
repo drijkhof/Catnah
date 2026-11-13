@@ -704,6 +704,10 @@ last heart is game over, and you start again on the Moon.
 **Every world goes round the sun**, in its real order — Venus, the Earth
 with the Moon going round it, Mars, Jupiter, Saturn, Uranus, Neptune and
 Pluto — each on a faint ring that shows its orbit, with its name under it.
+**Their sizes go by their real ones**, squeezed like gravity so the order
+and the comparisons hold but Jupiter still fits on the screen: Jupiter the
+biggest, then Saturn, Uranus and Neptune about alike, the Earth and Venus
+nearly the same, then Mars, the Moon, and Pluto the smallest.
 Each takes its real number of Earth years to go round (an Earth year is 50
 seconds): Venus whizzes, Jupiter is slow, and Pluto, at 248 years, only
 just creeps along, but you can see it move. The Moon goes round the Earth
@@ -712,7 +716,11 @@ light on every world is where the sun is**: the side facing it lit, the
 far side in night, a soft line between them, and it moves round as the
 world goes round — the Moon's too, and the far planets past Pluto. The
 worlds themselves stay upright, so Jupiter's bands and Saturn's ring stay
-level, and the near half of a ring is not in the planet's shadow. In a
+level, and the near half of a ring is not in the planet's shadow.
+**Eclipses**: when the Moon passes behind the Earth, into its shadow, it
+goes dark and red — an eclipse of the Moon; when it passes between the
+Earth and the sun, its shadow is a dark spot going across the Earth. In
+this flat solar system that is once every time round. In a
 level's sky the planets are lit from where that sky's sun is (from the
 left on a night sky, where none is drawn). **Fly into a world and its level
 starts** — if it is open: the name is gold when it is, grey when it is not.

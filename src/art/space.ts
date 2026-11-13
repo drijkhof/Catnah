@@ -10,17 +10,24 @@ export const STARFIELD_SIZE = 256;
 export const PLANET_SIZES = {
   earth: 160,
   moon: 70,
-  mars: 64,
-  saturn: 90,
-  jupiter: 120,
+  mars: 110,
+  saturn: 240,
+  jupiter: 200,
   ice: 48,
   violet: 56,
-  venus: 66,
-  uranus: 76,
-  neptune: 74,
-  pluto: 40,
+  venus: 130,
+  uranus: 200,
+  neptune: 160,
+  pluto: 72,
   iss: 60,
 } as const;
+
+/**
+ * The size each planet was first drawn at: its little details (bands,
+ * storms, a ring's width) are in pixels at that size, scaled up with it
+ * since the big ones are drawn bigger, so they are not blown up blocky.
+ */
+const DRAWN_AT = { mars: 64, saturn: 90, jupiter: 120, venus: 66, uranus: 76, neptune: 74, pluto: 40 } as const;
 
 export type PlanetName = keyof typeof PLANET_SIZES;
 
@@ -305,12 +312,12 @@ export const PLANET_DISCS: Record<PlanetName, number> = {
   earth: PLANET_SIZES.earth / 2 - 4,
   moon: PLANET_SIZES.moon / 2 - 1,
   mars: PLANET_SIZES.mars / 2 - 1,
-  saturn: PLANET_SIZES.saturn / 2 - 12,
+  saturn: PLANET_SIZES.saturn / 2 - 12 * (PLANET_SIZES.saturn / DRAWN_AT.saturn),
   jupiter: PLANET_SIZES.jupiter / 2 - 1,
   ice: PLANET_SIZES.ice / 2 - 1,
   violet: PLANET_SIZES.violet / 2 - 1,
   venus: PLANET_SIZES.venus / 2 - 1,
-  uranus: PLANET_SIZES.uranus / 2 - 12,
+  uranus: PLANET_SIZES.uranus / 2 - 12 * (PLANET_SIZES.uranus / DRAWN_AT.uranus),
   neptune: PLANET_SIZES.neptune / 2 - 1,
   pluto: PLANET_SIZES.pluto / 2 - 1,
   iss: PLANET_SIZES.iss / 2,
@@ -419,6 +426,7 @@ function generatePlanets(scene: Phaser.Scene): void {
   // Mars: rust red, a darker band, a white cap.
   {
     const d = PLANET_SIZES.mars;
+    const k = d / DRAWN_AT.mars;
     const r = d / 2 - 1;
     const random = createRandom(9021);
     bakeTexture(scene, 'planet-mars', d, d, (g) => {
@@ -427,10 +435,10 @@ function generatePlanets(scene: Phaser.Scene): void {
         const x = d / 2 + (random() - 0.5) * r * 1.2;
         const y = d / 2 + (random() - 0.3) * r * 0.9;
         g.fillStyle(0x9a3e26, 0.8);
-        g.fillEllipse(x, y, 8 + random() * 10, 4 + random() * 4);
+        g.fillEllipse(x, y, (8 + random() * 10) * k, (4 + random() * 4) * k);
       }
       g.fillStyle(0xf4eee8, 1);
-      g.fillEllipse(d / 2 - 2, d / 2 - r + 4, r * 0.6, 6);
+      g.fillEllipse(d / 2 - 2 * k, d / 2 - r + 4 * k, r * 0.6, 6 * k);
     });
   }
 
@@ -438,18 +446,19 @@ function generatePlanets(scene: Phaser.Scene): void {
   // behind the planet and the near half in front.
   {
     const d = PLANET_SIZES.saturn;
+    const k = d / DRAWN_AT.saturn;
     const w = Math.round(d * SATURN_RING_SPREAD);
     const h = d;
-    const r = d / 2 - 12;
+    const r = d / 2 - 12 * k;
     const cx = w / 2;
     const cy = h / 2;
     const ring = (g: Phaser.GameObjects.Graphics, front: boolean): void => {
       for (const [rx, ry, colour, alpha] of [
-        [w / 2 - 2, 16, 0xd8c08a, 0.9],
-        [w / 2 - 10, 13, 0xb89a62, 0.9],
-        [w / 2 - 18, 10, 0xe8d6a8, 0.8],
+        [w / 2 - 2 * k, 16 * k, 0xd8c08a, 0.9],
+        [w / 2 - 10 * k, 13 * k, 0xb89a62, 0.9],
+        [w / 2 - 18 * k, 10 * k, 0xe8d6a8, 0.8],
       ] as const) {
-        g.lineStyle(3, colour, alpha);
+        g.lineStyle(Math.round(3 * k), colour, alpha);
         // The near half of the ring is the half below the centre: 0..180 degrees.
         const points: Phaser.Math.Vector2[] = [];
         for (let a = front ? 0 : 180; a <= (front ? 180 : 360); a += 6) {
@@ -463,10 +472,10 @@ function generatePlanets(scene: Phaser.Scene): void {
       ring(g, false);
       sphere(g, cx, cy, r, 0xe0c48a, 0xa88a52, 0xf4e2b4);
       g.fillStyle(0xc8a468, 0.8);
-      g.fillRect(cx - r + 4, cy - 8, r * 2 - 8, 4);
-      g.fillRect(cx - r + 2, cy + 6, r * 2 - 4, 3);
+      g.fillRect(cx - r + 4 * k, cy - 8 * k, r * 2 - 8 * k, 4 * k);
+      g.fillRect(cx - r + 2 * k, cy + 6 * k, r * 2 - 4 * k, 3 * k);
       g.fillStyle(0xf0dcae, 0.7);
-      g.fillRect(cx - r + 6, cy - 2, r * 2 - 12, 3);
+      g.fillRect(cx - r + 6 * k, cy - 2 * k, r * 2 - 12 * k, 3 * k);
     });
     // The near half of the ring on its own, laid over the sunlight on the
     // globe: the ring in front is not in the planet's shadow.
@@ -476,18 +485,19 @@ function generatePlanets(scene: Phaser.Scene): void {
   // Jupiter, and two little ones of no name, for the flight.
   {
     const d = PLANET_SIZES.jupiter;
+    const k = d / DRAWN_AT.jupiter;
     const r = d / 2 - 1;
     bakeTexture(scene, 'planet-jupiter', d, d, (g) => {
       sphere(g, d / 2, d / 2, r, 0xd8b48a, 0x9a7650, 0xf0d6b4);
       const bands = [[-0.55, 0xb88a5a], [-0.25, 0xf0e0c8], [0.05, 0xa8764a], [0.35, 0xe8d0b0], [0.6, 0xb88a5a]] as const;
       for (const [at, colour] of bands) {
         const y = d / 2 + at * r;
-        const half = Math.sqrt(Math.max(0, r * r - (y - d / 2) ** 2)) - 3;
+        const half = Math.sqrt(Math.max(0, r * r - (y - d / 2) ** 2)) - 3 * k;
         g.fillStyle(colour, 0.85);
-        g.fillRect(d / 2 - half, y - 4, half * 2, 8);
+        g.fillRect(d / 2 - half, y - 4 * k, half * 2, 8 * k);
       }
       g.fillStyle(0xc0553a, 1);
-      g.fillEllipse(d / 2 + r * 0.25, d / 2 + r * 0.2, 18, 10);
+      g.fillEllipse(d / 2 + r * 0.25, d / 2 + r * 0.2, 18 * k, 10 * k);
     });
   }
   for (const [name, base, dark, light] of [
@@ -506,14 +516,15 @@ function generatePlanets(scene: Phaser.Scene): void {
   // Venus: thick yellow cloud, banded softly.
   {
     const d = PLANET_SIZES.venus;
+    const k = d / DRAWN_AT.venus;
     const r = d / 2 - 1;
     bakeTexture(scene, 'planet-venus', d, d, (g) => {
       sphere(g, d / 2, d / 2, r, 0xe8c878, 0xb08a48, 0xfaeab0);
       for (const [at, colour] of [[-0.4, 0xf4dc98], [0.0, 0xd8b062], [0.4, 0xf0d48c]] as const) {
         const y = d / 2 + at * r;
-        const half = Math.sqrt(Math.max(0, r * r - (y - d / 2) ** 2)) - 4;
+        const half = Math.sqrt(Math.max(0, r * r - (y - d / 2) ** 2)) - 4 * k;
         g.fillStyle(colour, 0.6);
-        g.fillEllipse(d / 2, y, half * 2, 7);
+        g.fillEllipse(d / 2, y, half * 2, 7 * k);
       }
     });
   }
@@ -521,42 +532,45 @@ function generatePlanets(scene: Phaser.Scene): void {
   // Uranus: pale cyan, featureless, with a thin ring standing on end.
   {
     const d = PLANET_SIZES.uranus;
-    const r = d / 2 - 12;
+    const k = d / DRAWN_AT.uranus;
+    const r = d / 2 - 12 * k;
     bakeTexture(scene, 'planet-uranus', d, d, (g) => {
-      g.lineStyle(1, 0xc8f0f4, 0.6);
-      g.strokeEllipse(d / 2, d / 2, 14, d - 4);
+      g.lineStyle(Math.round(k), 0xc8f0f4, 0.6);
+      g.strokeEllipse(d / 2, d / 2, 14 * k, d - 4 * k);
       sphere(g, d / 2, d / 2, r, 0x9ae0e8, 0x5aa8b8, 0xd8f8fa);
     });
     // The near half of the ring, over the planet and its sunlight.
     bakeTexture(scene, 'planet-uranus-front', d, d, (g) => {
-      g.lineStyle(1, 0xc8f0f4, 0.8);
-      g.strokeEllipse(d / 2, d / 2, 14, d - 4);
+      g.lineStyle(Math.round(k), 0xc8f0f4, 0.8);
+      g.strokeEllipse(d / 2, d / 2, 14 * k, d - 4 * k);
     });
   }
 
   // Neptune: deep blue, a dark storm and a white streak of cloud.
   {
     const d = PLANET_SIZES.neptune;
+    const k = d / DRAWN_AT.neptune;
     const r = d / 2 - 1;
     bakeTexture(scene, 'planet-neptune', d, d, (g) => {
       sphere(g, d / 2, d / 2, r, 0x3a62d8, 0x1e3a8a, 0x7a9af0);
       g.fillStyle(0x16286a, 1);
-      g.fillEllipse(d / 2 - 8, d / 2 + 6, 14, 8);
+      g.fillEllipse(d / 2 - 8 * k, d / 2 + 6 * k, 14 * k, 8 * k);
       g.fillStyle(0xe8f0ff, 0.8);
-      g.fillEllipse(d / 2 + 6, d / 2 - 10, 16, 3);
+      g.fillEllipse(d / 2 + 6 * k, d / 2 - 10 * k, 16 * k, 3 * k);
     });
   }
 
   // Pluto: small, beige and pale, with the big pale heart on its face.
   {
     const d = PLANET_SIZES.pluto;
+    const k = d / DRAWN_AT.pluto;
     const r = d / 2 - 1;
     bakeTexture(scene, 'planet-pluto', d, d, (g) => {
       sphere(g, d / 2, d / 2, r, 0xc8a888, 0x8a6a52, 0xe8d0b8);
       g.fillStyle(0xf4ece0, 1);
-      g.fillCircle(d / 2 - 3, d / 2 + 1, 5);
-      g.fillCircle(d / 2 + 4, d / 2 + 1, 5);
-      g.fillTriangle(d / 2 - 8, d / 2 + 3, d / 2 + 9, d / 2 + 3, d / 2 + 1, d / 2 + 12);
+      g.fillCircle(d / 2 - 3 * k, d / 2 + 1 * k, 5 * k);
+      g.fillCircle(d / 2 + 4 * k, d / 2 + 1 * k, 5 * k);
+      g.fillTriangle(d / 2 - 8 * k, d / 2 + 3 * k, d / 2 + 9 * k, d / 2 + 3 * k, d / 2 + 1 * k, d / 2 + 12 * k);
     });
   }
 

@@ -22,7 +22,11 @@ Phaser scenes. Registered in order in `src/main.ts`; the first one starts.
   the sun (`die`). Orbits and the drift run on `clock`, the game loop's
   time: `this.time.now` is stale in `create`, which set the cat off from
   where its planet was when space was last left.
-  The clock does not run here.
+  The clock does not run here. A world's size is `globeOf` (`REAL_PLANET_SIZE`
+  squeezed by `PLANET_SIZE_KEEP`, the Earth `EARTH_GLOBE`), its scale that
+  over its texture's disc. `eclipses` (every frame, after `orbit`): the
+  Moon tinted dark red in the Earth's shadow, and the Moon's shadow drawn on
+  the Earth (`moonShadow`).
 - **Talking to Bob** (`GameScene.startTalk` and on): the HUD and touch
   buttons are hidden, the main camera stops following and pans and zooms
   (`BOB`), and the speech bubble is drawn by a **second camera that does
