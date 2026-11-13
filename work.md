@@ -908,9 +908,12 @@ you**: lightning from the zapper, the screen goes white, and you are inside
 
 ### The bar on Pluto
 
-At the start of Pluto stands **a little hut** of ice blocks: the **Space
-Bar**, *SPACE* small over a big *BAR* in pink neon on its roof, an alien looking out of its round window, and a
-warm, lit **door**. **Walk in through the door** and you are **inside**:
+At the start of Pluto stands the **Space Bar**: an **old dining car** set
+down on the ice for good -- a long dark body under a curved roof, a row of
+warm lit windows (an alien looking out of one), old wheels showing under
+its skirt, and on the roof, in a frame on two posts, **SPACE BAR** in big
+white-blue neon over **DINER** in red. A nod to the diner in *Spaceballs*,
+drawn our own way. And a warm, lit **door** at one end. **Walk in through the door** and you are **inside**:
 the view zooms in close, so you are really in the bar — a room of warm
 planks with a string of coloured lights, the door you came in by on the
 left. **Walk back out through it** and you are on Pluto again, in the

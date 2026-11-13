@@ -28,7 +28,7 @@ const SKIN = 0x7ee07a;
 const SKIN_DARK = 0x4fae4c;
 
 /** The bar from outside: the hut, and where its doorway is across it, px. */
-export const HUT_SIZE = { width: 96, height: 80 };
+export const HUT_SIZE = { width: 136, height: 84 };
 export const HUT_DOOR = { x: 20, width: 18, height: 30 };
 
 /** The wall inside the bar, px: as tall as the room, its string of lights this far down. */
@@ -278,49 +278,110 @@ function drawNeonSign(g: Phaser.GameObjects.Graphics, x: number, top: number): v
 }
 
 /**
- * The bar from outside, on Pluto: a little round-topped hut of ice blocks
- * with the neon sign on its roof and a lit doorway, `door` across from its
- * left edge. Walking into the doorway goes inside.
+ * The sign on the diner's roof, in a frame on two posts: SPACE BAR big in
+ * white-blue neon, DINER under it in red. 96 by 24, its top middle at `x`,
+ * `top`.
+ */
+export const DINER_SIGN = { width: 96, height: 24 };
+
+function drawDinerSign(g: Phaser.GameObjects.Graphics, x: number, top: number): void {
+  const { width, height } = DINER_SIGN;
+  g.fillStyle(0x14141c, 1);
+  g.fillRect(x - width / 2, top, width, height);
+  g.fillStyle(0x3a4a8a, 0.35);
+  g.fillRect(x - width / 2 + 1, top + 1, width - 2, height - 2);
+  const letters: Record<string, number[][]> = {
+    S: [[1, 0, 3, 1], [0, 1, 1, 1], [1, 2, 2, 1], [3, 3, 1, 1], [0, 4, 3, 1]],
+    P: [[0, 0, 1, 5], [1, 0, 2, 1], [3, 1, 1, 1], [1, 2, 2, 1]],
+    A: [[0, 1, 1, 4], [3, 1, 1, 4], [1, 0, 2, 1], [1, 2, 2, 1]],
+    C: [[1, 0, 3, 1], [0, 1, 1, 3], [1, 4, 3, 1]],
+    E: [[0, 0, 1, 5], [1, 0, 3, 1], [1, 2, 2, 1], [1, 4, 3, 1]],
+    B: [[0, 0, 1, 5], [1, 0, 2, 1], [1, 2, 2, 1], [1, 4, 2, 1], [3, 1, 1, 1], [3, 3, 1, 1]],
+    R: [[0, 0, 1, 5], [1, 0, 2, 1], [1, 2, 2, 1], [3, 1, 1, 1], [2, 3, 1, 1], [3, 4, 1, 1]],
+    D: [[0, 0, 1, 5], [1, 0, 2, 1], [1, 4, 2, 1], [3, 1, 1, 3]],
+    I: [[1, 0, 2, 1], [1, 4, 2, 1], [1, 1, 1, 3]],
+    N: [[0, 0, 1, 5], [3, 0, 1, 5], [1, 1, 1, 1], [2, 2, 1, 2]],
+    ' ': [],
+  };
+  const word = (text: string, cell: number, gap: number, y: number, glow: number, colour: number): void => {
+    const span = text.length * 4 * cell + (text.length - 1) * gap;
+    for (const [shade, grow] of [[glow, 1], [colour, 0]] as const) {
+      g.fillStyle(shade, grow ? 0.45 : 1);
+      [...text].forEach((letter, i) => {
+        for (const [lx, ly, w, h] of letters[letter]) {
+          g.fillRect(x - span / 2 + i * (4 * cell + gap) + lx * cell - grow, y + ly * cell - grow, w * cell + grow * 2, h * cell + grow * 2);
+        }
+      });
+    }
+  };
+  word('SPACE BAR', 2, 2, top + 3, 0x5a7aff, 0xe8f0ff);
+  word('DINER', 1, 2, top + 16, 0x5a1420, 0xff6a5a);
+}
+
+/**
+ * The bar from outside, on Pluto: an old dining car, set down on the ice
+ * for good -- a long dark body under a curved roof, a row of warm lit
+ * windows (an alien's head in one), and the sign on the roof. The door is
+ * `door` across from its left edge; walking into it goes inside.
  */
 function drawHut(g: Phaser.GameObjects.Graphics): void {
   const { width, height } = HUT_SIZE;
-  const top = 24;
-  // The ice-block walls under a domed roof.
-  g.fillStyle(0x6a7a9a, 1);
-  g.fillRoundedRect(2, top, width - 4, height - top, { tl: 26, tr: 26, bl: 0, br: 0 });
-  g.fillStyle(0xc8d8f0, 1);
-  g.fillRoundedRect(4, top + 2, width - 8, height - top - 2, { tl: 24, tr: 24, bl: 0, br: 0 });
-  g.fillStyle(0x9aaccc, 1);
-  for (let y = top + 12; y < height; y += 9) {
-    g.fillRect(4, y, width - 8, 1);
-    const shift = ((y - top) / 9) % 2 === 0 ? 0 : 7;
-    for (let x = 10 + shift; x < width - 6; x += 14) {
-      g.fillRect(x, y + 1, 1, 8);
-    }
-  }
-  // A round window, warm, with an alien's head in it.
-  g.fillStyle(0x3a2a40, 1);
-  g.fillCircle(width - 24, top + 30, 9);
-  g.fillStyle(0xffc070, 1);
-  g.fillCircle(width - 24, top + 30, 7);
-  g.fillStyle(SKIN, 1);
-  g.fillCircle(width - 24, top + 32, 4);
-  g.fillStyle(0x10202a, 1);
-  g.fillRect(width - 26, top + 31, 1, 2);
-  g.fillRect(width - 23, top + 31, 1, 2);
-  // The doorway: a frame, and warm light inside.
+  const roof = DINER_SIGN.height + 6;
+  const body = roof + 9;
+  const skirt = height - 5;
+  // The sign's posts, down to the roof.
+  g.fillStyle(0x3a3a44, 1);
+  g.fillRect(width / 2 - 34, DINER_SIGN.height, 2, roof - DINER_SIGN.height + 2);
+  g.fillRect(width / 2 + 32, DINER_SIGN.height, 2, roof - DINER_SIGN.height + 2);
+  drawDinerSign(g, width / 2, 0);
+  // The curved roof, darker, with its raised middle strip.
+  g.fillStyle(0x2a2e3a, 1);
+  g.fillRoundedRect(2, roof, width - 4, 14, { tl: 8, tr: 8, bl: 0, br: 0 });
+  g.fillStyle(0x3e4456, 1);
+  g.fillRoundedRect(14, roof - 3, width - 28, 6, 3);
+  g.fillStyle(0x5a6278, 1);
+  g.fillRect(6, roof + 2, width - 12, 1);
+  // The body: olive-brown panels, a cream band under the windows.
+  g.fillStyle(0x3e3420, 1);
+  g.fillRect(4, body, width - 8, skirt - body);
+  g.fillStyle(0x56482c, 1);
+  g.fillRect(4, body, width - 8, 2);
+  g.fillStyle(0xc8b890, 1);
+  g.fillRect(4, body + 18, width - 8, 2);
+  // The windows, warm, in a row; none over the door.
   const { x: door, width: doorWidth, height: doorHeight } = HUT_DOOR;
+  for (let x = 10; x + 7 < width - 6; x += 11) {
+    if (x + 7 > door - 4 && x < door + doorWidth + 4) {
+      continue;
+    }
+    g.fillStyle(0x1a140c, 1);
+    g.fillRect(x - 1, body + 4, 9, 12);
+    g.fillStyle(0xffc860, 1);
+    g.fillRect(x, body + 5, 7, 10);
+    g.fillStyle(0xffe8a8, 1);
+    g.fillRect(x, body + 5, 7, 3);
+  }
+  // An alien looking out of one.
+  const wx = width - 32;
+  g.fillStyle(SKIN, 1);
+  g.fillEllipse(wx + 3.5, body + 12, 6, 5);
+  g.fillStyle(0x10202a, 1);
+  g.fillRect(wx + 1, body + 11, 1, 2);
+  g.fillRect(wx + 5, body + 11, 1, 2);
+  // The skirt and the old wheels showing under it.
+  g.fillStyle(0x1a1a20, 1);
+  g.fillRect(2, skirt, width - 4, height - skirt);
+  g.fillStyle(0x4a4a54, 1);
+  for (const x of [22, 34, width - 36, width - 24]) {
+    g.fillCircle(x, height - 1, 4);
+  }
+  // The doorway: a frame, and warm light inside.
   g.fillStyle(0x5a3a28, 1);
   g.fillRect(door - 2, height - doorHeight - 2, doorWidth + 4, doorHeight + 2);
   g.fillStyle(0xffb060, 1);
   g.fillRect(door, height - doorHeight, doorWidth, doorHeight);
   g.fillStyle(0xffd890, 1);
   g.fillRect(door + 2, height - doorHeight + 2, doorWidth - 4, doorHeight - 2);
-  // The sign on the roof.
-  drawNeonSign(g, width / 2, 0);
-  g.fillStyle(0x3a3a44, 1);
-  g.fillRect(width / 2 - 14, NEON_SIGN.height - 1, 2, top - NEON_SIGN.height + 3);
-  g.fillRect(width / 2 + 12, NEON_SIGN.height - 1, 2, top - NEON_SIGN.height + 3);
 }
 
 /** The door out, inside the bar: wood in a frame, ajar, Pluto's dark showing. */

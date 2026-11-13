@@ -2493,3 +2493,16 @@ bar shuts, everyone out, never in again. Decided without asking:
 - Who his brother is is left open.
 - The closing is the same shut bar as being thrown out (`barClosed`).
 
+## The Space Bar as a diner, after Spaceballs (a separate commit)
+
+Asked for (by the player, in its own commit, in case the daughter does not
+like it): clear references to *Spaceballs*, whose space diner is an old
+railway dining car with a neon sign on its roof; the soup is the film's
+diner gag; the whiskey is *Leisure Suit Larry*'s bar. Done: the hut outside
+is now an old dining car, our own drawing -- dark body, curved roof, a row
+of lit windows, wheels under the skirt -- with SPACE BAR over DINER on the
+roof, not the film's name or lettering. Not done: Larry himself, or any
+character from the film or the game; the whiskey hand-off and the little
+soup-bringer are the nods. The inside of the bar is unchanged.
+To undo: revert this one commit.
+
