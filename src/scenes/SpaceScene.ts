@@ -3,7 +3,7 @@ import { addPlanetLight, faceTheSun } from '../world/planetLight';
 import { BAR, CHASE, EARTH_GLOBE, ISS_CRASH, GAME_HEIGHT, GAME_WIDTH, LASER, LIVES, PARTS, PLANET_SIZE_KEEP, REAL_PLANET_SIZE, SPACE, TILE } from '../config';
 import { LEVELS } from '../level/levels';
 import { Controls } from '../input/Controls';
-import { CHASE_DETAIL, HEAD_IN_POSE, STATION_PHOTO, STATION_SIZE, PLANET_DISCS, STARFIELD_SIZE, SPACE_SUN_SIZE, createRandom, type PlanetName } from '../art';
+import { CHASE_DETAIL, ROCKET_DETAIL, HEAD_IN_POSE, STATION_PHOTO, STATION_SIZE, PLANET_DISCS, STARFIELD_SIZE, SPACE_SUN_SIZE, createRandom, type PlanetName } from '../art';
 import { stats } from '../stats';
 import { sound } from '../audio/Sound';
 import { crispText, type CrispText } from '../text';
@@ -369,7 +369,7 @@ export class SpaceScene extends Phaser.Scene {
       this.iss = { image: iss, orbit, going, falling: false };
     }
 
-    this.cat = this.add.image(0, 0, this.carry.rocket ? 'rocket' : 'cat-swim-a').setDepth(10);
+    this.cat = this.add.image(0, 0, this.carry.rocket ? 'rocket' : 'cat-swim-a').setScale(this.carry.rocket ? 1 / ROCKET_DETAIL : 1).setDepth(10);
     this.arrows = this.add.graphics().setScrollFactor(0).setDepth(200);
     this.helmet = this.add.image(0, 0, 'space-helmet').setDepth(11).setVisible(!this.carry.rocket);
     this.setOff();

@@ -114,47 +114,119 @@ function generatePart(scene: Phaser.Scene): void {
 /** Bob's rocket, px; it points right. */
 export const ROCKET_SIZE = { width: 44, height: 22 };
 
+/** The rocket is drawn this many times its size and shown scaled down, smoothed. */
+export const ROCKET_DETAIL = 4;
+
 /**
- * Bob's rocket, pointing right: a white body with a red nose and fins, a
- * round window with the cat in it -- helmet and all -- and the nozzle at
- * the back. The flame is the scene's: sparks, while it flies.
+ * Bob's rocket, facing right, after the classic red-and-white chequered
+ * moon rocket: a long plain red pointed nose, a middle of big red and
+ * white squares, a red tail, and three legs it would stand on -- two
+ * curving out to round feet and a stem between them to a third; and a
+ * porthole in the nose with the cat looking out. Worked
+ * out per pixel at `ROCKET_DETAIL` times its size, in a square picture
+ * (the rocket across its middle) so it turns about its centre.
  */
 function generateRocket(scene: Phaser.Scene): void {
   const { width, height } = ROCKET_SIZE;
+  const k = ROCKET_DETAIL;
+  const side = width * k;
   const cy = height / 2;
-  bakeTexture(scene, 'rocket', width, height, (g) => {
-    // Fins, top and bottom, at the back.
-    g.fillStyle(0xc8283a, 1);
-    g.fillTriangle(6, cy - 4, 16, cy - 4, 6, 1);
-    g.fillTriangle(6, cy + 4, 16, cy + 4, 6, height - 1);
-    // The nozzle.
-    g.fillStyle(0x4a4e58, 1);
-    g.fillRect(2, cy - 4, 5, 8);
-    // The body.
-    g.fillStyle(0xe8ecf2, 1);
-    g.fillRoundedRect(6, cy - 6, 30, 12, 4);
-    g.fillStyle(0xb8bec8, 1);
-    g.fillRect(6, cy + 3, 30, 3);
-    // The nose.
-    g.fillStyle(0xc8283a, 1);
-    g.fillTriangle(34, cy - 6, 34, cy + 6, width - 1, cy);
-    // A stripe.
-    g.fillStyle(0x3a5aa8, 1);
-    g.fillRect(12, cy - 6, 2, 12);
-    // The window, and the cat in it: ginger, an ear, an eye.
-    g.fillStyle(0x6e7684, 1);
-    g.fillCircle(25, cy - 1, 5);
-    g.fillStyle(0x1a2434, 1);
-    g.fillCircle(25, cy - 1, 4);
-    g.fillStyle(0xe8873a, 1);
-    g.fillCircle(25, cy, 3);
-    g.fillTriangle(23, cy - 2, 25, cy - 2, 23, cy - 5);
-    g.fillTriangle(26, cy - 2, 28, cy - 2, 28, cy - 5);
-    g.fillStyle(0x3a8a3a, 1);
-    g.fillRect(26, cy - 1, 1, 1);
-    g.fillStyle(0xffffff, 0.6);
-    g.fillRect(22, cy - 4, 2, 1);
+  // How thick the body is along its length, in rocket px: a straight tail,
+  // the chequered middle, and a long pointed nose.
+  const half = (x: number): number => {
+    if (x < 9 || x > 43) {
+      return 0;
+    }
+    if (x < 15) {
+      return 3.4;
+    }
+    if (x < 29) {
+      return 3.9;
+    }
+    return 3.9 * Math.pow(Math.max(0, 1 - (x - 29) / 14), 0.65);
+  };
+  const red = [196, 30, 36];
+  const white = [246, 244, 240];
+  // A round shape lit from above: brighter along the top, darker under.
+  const lit = (base: number[], t: number): [number, number, number] => {
+    const light = 1.08 - 0.42 * t * t - 0.15 * t;
+    return [Math.min(255, base[0] * light), Math.min(255, base[1] * light), Math.min(255, base[2] * light)];
+  };
+  const texture = paint(scene, 'rocket', side, (px, py) => {
+    const x = (px + side / 2) / k;
+    const y = py / k + cy;
+    const dy = y - cy;
+    const ay = Math.abs(dy);
+    // The feet: a round-ended pod at the tip of each leg, and one at the
+    // end of the middle stem.
+    const pod = ((x - 5.5) / 4) ** 2 + ((ay - 8.4) / 2.2) ** 2;
+    const middle = ((x - 5) / 3.6) ** 2 + (ay / 1.9) ** 2;
+    if (pod <= 1 || middle <= 1) {
+      const t = pod <= 1 ? (ay - 8.4) / 2.2 : dy / 1.9;
+      const [r, g, b] = lit(red, Phaser.Math.Clamp(dy < 0 && pod <= 1 ? -Math.abs(t) : t, -1, 1));
+      return [r, g, b, 255];
+    }
+    // The legs: curving out from the tail down to the feet.
+    if (x >= 5.5 && x <= 18) {
+      const outer = 3.6 + Math.pow((18 - x) / 12.5, 1.4) * 6.4;
+      const inner = x < 14 ? 2.2 + Math.pow((14 - x) / 8.5, 1.6) * 5.2 : 99;
+      if (ay <= outer && ay >= Math.min(inner, half(x))) {
+        const shade = dy < 0 ? 1 : 0.78;
+        return [red[0] * shade, red[1] * shade, red[2] * shade, 255];
+      }
+    }
+    // The middle stem between the legs, down to its foot.
+    if (x >= 5 && x < 9.5 && ay < 1.3) {
+      return [red[0] * 0.9, red[1] * 0.9, red[2] * 0.9, 255];
+    }
+    const r = half(x);
+    if (r <= 0 || ay > r) {
+      return undefined;
+    }
+    // Chequered in big squares on the middle part, plain red elsewhere.
+    let base = red;
+    if (x >= 15 && x < 29) {
+      const along = Math.floor((x - 15) / 3.5);
+      const round = dy < 0 ? 0 : 1;
+      base = (along + round) % 2 === 0 ? white : red;
+      // A thin dark seam between the rings of squares.
+      if ((x - 15) % 3.5 < 0.35) {
+        base = [base[0] * 0.75, base[1] * 0.75, base[2] * 0.75];
+      }
+    }
+    const [cr, cg, cb] = lit(base, dy / r);
+    const edge = Phaser.Math.Clamp((r - ay) * k, 0, 1);
+    return [cr, cg, cb, 255 * edge];
   });
+  const context = texture.context;
+  const at = (x: number, y: number): [number, number] => [x * k, (y - cy) * k + side / 2];
+  // The porthole, and the cat in it: ginger, its ears, an eye.
+  const [wx, wy] = at(32, cy - 0.6);
+  context.fillStyle = 'rgb(110, 118, 132)';
+  context.beginPath();
+  context.arc(wx, wy, 3.6 * k, 0, Math.PI * 2);
+  context.fill();
+  context.fillStyle = 'rgb(26, 36, 52)';
+  context.beginPath();
+  context.arc(wx, wy, 2.9 * k, 0, Math.PI * 2);
+  context.fill();
+  context.fillStyle = 'rgb(232, 135, 58)';
+  context.beginPath();
+  context.arc(wx, wy + 0.6 * k, 2 * k, 0, Math.PI * 2);
+  context.fill();
+  for (const ear of [-1, 1]) {
+    context.beginPath();
+    context.moveTo(wx + ear * 0.6 * k, wy - 0.6 * k);
+    context.lineTo(wx + ear * 2 * k, wy - 0.6 * k);
+    context.lineTo(wx + ear * 1.7 * k, wy - 2.6 * k);
+    context.fill();
+  }
+  context.fillStyle = 'rgb(58, 138, 58)';
+  context.fillRect(wx + 0.6 * k, wy + 0.2 * k, 0.8 * k, 0.8 * k);
+  context.fillStyle = 'rgba(255, 255, 255, 0.6)';
+  context.fillRect(wx - 2.2 * k, wy - 2.2 * k, 1.2 * k, 0.6 * k);
+  texture.refresh();
+  texture.setFilter(Phaser.Textures.FilterMode.LINEAR);
 }
 
 /** The space helmet's glass bubble, px across. */

@@ -35,7 +35,7 @@ binary assets but the portal picture and runs straight after clone.
 - `noise.ts` — `paint` (a canvas texture worked out per pixel), `makeNoise` (seeded value noise, optionally wrapping) and `fbm` (octaves of it). For pictures after photographs: the sun.
 - `photos.ts` — the planets that are **NASA photographs** (`PLANET_PHOTOS`: each picture's size and the radius of its globe): `loadPlanetPhotos` in `BootScene.preload` as `photo-<name>`, `makePhotoPlanets` cuts each globe round into `planet-<name>` (Saturn keeps its rings, black made clear by how dark it is, and an empty `-front`), `drawPhotoGlobe` for Uranus. All `LINEAR`-filtered. See `public/assets/CLAUDE.md`.
 - `sun.ts` — the sun in space, worked out per pixel from seeded noise (coloured by heat on one ramp): the ball (`space-sun`, `SPACE_SUN_SIZE`), its hottest swirls on their own (`space-sun-churn`), two manes of flame (`space-sun-corona-a`/`-b`, `SPACE_SUN_CORONA`) and the red haze (`space-sun-glow`); not `sun`, which is the forest's. The scene animates them: see `SpaceScene`.
-- `space.ts` — the stars (three seamless layers), the gas clouds, the
+- `space.ts` — Bob's `rocket` (red-and-white chequered, per pixel at `ROCKET_DETAIL` times `ROCKET_SIZE` in a square picture, shown scaled down and `LINEAR`), the stars (three seamless layers), the gas clouds, the
   planets: the photographs (`photos.ts`), Uranus's photograph in drawn rings
   (`generateUranus`: a set width in px whatever their slant, the near half
   its own texture), and the battle station (`battle-station`: the picture the player gave, `planets/death-star.jpg`, cut round by `makePhotoPlanets` -- `STATION_PHOTO` -- and shown at `STATION_SIZE`); the planets get **no sun of

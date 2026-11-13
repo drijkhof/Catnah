@@ -745,7 +745,7 @@ way, but nothing left to fetch.
 
 - **The first time** (from the sand path): only the Moon is open. *"Fly to
   the Moon!"*
-- **In Bob's rocket** (white, red nose and fins, the cat in its window, a
+- **In Bob's rocket** (red, after the classic moon rocket: a long pointed red nose with the cat in its porthole, a middle of big red and white squares, and three legs at the back -- two curving out to round feet and one between -- a
   flame behind): every robots' world is open, each with its parts found
   under its name (*"Mars 1/2"*). *"Fly to a planet and find the parts!"*
 - **With all ten parts**: the Moon is open again. *"Take the parts to Bob on

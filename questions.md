@@ -2564,3 +2564,11 @@ about at random anywhere within 4200 px of the sun, always upright, facing
 left or right the way they go -- the camper heading for one random spot
 after another, the fighter keeping 90 px behind it. They do not shoot, and nothing happens on touching them.
 
+## Bob's rocket, chequered
+
+Asked for: the rocket like Tintin's. Done as a nod in our own drawing, then
+redrawn after a photo of the model: a long plain red pointed nose (the
+cat's porthole in it), a middle of big red and white squares, a red tail,
+two legs curving out to round feet and a stem between them to a third;
+drawn four times as fine and smoothed. Same size.
+
