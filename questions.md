@@ -2572,3 +2572,10 @@ cat's porthole in it), a middle of big red and white squares, a red tail,
 two legs curving out to round feet and a stem between them to a third;
 drawn four times as fine and smoothed. Same size.
 
+## Borrowed pictures
+
+Decided by the player: the Death Star stays the picture they gave, though
+it is not ours; if anyone ever asks, it comes out (back to a drawing of
+our own). Everything else borrowed is a nod drawn our own way, or a NASA
+photograph.
+
