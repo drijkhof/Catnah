@@ -6,7 +6,11 @@ export const ITEM_SIZES = {
   wallet: { width: 11, height: 8 },
   candy: { width: 12, height: 6 },
   hat: { width: 13, height: 8 },
+  water: { width: 6, height: 13 },
 } as const;
+
+/** The man's stall in the desert: an awning on two poles over a counter. */
+export const STALL_SIZE = { width: 46, height: 42 };
 
 /** Whoever lost the wallet in the swamp, lying on the bed of the pool beside it. */
 export const DROWNED_SIZE = { width: 34, height: 11 };
@@ -58,6 +62,62 @@ export function generateItemTextures(scene: Phaser.Scene): void {
     g.fillRect(x + 4, y + 1, 2, 1);
   };
   bakeTexture(scene, 'item-hat', ITEM_SIZES.hat.width, ITEM_SIZES.hat.height, (g) => drawHat(g, 0, 0));
+
+  // A bottle of water: clear plastic, blue water, a blue cap and label.
+  bakeTexture(scene, 'item-water', ITEM_SIZES.water.width, ITEM_SIZES.water.height, (g) => {
+    g.fillStyle(0x1a5aa8, 1);
+    g.fillRect(2, 0, 2, 2);
+    g.fillStyle(0xd8eef8, 1);
+    g.fillRect(2, 2, 2, 1);
+    g.fillRoundedRect(0, 3, 6, 10, 2);
+    g.fillStyle(0x58b0f0, 1);
+    g.fillRoundedRect(1, 5, 4, 7, 1);
+    g.fillStyle(0x1a5aa8, 1);
+    g.fillRect(0, 7, 6, 3);
+    g.fillStyle(0xffffff, 1);
+    g.fillRect(1, 4, 1, 2);
+  });
+
+  // The stall: two poles, a striped awning on top, a plank counter at the
+  // front with a cloth over it, jugs and a sign-board's worth of wares.
+  bakeTexture(scene, 'desert-stall', STALL_SIZE.width, STALL_SIZE.height, (g) => {
+    const { width, height } = STALL_SIZE;
+    // Poles.
+    g.fillStyle(0x7a5430, 1);
+    g.fillRect(2, 6, 3, height - 6);
+    g.fillRect(width - 5, 6, 3, height - 6);
+    // Awning, red and cream stripes, scalloped at the bottom.
+    for (let x = 0; x < width; x += 6) {
+      g.fillStyle((x / 6) % 2 === 0 ? 0xc83a2a : 0xf4e6c0, 1);
+      g.fillRect(x, 0, 6, 7);
+      g.fillCircle(x + 3, 7, 3);
+    }
+    g.fillStyle(0x8a2418, 1);
+    g.fillRect(0, 0, width, 1);
+    // Counter: planks, a cloth hanging over the front.
+    g.fillStyle(0x9a6a3a, 1);
+    g.fillRect(0, height - 14, width, 14);
+    g.fillStyle(0x7a5028, 1);
+    for (let y = height - 10; y < height; y += 4) {
+      g.fillRect(0, y, width, 1);
+    }
+    g.fillStyle(0xc8a060, 1);
+    g.fillRect(0, height - 14, width, 2);
+    g.fillStyle(0x2a7a8a, 1);
+    g.fillRect(12, height - 13, 22, 7);
+    g.fillStyle(0xf0d070, 1);
+    g.fillRect(12, height - 7, 22, 1);
+    // Wares on the counter: a clay jug and a basket of dates.
+    g.fillStyle(0xb8643a, 1);
+    g.fillRoundedRect(4, height - 21, 6, 7, 2);
+    g.fillRect(6, height - 23, 2, 2);
+    g.fillStyle(0x8a5a2a, 1);
+    g.fillRoundedRect(width - 13, height - 17, 9, 3, 1);
+    g.fillStyle(0x5a2a14, 1);
+    g.fillCircle(width - 11, height - 18, 1.5);
+    g.fillCircle(width - 8, height - 18, 1.5);
+    g.fillCircle(width - 6, height - 18, 1.5);
+  });
 
   // The wallet's owner, drowned: on their back on the bed of the pool, head
   // to the left, pale, eyes crossed out, weed on the legs.

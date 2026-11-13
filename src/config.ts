@@ -1105,18 +1105,24 @@ export const ITEMS = {
     wallet: { label: 'wallet', price: 10 },
     candy: { label: 'candy', price: 5 },
     hat: { label: 'hat', price: 10 },
+    water: { label: 'water', price: 0 },
   },
+  /** What the bar keeper buys: not the water -- that is for the desert. */
+  barBuys: ['wallet', 'candy', 'hat'],
   /** A full tank of rocket fuel, never used, sold back to the bar keeper. */
   fuelPrice: 10,
-  /** The man in the desert: how near to stand, what he pays for a hat, what he says. */
+  /**
+   * The man at his stall in the desert: how near to stand, what he pays
+   * (water 30, a hat 10 -- there is one of each in the whole game), what he
+   * says.
+   */
   hatBuyer: {
-    reach: 18,
-    rearm: 40,
-    price: 15,
-    greeting: 'A hat! I need a hat in this sun. 15 coins?',
-    noHat: 'Got a hat? I pay 15 coins for one!',
-    thanks: 'Thank you! Shade at last.',
-    sell: 'Sell a hat',
+    reach: 22,
+    rearm: 44,
+    buys: { water: 30, hat: 10 },
+    greeting: 'Water! A hat! Anything against this sun?',
+    noHat: 'I buy water for 30 coins, and a hat for 10!',
+    thanks: { water: 'Water! Oh, thank you!', hat: 'Thank you! Shade at last.' },
   },
   /** What the cat says, taking turns, when it picks one up; and how long it stays up, ms. */
   catLines: ['Is this from someone?', 'Why do people drop things?'],

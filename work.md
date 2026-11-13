@@ -50,8 +50,8 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | bar | `bar` | on Pluto: aliens in summer T-shirts; buy a life, milk or rocket fuel |
 | roze hartjes | `little hearts` | what you pay with at the bar |
 | raket benzine | `rocket fuel` | from the bar: three times as fast in space, for 200 seconds of flying |
-| portemonnee, snoepje, hoed / pet | `wallet`, `candy`, `hat` | things to find in ten levels, kept for the run, sold at the bar (or a hat to the man in the desert) |
-| meneer | `the man in the desert` / `hat buyer` | at the start of the desert; buys hats only, for 15 coins |
+| portemonnee, snoepje, hoed / pet, waterflesje | `wallet`, `candy`, `hat`, `water` | things to find, kept for the run, sold at the bar (water and the hat also to the man in the desert) |
+| meneer, kraampje | `the man in the desert` / `hat buyer`, `stall` | at the start of the desert, behind his stall; buys water for 30 coins and a hat for 10 |
 | muntjes | `coins` | 20 from Bob the first time he talks to you, and 17 hidden in the levels; at most 100; spent at the bar |
 | luifel | `awning` | the city's one-way platform, striped, sticking out of a wall |
 | poort | `arcade` | an opening under a house, walked or sneaked through |
@@ -608,10 +608,12 @@ white sun, pyramids on the skyline, heat shimmering along their feet. Flat
 going, mostly, with low dunes of stacked sand to climb and a few sandstone
 shelves to jump between. Nothing here hunts you, and nothing walks the sand
 but **camels**, which hurt nobody: jump on one's back and it carries you
-along, slowly, as it ambles. Right at the start stands **a man**, bald and
-red from the sun, with a big moustache: he wants a **hat**. Walk up to him
-with one and he buys it for **15 coins** (more than the bar pays) and puts
-it on; without one he only asks for it. What kills is standing still in the wrong place:
+along, slowly, as it ambles. Right at the start stands **a man** behind his **stall** -- a
+striped awning on two poles, a counter with a jug and a basket of dates --
+bald and red from the sun, with a big moustache: he wants **water** and a
+**hat**. Walk up to him with either and he buys: water for **30 coins**, a
+hat for **10** (and puts it on); with neither he only says what he buys.
+There is one bottle of water and one hat in the whole game. What kills is standing still in the wrong place:
 
 - **Worms** live under the sand, each with a mound for a hole. Now and
   then one **comes up out of its hole without warning** to look about, and
@@ -935,13 +937,15 @@ found stays found for the run. You can carry **100** at most.
 On the right of his menu you can **sell** him things: what you have found
 on the way, and a full tank of rocket fuel you have not flown on yet.
 
-**Things to find and sell.** Lying about in ten levels, one in each, and
+**Things to find and sell.** Lying about in ten levels, and
 kept for the run once picked up (shown under the coins, an icon and how
 many; no "+1" — the cat wonders out loud instead, in a little bubble over
 its head, by turns *"Is this from someone?"* and *"Why do people drop
 things?"*): a **wallet** (city, swamp, sand path), **candy** (canopy, cave,
-desert, Mars) and a **hat** (forest, volcano, beach). The bar keeper pays
-10 coins for a wallet, 5 for candy and 10 for a hat; unused rocket fuel
+desert, Mars), one **hat** (forest) and one **bottle of water**, well
+hidden: at the bottom of the flooded well in the cave, a dead end you drop
+into and wall-jump out of. The bar keeper pays 10 coins for a wallet, 5 for
+candy and 10 for a hat, and does not want the water; unused rocket fuel
 10. Coins still stop at 100.
 
 The swamp's wallet has an owner: in the pool just past the rocks it lies

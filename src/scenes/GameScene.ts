@@ -54,7 +54,7 @@ interface ShopEntry {
 }
 
 /** Nothing carried yet. */
-const EMPTY_BAG: Record<ItemKind, number> = { wallet: 0, candy: 0, hat: 0 };
+const EMPTY_BAG: Record<ItemKind, number> = { wallet: 0, candy: 0, hat: 0, water: 0 };
 
 /** How far below the level the cat may fall before respawning, in pixels. */
 const FALL_OUT_MARGIN = 80;
@@ -3454,9 +3454,14 @@ export class GameScene extends Phaser.Scene {
     this.openShop();
   }
 
-  /** The man at the start of the desert (`A`): a hat on him once he has bought one. */
+  /**
+   * The man at the start of the desert (`A`), behind his stall: the counter
+   * in front of him, its awning over his head. A hat on him once he has
+   * bought one.
+   */
   private buildHatBuyers(): void {
     for (const at of this.level.hatBuyers) {
+      this.add.image(at.x, at.y, 'desert-stall').setOrigin(0.5, 1).setDepth(-0.25).setData(KEEP_LIVE, true);
       const sprite = this.add.image(at.x, at.y, 'hat-buyer').setOrigin(0.5, 1).setDepth(-0.3).setFlipX(true).setData(KEEP_LIVE, true);
       this.tweens.add({ targets: sprite, scaleY: 1.03, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
       this.hatBuyer = { sprite, near: false };
@@ -3464,8 +3469,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
-   * Standing by him: with a hat, his menu -- sell it, or Bye; without one,
-   * he asks for it. Once, until the cat walks off and back.
+   * Standing by his stall: with water or a hat, his menu -- sell either, or
+   * Bye; with neither, he says what he buys. Once, until the cat walks off
+   * and back.
    */
   private meetHatBuyer(): void {
     const buyer = this.hatBuyer;
@@ -3485,7 +3491,7 @@ export class GameScene extends Phaser.Scene {
     }
     buyer.near = true;
     const man = ITEMS.hatBuyer;
-    if (this.bag.hat <= 0) {
+    if (this.bag.hat <= 0 && this.bag.water <= 0) {
       sound.play('beep');
       const words = crispText(this, buyer.sprite.x, buyer.sprite.y - 40, man.noHat, {
         fontFamily: 'monospace',
@@ -3499,15 +3505,15 @@ export class GameScene extends Phaser.Scene {
       this.tweens.add({ targets: words, alpha: 0, delay: 2200, duration: 400, onComplete: () => words.destroy() });
       return;
     }
-    this.openMenu(man.greeting, [
-      {
-        column: 0,
-        row: 0,
-        label: () => `${man.sell} (${this.bag.hat}) +${man.price} coins`,
-        choose: () => this.sell('hat', man.price, man.thanks, () => buyer.sprite.setTexture('hat-buyer-hat')),
-      },
-      { column: 0, row: 1, label: () => BAR.bye, choose: () => this.closeShop() },
-    ], 1);
+    const wares = Object.keys(man.buys) as Array<keyof typeof man.buys>;
+    const sells: ShopEntry[] = wares.map((kind, row) => ({
+      column: 0,
+      row,
+      label: () => `Sell ${ITEMS.kinds[kind].label} (${this.bag[kind]}) +${man.buys[kind]} coins`,
+      choose: () =>
+        this.sell(kind, man.buys[kind], man.thanks[kind], kind === 'hat' ? () => buyer.sprite.setTexture('hat-buyer-hat') : undefined),
+    }));
+    this.openMenu(man.greeting, [...sells, { column: 0, row: wares.length, label: () => BAR.bye, choose: () => this.closeShop() }], 1);
   }
 
   /**
@@ -3522,7 +3528,7 @@ export class GameScene extends Phaser.Scene {
       label: () => `${item.label} — ${item.price} coins`,
       choose: () => this.buy(item),
     }));
-    const sells: ShopEntry[] = (Object.keys(ITEMS.kinds) as ItemKind[]).map((kind, row) => ({
+    const sells: ShopEntry[] = ITEMS.barBuys.map((kind, row) => ({
       column: 1,
       row,
       label: () => `Sell ${ITEMS.kinds[kind].label} (${this.bag[kind]}) +${ITEMS.kinds[kind].price}`,

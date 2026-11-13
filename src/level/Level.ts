@@ -54,6 +54,9 @@ export type CrowBehaviour = 'attack' | 'flyby' | 'swoop';
  *        cannot do
  *   `d`  water with someone drowned lying on the bed of it, under this
  *        cell -- water for the same reason `W` is. Scenery
+ *   `g`  water with the water bottle lying on the bed of it -- the only one
+ *        in the game, for the man in the desert. Water for the same reason
+ *        `W` is
  *   `+`  spare heart, on its own — nothing else, no nest, no ledge. Sits low
  *        in its own tile, so one placed directly above a row of `N` reads as
  *        a heart sitting in the nest rather than floating above it. Never
@@ -553,7 +556,8 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
         case 'f':
         case 'C':
         case 'W':
-        case 'd': {
+        case 'd':
+        case 'g': {
           // A surface is water with open air above it. Water under more water
           // is not one, and neither is water under stone: that is drawn
           // filling its cell, with no swell and no `WATER_DROP`, or a strip
@@ -564,11 +568,15 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
             y,
             width: TILE,
             height: TILE,
-            isSurface: !'wfCWd'.includes(above) && !SOLID_LETTERS.includes(above),
+            isSurface: !'wfCWdg'.includes(above) && !SOLID_LETTERS.includes(above),
           });
 
           if (tiles[column] === 'f') {
             piranhaSpots.push({ x: x + TILE / 2, y });
+          }
+
+          if (tiles[column] === 'g') {
+            items.push({ x: x + TILE / 2, y: y + TILE, kind: 'water' });
           }
 
           if (tiles[column] === 'd') {
@@ -801,9 +809,9 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
           // surrounded by water is not sitting in anything -- it is floating
           // in the water, so it gets the same centred position a charm does.
           const inWater =
-            'wfCWd'.includes(at(column - 1, row)) ||
-            'wfCWd'.includes(at(column + 1, row)) ||
-            'wfCWd'.includes(at(column, row - 1));
+            'wfCWdg'.includes(at(column - 1, row)) ||
+            'wfCWdg'.includes(at(column + 1, row)) ||
+            'wfCWdg'.includes(at(column, row - 1));
 
           extraLives.push({
             x: x + TILE / 2,

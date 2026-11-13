@@ -2397,3 +2397,19 @@ right of the wallet's rocks, cartoonish (eyes as crosses, weed over the
 legs) rather than grisly. A swamp pool behind its water hid it completely,
 so it is laid *over* the water, 60% opaque -- seen through the water.
 Not tinted green, asked for afterwards: ordinary skin colour. It is scenery: nothing to touch or pick up.
+
+## The desert man's stall: water and a hat
+
+Asked for: the man in the desert gets a stall and buys water (30 coins)
+and a hat (10); one water bottle in the whole game, well hidden; one hat
+in the game. Decided without asking:
+
+- The water lies at the bottom of the flooded well in the cave (a new
+  letter `g`, water with the bottle in it): a dead end you drop into and
+  get out of by wall-jumping up its two walls -- tested. It has to be
+  before the desert, since the man stands at its start.
+- The one hat is the forest's; the volcano's and the beach's are gone.
+- The bar keeper does not buy the water. He still buys a hat, for 10.
+- The man is behind his counter: it hides his legs, the awning is over his
+  head.
+
