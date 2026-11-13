@@ -2506,3 +2506,12 @@ character from the film or the game; the whiskey hand-off and the little
 soup-bringer are the nods. The inside of the bar is unchanged.
 To undo: revert this one commit.
 
+## Touching the ISS
+
+Asked for: touching the ISS crashes it onto the Earth in a mega explosion,
+and the cat says "... oops". Decided without asking: it stays gone for the
+run (`issDown`, carried like `barClosed`); the cat does not lose a heart,
+and the Earth keeps a small crater where it hit (asked for after: a crater, not half the Earth), its edge glowing, with lumps of Earth floating by it; the explosion was made smaller (asked for); for the first 2.5 s in
+space it cannot be touched, because the cat sets off right where it goes
+round. In English, like everything the cat says.
+

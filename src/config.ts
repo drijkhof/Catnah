@@ -622,6 +622,26 @@ export const OBSTACLES = {
  * slow enough to catch. `sunReach` is how close to the sun's rim the cat
  * can come before it burns, px.
  */
+/**
+ * The ISS, touched: knocked out of its orbit, it falls to the Earth in
+ * `fallMs` and goes up in a huge explosion -- `blast` px across at its
+ * biggest -- and a moment later the cat says `oops`, for `oopsMs`. Gone for
+ * the run. `touch` is how near the cat has to come, px.
+ */
+export const ISS_CRASH = {
+  touch: 20,
+  /** Not touched in the first moments out here: the cat sets off right by the Earth. */
+  graceMs: 2500,
+  fallMs: 1600,
+  blast: 180,
+  /** The crater it leaves, a share of the Earth's radius across, and the bits of Earth left floating by it. */
+  crater: 0.24,
+  chunks: 5,
+  oops: '... oops',
+  oopsAfterMs: 1100,
+  oopsMs: 3200,
+} as const;
+
 export const SPACE = {
   worldSize: 9600,
   accel: 420,

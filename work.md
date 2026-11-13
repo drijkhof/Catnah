@@ -66,7 +66,7 @@ The game is discussed in Dutch and written in English. Same thing, two names:
 | robotje | `robot` | the walker of the robots' worlds: comes for you to grab you |
 | onderdeel | `part` | one of the ten cogs Bob needs; `K`, spread over the seven robots' worlds |
 | Death Star | `battle station` | seen in space, never entered: "That's no moon..." |
-| ISS | `ISS` | goes round the Earth in space; seen, never landed on |
+| ISS | `ISS` | goes round the Earth in space; touch it and it crashes onto the Earth |
 | Enterprise | `starship` | goes round the Death Star in space, the two firing at each other |
 | raket | `rocket` | Bob's: the way from the moon to Mars and Saturn |
 | maanbasis | `moon base` | the moon's `M`: a module with doors at both ends and a lab inside |
@@ -752,8 +752,14 @@ You set off beside the world you have just left, behind it on its way
 round, so it moves off without you. The worlds go on round the sun while
 you are in a level, and you come out beside yours wherever it has got to.
 
-Out there you can see, but never land on, the **ISS** going round the Earth
-and a **battle station** — the Death Star — hanging in space: an **easter egg**, with no arrow and no name, between the orbits of Mars and Jupiter, **going round the sun** too (once every four Earth years, with no ring drawn for it, so it is not on any line to follow), there to be found. Fly near it
+Out there you can see the **ISS** going round the Earth -- better not touch
+it: knocked out of its orbit, it **tumbles down onto the Earth**, burning,
+and goes up in a **huge explosion** (a white flash, fireballs, a
+shockwave, debris and smoke, the screen shaking), and a moment later the
+cat says *"... oops"*. It leaves a **crater** in the Earth where it hit,
+its edge glowing orange, and a few lumps of Earth floating by it, going
+round the sun with the Earth from then on. The ISS is gone and the crater
+stays for the rest of the run. And there is a **battle station** — the Death Star — hanging in space: an **easter egg**, with no arrow and no name, between the orbits of Mars and Jupiter, **going round the sun** too (once every four Earth years, with no ring drawn for it, so it is not on any line to follow), there to be found. Fly near it
 and the cat says, in a little bubble over its head: *"That's no moon..."*.
 A **starship** — the Enterprise — goes slowly round the station, and the
 station drifts slowly too. They fire at each other: every ten seconds the

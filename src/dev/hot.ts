@@ -55,6 +55,8 @@ export interface GameSnapshot {
   itemsFound?: string[];
   /** The bar on Pluto has thrown the cat out, and is shut. */
   barClosed?: boolean;
+  /** The ISS has come down on the Earth, at this angle round it. */
+  issDown?: number;
   /** Inside a house: the level outside as it was left, to go back out to. */
   outside?: GameSnapshot;
   godMode?: boolean;

@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { addPlanetLight, faceTheSun } from '../world/planetLight';
-import { BAR, EARTH_GLOBE, GAME_HEIGHT, GAME_WIDTH, LASER, LIVES, PARTS, PLANET_SIZE_KEEP, REAL_PLANET_SIZE, SPACE, TILE } from '../config';
+import { BAR, EARTH_GLOBE, ISS_CRASH, GAME_HEIGHT, GAME_WIDTH, LASER, LIVES, PARTS, PLANET_SIZE_KEEP, REAL_PLANET_SIZE, SPACE, TILE } from '../config';
 import { LEVELS } from '../level/levels';
 import { Controls } from '../input/Controls';
 import { HEAD_IN_POSE, PLANET_DISCS, STARFIELD_SIZE, SPACE_SUN_SIZE, createRandom, type PlanetName } from '../art';
@@ -34,6 +34,8 @@ interface Carry {
   itemsFound?: string[];
   /** The bar on Pluto is shut for the run, carried through. */
   barClosed?: boolean;
+  /** The ISS came down on the Earth, at this angle round it, radians: gone for the run, and a crater there. */
+  issDown?: number;
 }
 
 /** A world out here: its orbit, how big, and which level it is. */
@@ -125,6 +127,14 @@ export class SpaceScene extends Phaser.Scene {
   private moonShadow?: Phaser.GameObjects.Graphics;
   /** The cat's speech bubble, behind those words. */
   private catBubble!: Phaser.GameObjects.Graphics;
+  /** The ISS while it is up: its picture, where it is in its orbit, the tween that goes round. */
+  private iss?: { image: Phaser.GameObjects.Image; orbit: { angle: number }; going: Phaser.Tweens.Tween; falling: boolean };
+  /** When the flight began, by `clock`. */
+  private arrivedAt = 0;
+  /** Until when the cat is saying "... oops", by `clock`. */
+  private oopsUntil = 0;
+  /** Things that go with the Earth as it moves: the crash's explosion, each at its offset from the middle. */
+  private onEarth: Array<{ thing: Phaser.GameObjects.Components.Transform; dx: number; dy: number }> = [];
   private starLayers: Array<{ sprite: Phaser.GameObjects.TileSprite; factor: number }> = [];
   private trailIn = 0;
   private lifeIcons: Phaser.GameObjects.Image[] = [];
@@ -310,16 +320,28 @@ export class SpaceScene extends Phaser.Scene {
     this.time.addEvent({ delay: LASER.everyMs, loop: true, callback: () => this.fireLaser() });
     this.time.addEvent({ delay: LASER.shipEveryMs, loop: true, callback: () => this.fireShip() });
 
-    // The ISS, going round the Earth -- only ever seen, never landed on.
-    const iss = this.add.image(0, 0, 'planet-iss').setScale(0.7).setDepth(-39);
-    const orbit = { angle: -0.6 };
-    const radius = EARTH_GLOBE / 2 + 45;
-    const placeIss = (): void => {
-      iss.setPosition(this.earth.x + Math.cos(orbit.angle) * radius, this.earth.y + Math.sin(orbit.angle) * radius * 0.55);
-      iss.setRotation(orbit.angle * 0.2);
-    };
-    placeIss();
-    this.tweens.add({ targets: orbit, angle: orbit.angle + Math.PI * 2, duration: 40000, repeat: -1, onUpdate: placeIss });
+    if (this.carry.issDown !== undefined) {
+      this.breakEarth(this.carry.issDown, false);
+    }
+
+    // The ISS, going round the Earth -- never landed on, and better not
+    // touched (`crashIss`). Not there at all once it has come down.
+    this.iss = undefined;
+    this.oopsUntil = 0;
+    this.arrivedAt = this.clock;
+    this.onEarth = [];
+    if (this.carry.issDown === undefined) {
+      const iss = this.add.image(0, 0, 'planet-iss').setScale(0.7).setDepth(-39);
+      const orbit = { angle: -0.6 };
+      const radius = EARTH_GLOBE / 2 + 45;
+      const placeIss = (): void => {
+        iss.setPosition(this.earth.x + Math.cos(orbit.angle) * radius, this.earth.y + Math.sin(orbit.angle) * radius * 0.55);
+        iss.setRotation(orbit.angle * 0.2);
+      };
+      placeIss();
+      const going = this.tweens.add({ targets: orbit, angle: orbit.angle + Math.PI * 2, duration: 40000, repeat: -1, onUpdate: placeIss });
+      this.iss = { image: iss, orbit, going, falling: false };
+    }
 
     this.cat = this.add.image(0, 0, this.carry.rocket ? 'rocket' : 'cat-swim-a').setDepth(10);
     this.arrows = this.add.graphics().setScrollFactor(0).setDepth(200);
@@ -373,6 +395,9 @@ export class SpaceScene extends Phaser.Scene {
 
     this.drift();
     this.orbit();
+    for (const { thing, dx, dy } of this.onEarth) {
+      thing.setPosition(this.earth.x + dx, this.earth.y + dy);
+    }
 
     if (this.going || this.burning) {
       return;
@@ -380,6 +405,12 @@ export class SpaceScene extends Phaser.Scene {
 
     this.fly(delta);
     this.pointAtWorlds();
+    const iss = this.iss;
+    // Not in the first moments: the cat sets off beside the Earth, which is
+    // just where the ISS goes round, and arriving is not touching it.
+    if (iss && !iss.falling && this.clock > this.arrivedAt + ISS_CRASH.graceMs && Phaser.Math.Distance.Between(this.cat.x, this.cat.y, iss.image.x, iss.image.y) < ISS_CRASH.touch) {
+      this.crashIss();
+    }
 
     // Too close to the sun: burnt.
     if (Phaser.Math.Distance.Between(this.cat.x, this.cat.y, this.sun.x, this.sun.y) < SPACE_SUN_SIZE / 2 + SPACE.sunReach) {
@@ -412,8 +443,21 @@ export class SpaceScene extends Phaser.Scene {
     }
 
     // Near the battle station, the cat says what it sees; away, it stops.
-    const near = Phaser.Math.Distance.Between(this.cat.x, this.cat.y, this.station.x, this.station.y) < 220;
+    // Just after the ISS has come down, it says something else.
+    const oops = this.clock < this.oopsUntil;
+    // Back to its own words only once the bubble has gone, or they flash up
+    // as it fades.
+    const line = oops || this.stationWords.alpha > 0.02 ? (oops ? ISS_CRASH.oops : this.stationWords.text) : "That's no moon...";
+    if (this.stationWords.text !== line) {
+      this.stationWords.setText(line);
+    }
+    const near = oops || Phaser.Math.Distance.Between(this.cat.x, this.cat.y, this.station.x, this.station.y) < 220;
     const shown = Phaser.Math.Linear(this.stationWords.alpha, near ? 1 : 0, 0.08);
+    // Text set while hidden is measured as nothing (the browser does not lay
+    // out what is not shown), so it is measured again once it shows.
+    if (shown > 0.2 && this.stationWords.width < 24) {
+      this.stationWords.updateSize();
+    }
     const width = this.stationWords.width + 12;
     const height = 18;
     const x = this.cat.x - width / 2;
@@ -424,6 +468,218 @@ export class SpaceScene extends Phaser.Scene {
     this.catBubble.fillTriangle(this.cat.x - 3, y + height, this.cat.x + 3, y + height, this.cat.x, y + height + 5);
     this.catBubble.setAlpha(shown);
     this.stationWords.setPosition(this.cat.x, y + height / 2).setAlpha(shown);
+  }
+
+  /**
+   * The cat touched the ISS: knocked out of its orbit, it tumbles down onto
+   * the Earth, burning, and goes up in a huge explosion where it hits; a
+   * moment later the cat says "... oops". It is gone for the run
+   * (`issDown`). Everything is placed from the Earth's middle, since the
+   * Earth goes on round the sun while it happens.
+   */
+  private crashIss(): void {
+    const iss = this.iss;
+    const earth = this.worlds.find((world) => world.name === 'earth');
+    if (!iss || !earth) {
+      return;
+    }
+    iss.falling = true;
+    iss.going.stop();
+    sound.play('crack');
+    const from = new Phaser.Math.Vector2(iss.image.x - this.earth.x, iss.image.y - this.earth.y);
+    const hit = from.clone().normalize().scale(earth.radius * 0.92);
+    const fall = { t: 0 };
+    let lastSpark = 0;
+    this.tweens.add({
+      targets: fall,
+      t: 1,
+      duration: ISS_CRASH.fallMs,
+      ease: 'Quad.easeIn',
+      onUpdate: () => {
+        const at = from.clone().lerp(hit, fall.t);
+        iss.image.setPosition(this.earth.x + at.x, this.earth.y + at.y).setRotation(iss.image.rotation + 0.12).setDepth(-38);
+        // Burning up on the way down: sparks left behind, going out.
+        if (this.clock - lastSpark > 40) {
+          lastSpark = this.clock;
+          const spark = this.add
+            .circle(iss.image.x, iss.image.y, 3 + fall.t * 4, fall.t > 0.5 ? 0xff7a20 : 0xffd060)
+            .setDepth(-38.5)
+            .setBlendMode(Phaser.BlendModes.ADD);
+          this.tweens.add({ targets: spark, alpha: 0, scale: 0.3, duration: 500, onComplete: () => spark.destroy() });
+        }
+      },
+      onComplete: () => {
+        iss.image.destroy();
+        this.iss = undefined;
+        this.carry.issDown = Math.atan2(hit.y, hit.x);
+        this.explodeOnEarth(hit.x, hit.y);
+        this.breakEarth(this.carry.issDown, true);
+        this.time.delayedCall(ISS_CRASH.oopsAfterMs, () => {
+          this.oopsUntil = this.clock + ISS_CRASH.oopsMs;
+        });
+      },
+    });
+  }
+
+  /**
+   * The crater where the ISS hit, `angle` round the Earth's middle: a bite
+   * out of its picture, jagged, its edge glowing, and a few lumps of Earth
+   * left floating by it, bobbing, going round with it. `fresh` when it has
+   * just happened: the lumps fly out first.
+   */
+  private breakEarth(angle: number, fresh: boolean): void {
+    const earth = this.worlds.find((world) => world.name === 'earth');
+    if (!earth) {
+      return;
+    }
+    const key = 'planet-earth-crater';
+    const source = this.textures.get('planet-earth').getSourceImage() as HTMLCanvasElement;
+    if (this.textures.exists(key)) {
+      this.textures.remove(key);
+    }
+    const canvas = this.textures.createCanvas(key, source.width, source.height) as Phaser.Textures.CanvasTexture;
+    const context = canvas.context;
+    context.drawImage(source, 0, 0);
+    const disc = PLANET_DISCS.earth;
+    const middle = source.width / 2;
+    const cx = middle + Math.cos(angle) * disc;
+    const cy = middle + Math.sin(angle) * disc;
+    const bite = disc * ISS_CRASH.crater;
+    // A jagged edge, the same for this crater every time it is drawn.
+    const random = createRandom(Math.round(angle * 1000) + 77);
+    const edge: Array<[number, number]> = [];
+    for (let i = 0; i < 18; i += 1) {
+      const a = (i / 18) * Math.PI * 2;
+      const r = bite * (0.75 + random() * 0.45);
+      edge.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]);
+    }
+    const trace = (): void => {
+      context.beginPath();
+      edge.forEach(([x, y], i) => (i === 0 ? context.moveTo(x, y) : context.lineTo(x, y)));
+      context.closePath();
+    };
+    // The glowing rim first, then the hole cut out of the middle of it.
+    context.save();
+    context.beginPath();
+    context.arc(middle, middle, disc, 0, Math.PI * 2);
+    context.clip();
+    trace();
+    context.lineWidth = disc * 0.07;
+    context.strokeStyle = 'rgba(255, 120, 30, 0.95)';
+    context.shadowColor = 'rgba(255, 90, 20, 1)';
+    context.shadowBlur = disc * 0.08;
+    context.stroke();
+    context.restore();
+    context.save();
+    context.globalCompositeOperation = 'destination-out';
+    context.translate(cx, cy);
+    context.scale(0.82, 0.82);
+    context.translate(-cx, -cy);
+    trace();
+    context.fill();
+    context.restore();
+    canvas.refresh();
+    canvas.setFilter(Phaser.Textures.FilterMode.LINEAR);
+    earth.image.setTexture(key);
+
+    // Lumps of Earth, floating off the crater.
+    const scale = earth.image.scaleX;
+    const out = earth.radius * 1.05;
+    for (let i = 0; i < ISS_CRASH.chunks; i += 1) {
+      const size = 3 + random() * 4;
+      const lump = this.add
+        .polygon(0, 0, [0, 0, size, -size * 0.4, size * 1.3, size * 0.6, size * 0.3, size * 1.1, -size * 0.4, size * 0.5], random() < 0.5 ? 0x6a5a3a : 0x3a6a3a)
+        .setStrokeStyle(1, 0xff8a30, 0.8)
+        .setDepth(-39.5);
+      const spread = (random() - 0.5) * 1.4;
+      const reach = out + bite * scale * (0.6 + random() * 1.4);
+      const dx = Math.cos(angle + spread * 0.5) * reach;
+      const dy = Math.sin(angle + spread * 0.5) * reach;
+      const entry = { thing: lump, dx: fresh ? Math.cos(angle) * earth.radius : dx, dy: fresh ? Math.sin(angle) * earth.radius : dy };
+      this.onEarth.push(entry);
+      lump.setPosition(this.earth.x + entry.dx, this.earth.y + entry.dy);
+      if (fresh) {
+        this.tweens.add({ targets: entry, dx, dy, duration: 1400, ease: 'Cubic.easeOut' });
+      }
+      // Bobbing and turning slowly where they float.
+      this.tweens.add({ targets: entry, dx: dx + (random() - 0.5) * 8, dy: dy + (random() - 0.5) * 8, duration: 2600 + random() * 2000, yoyo: true, repeat: -1, ease: 'Sine.easeInOut', delay: fresh ? 1400 : 0 });
+      this.tweens.add({ targets: lump, angle: random() < 0.5 ? 360 : -360, duration: 9000 + random() * 8000, repeat: -1 });
+    }
+  }
+
+  /**
+   * A huge explosion on the Earth, `dx`, `dy` from its middle: a white flash,
+   * fireballs swelling out of it white to yellow to red, a shockwave ring,
+   * debris thrown out, smoke left rising; the screen flashes and shakes.
+   */
+  private explodeOnEarth(dx: number, dy: number): void {
+    const blast = ISS_CRASH.blast / 2;
+    const random = Math.random;
+    const put = <T extends Phaser.GameObjects.Components.Transform>(thing: T, ox = 0, oy = 0): T => {
+      this.onEarth.push({ thing, dx: dx + ox, dy: dy + oy });
+      thing.setPosition(this.earth.x + dx + ox, this.earth.y + dy + oy);
+      return thing;
+    };
+    const gone = (thing: Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform): void => {
+      this.onEarth = this.onEarth.filter((entry) => entry.thing !== thing);
+      thing.destroy();
+    };
+    sound.play('bossDie');
+    sound.play('crack');
+    this.cameras.main.flash(260, 255, 240, 210);
+    this.cameras.main.shake(900, 0.014);
+
+    const flash = put(this.add.circle(0, 0, 10, 0xffffff).setDepth(6).setBlendMode(Phaser.BlendModes.ADD));
+    this.tweens.add({ targets: flash, scale: blast / 10, alpha: 0, duration: 550, ease: 'Quad.easeOut', onComplete: () => gone(flash) });
+
+    const fire = [0xffffff, 0xfff0a0, 0xffd060, 0xffa030, 0xff6a20, 0xe03a18, 0xa02010];
+    fire.forEach((colour, i) => {
+      for (let n = 0; n < 2; n += 1) {
+        const ball = put(
+          this.add.circle(0, 0, 8, colour).setDepth(5 + i * 0.01).setBlendMode(Phaser.BlendModes.ADD).setScale(0.2),
+          (random() - 0.5) * 30,
+          (random() - 0.5) * 30,
+        );
+        const size = (blast * (0.35 + random() * 0.4)) / 8;
+        this.tweens.add({
+          targets: ball,
+          scale: size,
+          alpha: { from: 1, to: 0 },
+          duration: 900 + i * 160 + random() * 300,
+          delay: i * 60,
+          ease: 'Cubic.easeOut',
+          onComplete: () => gone(ball),
+        });
+      }
+    });
+
+    // The shockwave: a thin ring, its radius grown rather than its scale,
+    // so the line stays thin.
+    const ring = put(this.add.circle(0, 0, 10).setStrokeStyle(2, 0xffe8b0, 1).setDepth(6));
+    ring.isFilled = false;
+    this.tweens.add({ targets: ring, radius: blast * 1.3, alpha: 0, duration: 1000, ease: 'Quad.easeOut', onComplete: () => gone(ring) });
+
+    for (let n = 0; n < 28; n += 1) {
+      const angle = random() * Math.PI * 2;
+      const reach = blast * (0.5 + random() * 0.8);
+      const bit = put(this.add.rectangle(0, 0, 2 + random() * 2, 2 + random() * 2, random() < 0.5 ? 0xffc060 : 0x8a8a90).setDepth(6));
+      const entry = this.onEarth[this.onEarth.length - 1];
+      this.tweens.add({
+        targets: entry,
+        dx: entry.dx + Math.cos(angle) * reach,
+        dy: entry.dy + Math.sin(angle) * reach,
+        duration: 900 + random() * 600,
+        ease: 'Quad.easeOut',
+      });
+      this.tweens.add({ targets: bit, alpha: 0, angle: random() * 720, duration: 1500, delay: 200, onComplete: () => gone(bit) });
+    }
+
+    for (let n = 0; n < 7; n += 1) {
+      const smoke = put(this.add.circle(0, 0, 10 + random() * 10, 0x3a3434, 0.7).setDepth(4).setAlpha(0), (random() - 0.5) * 40, (random() - 0.5) * 30);
+      const entry = this.onEarth[this.onEarth.length - 1];
+      this.tweens.add({ targets: smoke, alpha: { from: 0.75, to: 0 }, scale: 2.4, duration: 3200, delay: 500 + n * 120, onComplete: () => gone(smoke) });
+      this.tweens.add({ targets: entry, dx: entry.dx * 1.4, dy: entry.dy * 1.4 - 30, duration: 3200, delay: 500 + n * 120 });
+    }
   }
 
   /**

@@ -116,6 +116,12 @@ export class GameScene extends Phaser.Scene {
   private doorArmed = false;
   /** Thrown out of the bar on Pluto: shut for the rest of the run. Its door only says so. */
   private barClosed = false;
+  /**
+   * The cat knocked the ISS out of its orbit and it hit the Earth: gone for
+   * the run, and this is where it hit, radians round the Earth's middle --
+   * the crater stays there.
+   */
+  private issDown?: number;
   /** What the cat carries to sell, and every one found this run, as `<level>:<x>,<y>`. */
   private bag: Record<ItemKind, number> = { ...EMPTY_BAG };
   private itemsFound: string[] = [];
@@ -424,6 +430,7 @@ export class GameScene extends Phaser.Scene {
     coins?: number;
     coinsFound?: string[];
     barClosed?: boolean;
+    issDown?: number;
     bag?: Record<ItemKind, number>;
     itemsFound?: string[];
     outside?: GameSnapshot;
@@ -454,6 +461,7 @@ export class GameScene extends Phaser.Scene {
     this.coins = data.coins ?? carried?.coins ?? 0;
     this.coinsFound = [...(data.coinsFound ?? carried?.coinsFound ?? [])];
     this.barClosed = data.barClosed ?? carried?.barClosed ?? false;
+    this.issDown = data.issDown ?? carried?.issDown;
     this.bag = { ...EMPTY_BAG, ...(data.bag ?? carried?.bag ?? {}) };
     this.itemsFound = [...(data.itemsFound ?? carried?.itemsFound ?? [])];
     this.outside = data.outside ?? carried?.outside;
@@ -813,6 +821,7 @@ export class GameScene extends Phaser.Scene {
       coins: this.coins,
       coinsFound: [...this.coinsFound],
       barClosed: this.barClosed,
+      issDown: this.issDown,
       bag: { ...this.bag },
       itemsFound: [...this.itemsFound],
       outside: this.outside,
@@ -1496,6 +1505,7 @@ export class GameScene extends Phaser.Scene {
     coins: number;
     coinsFound: string[];
     barClosed: boolean;
+    issDown: number | undefined;
     bag: Record<ItemKind, number>;
     itemsFound: string[];
     from: string;
@@ -1515,6 +1525,7 @@ export class GameScene extends Phaser.Scene {
       coins: this.coins,
       coinsFound: [...this.coinsFound],
       barClosed: this.barClosed,
+      issDown: this.issDown,
       bag: { ...this.bag },
       itemsFound: [...this.itemsFound],
     };
