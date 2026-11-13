@@ -17,7 +17,7 @@ Phaser scenes. Registered in order in `src/main.ts`; the first one starts.
   with its name under it; flying into an open one starts its level, with the run
   carried through untouched. Arrows on the screen's edge point to the open
   worlds out of sight (`pointAtWorlds`): sized by distance, a `done` world's only outlined. The ISS circles the Earth, (touched after `ISS_CRASH.graceMs` -- the cat sets off right in its path -- it falls onto the Earth and `explodeOnEarth`; `onEarth` keeps the explosion's pieces on the moving Earth; the run's `issDown` -- the angle round the Earth it hit at -- carried like `barClosed`, keeps it gone and the crater there (`breakEarth`: `planet-earth-crater`, a jagged bite cut from the Earth's picture with a glowing rim, and lumps floating by it); the cat's words switch back from "... oops" only once the bubble has faded; the cat's "... oops" is the station's bubble with other words), and a battle station and
-  a starship drift and fire at each other, always, whatever is in between: a
+  a starship drift and fire at each other, always, whatever is in between (the charge glows on the dish and every beam is redrawn each frame from `dishAt`/`saucerAt` to its target, so all of it moves with the ships; `deadly` reads the same moving ends): a
   cat in a beam while it lasts (`deadly`, `LASER.hitReach`) dies, like in
   the sun (`die`). Orbits and the drift run on `clock`, the game loop's
   time: `this.time.now` is stale in `create`, which set the cat off from

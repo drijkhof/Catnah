@@ -905,71 +905,110 @@ export class SpaceScene extends Phaser.Scene {
     }
   }
 
-  /** A beam: a bright core in a coloured glow, fading out. */
-  private drawBeam(from: Phaser.Math.Vector2, to: Phaser.Math.Vector2, glow: number, core: number): void {
+  /**
+   * A beam: a bright core in a coloured glow, fading out -- drawn afresh
+   * every frame from `from()` to `to()`, so it stays on the dish and on its
+   * target as the two move. `from` and `to` are filled in as it goes, for
+   * whoever reads them (the deadly list).
+   */
+  private drawBeam(
+    from: () => Phaser.Math.Vector2,
+    to: () => Phaser.Math.Vector2,
+    glow: number,
+    core: number,
+    ends: { from: Phaser.Math.Vector2; to: Phaser.Math.Vector2 },
+  ): void {
     const beam = this.add.graphics().setDepth(-37).setBlendMode(Phaser.BlendModes.ADD);
-    beam.lineStyle(7, glow, 0.35);
-    beam.lineBetween(from.x, from.y, to.x, to.y);
-    beam.lineStyle(3, core, 0.9);
-    beam.lineBetween(from.x, from.y, to.x, to.y);
-    beam.lineStyle(1, 0xffffff, 1);
-    beam.lineBetween(from.x, from.y, to.x, to.y);
-    if (Phaser.Math.Distance.Between(this.cat.x, this.cat.y, from.x, from.y) < GAME_WIDTH) {
+    const draw = (): void => {
+      ends.from.copy(from());
+      ends.to.copy(to());
+      beam.clear();
+      beam.lineStyle(7, glow, 0.35);
+      beam.lineBetween(ends.from.x, ends.from.y, ends.to.x, ends.to.y);
+      beam.lineStyle(3, core, 0.9);
+      beam.lineBetween(ends.from.x, ends.from.y, ends.to.x, ends.to.y);
+      beam.lineStyle(1, 0xffffff, 1);
+      beam.lineBetween(ends.from.x, ends.from.y, ends.to.x, ends.to.y);
+    };
+    draw();
+    if (Phaser.Math.Distance.Between(this.cat.x, this.cat.y, ends.from.x, ends.from.y) < GAME_WIDTH) {
       sound.play('laser');
     }
-    this.tweens.add({ targets: beam, alpha: 0, duration: LASER.beamMs, ease: 'Cubic.easeIn', onComplete: () => beam.destroy() });
+    this.tweens.add({ targets: beam, alpha: 0, duration: LASER.beamMs, ease: 'Cubic.easeIn', onUpdate: draw, onComplete: () => beam.destroy() });
   }
 
-  /** A flash where a beam lands. Nothing is hurt by it. */
-  private impact(at: Phaser.Math.Vector2, tint: number): void {
-    const flash = this.add.image(at.x, at.y, 'spark').setTint(tint).setBlendMode(Phaser.BlendModes.ADD).setDepth(-36).setScale(2);
-    this.tweens.add({ targets: flash, scale: 8, alpha: 0, duration: 450, ease: 'Cubic.easeOut', onComplete: () => flash.destroy() });
+  /** A flash where a beam lands, staying on what it hit. Nothing is hurt by it. */
+  private impact(at: () => Phaser.Math.Vector2, tint: number): void {
+    const start = at();
+    const flash = this.add.image(start.x, start.y, 'spark').setTint(tint).setBlendMode(Phaser.BlendModes.ADD).setDepth(-36).setScale(2);
+    this.tweens.add({
+      targets: flash,
+      scale: 8,
+      alpha: 0,
+      duration: 450,
+      ease: 'Cubic.easeOut',
+      onUpdate: () => flash.setPosition(at().x, at().y),
+      onComplete: () => flash.destroy(),
+    });
+  }
+
+  /** The station's dish, on its picture: up and to the right of the middle. */
+  private dishAt(): Phaser.Math.Vector2 {
+    return new Phaser.Math.Vector2(this.station.x + 33, this.station.y - 39);
+  }
+
+  /** The starship's saucer, at the front whichever way it faces. */
+  private saucerAt(): Phaser.Math.Vector2 {
+    return new Phaser.Math.Vector2(this.ship.x + 16 * (this.ship.flipX ? -1 : 1), this.ship.y - 5);
   }
 
   /**
    * The battle station fires at the starship: its dish glows green for a
-   * moment, and then a beam goes out to wherever the ship is by then.
-   * Whatever is in between is in the way -- the cat included.
+   * moment -- on the dish, wherever the station has got to -- and then a
+   * beam goes out to the ship, and stays on both as they move while it
+   * lasts. Whatever is in between is in the way -- the cat included.
    */
   private fireLaser(): void {
     if (this.going) {
       return;
     }
-    // The dish, on the picture: up and to the right of the middle.
-    const dish = new Phaser.Math.Vector2(this.station.x + 33, this.station.y - 39);
-    const glow = this.add.image(dish.x, dish.y, 'spark').setTint(0x7aff7a).setBlendMode(Phaser.BlendModes.ADD).setDepth(-37).setScale(1);
+    const start = this.dishAt();
+    const glow = this.add.image(start.x, start.y, 'spark').setTint(0x7aff7a).setBlendMode(Phaser.BlendModes.ADD).setDepth(-37).setScale(1);
     this.tweens.add({
       targets: glow,
       scale: 6,
       duration: LASER.chargeMs,
       ease: 'Sine.easeIn',
+      onUpdate: () => glow.setPosition(this.dishAt().x, this.dishAt().y),
       onComplete: () => {
         glow.destroy();
-        // From the dish where it is now, to the ship where it is now.
-        const from = new Phaser.Math.Vector2(this.station.x + 27, this.station.y - 27);
-        const end = new Phaser.Math.Vector2(this.ship.x, this.ship.y);
-        this.drawBeam(from, end, 0x3aff5a, 0x9fff9f);
-        this.deadly.push({ from, to: end, until: this.clock + LASER.beamMs * 0.7 });
-        this.impact(end, 0x9fff9f);
+        const ship = (): Phaser.Math.Vector2 => new Phaser.Math.Vector2(this.ship.x, this.ship.y);
+        const beam = { from: new Phaser.Math.Vector2(), to: new Phaser.Math.Vector2(), until: this.clock + LASER.beamMs * 0.7 };
+        this.drawBeam(() => this.dishAt(), ship, 0x3aff5a, 0x9fff9f, beam);
+        this.deadly.push(beam);
+        this.impact(ship, 0x9fff9f);
       },
     });
   }
 
   /**
    * The starship fires back: a short orange phaser from its saucer to the
-   * station's near side. A cat in between is hit by it too.
+   * station's near side, following both while it lasts. A cat in between
+   * is hit by it too.
    */
   private fireShip(): void {
     if (this.going) {
       return;
     }
-    const facing = this.ship.flipX ? -1 : 1;
-    const from = new Phaser.Math.Vector2(this.ship.x + 16 * facing, this.ship.y - 5);
-    const toward = new Phaser.Math.Vector2(this.station.x - from.x, this.station.y - from.y).normalize();
-    const to = new Phaser.Math.Vector2(this.station.x - toward.x * 70, this.station.y - toward.y * 70);
-    this.drawBeam(from, to, 0xff7a2a, 0xffc080);
-    this.deadly.push({ from, to, until: this.clock + LASER.beamMs * 0.7 });
-    this.impact(to, 0xffb060);
+    const nearSide = (): Phaser.Math.Vector2 => {
+      const from = this.saucerAt();
+      const toward = new Phaser.Math.Vector2(this.station.x - from.x, this.station.y - from.y).normalize();
+      return new Phaser.Math.Vector2(this.station.x - toward.x * 70, this.station.y - toward.y * 70);
+    };
+    const beam = { from: new Phaser.Math.Vector2(), to: new Phaser.Math.Vector2(), until: this.clock + LASER.beamMs * 0.7 };
+    this.drawBeam(() => this.saucerAt(), nearSide, 0xff7a2a, 0xffc080, beam);
+    this.deadly.push(beam);
+    this.impact(nearSide, 0xffb060);
   }
 
   /**
