@@ -29,6 +29,16 @@ interface Sky {
 
 export type SpaceTheme = 'moon' | 'mars' | 'saturn' | 'jupiter' | 'venus' | 'uranus' | 'neptune' | 'pluto';
 
+/** The planets in a sky with planets: what a level of that theme needs made. */
+export function skyPlanets(theme: SpaceTheme): string[] {
+  return SKIES[theme].planets.map((planet) => planet.name);
+}
+
+/** Whether a level of this theme has a sky with planets in it: whether it needs space's pictures. */
+export function hasSpaceSky(theme: string): theme is SpaceTheme {
+  return theme in SKIES;
+}
+
 const SKIES: Record<SpaceTheme, Sky> = {
   moon: {
     sky: 'space-sky',

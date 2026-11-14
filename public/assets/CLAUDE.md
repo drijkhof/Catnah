@@ -9,7 +9,9 @@ and runs straight after clone. The look is described in `work.md` under *The
 look*; it is drawn, not placeholder, but every drawing is still one function
 that a file can replace.
 
-The one file so far is `portal.png`: the level exit, a 78px picture of a
+There are no files here any more: the portal (`src/art/portal.png`) is put into the script as a data URL by `BootScene`, and the planet photographs live in `src/art/photos/` (hashed by the build). What follows is how the portal is used.
+
+The portal, `portal.png`: the level exit, a 78px picture of a
 blue spiral with transparent corners, shown at 32px and spun by `GameScene`.
 It is loaded as `exit-source`; `shadePortal` in `src/art/portal.ts` makes
 the `exit` texture from it with the rim faded out. That is the one texture
@@ -40,37 +42,3 @@ mobile data and decoded on a mobile GPU:
   `src/art/CLAUDE.md`.
 - `pixelArt: true` in `src/main.ts` disables smoothing. Art that is not pixel art
   will look harsh until that is turned off.
-
-## The planets are NASA photographs
-
-`planets/<name>.jpg`: each a NASA image (public domain), cropped square
-round its globe -- Saturn round its rings -- with a 2% margin, made smaller,
-and saved as JPEG; `src/art/photos.ts` has each one's size and the radius
-of its globe, and cuts it round at boot. Change a picture and change those
-numbers with it -- **and give it a new file name**: these files have no
-content hash, and the service worker serves everything but the page
-cache-first, so an installed game would keep the old picture for ever.
-
-| Planet | Image | Taken by |
-| --- | --- | --- |
-| earth | GSFC_20171208_Archive_e000676, Africa and Europe | DSCOVR / EPIC |
-| moon | GSFC_20171208_Archive_e000868, the full Moon | Lunar Reconnaissance Orbiter |
-| venus | PIA23791, the right-hand (enhanced) half | Mariner 10 |
-| mars | GSFC_20171208_Archive_e000332 | Hubble |
-| jupiter | PIA02873 | Cassini |
-| saturn | Hubble 2019, STScI-01EVSV8C626ZM3EHGH96SVQPN0, 2000px rendition | Hubble (NASA, ESA, A. Simon, M.H. Wong, OPAL) |
-| uranus | PIA00032, the true-colour half; colour boosted 1.8x, red 0.88 | Voyager 2 |
-| neptune | PIA01492 | Voyager 2 |
-| pluto | PIA19952 | New Horizons |
-| phobos | PIA10368, cut out by the dark round it | Mars Reconnaissance Orbiter (HiRISE) |
-| deimos | PIA11826, the right-hand view, cut out likewise | Mars Reconnaissance Orbiter (HiRISE) |
-| io | PIA02308 | Galileo |
-| europa | PIA01295, the natural-colour half | Galileo |
-| charon | PIA19968 | New Horizons |
-
-`death-star.jpg` is not NASA's: a picture of the battle station the player gave, cut round the same way (`STATION_PHOTO`).
-
-All from images-api.nasa.gov but Saturn, from science.nasa.gov/asset/hubble/saturn-2019.
-The globe was found by its bright area (its centroid and its area), or for
-a globe with a dark limb or a phase -- Venus, Mars, Neptune -- by its
-bounding box; Saturn's by the widest row of the globe between the rings.

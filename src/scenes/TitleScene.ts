@@ -1,3 +1,4 @@
+import { prefetchSpace } from '../art/spaceArt';
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH, LIVES, TILE, TOUCH } from '../config';
 import { formatClock } from '../score';
@@ -33,6 +34,8 @@ export class TitleScene extends Phaser.Scene {
   }
 
   create(): void {
+    // The title is up: now space's pictures can come in, in the background.
+    this.time.delayedCall(800, () => prefetchSpace());
     this.starting = false;
 
     // The picture is the real forest, played by `GameScene` with nobody at the

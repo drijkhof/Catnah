@@ -65,6 +65,15 @@ export default defineConfig({
 
   plugins: [stripInternalDocs()],
 
+  resolve: {
+    alias: [
+      // Phaser's build without Matter physics, which the game never uses --
+      // arcade physics only. About 110 kB less to download and parse; the
+      // types still come from the full package.
+      { find: /^phaser$/, replacement: path.resolve(import.meta.dirname, 'node_modules/phaser/dist/phaser-arcade-physics.min.js') },
+    ],
+  },
+
   server: {
     // Bind to 0.0.0.0 so the dev server is reachable from a phone on the same
     // Wi-Fi, not just from localhost on this laptop.
@@ -93,5 +102,11 @@ export default defineConfig({
     // would only delay the point at which the game can start. Raised so the
     // warning stays meaningful for code we actually write.
     chunkSizeWarningLimit: 1600,
+
+    // Never put a file into the script as a data URL by size alone: the
+    // small moon photographs and baked pictures are for later, and in the
+    // script they made the first download bigger. What belongs in it says
+    // so itself (`?inline`, like the portal).
+    assetsInlineLimit: 0,
   },
 });

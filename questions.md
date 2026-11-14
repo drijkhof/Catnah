@@ -2579,3 +2579,43 @@ it is not ours; if anyone ever asks, it comes out (back to a drawing of
 our own). Everything else borrowed is a nod drawn our own way, or a NASA
 photograph.
 
+## Load times on a phone
+
+Asked for: acceptable load times on mobile connections, as little work at
+run time as can be done at build time, measured, with no loss of quality.
+Measured as a phone on Lighthouse's mobile profile (Slow 4G: 562.5 ms round
+trip, 1.47 Mbit/s; CPU four times slower), cold cache. Targets looked up:
+Google calls a main picture within 2.5 s good and over 4 s poor; for web
+games 3-5 s to playable, with many players gone past about 6 s.
+
+- Before: the title after 9.0 s -- the script by 3.6 s, then every planet
+  photograph (880 kB) and every picture drawn, 0.8 s even on a laptop.
+- Space's pictures are no longer loaded at boot: fetched in the background
+  once the title is up, waited for only by a scene that needs them first.
+- The heavy pictures (sun, Uranus's rings, sunlight, rocket, camper,
+  fighter) are drawn at build time (`npm run bake`, in the deploy) and
+  shipped as files: no phone works them out.
+- Phaser's build without Matter physics (never used): 110 kB less.
+- The portal in the script as a data URL, and the page's style inline:
+  two round trips fewer. A loading screen in the page itself.
+- The photographs cut to about one and a half times the most they are ever
+  shown at (880 kB to 233 kB), and a level makes only its own sky's planets.
+- The cave's rock and every level's ground shade worked out faster, the
+  pictures identical (checked pixel for pixel): the cave from 1.44 s to
+  about 0.65 s on the slow phone.
+- After: the loading screen at 0.6 s, the title at 4.3 s on Slow 4G (1.6 s
+  on ordinary 4G, 0.6 s on a second visit), 434 kB; levels 15-200 ms, the
+  cave 0.65 s. Measured with `scripts/measure-load.mjs`, with the GPU on:
+  headless Chrome without one made the graphics card's part look far
+  slower than on any phone.
+- Not baked: the 189 small pictures every level draws at boot. As files
+  they would be 250-390 kB -- 1.4-2 s over Slow 4G -- against 0.4 s of
+  drawing them.
+
+Open: the script is now most of what is left: Phaser 314 kB compressed,
+our own code 123 kB. Phaser built from its sources with only what the
+game uses (no tilemaps, sound, text, particles, ...) would save about
+75 kB, some 0.45 s on Slow 4G, at the cost of assembling and keeping up
+the engine ourselves. The cave's rock (0.36 s of its 0.65 s) could be
+worked out in the background while the levels before it are played.
+

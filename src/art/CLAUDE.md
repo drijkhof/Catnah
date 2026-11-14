@@ -33,7 +33,9 @@ binary assets but the portal picture and runs straight after clone.
   the windows lit. Facades come from a fixed list and go round in street
   order, so neighbours always differ.
 - `noise.ts` — `paint` (a canvas texture worked out per pixel), `makeNoise` (seeded value noise, optionally wrapping) and `fbm` (octaves of it). For pictures after photographs: the sun.
-- `photos.ts` — the planets that are **NASA photographs** (`PLANET_PHOTOS`: each picture's size and the radius of its globe): `loadPlanetPhotos` in `BootScene.preload` as `photo-<name>`, `makePhotoPlanets` cuts each globe round into `planet-<name>` (Saturn keeps its rings, black made clear by how dark it is, and an empty `-front`), `drawPhotoGlobe` for Uranus. All `LINEAR`-filtered. See `public/assets/CLAUDE.md`.
+- `photos.ts` — the planets that are **NASA photographs** (`PLANET_PHOTOS`: each picture's size and the radius of its globe; the files in `photos/`, imported by URL so the build hashes their names): `makePhotoPlanets` cuts each globe round into `planet-<name>` (Saturn and the two lumpy moons cut out by how dark the black round them is, Saturn's `-front` empty), `drawPhotoGlobe` for Uranus. All `LINEAR`-filtered. Credits: see "The planets are NASA photographs" below.
+- `spaceArt.ts` — **space's pictures are not loaded at boot**: `prefetchSpace` (from the title) fetches the photographs and the baked pictures in the background; `queueSpaceFiles` in a scene's `preload` (space, and levels with planets in the sky: `hasSpaceSky`) makes them textures or loads what is missing; `finishSpace` in its `create` composes the planets (`composeSpace`) and, only where a baked file is missing, draws the heavy pictures itself (`generateSpaceHeavy`).
+- `baked/` — made by `npm run bake` (`scripts/bake-art.mjs` opens `bake.html` → `src/dev/bake.ts` in headless Chrome and saves every `BAKED_KEYS` texture as PNG). Not in git; the deploy bakes before it builds. Without it nothing breaks: the heavy pictures are drawn at runtime, as on a fresh dev server.
 - `sun.ts` — the sun in space, worked out per pixel from seeded noise (coloured by heat on one ramp): the ball (`space-sun`, `SPACE_SUN_SIZE`), its hottest swirls on their own (`space-sun-churn`), two manes of flame (`space-sun-corona-a`/`-b`, `SPACE_SUN_CORONA`) and the red haze (`space-sun-glow`); not `sun`, which is the forest's. The scene animates them: see `SpaceScene`.
 - `space.ts` — Bob's `rocket` (red-and-white chequered, per pixel at `ROCKET_DETAIL` times `ROCKET_SIZE` in a square picture, shown scaled down and `LINEAR`), the stars (three seamless layers), the gas clouds, the
   planets: the photographs (`photos.ts`), Uranus's photograph in drawn rings
@@ -229,3 +231,37 @@ trunk at a glance, and a vine with a woody stem is a real thing.
 leaves on top of it, and the dead vine's `dead-vine` texture does not. One
 function extracted once, rather than two textures drawn independently, so the
 two can never quietly drift apart in what the bare stem looks like.
+
+## The planets are NASA photographs
+
+`src/art/photos/<name>.jpg`: each a NASA image (public domain), cropped square
+round its globe -- Saturn round its rings -- with a 2% margin, made smaller,
+and saved as JPEG; `src/art/photos.ts` has each one's size and the radius
+of its globe, and cuts it round at boot. Change a picture and change those
+numbers with it. The build hashes the file name, so the service worker's cache never keeps an old one.
+
+| Planet | Image | Taken by |
+| --- | --- | --- |
+| earth | GSFC_20171208_Archive_e000676, Africa and Europe | DSCOVR / EPIC |
+| moon | GSFC_20171208_Archive_e000868, the full Moon | Lunar Reconnaissance Orbiter |
+| venus | PIA23791, the right-hand (enhanced) half | Mariner 10 |
+| mars | GSFC_20171208_Archive_e000332 | Hubble |
+| jupiter | PIA02873 | Cassini |
+| saturn | Hubble 2019, STScI-01EVSV8C626ZM3EHGH96SVQPN0, 2000px rendition | Hubble (NASA, ESA, A. Simon, M.H. Wong, OPAL) |
+| uranus | PIA00032, the true-colour half; colour boosted 1.8x, red 0.88 | Voyager 2 |
+| neptune | PIA01492 | Voyager 2 |
+| pluto | PIA19952 | New Horizons |
+| phobos | PIA10368, cut out by the dark round it | Mars Reconnaissance Orbiter (HiRISE) |
+| deimos | PIA11826, the right-hand view, cut out likewise | Mars Reconnaissance Orbiter (HiRISE) |
+| io | PIA02308 | Galileo |
+| europa | PIA01295, the natural-colour half | Galileo |
+| charon | PIA19968 | New Horizons |
+
+`death-star.jpg` is not NASA's: a picture of the battle station the player gave, cut round the same way (`STATION_PHOTO`).
+
+All from images-api.nasa.gov but Saturn, from science.nasa.gov/asset/hubble/saturn-2019.
+Each is cut to about one and a half times the most it is ever shown at, counting the 2.4x zoom of the talk with Bob: the canvas is 640 by 360, so more pixels are never seen, and the GPU shrinking a big picture only makes it shimmer. Measured before and after in space and on the Moon: no difference to see; 880 kB became 233 kB.
+
+The globe was found by its bright area (its centroid and its area), or for
+a globe with a dark limb or a phase -- Venus, Mars, Neptune -- by its
+bounding box; Saturn's by the widest row of the globe between the rings.

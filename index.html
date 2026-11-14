@@ -15,9 +15,86 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" type="image/svg+xml" href="icon.svg" />
     <link rel="apple-touch-icon" href="icon.svg" />
-    <link rel="stylesheet" href="/src/style.css" />
+    <!-- The page's whole style, in the page: a stylesheet of its own was one
+         more round trip before anything could be drawn, most of a second on
+         a phone. -->
+    <style>
+      :root {
+        --letterbox: #0d1117;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--letterbox);
+      }
+
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* Kill the 300ms tap delay and the pull-to-refresh / rubber-band scroll that
+           otherwise interrupt dragging on a touch screen. */
+        touch-action: none;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-user-select: none;
+        user-select: none;
+        overscroll-behavior: none;
+      }
+
+      #game {
+        line-height: 0;
+      }
+
+      #game canvas {
+        /* Keep low-res pixel art crisp when the canvas is scaled up. */
+        image-rendering: pixelated;
+        display: block;
+      }
+    </style>
+    <!-- The loading screen's own style, here so it shows before anything else
+         has arrived: on a phone the script takes seconds. BootScene removes it. -->
+    <style>
+      #loading {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        background: #0d1117;
+        color: #ffffff;
+        font-family: monospace;
+        z-index: 10;
+      }
+      #loading b {
+        font-size: 44px;
+        letter-spacing: 2px;
+        text-shadow: 0 3px 0 #2a1e10;
+      }
+      #loading i {
+        font-style: normal;
+        font-size: 14px;
+        color: #ffd23c;
+        animation: loading-pulse 1s ease-in-out infinite alternate;
+      }
+      @keyframes loading-pulse {
+        from { opacity: 0.35; }
+        to { opacity: 1; }
+      }
+    </style>
   </head>
   <body>
+    <div id="loading"><b>Catnah</b><i>loading...</i></div>
     <div id="game"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>

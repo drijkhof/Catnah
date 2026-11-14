@@ -39,6 +39,11 @@ jobs:
       # lockfile says, so a deploy can never quietly pick up a new Phaser.
       - run: npm ci
 
+      # The pictures that take a phone seconds to work out -- the sun, Uranus's
+      # rings and the rest of `generateSpaceHeavy` -- are drawn here once, in
+      # the runner's Chrome, into src/art/baked/, and shipped as files.
+      - run: npm run bake
+
       # `npm run build` typechecks first, so a type error fails the deploy
       # instead of shipping.
       - run: npm run build

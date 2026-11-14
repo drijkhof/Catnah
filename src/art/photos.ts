@@ -1,29 +1,33 @@
 import Phaser from 'phaser';
 
 /**
- * The planets that are NASA photographs (`public/assets/planets`, credits in
- * the `CLAUDE.md` there): each picture's size, px, and the radius of the
+ * The planets that are NASA photographs (`src/art/photos`, credits in
+ * `src/art/CLAUDE.md`): each picture's size, px, and the radius of the
  * globe in it, its middle the middle of the picture. Cut to that by a script
- * run once; change a picture and these change with it.
+ * run once, each about one and a half times the most it is ever shown at
+ * (the canvas is 640 by 360, so more pixels than that are never seen, and
+ * scaled down by the GPU they only shimmer); change a picture and these
+ * change with it. They are loaded when
+ * space is near, not at boot: see `spaceArt.ts`.
  */
 export const PLANET_PHOTOS = {
-  earth: { width: 1024, height: 1024, disc: 502 },
-  moon: { width: 800, height: 800, disc: 392 },
-  venus: { width: 800, height: 800, disc: 392 },
-  mars: { width: 800, height: 800, disc: 392 },
-  jupiter: { width: 1024, height: 1024, disc: 502 },
+  earth: { width: 448, height: 448, disc: 220 },
+  moon: { width: 192, height: 192, disc: 94 },
+  venus: { width: 256, height: 256, disc: 125 },
+  mars: { width: 192, height: 192, disc: 94 },
+  jupiter: { width: 576, height: 576, disc: 282 },
   // Flattened at the poles, as Saturn is: between its 221 across and 205 up.
   saturn: { width: 1025, height: 444, disc: 213 },
-  uranus: { width: 800, height: 800, disc: 392 },
-  neptune: { width: 900, height: 900, disc: 441 },
-  pluto: { width: 800, height: 800, disc: 392 },
+  uranus: { width: 400, height: 400, disc: 196 },
+  neptune: { width: 384, height: 384, disc: 188 },
+  pluto: { width: 192, height: 192, disc: 94 },
   // Moons, for the skies of the worlds they go round. Phobos and Deimos are
   // not round: cut out by how dark the black round them is, like Saturn.
-  phobos: { width: 400, height: 400, disc: 186 },
-  deimos: { width: 300, height: 300, disc: 133 },
-  io: { width: 500, height: 500, disc: 243 },
-  europa: { width: 500, height: 500, disc: 243 },
-  charon: { width: 500, height: 500, disc: 243 },
+  phobos: { width: 96, height: 96, disc: 45 },
+  deimos: { width: 96, height: 96, disc: 43 },
+  io: { width: 96, height: 96, disc: 47 },
+  europa: { width: 96, height: 96, disc: 47 },
+  charon: { width: 96, height: 96, disc: 47 },
 } as const;
 
 /** The photographs cut out by how dark the space round them is, rather than round. */
@@ -32,17 +36,10 @@ const CUT_BY_DARK: readonly PhotoPlanet[] = ['saturn', 'phobos', 'deimos'];
 export type PhotoPlanet = keyof typeof PLANET_PHOTOS;
 
 /** The battle station's picture, the player's: its size, px, and its disc. */
-export const STATION_PHOTO = { width: 512, height: 512, disc: 251 } as const;
+export const STATION_PHOTO = { width: 256, height: 256, disc: 125 } as const;
 
-const photoKey = (name: PhotoPlanet): string => `photo-${name}`;
-
-/** In `BootScene.preload`: every photograph, as `photo-<name>`. */
-export function loadPlanetPhotos(scene: Phaser.Scene): void {
-  for (const name of Object.keys(PLANET_PHOTOS) as PhotoPlanet[]) {
-    scene.load.image(photoKey(name), `assets/planets/${name}.jpg`);
-  }
-  scene.load.image('photo-death-star', 'assets/planets/death-star.jpg');
-}
+/** The texture a photograph is loaded as. */
+export const photoKey = (name: PhotoPlanet | 'death-star'): string => `photo-${name}`;
 
 /**
  * Draws a photograph's globe, cut out round, into `context` at (x, y), its
@@ -69,9 +66,9 @@ export function drawPhotoGlobe(scene: Phaser.Scene, context: CanvasRenderingCont
  * clear by how dark it is, and its `-front` texture is empty -- the rings in
  * front of the globe are already in the picture.
  */
-export function makePhotoPlanets(scene: Phaser.Scene): void {
+export function makePhotoPlanets(scene: Phaser.Scene, only?: readonly string[]): void {
   for (const name of Object.keys(PLANET_PHOTOS) as PhotoPlanet[]) {
-    if (name === 'uranus') {
+    if (name === 'uranus' || scene.textures.exists(`planet-${name}`) || (only && !only.includes(name))) {
       continue;
     }
     const photo = PLANET_PHOTOS[name];
@@ -97,6 +94,9 @@ export function makePhotoPlanets(scene: Phaser.Scene): void {
   }
 
   // The battle station, cut round the same way.
+  if (scene.textures.exists('battle-station') || only) {
+    return;
+  }
   const station = scene.textures.createCanvas('battle-station', STATION_PHOTO.width, STATION_PHOTO.height) as Phaser.Textures.CanvasTexture;
   const source = scene.textures.get('photo-death-star').getSourceImage() as HTMLImageElement;
   station.context.save();

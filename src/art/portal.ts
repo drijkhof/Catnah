@@ -2,8 +2,8 @@ import Phaser from 'phaser';
 import { EXIT } from '../config';
 
 /**
- * The way out of a level: a round picture, `public/assets/portal.png`, loaded
- * by `BootScene` under `PORTAL_SOURCE_KEY` and spun by `GameScene` under this
+ * The way out of a level: a round picture, `src/art/portal.png`, put into the
+ * script as a data URL and loaded by `BootScene` under `PORTAL_SOURCE_KEY` and spun by `GameScene` under this
  * key. The key lives in `src/art` with the others so the rest of the game
  * never has to know which textures are files.
  */

@@ -20,6 +20,7 @@ avoid anything that assumes a desktop-only browser.
 | `npm run build` | Typecheck, then production build into `dist/` |
 | `npm run preview` | Serve the built `dist/` on port 5180 |
 | `npm run typecheck` | `tsc --noEmit`, no build |
+| `npm run bake` | Draws the heavy space pictures in headless Chrome into `src/art/baked/` (the deploy does this before building; without it the game draws them itself) |
 
 ### Port 5180 is this project's port
 
@@ -88,7 +89,7 @@ something actually needs them, not pre-emptively.
 src/
   main.ts       Phaser.Game config and boot. The only file that touches globals.
   config.ts     Every tunable number (sizes, physics, palette).
-  style.css     Page-level CSS: letterboxing, and the mobile touch fixes.
+  (index.html)  Page-level CSS, inline: letterboxing, the mobile touch fixes, the loading screen.
   audio/        Every sound, synthesised. See audio/CLAUDE.md
   scenes/       Phaser scenes. See scenes/CLAUDE.md
   objects/      Game entities. See objects/CLAUDE.md
@@ -187,6 +188,24 @@ instead of scrolling with the world, plus a high `setDepth` to stay on top.
 - Physics bodies and velocity vectors: set `physics.arcade.debug` to `true` in
   `src/main.ts`.
 - If `localhost:5180` shows someone else's app, see the port section above.
+
+### Measuring load times
+
+`scripts/measure-load.mjs` loads the built game as a phone on Lighthouse's
+mobile profile (CPU 4x slower, Slow 4G; `NET=fast4g` for 4G), cold, and
+reads the `catnah:*` marks from `src/timing.ts`: first paint, boot, art,
+title. `levels` mode times every level's build on the dev server. Chrome is
+visible on purpose: headless Chrome draws without the GPU and makes
+everything the graphics card does look several times slower than on a
+phone. Figures as of the last round: first paint 0.6 s, title 4.3 s on Slow
+4G (1.6 s on 4G, 0.6 s a second visit), 434 kB; levels 15-200 ms, the cave
+about 650 ms. Before it the title took 9 s.
+
+What runs at boot is only what the title and the Earth's levels need;
+space's pictures come later (`art/spaceArt.ts`). Pictures that take long to
+work out are baked at build time (`npm run bake`) -- but only where the
+file is cheaper than the work: the 189 small pictures every level uses
+would be 250-390 kB as files, slower over Slow 4G than drawing them (0.4 s).
 
 ### Driving the game from the console
 

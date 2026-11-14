@@ -62,6 +62,10 @@ export function addGroundShade(
   const cellsPerSide = TILE / CELL;
   const reach = Math.ceil(GROUND_SHADE.full / TILE) + 1;
   const cache = new Map<string, string>();
+  // A tile's shade depends only on which tiles round it are air, and along a
+  // floor or a wall that is the same arrangement over and over: each
+  // arrangement is worked out once (its texture, or null for no shade).
+  const byAir = new Map<string, string | null>();
 
   const deepest = shadeFor(Number.POSITIVE_INFINITY);
   const deepPattern = new Array(cellsPerSide * cellsPerSide).fill(deepest) as number[];
@@ -80,13 +84,25 @@ export function addGroundShade(
     // cell of it. A tile with none is as dark as it gets all over, which is
     // most of a cave: it skips the distance field entirely.
     const air: Array<[number, number]> = [];
+    let arrangement = '';
 
     for (let dr = -reach; dr <= reach; dr += 1) {
       for (let dc = -reach; dc <= reach; dc += 1) {
         if (isAir(column + dc, row + dr)) {
           air.push([dc * TILE, dr * TILE]);
+          arrangement += '1';
+        } else {
+          arrangement += '0';
         }
       }
+    }
+
+    const known = byAir.get(arrangement);
+    if (known !== undefined) {
+      if (known) {
+        scene.add.image(solid.x, solid.y, known).setOrigin(0, 0);
+      }
+      continue;
     }
 
     const alphas: number[] = air.length === 0 ? deepPattern : [];
@@ -115,6 +131,7 @@ export function addGroundShade(
     }
 
     if (!any) {
+      byAir.set(arrangement, null);
       continue;
     }
 
@@ -137,6 +154,7 @@ export function addGroundShade(
       });
     }
 
+    byAir.set(arrangement, key);
     scene.add.image(solid.x, solid.y, key).setOrigin(0, 0);
   }
 }

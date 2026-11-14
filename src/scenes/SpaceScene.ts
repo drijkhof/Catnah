@@ -7,6 +7,8 @@ import { CHASE_DETAIL, ROCKET_DETAIL, HEAD_IN_POSE, STATION_PHOTO, STATION_SIZE,
 import { stats } from '../stats';
 import { sound } from '../audio/Sound';
 import { crispText, type CrispText } from '../text';
+import { finishSpace, queueSpaceFiles } from '../art/spaceArt';
+import { timed } from '../timing';
 import { FuelMeter } from '../fuelMeter';
 import { installFuelShortcut } from '../dev/fuelShortcut';
 import { GOD_MODE_KEY } from '../dev/godMode';
@@ -208,7 +210,18 @@ export class SpaceScene extends Phaser.Scene {
     this.burning = false;
   }
 
+  /** Space's pictures, if they have not all come in yet: see `art/spaceArt.ts`. */
+  preload(): void {
+    queueSpaceFiles(this);
+  }
+
   create(): void {
+    timed('space', () => this.build());
+  }
+
+  /** Everything `create` does. Timed by `create`. */
+  private build(): void {
+    finishSpace(this);
     const size = SPACE.worldSize;
     this.cameras.main.setBackgroundColor('#04050c');
     this.cameras.main.setBounds(0, 0, size, size);

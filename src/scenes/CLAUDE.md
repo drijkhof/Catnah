@@ -2,7 +2,7 @@
 
 Phaser scenes. Registered in order in `src/main.ts`; the first one starts.
 
-- **`BootScene`** — generates placeholder textures, then hands off.
+- **`BootScene`** — generates the textures every level needs (not space's: see `art/spaceArt.ts`), removes the page's loading screen, then hands off. `GameScene` (for a level with planets in its sky) and `SpaceScene` have a `preload` that loads whatever of space's pictures has not come in yet. `timing.ts` marks the moments (`catnah:boot`, `art`, `title`, `level:<name>`, `space`) for measuring load times.
 - **`TitleScene`** — the title screen, and where a finished run ends up.
 - **`GameScene`** — builds the level, owns the player, camera, HUD and the
   update loop.

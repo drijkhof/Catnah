@@ -1,3 +1,6 @@
+import { mark } from '../timing';
+import { finishSpace, queueSpaceFiles } from '../art/spaceArt';
+import { hasSpaceSky, skyPlanets } from '../world/MoonBackdrop';
 import Phaser from 'phaser';
 import { ITEMS, type ItemKind, AWAKE_RANGE, BAR, BOB, ENDING, INTERNET, PARK, CAT, OBSTACLES, PARTS, RAIN, ROBOT, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
 import { Controls, IdleControls, type PlayerInput } from '../input/Controls';
@@ -480,7 +483,32 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  /**
+   * A level with planets in its sky needs space's pictures: whatever has
+   * not come in yet is loaded first. See `art/spaceArt.ts`.
+   */
+  preload(): void {
+    if (!this.titleMode && hasSpaceSky(LEVELS[this.levelIndex].theme)) {
+      queueSpaceFiles(this);
+    }
+  }
+
   create(): void {
+    const start = performance.now();
+    this.build();
+    performance.measure(`catnah:level:${this.titleMode ? 'title' : this.level.name}`, { start, end: performance.now() });
+    // The title screen is up once the level behind it is built: playable.
+    if (this.titleMode) {
+      mark('title');
+    }
+  }
+
+  /** Everything `create` does: the level, the cat, the HUD. Timed by `create`. */
+  private build(): void {
+    const theme = LEVELS[this.levelIndex].theme;
+    if (!this.titleMode && hasSpaceSky(theme)) {
+      finishSpace(this, skyPlanets(theme));
+    }
     // A scene that ended a run left its camera drained of colour. Nothing else
     // clears it, and a new run starting in black and white is a haunting bug.
     this.cameras.main.filters.internal.clear();
@@ -2603,38 +2631,61 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
-    const ground = new Map<string, Solid>();
-    const solid = new Set<string>();
-    for (const s of this.level.solids) {
-      if (this.isGround(s)) {
-        ground.set(`${s.x / TILE},${s.y / TILE}`, s);
-      }
-      if (!s.isBranch && s.width === TILE && s.height === TILE) {
-        solid.add(`${s.x / TILE},${s.y / TILE}`);
-      }
-    }
-    for (const cell of this.level.voids) {
-      solid.add(`${cell.x / TILE},${cell.y / TILE}`);
-    }
-
     const columns = Math.ceil(this.level.widthInPixels / TILE);
     const rows = Math.ceil(this.level.heightInPixels / TILE);
-    const boulders = new Set(
-      this.level.solids.filter((s) => s.textureKey.startsWith('rock-')).map((s) => `${s.x / TILE},${s.y / TILE}`),
-    );
+    // What each cell is, as flat grids, one byte a cell: the rock is worked
+    // out pixel by pixel and asks dozens of times a pixel, and a lookup by a
+    // "column,row" string each time was most of a second on a phone.
+    const groundCells = new Uint8Array(columns * rows);
+    const groundTop = new Uint8Array(columns * rows);
+    const solidCells = new Uint8Array(columns * rows);
+    const boulderCells = new Uint8Array(columns * rows);
+    const cell = (x: number, y: number): number => {
+      const c = x / TILE;
+      const r = y / TILE;
+      return c >= 0 && r >= 0 && c < columns && r < rows && Number.isInteger(c) && Number.isInteger(r) ? r * columns + c : -1;
+    };
+    for (const s of this.level.solids) {
+      const i = cell(s.x, s.y);
+      if (i < 0) {
+        continue;
+      }
+      if (this.isGround(s)) {
+        groundCells[i] = 1;
+        groundTop[i] = s.textureKey.startsWith('ground-top') ? 1 : 0;
+      }
+      if (!s.isBranch && s.width === TILE && s.height === TILE) {
+        solidCells[i] = 1;
+      }
+      if (s.textureKey.startsWith('rock-')) {
+        boulderCells[i] = 1;
+      }
+    }
+    for (const v of this.level.voids) {
+      const i = cell(v.x, v.y);
+      if (i >= 0) {
+        solidCells[i] = 1;
+      }
+    }
+    // A top is a surface something could lie on: ground-top with open air
+    // above it. Not ground under a boulder: the rock is drawn in front of
+    // the boulder, so pebbles there would sit on the boulder's foot and
+    // read as pebbles on the boulder. Its feet get their own heaps.
+    const topCells = new Uint8Array(columns * rows);
+    for (let i = 0; i < topCells.length; i += 1) {
+      topCells[i] = groundTop[i] && !(i >= columns && solidCells[i - columns]) ? 1 : 0;
+    }
+    const at = (cells: Uint8Array) => (c: number, r: number): boolean =>
+      c >= 0 && r >= 0 && c < columns && r < rows && cells[r * columns + c] === 1;
     const pieces = bakeRockMass(
       this,
       `${this.level.theme}:rock:${this.levelIndex}`,
       columns,
       rows,
-      (c, r) => ground.has(`${c},${r}`),
-      (c, r) => solid.has(`${c},${r}`),
-      (c, r) => boulders.has(`${c},${r}`),
-      // A top is a surface something could lie on: ground-top with open air
-      // above it. Not ground under a boulder: the rock is drawn in front of
-      // the boulder, so pebbles there would sit on the boulder's foot and
-      // read as pebbles on the boulder. Its feet get their own heaps.
-      (c, r) => (ground.get(`${c},${r}`)?.textureKey ?? '').startsWith('ground-top') && !solid.has(`${c},${r - 1}`),
+      at(groundCells),
+      at(solidCells),
+      at(boulderCells),
+      at(topCells),
       THEMES[this.level.theme],
       9277,
     );

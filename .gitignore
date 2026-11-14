@@ -5,3 +5,6 @@ dist
 
 # WebStorm project settings, which are this machine's, not the game's.
 .idea
+
+# Made at build time by `npm run bake`: see src/art/CLAUDE.md.
+src/art/baked/*.png

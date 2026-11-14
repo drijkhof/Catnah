@@ -128,6 +128,50 @@ export function bakeRockMass(
     nd2 = Math.sqrt(q2);
   };
 
+  // The same search for every pixel of one cell, from the cell's candidate
+  // seeds gathered once (`candidates`), in the order `nearest` visits them,
+  // so ties fall the same way and the rock comes out identical. Every pixel
+  // of a cell has the same 5x5 neighbourhood of cells to search.
+  const candidateList = new Int32Array(50);
+  let candidateCount = 0;
+  const candidates = (c: number, r: number): void => {
+    candidateCount = 0;
+    for (let rr = Math.max(0, r - 2); rr <= Math.min(rows - 1, r + 2); rr += 1) {
+      for (let cc = Math.max(0, c - 2); cc <= Math.min(columns - 1, c + 2); cc += 1) {
+        const b = (rr * columns + cc) * 2;
+        for (let k = 0; k < 2; k += 1) {
+          const s = bucket[b + k];
+          if (s < 0) break;
+          candidateList[candidateCount] = s;
+          candidateCount += 1;
+        }
+      }
+    }
+  };
+  const nearestInCell = (x: number, y: number): void => {
+    let q1 = Number.POSITIVE_INFINITY;
+    let q2 = Number.POSITIVE_INFINITY;
+    n1 = -1;
+    n2 = -1;
+    for (let k = 0; k < candidateCount; k += 1) {
+      const s = candidateList[k];
+      const dx = seedX[s] - x;
+      const dy = seedY[s] - y;
+      const q = dx * dx + dy * dy;
+      if (q < q1) {
+        q2 = q1;
+        n2 = n1;
+        q1 = q;
+        n1 = s;
+      } else if (q < q2) {
+        q2 = q;
+        n2 = s;
+      }
+    }
+    nd1 = Math.sqrt(q1);
+    nd2 = Math.sqrt(q2);
+  };
+
   const rgb = (colour: number): [number, number, number] => {
     const c = Phaser.Display.Color.IntegerToRGB(colour);
     return [c.r, c.g, c.b];
@@ -283,11 +327,13 @@ export function bakeRockMass(
       // Pass one: which pixels are rock, and each rock pixel's nearest seeds,
       // found once.
       for (const [c, r, interior] of cells) {
+        candidates(c, r);
         for (let y = r * TILE - py; y < r * TILE + TILE - py; y += 1) {
           for (let x = c * TILE - px; x < c * TILE + TILE - px; x += 1) {
             if (x < 0 || y < 0 || x >= w || y >= h) continue;
             const i = y * w + x;
             let rock: boolean;
+            let found = false;
             if (interior) {
               rock = true;
             } else {
@@ -302,12 +348,13 @@ export function bakeRockMass(
               } else if (!nearOpen(px + x, py + y)) {
                 rock = ground;
               } else {
-                nearest(px + x, py + y);
+                nearestInCell(px + x, py + y);
+                found = true;
                 rock = n1 >= 0 && nd1 <= seedReach[n1];
               }
             }
-            if (rock) {
-              nearest(px + x, py + y);
+            if (rock && !found) {
+              nearestInCell(px + x, py + y);
             }
             mask[i] = rock ? 1 : 0;
             near1[i] = rock ? n1 : -1;

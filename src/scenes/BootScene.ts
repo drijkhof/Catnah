@@ -1,4 +1,5 @@
-import { loadPlanetPhotos } from '../art/photos';
+import portalUrl from '../art/portal.png?inline';
+import { mark } from '../timing';
 import Phaser from 'phaser';
 import { PORTAL_SOURCE_KEY, generatePlaceholderArt, shadePortal } from '../art';
 import { SNAPSHOT_KEY } from '../dev/hot';
@@ -18,13 +19,14 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload(): void {
+    mark('boot');
     // The one piece of real art so far: the portal, a 78px picture the game
     // scene spins. Everything else is drawn in `generatePlaceholderArt`; more
     // files go here under the key their generator used, e.g.
     // this.load.spritesheet('cat', 'assets/cat.png', { frameWidth: 22, frameHeight: 16 });
-    this.load.image(PORTAL_SOURCE_KEY, 'assets/portal.png');
-    // The planets are NASA photographs, cut round once they are in.
-    loadPlanetPhotos(this);
+    // In the script itself, as a data URL: a file of its own cost a whole
+    // round trip after the script had arrived -- most of a second on a phone.
+    this.load.image(PORTAL_SOURCE_KEY, portalUrl);
   }
 
   create(): void {
@@ -32,6 +34,9 @@ export class BootScene extends Phaser.Scene {
     shadePortal(this);
 
     generatePlaceholderArt(this);
+    mark('art');
+    // The page's own loading screen, up while the script came in, goes now.
+    document.getElementById('loading')?.remove();
 
     // A hot reload carries a game in progress, and dropping the player back on
     // the title screen would throw away the place it went to such trouble to

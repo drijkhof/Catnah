@@ -46,8 +46,13 @@ export const MOON_HILLS_SIZE = { width: 320, height: 70 };
  * Space: the stars, the planets, the moon's horizon, and the moon's robots
  * and the grey blocks they climb out of.
  */
+/**
+ * The space pictures drawn at boot: the cheap ones, needed by levels before
+ * space. The heavy ones -- worked out per pixel -- are `generateSpaceHeavy`,
+ * baked into files at build time (`npm run bake`) and loaded when space is
+ * near; see `spaceArt.ts`.
+ */
 export function generateSpaceTextures(scene: Phaser.Scene): void {
-  generateSun(scene);
   generateStarfields(scene);
   generatePlanets(scene);
   generateMoonScenery(scene);
@@ -55,10 +60,8 @@ export function generateSpaceTextures(scene: Phaser.Scene): void {
   generateHatch(scene);
   generateHelmet(scene);
   generatePart(scene);
-  generateRocket(scene);
   generateWorldScenery(scene);
   generateStarship(scene);
-  generateChase(scene);
   generateObstacles(scene);
   bakeTexture(scene, 'mars-sky', GAME_WIDTH, GAME_HEIGHT, (g) => {
     // Mars by day: a butterscotch haze, paler towards the ground.
@@ -413,13 +416,17 @@ function generatePlanetLight(scene: Phaser.Scene): void {
  * Uranus: its NASA photograph (Voyager 2) in a set of drawn rings, after a
  * photograph the player sent -- thin grey rings standing nearly on end and
  * leaning over, a broad dark band among them, reaching half again past the
- * ball. `planet-uranus` is the rings with the ball over them;
- * `planet-uranus-front` the near half of the rings where it crosses the ball,
- * laid over the ball's sunlight by the scene.
+ * ball. `uranus-rings` is the rings alone, the photograph laid in by
+ * `composeSpace` as `planet-uranus`; `planet-uranus-front` the near half of
+ * the rings where it crosses the ball, laid over the ball's sunlight by the
+ * scene.
  */
-function generateUranus(scene: Phaser.Scene): void {
+/** Uranus's picture, px across: the rings reach half again past the ball. */
+export const URANUS_RINGS_SIZE = Math.round((2 * PLANET_PHOTOS.uranus.disc) / 0.58);
+
+function generateUranusRings(scene: Phaser.Scene): void {
   const r = PLANET_DISCS.uranus;
-  const d = Math.round((2 * r) / 0.58);
+  const d = URANUS_RINGS_SIZE;
   const reach = d / 2 - 2;
   const px = d / 200;
   const lean = -0.38;
@@ -451,12 +458,10 @@ function generateUranus(scene: Phaser.Scene): void {
     }
     return undefined;
   };
-  const back = paint(scene, 'planet-uranus', d, (x, y) => {
+  const back = paint(scene, 'uranus-rings', d, (x, y) => {
     const ring = ringAt(x, y);
     return ring ? [ring.grey, ring.grey, ring.grey + 8, 255 * ring.alpha] : undefined;
   });
-  drawPhotoGlobe(scene, back.context, 'uranus', d / 2, d / 2, r);
-  back.refresh();
   back.setFilter(Phaser.Textures.FilterMode.LINEAR);
   const front = paint(scene, 'planet-uranus-front', d, (x, y) => {
     const ring = ringAt(x, y);
@@ -468,11 +473,65 @@ function generateUranus(scene: Phaser.Scene): void {
   front.setFilter(Phaser.Textures.FilterMode.LINEAR);
 }
 
-function generatePlanets(scene: Phaser.Scene): void {
-  generatePlanetLight(scene);
-  makePhotoPlanets(scene);
-  generateUranus(scene);
+/**
+ * The pictures worked out per pixel, which take a long while: the sun's
+ * five layers, the sunlight laid over the planets, Uranus's rings, the
+ * rocket, the camper and the fighter. Each group only if it is missing --
+ * the build bakes them into files (`BAKED_KEYS`), and these run only when a
+ * file is not there, as on a dev server that has not been baked.
+ */
+export function generateSpaceHeavy(scene: Phaser.Scene): void {
+  if (!scene.textures.exists('space-sun')) {
+    generateSun(scene);
+  }
+  if (!scene.textures.exists('planet-light')) {
+    generatePlanetLight(scene);
+  }
+  if (!scene.textures.exists('uranus-rings')) {
+    generateUranusRings(scene);
+  }
+  if (!scene.textures.exists('rocket')) {
+    generateRocket(scene);
+  }
+  if (!scene.textures.exists('space-camper')) {
+    generateChase(scene);
+  }
+}
 
+/** Every texture `generateSpaceHeavy` makes: what the build bakes into files. */
+export const BAKED_KEYS = [
+  'space-sun',
+  'space-sun-churn',
+  'space-sun-corona-a',
+  'space-sun-corona-b',
+  'space-sun-glow',
+  'planet-light',
+  'uranus-rings',
+  'planet-uranus-front',
+  'rocket',
+  'space-camper',
+  'space-fighter',
+] as const;
+
+/**
+ * The pictures made from the photographs, once they are loaded: each
+ * planet cut round, and Uranus's photograph laid into its rings. Cheap --
+ * drawing images, no working out per pixel. Skips what is already made,
+ * and with `only`, every planet not named: a level makes just its sky's.
+ */
+export function composeSpace(scene: Phaser.Scene, only?: readonly string[]): void {
+  makePhotoPlanets(scene, only);
+  if (!scene.textures.exists('planet-uranus') && (!only || only.includes('uranus'))) {
+    const d = URANUS_RINGS_SIZE;
+    const canvas = scene.textures.createCanvas('planet-uranus', d, d) as Phaser.Textures.CanvasTexture;
+    canvas.context.drawImage(scene.textures.get('uranus-rings').getSourceImage() as CanvasImageSource, 0, 0);
+    drawPhotoGlobe(scene, canvas.context, 'uranus', d / 2, d / 2, PLANET_DISCS.uranus);
+    canvas.refresh();
+    canvas.setFilter(Phaser.Textures.FilterMode.LINEAR);
+  }
+}
+
+function generatePlanets(scene: Phaser.Scene): void {
   // The ISS: a long truss with four pairs of solar panels and the modules
   // in the middle.
   {
