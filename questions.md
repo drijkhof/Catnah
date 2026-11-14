@@ -2616,6 +2616,7 @@ Open: the script is now most of what is left: Phaser 314 kB compressed,
 our own code 123 kB. Phaser built from its sources with only what the
 game uses (no tilemaps, sound, text, particles, ...) would save about
 75 kB, some 0.45 s on Slow 4G, at the cost of assembling and keeping up
-the engine ourselves. The cave's rock (0.36 s of its 0.65 s) could be
+the engine ourselves. Decided by the player: not
+for now. The cave's rock (0.36 s of its 0.65 s) could be
 worked out in the background while the levels before it are played.
 
