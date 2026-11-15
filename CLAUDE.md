@@ -132,8 +132,9 @@ deploy. A tab that is already open stays on its build until it is reloaded --
 a game deploy does not change `sw.js`, so nothing tells it.
 
 The icons are SVG, not PNG. The bitmaps in the project are deliberate
-exceptions: the portal (`public/assets/portal.png`) and the planets, which
-are NASA photographs (`public/assets/planets/`, see the `CLAUDE.md` there).
+exceptions: the portal (`src/art/portal.png`, inlined as a data URL) and the
+planets, which are NASA photographs (`src/art/photos/`, credits in
+`src/art/CLAUDE.md`).
 
 **Tunables live in `config.ts`.** Jump heights, speeds and colours do not belong
 inline in a scene. If you find yourself typing a number twice, it goes there.
