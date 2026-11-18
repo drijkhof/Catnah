@@ -92,7 +92,10 @@ arrow of their own: the flying camper with its chaser, and the Death Star
 
 In space, click where a level's name would be (top left; nothing shows
 there) for a full tank of rocket fuel (`SpaceScene.fillTank`,
-`fuelShortcut.ts`). The same `import.meta.env.DEV` guard.
+`fuelShortcut.ts`). The same `import.meta.env.DEV` guard. It also turns on
+the **easter egg radar** (`EGG_RADAR_KEY` in the registry): the same red
+arrows as god mode, without god mode, for the rest of the session. The
+arrows have the planets' shape and grow nearer by (`SpaceScene.arrowTo`).
 
 ## Restoring is allowed to refuse
 

@@ -12,6 +12,7 @@ import { timed } from '../timing';
 import { FuelMeter } from '../fuelMeter';
 import { installFuelShortcut } from '../dev/fuelShortcut';
 import { GOD_MODE_KEY } from '../dev/godMode';
+import { EGG_RADAR_KEY } from '../dev/fuelShortcut';
 
 /** What a run carries from level to level, passed straight through this scene. */
 interface Carry {
@@ -172,6 +173,7 @@ export class SpaceScene extends Phaser.Scene {
   /** A full tank of rocket fuel. Development only: see `dev/fuelShortcut.ts`. */
   fillTank(): void {
     this.carry.fuel = BAR.fuelMs;
+    this.registry.set(EGG_RADAR_KEY, true);
     sound.play('checkpoint');
     this.refreshHud();
   }
@@ -904,65 +906,62 @@ export class SpaceScene extends Phaser.Scene {
   /**
    * An arrow at the edge of the screen for every open world out of sight,
    * pointing the way to it -- space is big, and a world off screen is easy
-   * to lose. Not to a world whose parts are all found: nothing to go back for.
+   * to lose. A world whose parts are all found gets only an outline.
    */
   private pointAtWorlds(): void {
-    const camera = this.cameras.main;
-    const view = camera.worldView;
-    const cx = GAME_WIDTH / 2;
-    const cy = GAME_HEIGHT / 2;
+    const view = this.cameras.main.worldView;
     this.arrows.clear();
     for (const world of this.worlds) {
       if (!world.open || view.contains(world.x, world.y)) {
         continue;
       }
-      const angle = Math.atan2(world.y - (view.y + view.height / 2), world.x - (view.x + view.width / 2));
-      // Nearer, bigger: from a third bigger close by to a third smaller far off.
-      const away = Phaser.Math.Distance.Between(world.x, world.y, view.centerX, view.centerY);
-      const k = Phaser.Math.Clamp(1.35 - (away - 400) / 3500, 0.65, 1.35);
-      // Where the line from the middle of the screen leaves it, pulled in a little.
-      const reach = Math.min((cx - 18) / Math.abs(Math.cos(angle) || 1e-6), (cy - 18) / Math.abs(Math.sin(angle) || 1e-6));
-      const x = cx + Math.cos(angle) * reach;
-      const y = cy + Math.sin(angle) * reach;
-      const tip = new Phaser.Math.Vector2(Math.cos(angle), Math.sin(angle));
-      const side = new Phaser.Math.Vector2(-tip.y, tip.x);
-      // Long and narrow, so it reads as pointing, not as a wedge. A world
-      // with all its parts found gets just the outline: still there to fly
-      // to, nothing left to fetch.
-      const points = [
-        x + tip.x * 10 * k, y + tip.y * 10 * k,
-        x - tip.x * 7 * k + side.x * 4 * k, y - tip.y * 7 * k + side.y * 4 * k,
-        x - tip.x * 7 * k - side.x * 4 * k, y - tip.y * 7 * k - side.y * 4 * k,
-      ] as const;
-      if (world.done) {
-        this.arrows.lineStyle(1.5, 0xffd84a, 0.95);
-        this.arrows.strokeTriangle(...points);
-      } else {
-        this.arrows.fillStyle(0xffe9a8, 0.85);
-        this.arrows.fillTriangle(...points);
-      }
+      this.arrowTo(world.x, world.y, world.done ? 'outline' : 0xffe9a8);
     }
-    // In god mode, development only, red arrows to the easter eggs that
-    // have none: the camper and its chaser, and the Death Star.
-    if (!import.meta.env.DEV || this.registry.get(GOD_MODE_KEY) !== true) {
+    // Development only: red arrows to the easter eggs that have none -- the
+    // camper and its chaser, and the Death Star -- in god mode, or once the
+    // fuel spot has been clicked (the easter egg radar).
+    const radar = this.registry.get(GOD_MODE_KEY) === true || this.registry.get(EGG_RADAR_KEY) === true;
+    if (!import.meta.env.DEV || !radar) {
       return;
     }
     for (const egg of [this.camper, this.station]) {
-      if (view.contains(egg.x, egg.y)) {
-        continue;
+      if (!view.contains(egg.x, egg.y)) {
+        this.arrowTo(egg.x, egg.y, 0xff3a3a);
       }
-      const angle = Math.atan2(egg.y - view.centerY, egg.x - view.centerX);
-      const reach = Math.min((cx - 18) / Math.abs(Math.cos(angle) || 1e-6), (cy - 18) / Math.abs(Math.sin(angle) || 1e-6));
-      const x = cx + Math.cos(angle) * reach;
-      const y = cy + Math.sin(angle) * reach;
-      const tip = new Phaser.Math.Vector2(Math.cos(angle), Math.sin(angle));
-      const side = new Phaser.Math.Vector2(-tip.y, tip.x);
-      this.arrows.fillStyle(0xff3a3a, 0.9);
-      this.arrows.fillTriangle(
-        x + tip.x * 10, y + tip.y * 10,
-        x - tip.x * 7 + side.x * 4, y - tip.y * 7 + side.y * 4,
-        x - tip.x * 7 - side.x * 4, y - tip.y * 7 - side.y * 4,
-      );
+    }
+  }
+
+  /**
+   * One arrow at the edge of the screen pointing at (`tx`, `ty`), sized by
+   * distance: filled in `fill`, or a yellow outline for a world with
+   * nothing left to fetch.
+   */
+  private arrowTo(tx: number, ty: number, fill: number | 'outline'): void {
+    const view = this.cameras.main.worldView;
+    const cx = GAME_WIDTH / 2;
+    const cy = GAME_HEIGHT / 2;
+    const angle = Math.atan2(ty - view.centerY, tx - view.centerX);
+    // Nearer, bigger: from a third bigger close by to a third smaller far off.
+    const away = Phaser.Math.Distance.Between(tx, ty, view.centerX, view.centerY);
+    const k = Phaser.Math.Clamp(1.35 - (away - 400) / 3500, 0.65, 1.35);
+    // Where the line from the middle of the screen leaves it, pulled in a little.
+    const reach = Math.min((cx - 18) / Math.abs(Math.cos(angle) || 1e-6), (cy - 18) / Math.abs(Math.sin(angle) || 1e-6));
+    const x = cx + Math.cos(angle) * reach;
+    const y = cy + Math.sin(angle) * reach;
+    const tip = new Phaser.Math.Vector2(Math.cos(angle), Math.sin(angle));
+    const side = new Phaser.Math.Vector2(-tip.y, tip.x);
+    // Long and narrow, so it reads as pointing, not as a wedge.
+    const points = [
+      x + tip.x * 10 * k, y + tip.y * 10 * k,
+      x - tip.x * 7 * k + side.x * 4 * k, y - tip.y * 7 * k + side.y * 4 * k,
+      x - tip.x * 7 * k - side.x * 4 * k, y - tip.y * 7 * k - side.y * 4 * k,
+    ] as const;
+    if (fill === 'outline') {
+      this.arrows.lineStyle(1.5, 0xffd84a, 0.95);
+      this.arrows.strokeTriangle(...points);
+    } else {
+      this.arrows.fillStyle(fill, fill === 0xff3a3a ? 0.9 : 0.85);
+      this.arrows.fillTriangle(...points);
     }
   }
 

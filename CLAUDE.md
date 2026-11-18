@@ -177,8 +177,8 @@ instead of scrolling with the world, plus a high `setDepth` to stay on top.
 - **Going to space**: Shift-click the level name; the run goes with you.
   On Pluto and in the Space Bar it gives 100 coins instead.
 - **Rocket fuel**: in space, click where the level name would be (top
-  left) for a full tank. Development only.
-  Development only.
+  left) for a full tank. It also turns on the easter egg radar: red
+  arrows to the camper and the Death Star, as in god mode. Development only.
 - **Dev test levels**: none at the moment. See `src/level/CLAUDE.md` for how
   to add one.
 - **Clearing the records and totals**: `stats.reset()` in the console
