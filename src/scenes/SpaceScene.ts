@@ -40,6 +40,8 @@ interface Carry {
   barClosed?: boolean;
   /** The ISS came down on the Earth, at this angle round it, radians: gone for the run, and a crater there. */
   issDown?: number;
+  /** How deep the Moon is in the Earth's shadow as the cat lands on it, 0 to 1: the Moon level is eclipsed too. */
+  eclipse?: number;
 }
 
 /** A world out here: its orbit, how big, and which level it is. */
@@ -114,6 +116,8 @@ export class SpaceScene extends Phaser.Scene {
   private burning = false;
   /** Arrows at the edge of the screen, pointing at the open worlds out of sight. */
   private arrows!: Phaser.GameObjects.Graphics;
+  /** How deep the Moon is in the Earth's shadow right now, 0 to 1 (`eclipses`). */
+  private eclipse = 0;
   /** The battle station, and the line that comes up when the cat is near it. */
   private station!: Phaser.GameObjects.Image;
   private stationWords!: CrispText;
@@ -797,6 +801,7 @@ export class SpaceScene extends Phaser.Scene {
       100,
       Math.round(into * 100),
     );
+    this.eclipse = into;
     moon.image.setTint(Phaser.Display.Color.GetColor(red.r, red.g, red.b));
     moon.light?.setAlpha(1 - into * 0.6);
 
@@ -1235,6 +1240,8 @@ export class SpaceScene extends Phaser.Scene {
         this.scene.start('Game', {
           ...this.carry,
           levelIndex: Math.max(0, LEVELS.findIndex((level) => level.name === levelName)),
+          // Landing on the Moon in the Earth's shadow: its level is in it too.
+          eclipse: levelName === 'Moon' && this.eclipse > 0 ? this.eclipse : undefined,
         }),
     });
   }

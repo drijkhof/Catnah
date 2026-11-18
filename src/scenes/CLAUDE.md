@@ -26,7 +26,12 @@ Phaser scenes. Registered in order in `src/main.ts`; the first one starts.
   squeezed by `PLANET_SIZE_KEEP`, the Earth `EARTH_GLOBE`), its scale that
   over its texture's disc. `eclipses` (every frame, after `orbit`): the
   Moon tinted dark red in the Earth's shadow, and the Moon's shadow drawn on
-  the Earth (`moonShadow`).
+  the Earth (`moonShadow`). How deep the Moon is in it goes into the Moon
+  level as `eclipse`; there `GameScene.eclipseLight` gives the sky
+  (depth ≤ `ECLIPSE.skyDepth`) a camera of its own, drawn first, and puts a
+  red colour-matrix filter on the main camera, so only the ground goes red;
+  the HUD camera keeps the HUD out of it (`sortCameras` sorts all three).
+  It rides the lab door's snapshot, so it is still there coming back out.
 - **Talking to Bob** (`GameScene.startTalk` and on): the HUD and touch
   buttons are hidden, the main camera stops following and pans and zooms
   (`BOB`), and the speech bubble is drawn by a **second camera that does

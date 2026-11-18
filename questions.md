@@ -2620,3 +2620,10 @@ the engine ourselves. Decided by the player: not
 for now. The cave's rock (0.36 s of its 0.65 s) could be
 worked out in the background while the levels before it are played.
 
+## The Moon level in an eclipse
+
+Decided: landing on the Moon while it is in the Earth's shadow eclipses its
+level for that visit, as deep as it was on landing; it does not change
+while you play. Only the ground goes red, as asked: the sky has its own
+camera. In the sky the Earth is dark with a red-orange ring, the sun
+behind it.

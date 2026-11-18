@@ -41,7 +41,8 @@ off the display list with only their bodies, costing nothing per frame.
   it (a world never has itself in its own sky), a range of landmarks on the
   horizon (ice spires, mesas, cloud towers, volcanoes; pale textures tinted
   per world), two ranks of tinted hills rooted on the ground line, and
-  rocks or crystals scattered on the floor.
+  rocks or crystals scattered on the floor. On the Moon during an eclipse
+  (`eclipse`, passed in from space) its Earth is dark, ringed in red.
 - `planetLight.ts` — `addPlanetLight` lays the sunlight over a planet's
   picture (and its ring's near half over that); `faceTheSun` turns it to
   wherever the sun is. Used in space every frame and in `MoonBackdrop`'s skies.

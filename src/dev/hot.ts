@@ -57,6 +57,7 @@ export interface GameSnapshot {
   barClosed?: boolean;
   /** The ISS has come down on the Earth, at this angle round it. */
   issDown?: number;
+  eclipse?: number;
   /** Inside a house: the level outside as it was left, to go back out to. */
   outside?: GameSnapshot;
   godMode?: boolean;

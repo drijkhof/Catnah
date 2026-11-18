@@ -644,6 +644,21 @@ export const OBSTACLES = {
  * biggest -- and a moment later the cat says `oops`, for `oopsMs`. Gone for
  * the run. `touch` is how near the cat has to come, px.
  */
+/**
+ * Landing on the Moon during an eclipse of it: the level in the Earth's
+ * shadow, lit only by the red of every sunset on Earth at once.
+ */
+export const ECLIPSE = {
+  /** The light the ground is multiplied by at a total eclipse, less at a partial one. */
+  light: 0x9a4a36,
+  /** At this depth and behind is the sky (stars, planets, the Earth's red ring), which keeps its colour. */
+  skyDepth: -94,
+  /** The Earth in the sky, dark, with the sun behind it. */
+  earthTint: 0x241410,
+  /** The thin ring of sunlight bent round the Earth's air: red-orange. */
+  rim: 0xff6a2a,
+} as const;
+
 export const ISS_CRASH = {
   touch: 20,
   /** Not touched in the first moments out here: the cat sets off right by the Earth. */

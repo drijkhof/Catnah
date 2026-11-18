@@ -1,7 +1,7 @@
 import { addPlanetLight, faceTheSun } from './planetLight';
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH } from '../config';
-import { MOON_HILLS_SIZE, PLANET_SIZES, STARFIELD_SIZE, createRandom, type PlanetName } from '../art';
+import { ECLIPSE, GAME_HEIGHT, GAME_WIDTH } from '../config';
+import { MOON_HILLS_SIZE, PLANET_DISCS, PLANET_SIZES, STARFIELD_SIZE, createRandom, type PlanetName } from '../art';
 import { TILE } from '../config';
 import type { ParsedLevel } from '../level/Level';
 
@@ -149,7 +149,12 @@ const SKIES: Record<SpaceTheme, Sky> = {
  * on the near hills.
  */
 export class MoonBackdrop {
-  constructor(scene: Phaser.Scene, theme: SpaceTheme, level: ParsedLevel, levelWidth: number, groundLine: number) {
+  /**
+   * `eclipse`, 0 to 1: the Moon in the Earth's shadow, so seen from here the
+   * Earth is in front of the sun -- a dark disc in a thin red-orange ring
+   * of sunlight bent through its air.
+   */
+  constructor(scene: Phaser.Scene, theme: SpaceTheme, level: ParsedLevel, levelWidth: number, groundLine: number, eclipse = 0) {
     const look = SKIES[theme];
     scene.add.image(0, 0, look.sky).setOrigin(0, 0).setScrollFactor(0).setDepth(-100);
 
@@ -193,6 +198,9 @@ export class MoonBackdrop {
         .setScrollFactor(planet.factor, 0)
         .setDepth(-95);
       faceTheSun(addPlanetLight(scene, image, planet.name), image, sunX, sunY);
+      if (planet.name === 'earth' && eclipse > 0) {
+        this.eclipsed(scene, image, eclipse);
+      }
     }
 
     const random = createRandom(7707);
@@ -267,6 +275,30 @@ export class MoonBackdrop {
         .setScale(0.8)
         .setScrollFactor(0.4, 1)
         .setDepth(-69);
+    }
+  }
+
+  /** The Earth with the sun behind it: dark, in a ring of red light. */
+  private eclipsed(scene: Phaser.Scene, earth: Phaser.GameObjects.Image, depth: number): void {
+    const dark = Phaser.Display.Color.Interpolate.ColorWithColor(
+      Phaser.Display.Color.ValueToColor(0xffffff),
+      Phaser.Display.Color.ValueToColor(ECLIPSE.earthTint),
+      100,
+      Math.round(depth * 100),
+    );
+    earth.setTint(Phaser.Display.Color.GetColor(dark.r, dark.g, dark.b));
+    const radius = PLANET_DISCS.earth * earth.scaleX;
+    for (const [grow, width, alpha] of [
+      [1.06, 5, 0.18],
+      [1.02, 2.5, 0.45],
+      [1.0, 1.2, 0.9],
+    ] as const) {
+      scene.add
+        .circle(earth.x, earth.y, radius * grow)
+        .setStrokeStyle(width, ECLIPSE.rim, alpha * depth)
+        .setScrollFactor(earth.scrollFactorX, 0)
+        .setDepth(earth.depth + 0.5)
+        .setBlendMode(Phaser.BlendModes.ADD);
     }
   }
 }

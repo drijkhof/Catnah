@@ -733,7 +733,13 @@ level, and the near half of a ring is not in the planet's shadow.
 **Eclipses**: when the Moon passes behind the Earth, into its shadow, it
 goes dark and red — an eclipse of the Moon; when it passes between the
 Earth and the sun, its shadow is a dark spot going across the Earth. In
-this flat solar system that is once every time round. In a
+this flat solar system that is once every time round. **Land on the Moon during
+its eclipse and the level is eclipsed too**: everything standing on it —
+dust, rocks, robots, the cat — in a deep red light, the stars and planets
+not, and in the sky the Earth
+dark in front of the sun, ringed in thin red-orange light. As deep as
+the eclipse was when the cat flew in (a partial one, a little red), and
+it stays so for that visit. In a
 level's sky the planets are lit from where that sky's sun is (from the
 left on a night sky, where none is drawn). **Fly into a world and its level
 starts** — if it is open: the name is gold when it is, grey when it is not.

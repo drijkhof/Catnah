@@ -2,7 +2,7 @@ import { mark } from '../timing';
 import { finishSpace, queueSpaceFiles } from '../art/spaceArt';
 import { hasSpaceSky, skyPlanets } from '../world/MoonBackdrop';
 import Phaser from 'phaser';
-import { ITEMS, type ItemKind, AWAKE_RANGE, BAR, BOB, ENDING, INTERNET, PARK, CAT, OBSTACLES, PARTS, RAIN, ROBOT, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
+import { ITEMS, type ItemKind, AWAKE_RANGE, BAR, BOB, ENDING, INTERNET, PARK, CAT, OBSTACLES, PARTS, RAIN, ROBOT, CACTUS, CHARMS_PER_LIFE, CHECKPOINT, ECLIPSE, EXIT, GAME_HEIGHT, GAME_WIDTH, LAVA, LIVES, MAX_LIVES, TILE, TOUCH, WATER_DROP } from '../config';
 import { Controls, IdleControls, type PlayerInput } from '../input/Controls';
 import { Player } from '../objects/Player';
 import { Boss } from '../objects/Boss';
@@ -128,6 +128,8 @@ export class GameScene extends Phaser.Scene {
    * the crater stays there.
    */
   private issDown?: number;
+  /** Landed on the Moon in the Earth's shadow, this deep (0 to 1): the level is eclipsed. Only for this visit. */
+  private eclipse?: number;
   /** What the cat carries to sell, and every one found this run, as `<level>:<x>,<y>`. */
   private bag: Record<ItemKind, number> = { ...EMPTY_BAG };
   private itemsFound: string[] = [];
@@ -212,6 +214,8 @@ export class GameScene extends Phaser.Scene {
   private ending = false;
   /** Inside a house the view is close up; this camera draws the HUD unzoomed over it. */
   private hudCamera?: Phaser.Cameras.Scene2D.Camera;
+  /** On the Moon in an eclipse: draws the sky, under the main camera, so the red light is only on the ground (`eclipseLight`). */
+  private skyCamera?: Phaser.Cameras.Scene2D.Camera;
   /** The bar's menu, while it is open. */
   private shop?: {
     panel: Phaser.GameObjects.Graphics;
@@ -437,6 +441,7 @@ export class GameScene extends Phaser.Scene {
     coinsFound?: string[];
     barClosed?: boolean;
     issDown?: number;
+    eclipse?: number;
     bag?: Record<ItemKind, number>;
     itemsFound?: string[];
     outside?: GameSnapshot;
@@ -468,6 +473,7 @@ export class GameScene extends Phaser.Scene {
     this.coinsFound = [...(data.coinsFound ?? carried?.coinsFound ?? [])];
     this.barClosed = data.barClosed ?? carried?.barClosed ?? false;
     this.issDown = data.issDown ?? carried?.issDown;
+    this.eclipse = data.eclipse ?? data.resume?.eclipse ?? carried?.eclipse;
     this.bag = { ...EMPTY_BAG, ...(data.bag ?? carried?.bag ?? {}) };
     this.itemsFound = [...(data.itemsFound ?? carried?.itemsFound ?? [])];
     this.outside = data.outside ?? carried?.outside;
@@ -532,6 +538,7 @@ export class GameScene extends Phaser.Scene {
     this.doors = [];
     this.doorArmed = false;
     this.hudCamera = undefined;
+    this.skyCamera = undefined;
     this.cableTiles = new Map();
     this.hackers = [];
     this.machine = undefined;
@@ -577,7 +584,9 @@ export class GameScene extends Phaser.Scene {
         this.level.widthInPixels,
         this.level.groundLine,
         this.level.heightInPixels,
+        this.eclipse,
       );
+      this.eclipseLight();
     }
 
     const { blocks, branches } = this.buildSolids();
@@ -853,6 +862,7 @@ export class GameScene extends Phaser.Scene {
       coinsFound: [...this.coinsFound],
       barClosed: this.barClosed,
       issDown: this.issDown,
+      eclipse: this.eclipse,
       bag: { ...this.bag },
       itemsFound: [...this.itemsFound],
       outside: this.outside,
@@ -1520,6 +1530,34 @@ export class GameScene extends Phaser.Scene {
         }
       }
     }
+  }
+
+  /**
+   * Landed on the Moon while it is in the Earth's shadow: the ground in the
+   * deep red light of an eclipse, as deep as it was out in space. Only what
+   * stands on the Moon -- dust, rocks, robots, the cat -- not the sky:
+   * the stars and planets are lit by nothing of the Earth's. So the sky
+   * goes to a camera of its own, drawn first, and the main camera, with
+   * everything else, gets the red as a colour filter over its picture. The
+   * HUD goes to the HUD camera (`buildHudCamera`) to stay out of it.
+   */
+  private eclipseLight(): void {
+    if (this.level.theme !== 'moon' || !this.eclipse) {
+      return;
+    }
+    const sky = this.cameras.add(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    const order = this.cameras.cameras;
+    order.splice(order.indexOf(sky), 1);
+    order.unshift(sky);
+    this.skyCamera = sky;
+    const light = Phaser.Display.Color.IntegerToColor(ECLIPSE.light);
+    const [r, g, b] = [light.red, light.green, light.blue].map((channel) => 1 - this.eclipse! * (1 - channel / 255));
+    this.cameras.main.filters.internal.addColorMatrix().colorMatrix.set([
+      r, 0, 0, 0, 0,
+      0, g, 0, 0, 0,
+      0, 0, b, 0, 0,
+      0, 0, 0, 1, 0,
+    ]);
   }
 
   /** Everything the run carries into the next level, or into space. */
@@ -3539,26 +3577,42 @@ export class GameScene extends Phaser.Scene {
    * that does not zoom draws those, and the main one everything else.
    */
   private buildHudCamera(): void {
-    if (!this.level.inside || this.titleMode) {
+    if ((!this.level.inside && !this.skyCamera) || this.titleMode) {
       return;
     }
     this.hudCamera = this.cameras.add(0, 0, GAME_WIDTH, GAME_HEIGHT);
     this.sortCameras();
   }
 
-  /** Each object to the camera that draws it: see `buildHudCamera`. Every frame, as things come and go. */
+  /**
+   * Each object to the camera that draws it: see `buildHudCamera`, and the
+   * sky in an eclipse (`eclipseLight`). Every frame, as things come and go.
+   */
   private sortCameras(): void {
     const hud = this.hudCamera;
-    if (!hud) {
+    const sky = this.skyCamera;
+    if (!hud && !sky) {
       return;
     }
     const main = this.cameras.main;
+    // The sky's camera looks where the main one does, so its parallax agrees.
+    sky?.setScroll(main.scrollX, main.scrollY).setZoom(main.zoom);
     for (const child of this.children.list) {
       const pinned = child as unknown as { scrollFactorX?: number; depth?: number };
-      if (pinned.scrollFactorX === 0 && (pinned.depth ?? 0) >= 0) {
-        main.ignore(child);
-      } else {
-        hud.ignore(child);
+      const depth = pinned.depth ?? 0;
+      if (hud) {
+        if (pinned.scrollFactorX === 0 && depth >= 0) {
+          main.ignore(child);
+        } else {
+          hud.ignore(child);
+        }
+      }
+      if (sky) {
+        if (depth <= ECLIPSE.skyDepth) {
+          main.ignore(child);
+        } else {
+          sky.ignore(child);
+        }
       }
     }
   }
