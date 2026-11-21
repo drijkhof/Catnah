@@ -15,6 +15,7 @@ import { Piranha } from '../objects/Piranha';
 import { Spider } from '../objects/Spider';
 import { Worm } from '../objects/Worm';
 import { KEEP_LIVE, addGroundShade, bakeScenery, createBackdrop } from '../world';
+import { eclipseDepth } from '../world/eclipse';
 import { parseLevel, type ClimbZone, type ParsedLevel, type Solid, type WaterZone } from '../level/Level';
 import { LEVELS } from '../level/levels';
 import { TITLE } from '../level/levels/title';
@@ -128,8 +129,6 @@ export class GameScene extends Phaser.Scene {
    * the crater stays there.
    */
   private issDown?: number;
-  /** Landed on the Moon in the Earth's shadow, this deep (0 to 1): the level is eclipsed. Only for this visit. */
-  private eclipse?: number;
   /** What the cat carries to sell, and every one found this run, as `<level>:<x>,<y>`. */
   private bag: Record<ItemKind, number> = { ...EMPTY_BAG };
   private itemsFound: string[] = [];
@@ -216,6 +215,8 @@ export class GameScene extends Phaser.Scene {
   private hudCamera?: Phaser.Cameras.Scene2D.Camera;
   /** On the Moon in an eclipse: draws the sky, under the main camera, so the red light is only on the ground (`eclipseLight`). */
   private skyCamera?: Phaser.Cameras.Scene2D.Camera;
+  /** The main camera's red in an eclipse, once one has started (`eclipseLight`). */
+  private eclipseFilter?: Phaser.Display.ColorMatrix;
   /** The bar's menu, while it is open. */
   private shop?: {
     panel: Phaser.GameObjects.Graphics;
@@ -441,7 +442,6 @@ export class GameScene extends Phaser.Scene {
     coinsFound?: string[];
     barClosed?: boolean;
     issDown?: number;
-    eclipse?: number;
     bag?: Record<ItemKind, number>;
     itemsFound?: string[];
     outside?: GameSnapshot;
@@ -473,7 +473,6 @@ export class GameScene extends Phaser.Scene {
     this.coinsFound = [...(data.coinsFound ?? carried?.coinsFound ?? [])];
     this.barClosed = data.barClosed ?? carried?.barClosed ?? false;
     this.issDown = data.issDown ?? carried?.issDown;
-    this.eclipse = data.eclipse ?? data.resume?.eclipse ?? carried?.eclipse;
     this.bag = { ...EMPTY_BAG, ...(data.bag ?? carried?.bag ?? {}) };
     this.itemsFound = [...(data.itemsFound ?? carried?.itemsFound ?? [])];
     this.outside = data.outside ?? carried?.outside;
@@ -539,6 +538,7 @@ export class GameScene extends Phaser.Scene {
     this.doorArmed = false;
     this.hudCamera = undefined;
     this.skyCamera = undefined;
+    this.eclipseFilter = undefined;
     this.cableTiles = new Map();
     this.hackers = [];
     this.machine = undefined;
@@ -584,9 +584,7 @@ export class GameScene extends Phaser.Scene {
         this.level.widthInPixels,
         this.level.groundLine,
         this.level.heightInPixels,
-        this.eclipse,
       );
-      this.eclipseLight();
     }
 
     const { blocks, branches } = this.buildSolids();
@@ -862,7 +860,6 @@ export class GameScene extends Phaser.Scene {
       coinsFound: [...this.coinsFound],
       barClosed: this.barClosed,
       issDown: this.issDown,
-      eclipse: this.eclipse,
       bag: { ...this.bag },
       itemsFound: [...this.itemsFound],
       outside: this.outside,
@@ -1000,6 +997,7 @@ export class GameScene extends Phaser.Scene {
     this.stepBar();
     this.placeCatLine();
     this.placeSpeeches();
+    this.eclipseLight();
     this.sortCameras();
 
     const cat = new Phaser.Math.Vector2(this.player.x, this.player.y);
@@ -1533,26 +1531,38 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
-   * Landed on the Moon while it is in the Earth's shadow: the ground in the
-   * deep red light of an eclipse, as deep as it was out in space. Only what
-   * stands on the Moon -- dust, rocks, robots, the cat -- not the sky:
-   * the stars and planets are lit by nothing of the Earth's. So the sky
-   * goes to a camera of its own, drawn first, and the main camera, with
-   * everything else, gets the red as a colour filter over its picture. The
-   * HUD goes to the HUD camera (`buildHudCamera`) to stay out of it.
+   * On the Moon while it is in the Earth's shadow: the ground in the deep
+   * red, dark light of an eclipse, as deep as the eclipse is right now
+   * (`eclipseDepth`, on the same clock as space) -- so staying long enough
+   * on the Moon, one comes over it, darkens to nearly black-red and goes.
+   * Only what stands on the Moon -- dust, rocks, robots, the cat -- not the
+   * sky: the stars and planets are lit by nothing of the Earth's. So once
+   * an eclipse starts the sky goes to a camera of its own, drawn first, and
+   * the main camera, with everything else, gets the red as a colour filter
+   * over its picture; the HUD goes to the HUD camera to stay out of it.
+   * Every frame.
    */
   private eclipseLight(): void {
-    if (this.level.theme !== 'moon' || !this.eclipse) {
+    if (this.level.theme !== 'moon' || this.level.inside || this.titleMode) {
       return;
     }
-    const sky = this.cameras.add(0, 0, GAME_WIDTH, GAME_HEIGHT);
-    const order = this.cameras.cameras;
-    order.splice(order.indexOf(sky), 1);
-    order.unshift(sky);
-    this.skyCamera = sky;
+    const depth = eclipseDepth(this.game.loop.time);
+    if (!this.eclipseFilter) {
+      if (depth <= 0) {
+        return;
+      }
+      const sky = this.cameras.add(0, 0, GAME_WIDTH, GAME_HEIGHT);
+      const order = this.cameras.cameras;
+      order.splice(order.indexOf(sky), 1);
+      order.unshift(sky);
+      this.skyCamera = sky;
+      this.hudCamera ??= this.cameras.add(0, 0, GAME_WIDTH, GAME_HEIGHT);
+      this.eclipseFilter = this.cameras.main.filters.internal.addColorMatrix().colorMatrix;
+      this.sortCameras();
+    }
     const light = Phaser.Display.Color.IntegerToColor(ECLIPSE.light);
-    const [r, g, b] = [light.red, light.green, light.blue].map((channel) => 1 - this.eclipse! * (1 - channel / 255));
-    this.cameras.main.filters.internal.addColorMatrix().colorMatrix.set([
+    const [r, g, b] = [light.red, light.green, light.blue].map((channel) => 1 - depth * (1 - channel / 255));
+    this.eclipseFilter.set([
       r, 0, 0, 0, 0,
       0, g, 0, 0, 0,
       0, 0, b, 0, 0,
@@ -3577,7 +3587,7 @@ export class GameScene extends Phaser.Scene {
    * that does not zoom draws those, and the main one everything else.
    */
   private buildHudCamera(): void {
-    if ((!this.level.inside && !this.skyCamera) || this.titleMode) {
+    if (!this.level.inside || this.titleMode) {
       return;
     }
     this.hudCamera = this.cameras.add(0, 0, GAME_WIDTH, GAME_HEIGHT);

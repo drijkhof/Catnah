@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { addPlanetLight, faceTheSun } from '../world/planetLight';
-import { BAR, CHASE, EARTH_GLOBE, ISS_CRASH, GAME_HEIGHT, GAME_WIDTH, LASER, LIVES, PARTS, PLANET_SIZE_KEEP, REAL_PLANET_SIZE, SPACE, TILE } from '../config';
+import { BAR, CHASE, EARTH_GLOBE, ISS_CRASH, GAME_HEIGHT, GAME_WIDTH, LASER, LIVES, PARTS, REAL_PLANET_SIZE, SPACE, TILE } from '../config';
 import { LEVELS } from '../level/levels';
 import { Controls } from '../input/Controls';
 import { CHASE_DETAIL, ROCKET_DETAIL, HEAD_IN_POSE, STATION_PHOTO, STATION_SIZE, PLANET_DISCS, STARFIELD_SIZE, SPACE_SUN_SIZE, createRandom, type PlanetName } from '../art';
@@ -13,6 +13,7 @@ import { FuelMeter } from '../fuelMeter';
 import { installFuelShortcut } from '../dev/fuelShortcut';
 import { GOD_MODE_KEY } from '../dev/godMode';
 import { EGG_RADAR_KEY } from '../dev/fuelShortcut';
+import { EARTH_ORBIT, MOON_ORBIT, eclipseDepth, globeOf } from '../world/eclipse';
 
 /** What a run carries from level to level, passed straight through this scene. */
 interface Carry {
@@ -40,8 +41,6 @@ interface Carry {
   barClosed?: boolean;
   /** The ISS came down on the Earth, at this angle round it, radians: gone for the run, and a crater there. */
   issDown?: number;
-  /** How deep the Moon is in the Earth's shadow as the cat lands on it, 0 to 1: the Moon level is eclipsed too. */
-  eclipse?: number;
 }
 
 /** A world out here: its orbit, how big, and which level it is. */
@@ -57,11 +56,6 @@ interface World {
   angle: number;
 }
 
-/** A world's globe across, px, out here: see `REAL_PLANET_SIZE`. */
-function globeOf(name: keyof typeof REAL_PLANET_SIZE): number {
-  return EARTH_GLOBE * Math.pow(REAL_PLANET_SIZE[name], PLANET_SIZE_KEEP);
-}
-
 /**
  * Every world, going round the sun in the middle -- in the right order, at
  * distances squeezed to fit, and taking the real number of Earth years for
@@ -71,8 +65,8 @@ function globeOf(name: keyof typeof REAL_PLANET_SIZE): number {
  * open and its level starts.
  */
 const WORLDS: World[] = [
-  { name: 'earth', level: '', orbit: 820, years: 1, angle: 0.6 },
-  { name: 'moon', level: 'Moon', orbit: 250, years: 0, angle: -0.5 },
+  { name: 'earth', level: '', ...EARTH_ORBIT },
+  { name: 'moon', level: 'Moon', years: 0, ...MOON_ORBIT },
   { name: 'venus', level: 'Venus', orbit: 330, years: 0.615, angle: 2.4 },
   { name: 'mars', level: 'Mars', orbit: 1250, years: 1.88, angle: -0.9 },
   { name: 'jupiter', level: 'Jupiter', orbit: 1900, years: 11.86, angle: 0.3 },
@@ -116,8 +110,6 @@ export class SpaceScene extends Phaser.Scene {
   private burning = false;
   /** Arrows at the edge of the screen, pointing at the open worlds out of sight. */
   private arrows!: Phaser.GameObjects.Graphics;
-  /** How deep the Moon is in the Earth's shadow right now, 0 to 1 (`eclipses`). */
-  private eclipse = 0;
   /** The battle station, and the line that comes up when the cat is near it. */
   private station!: Phaser.GameObjects.Image;
   private stationWords!: CrispText;
@@ -792,16 +784,14 @@ export class SpaceScene extends Phaser.Scene {
     const side = toMoon.clone().subtract(sunward.clone().scale(along));
     const off = side.length();
 
-    // Into the Earth's shadow: none at all once clear of it, all of it once
-    // the whole Moon is inside.
-    const into = along > 0 ? Phaser.Math.Clamp((earth.radius + moon.radius - off) / (2 * moon.radius), 0, 1) : 0;
+    // Into the Earth's shadow (`eclipseDepth`, which the Moon level reads too).
+    const into = eclipseDepth(this.clock);
     const red = Phaser.Display.Color.Interpolate.ColorWithColor(
       Phaser.Display.Color.ValueToColor(0xffffff),
       Phaser.Display.Color.ValueToColor(0x8a3424),
       100,
       Math.round(into * 100),
     );
-    this.eclipse = into;
     moon.image.setTint(Phaser.Display.Color.GetColor(red.r, red.g, red.b));
     moon.light?.setAlpha(1 - into * 0.6);
 
@@ -1240,8 +1230,6 @@ export class SpaceScene extends Phaser.Scene {
         this.scene.start('Game', {
           ...this.carry,
           levelIndex: Math.max(0, LEVELS.findIndex((level) => level.name === levelName)),
-          // Landing on the Moon in the Earth's shadow: its level is in it too.
-          eclipse: levelName === 'Moon' && this.eclipse > 0 ? this.eclipse : undefined,
         }),
     });
   }

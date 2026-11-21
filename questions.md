@@ -2622,8 +2622,10 @@ worked out in the background while the levels before it are played.
 
 ## The Moon level in an eclipse
 
-Decided: landing on the Moon while it is in the Earth's shadow eclipses its
-level for that visit, as deep as it was on landing; it does not change
-while you play. Only the ground goes red, as asked: the sky has its own
-camera. In the sky the Earth is dark with a red-orange ring, the sun
-behind it.
+Decided with the user: the eclipse goes on in the Moon level at the same
+moment as in space, so it can come over you while you play. Only the
+ground goes red (the sky has its own camera), to a dark red, not black
+(`ECLIPSE.light`). It lasts what space's orbits make it, about half a
+minute every 200 s (11 s darkening); slower would mean changing the
+Moon's orbit in space too. In the sky the Earth is dark with a red-orange
+ring, the sun behind it.

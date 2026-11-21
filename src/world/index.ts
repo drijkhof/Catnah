@@ -27,8 +27,6 @@ export function createBackdrop(
   levelWidth: number,
   groundLine: number,
   levelHeight: number,
-  /** On the Moon, how deep in an eclipse it is, 0 to 1 (see `MoonBackdrop`). */
-  eclipse = 0,
 ): void {
   switch (theme) {
     case 'cave':
@@ -57,7 +55,7 @@ export function createBackdrop(
     case 'uranus':
     case 'neptune':
     case 'pluto':
-      new MoonBackdrop(scene, theme, level, levelWidth, groundLine, eclipse);
+      new MoonBackdrop(scene, theme, level, levelWidth, groundLine);
       break;
     case 'youtube':
     case 'insta':

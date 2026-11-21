@@ -41,8 +41,11 @@ off the display list with only their bodies, costing nothing per frame.
   it (a world never has itself in its own sky), a range of landmarks on the
   horizon (ice spires, mesas, cloud towers, volcanoes; pale textures tinted
   per world), two ranks of tinted hills rooted on the ground line, and
-  rocks or crystals scattered on the floor. On the Moon during an eclipse
-  (`eclipse`, passed in from space) its Earth is dark, ringed in red.
+  rocks or crystals scattered on the floor. On the Moon its Earth goes dark,
+  ringed in red, during an eclipse (`eclipseDepth`, every frame).
+- `eclipse.ts` — `eclipseDepth(t)`: how deep the Moon is in the Earth's
+  shadow at a moment of the game clock, shared by space and the Moon
+  level; also `globeOf` and the Earth's and Moon's orbits.
 - `planetLight.ts` — `addPlanetLight` lays the sunlight over a planet's
   picture (and its ring's near half over that); `faceTheSun` turns it to
   wherever the sun is. Used in space every frame and in `MoonBackdrop`'s skies.

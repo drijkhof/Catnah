@@ -649,8 +649,8 @@ export const OBSTACLES = {
  * shadow, lit only by the red of every sunset on Earth at once.
  */
 export const ECLIPSE = {
-  /** The light the ground is multiplied by at a total eclipse, less at a partial one. */
-  light: 0x9a4a36,
+  /** The light the ground is multiplied by at a total eclipse, less at a partial one: dark, not black. */
+  light: 0x5c2418,
   /** At this depth and behind is the sky (stars, planets, the Earth's red ring), which keeps its colour. */
   skyDepth: -94,
   /** The Earth in the sky, dark, with the sun behind it. */
